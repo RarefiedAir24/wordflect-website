@@ -5,14 +5,14 @@ const PrivacyPolicy = () => (
     <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
     <p className="mb-4">Last updated: July 2025</p>
     <p className="mb-4">
-      This Privacy Policy describes how Wordflect ("we", "us", or "our") collects, uses, and shares your information when you use our website and mobile app (the "Service").
+      This Privacy Policy describes how Wordflect (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, and shares your information when you use our website and mobile app (the &quot;Service&quot;).
     </p>
     <h2 className="text-xl font-semibold mt-6 mb-2">1. Information We Collect</h2>
     <ul className="list-disc list-inside mb-4">
       <li><b>Account Information:</b> When you sign up, we collect your email, username, and password (encrypted).</li>
       <li><b>Usage Data:</b> We collect information about how you use the Service, including game progress, achievements, and device information.</li>
       <li><b>In-App Purchases:</b> If you make purchases, we collect transaction data (but not your full payment details, which are handled securely by the App Store).</li>
-      <li><b>Cookies & Analytics:</b> We use cookies and analytics tools to improve the Service.</li>
+      <li><b>Cookies &amp; Analytics:</b> We use cookies and analytics tools to improve the Service.</li>
     </ul>
     <h2 className="text-xl font-semibold mt-6 mb-2">2. How We Use Your Information</h2>
     <ul className="list-disc list-inside mb-4">
@@ -30,17 +30,17 @@ const PrivacyPolicy = () => (
     </ul>
     <h2 className="text-xl font-semibold mt-6 mb-2">4. In-App Purchases</h2>
     <p className="mb-4">
-      All in-app purchases are processed securely through the Apple App Store. We do not store your payment card details. Please review Apple's privacy and payment policies for more information.
+      All in-app purchases are processed securely through the Apple App Store. We do not store your payment card details. Please review Apple&apos;s privacy and payment policies for more information.
     </p>
     <h2 className="text-xl font-semibold mt-6 mb-2">5. Data Security</h2>
     <p className="mb-4">
       We use industry-standard security measures to protect your data. However, no method of transmission or storage is 100% secure.
     </p>
-    <h2 className="text-xl font-semibold mt-6 mb-2">6. Children's Privacy</h2>
+    <h2 className="text-xl font-semibold mt-6 mb-2">6. Children&apos;s Privacy</h2>
     <p className="mb-4">
       The Service is not intended for children under 13. We do not knowingly collect personal information from children under 13.
     </p>
-    <h2 className="text-xl font-semibold mt-6 mb-2">7. Your Rights & Choices</h2>
+    <h2 className="text-xl font-semibold mt-6 mb-2">7. Your Rights &amp; Choices</h2>
     <ul className="list-disc list-inside mb-4">
       <li>You may access, update, or delete your account information at any time.</li>
       <li>You may opt out of marketing emails by following the unsubscribe link.</li>
