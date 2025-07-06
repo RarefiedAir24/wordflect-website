@@ -23,7 +23,8 @@ export default function Home() {
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showPrivacyBar, setShowPrivacyBar] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   useEffect(() => {
     // Only run on client
@@ -47,27 +48,58 @@ export default function Home() {
 
     checkAuth();
 
-    // Show privacy modal if not accepted
+    // Show privacy bar if not accepted
     if (typeof window !== 'undefined' && !localStorage.getItem('privacyAccepted')) {
-      setShowPrivacy(true);
+      setShowPrivacyBar(true);
     }
   }, []);
 
   const handleAcceptPrivacy = () => {
     localStorage.setItem('privacyAccepted', 'true');
-    setShowPrivacy(false);
+    setShowPrivacyBar(false);
+    setShowPrivacyModal(false);
+  };
+
+  const handleShowPolicy = () => {
+    setShowPrivacyModal(true);
+  };
+
+  const handleClosePolicy = () => {
+    setShowPrivacyModal(false);
   };
 
   return (
     <div className="relative min-h-screen flex flex-col bg-gradient-to-br from-purple-900 via-blue-900 to-black overflow-hidden">
-      {/* Privacy Policy Modal */}
-      {showPrivacy && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
-          <div className="relative w-full max-w-2xl mx-auto p-0">
-            <div className="bg-white rounded-2xl shadow-2xl overflow-y-auto max-h-[80vh] animate-fade-in">
+      {/* Privacy Policy Bottom Bar */}
+      {showPrivacyBar && (
+        <div className="fixed bottom-0 left-0 w-full z-50 flex justify-center animate-fade-in">
+          <div className="m-4 px-6 py-4 rounded-2xl shadow-xl bg-gray-900 bg-opacity-95 text-white flex flex-col sm:flex-row items-center gap-4 max-w-2xl w-full">
+            <span className="flex-1 text-center sm:text-left text-base">
+              We use cookies and collect data to improve your experience.{' '}
               <button
-                onClick={handleAcceptPrivacy}
-                className="absolute top-3 right-3 text-gray-500 hover:text-red-500 text-2xl font-bold focus:outline-none"
+                onClick={handleShowPolicy}
+                className="underline text-blue-300 hover:text-blue-400 font-semibold focus:outline-none"
+              >
+                Read our Privacy Policy
+              </button>.
+            </span>
+            <button
+              onClick={handleAcceptPrivacy}
+              className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow hover:scale-105 transition-all duration-150 text-base"
+            >
+              Accept
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Privacy Policy Modal */}
+      {showPrivacyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm">
+          <div className="relative w-full max-w-2xl mx-auto p-0">
+            <div className="bg-gray-900 rounded-2xl shadow-2xl overflow-y-auto max-h-[80vh] animate-fade-in text-white">
+              <button
+                onClick={handleClosePolicy}
+                className="absolute top-3 right-3 text-gray-400 hover:text-red-400 text-2xl font-bold focus:outline-none"
                 aria-label="Close Privacy Policy"
               >
                 &times;
