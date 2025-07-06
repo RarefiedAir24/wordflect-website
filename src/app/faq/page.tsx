@@ -56,10 +56,10 @@ const sections = [
         <p><b>Belt Level:</b> Your colored belt badge shows your current level and progress. Level up to unlock new belts and show off your experience! Belts change color as you advance (white, yellow, green, blue, purple, brown, black). Your level number is shown inside the badge. 🥋</p>
         <p className="font-semibold">Stats Explained:</p>
         <ul className="list-disc list-inside mb-2">
-          <li><b>Games Played:</b> Total games you've started.</li>
+          <li><b>Games Played:</b> Total games you&apos;ve started.</li>
           <li><b>Top Score:</b> Your highest single-game score.</li>
           <li><b>Words Found:</b> Total unique words discovered.</li>
-          <li><b>Longest Word:</b> The longest word you've found.</li>
+          <li><b>Longest Word:</b> The longest word you&apos;ve found.</li>
           <li><b>Podium Finishes:</b> 🥇🥈🥉 1st, 2nd, and 3rd place finishes in monthly leaderboards.</li>
           <li><b>Battle Stats:</b> Track your battle wins and losses.</li>
         </ul>
