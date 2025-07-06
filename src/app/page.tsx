@@ -12,10 +12,15 @@ interface Sparkle {
   delay: number;
 }
 
+interface User {
+  username?: string;
+  // Add other fields as needed
+}
+
 export default function Home() {
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     // Only run on client
