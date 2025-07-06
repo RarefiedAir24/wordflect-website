@@ -2,6 +2,8 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { apiService } from "@/services/api";
+import dynamic from "next/dynamic";
+const PrivacyPolicy = dynamic(() => import("./privacy-policy"), { ssr: false });
 
 // Sparkle type for TypeScript
 interface Sparkle {
@@ -21,6 +23,7 @@ export default function Home() {
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [showPrivacy, setShowPrivacy] = useState(false);
 
   useEffect(() => {
     // Only run on client
@@ -43,10 +46,46 @@ export default function Home() {
     };
 
     checkAuth();
+
+    // Show privacy modal if not accepted
+    if (typeof window !== 'undefined' && !localStorage.getItem('privacyAccepted')) {
+      setShowPrivacy(true);
+    }
   }, []);
+
+  const handleAcceptPrivacy = () => {
+    localStorage.setItem('privacyAccepted', 'true');
+    setShowPrivacy(false);
+  };
 
   return (
     <div className="relative min-h-screen flex flex-col bg-gradient-to-br from-purple-900 via-blue-900 to-black overflow-hidden">
+      {/* Privacy Policy Modal */}
+      {showPrivacy && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
+          <div className="relative w-full max-w-2xl mx-auto p-0">
+            <div className="bg-white rounded-2xl shadow-2xl overflow-y-auto max-h-[80vh] animate-fade-in">
+              <button
+                onClick={handleAcceptPrivacy}
+                className="absolute top-3 right-3 text-gray-500 hover:text-red-500 text-2xl font-bold focus:outline-none"
+                aria-label="Close Privacy Policy"
+              >
+                &times;
+              </button>
+              <PrivacyPolicy />
+              <div className="flex justify-center pb-6">
+                <button
+                  onClick={handleAcceptPrivacy}
+                  className="mt-4 px-8 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow hover:scale-105 transition-all duration-150 text-lg"
+                >
+                  I Accept
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Animated background sparkles (client only) */}
       <div className="absolute inset-0 z-0 pointer-events-none animate-bg-move">
         <svg width="100%" height="100%" className="w-full h-full opacity-30">
