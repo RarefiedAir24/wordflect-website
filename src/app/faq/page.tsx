@@ -84,7 +84,7 @@ const sections = [
     title: "Store",
     content: (
       <div>
-        <p>Buy gems to unlock frames, themes, and more. Customize the app's appearance with different color schemes. 🛒</p>
+        <p>Buy gems to unlock frames, themes, and more. Customize the app&apos;s appearance with different color schemes. 🛒</p>
         <ul className="list-disc list-inside">
           <li>Go to the <b>Store</b> from the main menu.</li>
           <li>Select a gem pack or theme and complete your purchase using your app store account.</li>
