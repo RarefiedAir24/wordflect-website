@@ -119,11 +119,6 @@ export default function Profile() {
               <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
                 Level {profile.highestLevel}
               </span>
-              {profile.selectedFrame && (
-                <span className="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  {profile.selectedFrame.name}
-                </span>
-              )}
             </div>
           </div>
         </div>
