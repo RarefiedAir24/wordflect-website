@@ -1,103 +1,149 @@
+"use client";
 import Image from "next/image";
+import React, { useEffect, useState } from "react";
+import { apiService } from "@/services/api";
+
+// Sparkle type for TypeScript
+interface Sparkle {
+  cx: number;
+  cy: number;
+  r: number;
+  duration: number;
+  delay: number;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [sparkles, setSparkles] = useState<Sparkle[]>([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  useEffect(() => {
+    // Only run on client
+    const newSparkles: Sparkle[] = Array.from({ length: 18 }).map(() => ({
+      cx: Math.random() * 100, // percent
+      cy: Math.random() * 100, // percent
+      r: Math.random() * 60 + 20, // px
+      duration: Math.random() * 6 + 6, // 6-12s
+      delay: Math.random() * 6, // 0-6s
+    }));
+    setSparkles(newSparkles);
+
+    // Check authentication status
+    const checkAuth = () => {
+      const authenticated = apiService.isAuthenticated();
+      setIsAuthenticated(authenticated);
+      if (authenticated) {
+        setUser(apiService.getStoredUser());
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  return (
+    <div className="relative min-h-screen flex flex-col bg-gradient-to-br from-purple-900 via-blue-900 to-black overflow-hidden">
+      {/* Animated background sparkles (client only) */}
+      <div className="absolute inset-0 z-0 pointer-events-none animate-bg-move">
+        <svg width="100%" height="100%" className="w-full h-full opacity-30">
+          <defs>
+            <radialGradient id="sparkle" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#fff" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          {sparkles.map((s, i) => (
+            <circle
+              key={i}
+              cx={s.cx + "%"}
+              cy={s.cy + "%"}
+              r={s.r}
+              fill="url(#sparkle)"
+              style={{
+                animation: `sparkleMove ${s.duration}s ease-in-out ${s.delay}s infinite alternate`,
+              }}
+              className="sparkle-anim"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          ))}
+        </svg>
+      </div>
+
+      {/* Navigation Bar */}
+      <nav className="relative z-10 flex justify-between items-center p-6 bg-black bg-opacity-20 backdrop-blur-sm">
+        <div className="flex items-center gap-3">
+          <Image src="/wordflect-icon.png" alt="Wordflect Logo" width={40} height={40} className="rounded-lg" />
+          <span className="text-2xl font-bold text-white tracking-wide hidden sm:inline">Wordflect</span>
         </div>
+        <div className="flex gap-8 text-white font-medium text-lg">
+          <a href="#" className="hover:text-blue-300 transition">News</a>
+          <a href="/faq" className="hover:text-blue-300 transition">FAQ</a>
+          <a href="/tips" className="hover:text-blue-300 transition">Tips</a>
+        </div>
+        <div className="flex gap-4 items-center">
+          {isAuthenticated ? (
+            <div className="flex items-center gap-3">
+              <span className="text-white text-sm hidden sm:block">
+                Welcome, {user?.username || "User"}!
+              </span>
+              <a href="/profile">
+                <button className="px-5 py-2 rounded-full bg-gradient-to-r from-green-500 to-blue-500 text-white font-bold shadow hover:scale-105 transition-all duration-150">
+                  My Profile
+                </button>
+              </a>
+            </div>
+          ) : (
+            <a href="/signin">
+              <button className="px-5 py-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow hover:scale-105 transition-all duration-150">
+                Sign In
+              </button>
+            </a>
+          )}
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4">
+        <div className="bg-black p-2 rounded-lg mb-6 drop-shadow-2xl animate-bounce-slow inline-block">
+          <Image
+            src="/wordflect-icon.png"
+            alt="Wordflect App Icon"
+            width={120}
+            height={120}
+            priority
+          />
+        </div>
+        <h1 className="text-5xl sm:text-7xl font-extrabold text-white tracking-widest mb-2 animate-text-glow text-center">
+          WORDFLECT
+        </h1>
+        <div className="flex flex-col items-center mb-8">
+          <span className="text-2xl sm:text-3xl font-bold text-white mb-1 animate-fade-in text-center">Reflect. Connect. Win.</span>
+          <span className="text-base sm:text-lg text-blue-100 font-light animate-fade-in text-center max-w-xl">A word creation game providing stress relief, enhancing cognitive skills, and fostering social connections.</span>
+        </div>
+        <a
+          id="download"
+          href="#"
+          className="flex items-center gap-3 px-7 py-3 rounded-2xl bg-gradient-to-r from-gray-900 via-black to-gray-800 text-white font-semibold text-lg shadow-lg border border-gray-600 hover:shadow-xl hover:scale-105 transition-all duration-200 animate-fade-in"
+          style={{ minWidth: 260 }}
+        >
+          <Image src="/apple-logo.svg" alt="Apple logo" width={28} height={28} className="invert" />
+          <span className="flex flex-col items-start leading-tight">
+            <span className="text-base font-bold text-white">Download on the Apple Store</span>
+          </span>
+        </a>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
+
+// Tailwind custom animations (add to globals.css):
+// .animate-bg-move { animation: bgMove 20s linear infinite alternate; }
+// .animate-bounce-slow { animation: bounce 2.5s infinite; }
+// .animate-text-glow { text-shadow: 0 0 16px #a78bfa, 0 0 32px #60a5fa; animation: glow 2s ease-in-out infinite alternate; }
+// .animate-fade-in { animation: fadeIn 1.5s ease; }
+// @keyframes bgMove { 0% { background-position: 0 0; } 100% { background-position: 100% 100%; } }
+// @keyframes glow { 0% { text-shadow: 0 0 16px #a78bfa, 0 0 32px #60a5fa; } 100% { text-shadow: 0 0 32px #a78bfa, 0 0 64px #60a5fa; } }
+// @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+// @keyframes sparkleMove {
+//   0% { transform: translateY(0) scale(1); opacity: 1; }
+//   100% { transform: translateY(-40px) scale(1.2); opacity: 0.7; }
+// }
+// .sparkle-anim { will-change: transform, opacity; }

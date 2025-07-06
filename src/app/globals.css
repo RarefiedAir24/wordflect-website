@@ -24,3 +24,38 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Custom Animations for Hero Section */
+@layer utilities {
+  .animate-bg-move {
+    animation: bgMove 20s linear infinite alternate;
+  }
+  .animate-bounce-slow {
+    animation: bounce 2.5s infinite;
+  }
+  .animate-text-glow {
+    text-shadow: 0 0 16px #a78bfa, 0 0 32px #60a5fa;
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  .animate-fade-in {
+    animation: fadeIn 1.5s ease;
+  }
+  .sparkle-anim { will-change: transform, opacity; }
+}
+
+@keyframes bgMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 100% 100%; }
+}
+@keyframes glow {
+  0% { text-shadow: 0 0 16px #a78bfa, 0 0 32px #60a5fa; }
+  100% { text-shadow: 0 0 32px #a78bfa, 0 0 64px #60a5fa; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes sparkleMove {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-40px) scale(1.2); opacity: 0.7; }
+}
