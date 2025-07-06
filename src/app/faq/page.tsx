@@ -74,7 +74,7 @@ const sections = [
         <p>Unlock and select unique frames to decorate your avatar. 🖼️</p>
         <ul className="list-disc list-inside">
           <li><b>Level up</b> your account, complete special missions, or purchase frames in the Store.</li>
-          <li>Go to your <b>Profile</b> and tap <b>'Manage Frames'</b> to view and select available frames.</li>
+          <li>Go to your <b>Profile</b> and tap <b>&apos;Manage Frames&apos;</b> to view and select available frames.</li>
         </ul>
         <p>Show off your style and achievements with every game! ✨</p>
       </div>
