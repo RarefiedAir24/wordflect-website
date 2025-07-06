@@ -15,10 +15,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Wordflect",
   description: "Wordflect - Word Search Game",
-  icons: {
-    icon: "/wordflect-icon.png",
-    apple: "/wordflect-icon.png",
-  },
 };
 
 export default function RootLayout({
