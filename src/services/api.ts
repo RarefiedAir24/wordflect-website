@@ -26,7 +26,7 @@ export interface UserProfile {
   flectcoins: number;
   points: number;
   gems: number;
-  allFoundWords: string[];
+  allFoundWords: (string | { word: string; date?: string })[];
   selectedFrame?: {
     id: string;
     name: string;

@@ -188,12 +188,12 @@ export default function Profile() {
           <div className="bg-white rounded-lg p-4 shadow">
             <h3 className="font-bold text-lg mb-4">Recent Words Found</h3>
             <div className="flex flex-wrap gap-2">
-              {profile.allFoundWords.slice(-10).map((word, index) => (
+              {profile.allFoundWords.slice(-10).map((item, index) => (
                 <span
                   key={index}
                   className="bg-blue-200 text-blue-800 px-2 py-1 rounded text-sm"
                 >
-                  {word}
+                  {typeof item === 'string' ? item : item.word}
                 </span>
               ))}
             </div>
