@@ -3,6 +3,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { apiService } from "@/services/api";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 const PrivacyPolicy = dynamic(() => import("./privacy/page"), { ssr: false });
 
 // Sparkle type for TypeScript
@@ -151,7 +152,7 @@ export default function Home() {
           <span className="text-2xl font-bold text-white tracking-wide hidden sm:inline">Wordflect</span>
         </div>
         <div className="flex gap-8 text-white font-medium text-lg">
-          <a href="#" className="hover:text-blue-300 transition">News</a>
+          <Link href="/news" className="hover:text-blue-300 transition">News</Link>
           <a href="/faq" className="hover:text-blue-300 transition">FAQ</a>
           <a href="/tips" className="hover:text-blue-300 transition">Tips</a>
           <a href="/support" className="hover:text-blue-300 transition">Support</a>
