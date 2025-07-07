@@ -1,11 +1,12 @@
 import React from "react";
+import Link from "next/link";
 
 const PrivacyPolicy = () => (
   <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg text-gray-900">
     <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
     <p className="mb-4">Last updated: July 2025</p>
     <p className="mb-4">
-      This Privacy Policy describes how Wordflect ("we", "us", or "our") collects, uses, and shares your information when you use our website and mobile app (the "Service").
+      This Privacy Policy describes how Wordflect (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, and shares your information when you use our website and mobile app (the &quot;Service&quot;).
     </p>
     <h2 className="text-xl font-semibold mt-6 mb-2">1. Information We Collect</h2>
     <ul className="list-disc list-inside mb-4">
@@ -55,9 +56,9 @@ const PrivacyPolicy = () => (
       If you have any questions about this Privacy Policy, please contact us at <a href="mailto:support@wordflect.com" className="text-blue-600 underline">support@wordflect.com</a>.
     </p>
     <div className="flex justify-center mt-8">
-      <a href="/" className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow hover:scale-105 transition-all duration-150 text-lg">
+      <Link href="/" className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow hover:scale-105 transition-all duration-150 text-lg">
         Back to Home
-      </a>
+      </Link>
     </div>
   </div>
 );
