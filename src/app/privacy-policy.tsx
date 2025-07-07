@@ -5,7 +5,7 @@ const PrivacyPolicy = () => (
     <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
     <p className="mb-4">Last updated: July 2025</p>
     <p className="mb-4">
-      This Privacy Policy describes how Wordflect (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, and shares your information when you use our website and mobile app (the &quot;Service&quot;).
+      This Privacy Policy describes how Montebay Innovations, LLC (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, and shares your information when you use our website and mobile app (the &quot;Service&quot;).
     </p>
     <h2 className="text-xl font-semibold mt-6 mb-2">1. Information We Collect</h2>
     <ul className="list-disc list-inside mb-4">
@@ -44,7 +44,7 @@ const PrivacyPolicy = () => (
     <ul className="list-disc list-inside mb-4">
       <li>You may access, update, or delete your account information at any time.</li>
       <li>You may opt out of marketing emails by following the unsubscribe link.</li>
-      <li>Contact us at <a href="mailto:support@wordflect.com" className="text-blue-600 underline">support@wordflect.com</a> for privacy questions.</li>
+      <li>Contact us at <a href="mailto:Contact@montebay.io" className="text-blue-600 underline">Contact@montebay.io</a> for privacy questions.</li>
     </ul>
     <h2 className="text-xl font-semibold mt-6 mb-2">8. Changes to This Policy</h2>
     <p className="mb-4">
@@ -52,7 +52,7 @@ const PrivacyPolicy = () => (
     </p>
     <h2 className="text-xl font-semibold mt-6 mb-2">9. Contact Us</h2>
     <p>
-      If you have any questions about this Privacy Policy, please contact us at <a href="mailto:support@wordflect.com" className="text-blue-600 underline">support@wordflect.com</a>.
+      If you have any questions about this Privacy Policy, please contact us at <a href="mailto:Contact@montebay.io" className="text-blue-600 underline">Contact@montebay.io</a>.
     </p>
   </div>
 );
