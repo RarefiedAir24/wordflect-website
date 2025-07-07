@@ -54,6 +54,11 @@ const PrivacyPolicy = () => (
     <p>
       If you have any questions about this Privacy Policy, please contact us at <a href="mailto:Contact@montebay.io" className="text-blue-600 underline">Contact@montebay.io</a>.
     </p>
+    <div className="flex justify-center mt-8">
+      <a href="/" className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow hover:scale-105 transition-all duration-150 text-lg">
+        Back to Home
+      </a>
+    </div>
   </div>
 );
 
