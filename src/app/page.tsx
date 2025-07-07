@@ -25,6 +25,7 @@ export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [showPrivacyBar, setShowPrivacyBar] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
 
   useEffect(() => {
     // Only run on client
@@ -198,6 +199,10 @@ export default function Home() {
         <a
           id="download"
           href="#"
+          onClick={e => {
+            e.preventDefault();
+            setShowDownloadModal(true);
+          }}
           className="flex items-center gap-3 px-7 py-3 rounded-2xl bg-gradient-to-r from-gray-900 via-black to-gray-800 text-white font-semibold text-lg shadow-lg border border-gray-600 hover:shadow-xl hover:scale-105 transition-all duration-200 animate-fade-in"
           style={{ minWidth: 260 }}
         >
@@ -206,6 +211,20 @@ export default function Home() {
             <span className="text-base font-bold text-white">Download on the Apple Store</span>
           </span>
         </a>
+        {showDownloadModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm">
+            <div className="bg-gray-900 rounded-2xl shadow-2xl p-8 max-w-md mx-auto text-white animate-fade-in">
+              <h2 className="text-2xl font-bold mb-4">Coming Soon</h2>
+              <p className="mb-6">App coming soon to the App Store.<br/>For beta access, contact <a href='mailto:support@wordflect.com' className='underline text-blue-300'>support@wordflect.com</a>.</p>
+              <button
+                onClick={() => setShowDownloadModal(false)}
+                className="mt-2 px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow hover:scale-105 transition-all duration-150"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
