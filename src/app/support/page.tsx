@@ -144,7 +144,7 @@ export default function Support() {
                   name="subject"
                   value={formData.subject}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 rounded-lg border border-blue-400 bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  className="w-full px-4 py-3 rounded-lg border border-blue-400 bg-white text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                   required
                   disabled={isSubmitting}
                 >
@@ -155,6 +155,14 @@ export default function Support() {
                   <option value="bug">Bug Report</option>
                   <option value="general">General Inquiry</option>
                 </select>
+                {/* Static list of topics for user reference */}
+                <ul className="mt-2 text-blue-200 text-sm list-disc list-inside">
+                  <li>Technical Support</li>
+                  <li>Billing & Payments</li>
+                  <li>Feature Request</li>
+                  <li>Bug Report</li>
+                  <li>General Inquiry</li>
+                </ul>
               </div>
 
               <div>
