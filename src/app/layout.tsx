@@ -46,8 +46,10 @@ export default function RootLayout({
               <a href="/terms" className="hover:text-blue-300 transition">Terms</a>
               <a href="/support" className="hover:text-blue-300 transition">Support</a>
             </div>
-            <div className="text-sm text-gray-400 text-center w-full mt-4">
-              © {new Date().getFullYear()} Wordflect Team. support@wordflect.com
+            <div className="w-full flex flex-col items-center mt-4">
+              <div className="text-sm text-gray-400 text-center">
+                © 2025 Montebay LL. contact@montebay.io
+              </div>
             </div>
           </div>
         </footer>
