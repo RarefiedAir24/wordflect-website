@@ -55,8 +55,14 @@ const PrivacyPolicy = () => (
     <p>
       If you have any questions about this Privacy Policy, please contact us at <a href="mailto:support@wordflect.com" className="text-blue-600 underline">support@wordflect.com</a>.
     </p>
-    <div className="flex justify-center mt-8">
-      <Link href="/" className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold shadow hover:scale-105 transition-all duration-150 text-lg">
+    <div className="text-center mt-12">
+      <Link 
+        href="/"
+        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-800 text-white font-bold rounded-lg hover:scale-105 transition-all duration-150 border border-gray-600"
+      >
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" strokeWidth="2" d="m15 18-6-6 6-6"/>
+        </svg>
         Back to Home
       </Link>
     </div>

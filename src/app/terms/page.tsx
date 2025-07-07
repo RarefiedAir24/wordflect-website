@@ -23,8 +23,11 @@ const Terms = () => (
     <p className="mb-4">We may update these Terms from time to time. We will notify you of significant changes by posting the new Terms on this page. Your continued use of the Service after changes means you accept the new Terms.</p>
     <h2 className="text-xl font-semibold mt-6 mb-2">9. Contact Us</h2>
     <p className="mb-4">If you have any questions about these Terms, please contact us at <a href="mailto:support@wordflect.com" className="text-blue-600 underline">support@wordflect.com</a>.</p>
-    <div className="text-center mt-10">
-      <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-800 text-white font-bold rounded-lg hover:scale-105 transition-all duration-150 border border-gray-600">
+    <div className="text-center mt-12">
+      <Link 
+        href="/"
+        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-800 text-white font-bold rounded-lg hover:scale-105 transition-all duration-150 border border-gray-600"
+      >
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
           <path stroke="currentColor" strokeWidth="2" d="m15 18-6-6 6-6"/>
         </svg>
