@@ -48,7 +48,7 @@ export default function RootLayout({
             </div>
             <div className="w-full flex flex-col items-center mt-4">
               <div className="text-sm text-gray-400 text-center">
-                © 2025 Montebay LL. contact@montebay.io
+                © 2025 Montebay Innovations, LLC. Contact@montebay.io
               </div>
             </div>
           </div>
