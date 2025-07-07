@@ -43,7 +43,7 @@ export default function RootLayout({
               <span className="font-bold text-lg text-white">Wordflect</span>
             </div>
             <div className="flex gap-6 text-gray-300 text-sm mt-2">
-              <a href="/privacy-policy" className="hover:text-blue-300 transition">Privacy Policy</a>
+              <a href="/privacy" className="hover:text-blue-300 transition">Privacy Policy</a>
               <a href="/terms" className="hover:text-blue-300 transition">Terms</a>
               <a href="/support" className="hover:text-blue-300 transition">Support</a>
             </div>

@@ -3,7 +3,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { apiService } from "@/services/api";
 import dynamic from "next/dynamic";
-const PrivacyPolicy = dynamic(() => import("./privacy-policy/page"), { ssr: false });
+const PrivacyPolicy = dynamic(() => import("./privacy/page"), { ssr: false });
 
 // Sparkle type for TypeScript
 interface Sparkle {
