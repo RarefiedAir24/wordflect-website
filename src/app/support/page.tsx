@@ -84,7 +84,7 @@ export default function Support() {
             Support
           </h1>
           <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-            Need help? We're here to assist you with any questions about Wordflect.
+            Need help? We&apos;re here to assist you with any questions about Wordflect.
           </p>
         </div>
 
@@ -95,7 +95,7 @@ export default function Support() {
             
             {submitStatus === "success" && (
               <div className="mb-6 bg-green-600/90 text-white font-semibold rounded-lg px-4 py-3 text-center animate-fade-in">
-                Message sent successfully! We'll get back to you soon.
+                Message sent successfully! We&apos;ll get back to you soon.
               </div>
             )}
             
@@ -239,7 +239,7 @@ export default function Support() {
               <div className="space-y-2 text-blue-200">
                 <p>• <span className="text-white font-semibold">Technical issues:</span> Within 24 hours</p>
                 <p>• <span className="text-white font-semibold">General inquiries:</span> Within 48 hours</p>
-                <p>• <span className="text-white font-semibold">Feature requests:</span> We'll review and respond</p>
+                <p>• <span className="text-white font-semibold">Feature requests:</span> We&apos;ll review and respond</p>
               </div>
             </div>
           </div>
