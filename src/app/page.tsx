@@ -153,6 +153,7 @@ export default function Home() {
           <a href="#" className="hover:text-blue-300 transition">News</a>
           <a href="/faq" className="hover:text-blue-300 transition">FAQ</a>
           <a href="/tips" className="hover:text-blue-300 transition">Tips</a>
+          <a href="/support" className="hover:text-blue-300 transition">Support</a>
         </div>
         <div className="flex gap-4 items-center">
           {isAuthenticated ? (
