@@ -5,9 +5,9 @@ import Image from "next/image";
 
 const newsPosts = [
   {
-    title: "Wordflect Launches on the App Store!",
+    title: "Wordflect Coming Soon to the App Store!",
     date: "July 2025",
-    summary: "We're excited to announce that Wordflect is now available on the Apple App Store. Download now and start reflecting, connecting, and winning!",
+    summary: "We're excited to announce that Wordflect will soon be available on the Apple App Store. Stay tuned for our official launch and get ready to reflect, connect, and win!",
     link: "#",
   },
   {
