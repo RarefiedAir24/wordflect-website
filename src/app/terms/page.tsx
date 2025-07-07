@@ -5,7 +5,7 @@ const Terms = () => (
     <h1 className="text-3xl font-bold mb-4">Terms of Service</h1>
     <p className="mb-4">Last updated: July 2024</p>
     <h2 className="text-xl font-semibold mt-6 mb-2">1. Acceptance of Terms</h2>
-    <p className="mb-4">By accessing or using Wordflect (the "Service"), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree, please do not use the Service.</p>
+    <p className="mb-4">By accessing or using Wordflect (the &quot;Service&quot;), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree, please do not use the Service.</p>
     <h2 className="text-xl font-semibold mt-6 mb-2">2. Use of the Service</h2>
     <p className="mb-4">You may use the Service only for lawful purposes and in accordance with these Terms. You agree not to misuse the Service or interfere with its normal operation.</p>
     <h2 className="text-xl font-semibold mt-6 mb-2">3. Accounts</h2>
@@ -13,7 +13,7 @@ const Terms = () => (
     <h2 className="text-xl font-semibold mt-6 mb-2">4. Intellectual Property</h2>
     <p className="mb-4">All content, features, and functionality of the Service are the exclusive property of Wordflect and its licensors. You may not copy, modify, distribute, or create derivative works without our written permission.</p>
     <h2 className="text-xl font-semibold mt-6 mb-2">5. Disclaimers</h2>
-    <p className="mb-4">The Service is provided on an "AS IS" and "AS AVAILABLE" basis. We make no warranties, express or implied, regarding the Service's accuracy, reliability, or availability.</p>
+    <p className="mb-4">The Service is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis. We make no warranties, express or implied, regarding the Service&apos;s accuracy, reliability, or availability.</p>
     <h2 className="text-xl font-semibold mt-6 mb-2">6. Limitation of Liability</h2>
     <p className="mb-4">To the fullest extent permitted by law, Wordflect and its affiliates shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the Service.</p>
     <h2 className="text-xl font-semibold mt-6 mb-2">7. Governing Law</h2>
