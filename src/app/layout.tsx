@@ -47,7 +47,7 @@ export default function RootLayout({
               <a href="/support" className="hover:text-blue-300 transition">Support</a>
             </div>
             <div className="text-sm text-gray-400 text-center w-full mt-4">
-              © 2024 Wordflect Team. support@wordflect.com
+              © {new Date().getFullYear()} Wordflect Team. support@wordflect.com
             </div>
           </div>
         </footer>
