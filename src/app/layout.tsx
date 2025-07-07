@@ -37,20 +37,18 @@ export default function RootLayout({
       >
         {children}
         <footer className="w-full bg-black bg-opacity-70 text-white py-8 px-4 border-t border-gray-800">
-          <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3 mb-2 md:mb-0">
+          <div className="max-w-5xl mx-auto flex flex-col items-center gap-3">
+            <div className="flex items-center gap-3">
               <Image src="/apple-touch-icon.png" alt="Wordflect Logo" width={32} height={32} className="rounded-lg" />
               <span className="font-bold text-lg text-white">Wordflect</span>
             </div>
-            <div className="flex flex-col items-center md:items-end gap-2 w-full">
-              <div className="flex gap-6 text-gray-300 text-sm">
-                <a href="/privacy-policy" className="hover:text-blue-300 transition">Privacy Policy</a>
-                <a href="/terms" className="hover:text-blue-300 transition">Terms</a>
-                <a href="/support" className="hover:text-blue-300 transition">Support</a>
-              </div>
-              <div className="text-sm text-gray-400 text-center w-full mt-2">
-                © 2025 Montebay Innovations, LLC. Contact@montebay.io
-              </div>
+            <div className="flex gap-6 text-gray-300 text-sm mt-2">
+              <a href="/privacy-policy" className="hover:text-blue-300 transition">Privacy Policy</a>
+              <a href="/terms" className="hover:text-blue-300 transition">Terms</a>
+              <a href="/support" className="hover:text-blue-300 transition">Support</a>
+            </div>
+            <div className="text-sm text-gray-400 text-center mt-2">
+              © 2025 Montebay Innovations, LLC. Contact@montebay.io
             </div>
           </div>
         </footer>
