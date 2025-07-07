@@ -35,6 +35,22 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <footer className="w-full bg-black bg-opacity-70 text-white py-8 px-4 mt-12 border-t border-gray-800">
+          <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3 mb-2 md:mb-0">
+              <img src="/apple-touch-icon.png" alt="Wordflect Logo" width={32} height={32} className="rounded-lg" />
+              <span className="font-bold text-lg tracking-wide">Wordflect</span>
+            </div>
+            <div className="flex gap-6 text-base font-medium">
+              <a href="/privacy-policy" className="hover:text-blue-300 transition">Privacy Policy</a>
+              <a href="/terms" className="hover:text-blue-300 transition">Terms</a>
+              <a href="/support" className="hover:text-blue-300 transition">Support</a>
+            </div>
+            <div className="text-sm text-gray-400 text-center md:text-right">
+              &copy; {new Date().getFullYear()} Wordflect. All rights reserved.
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );
