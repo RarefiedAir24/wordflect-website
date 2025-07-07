@@ -146,7 +146,7 @@ export default function Home() {
       {/* Navigation Bar */}
       <nav className="relative z-10 flex justify-between items-center p-6 bg-black bg-opacity-20 backdrop-blur-sm">
         <div className="flex items-center gap-3">
-          <Image src="/wordflect-icon.png" alt="Wordflect Logo" width={40} height={40} className="rounded-lg" />
+          <Image src="/favicon-wordflect.ico" alt="Wordflect Logo" width={40} height={40} className="rounded-lg" />
           <span className="text-2xl font-bold text-white tracking-wide hidden sm:inline">Wordflect</span>
         </div>
         <div className="flex gap-8 text-white font-medium text-lg">
@@ -180,7 +180,7 @@ export default function Home() {
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4">
         <div className="bg-black p-2 rounded-lg mb-6 drop-shadow-2xl animate-bounce-slow inline-block">
           <Image
-            src="/wordflect-icon.png"
+            src="/favicon-wordflect.ico"
             alt="Wordflect App Icon"
             width={120}
             height={120}

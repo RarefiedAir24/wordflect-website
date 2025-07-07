@@ -36,7 +36,7 @@ export default function SignIn() {
       >
         <div className="flex flex-col items-center mb-2">
           <Image
-            src="/wordflect-icon.png"
+            src="/favicon-wordflect.ico"
             alt="Wordflect Logo"
             width={64}
             height={64}
