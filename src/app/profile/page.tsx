@@ -75,12 +75,21 @@ export default function Profile() {
     <div className="max-w-4xl mx-auto py-16 px-4">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-extrabold text-white">User Profile</h1>
-        <button
-          onClick={handleSignOut}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-        >
-          Sign Out
-        </button>
+        <div className="flex gap-3">
+          <a href="/dashboard">
+            <button
+              className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded hover:scale-105 transition font-bold shadow"
+            >
+              Dashboard
+            </button>
+          </a>
+          <button
+            onClick={handleSignOut}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+          >
+            Sign Out
+          </button>
+        </div>
       </div>
 
       <div className="bg-blue-100 rounded-lg p-8 shadow text-blue-900">
