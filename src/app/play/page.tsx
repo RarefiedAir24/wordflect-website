@@ -97,6 +97,7 @@ function makeLettersFall(board: string[][]) {
 }
 
 export default function PlayGame() {
+  const router = useRouter();
   const emptyBoard = Array.from({ length: GRID_ROWS }, () => Array.from({ length: GRID_COLS }, () => ""));
   const [board, setBoard] = useState<string[][]>(emptyBoard);
   const [selected, setSelected] = useState<{ row: number; col: number }[]>([]);
@@ -736,8 +737,6 @@ export default function PlayGame() {
     );
   }
 
-  const router = useRouter();
-
   // Add sign out handler
   const handleSignOut = () => {
     if (typeof window !== 'undefined') {
@@ -751,7 +750,12 @@ export default function PlayGame() {
     <ErrorBoundary>
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black px-4 py-12">
         <div className="w-full max-w-2xl bg-black bg-opacity-80 rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-8 animate-fade-in">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-wide text-center mb-4">Wordflect Game</h1>
+          <div className="text-center mb-6">
+            <h1 className="text-4xl sm:text-5xl font-extrabold text-blue-100 tracking-wider mb-2 drop-shadow-lg">
+              WORDFLECT
+            </h1>
+            <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-400 mx-auto rounded-full"></div>
+          </div>
           {gameOver ? (
             <div className="flex flex-col items-center w-full">
               {/* Confetti animation for high scores */}
@@ -850,9 +854,74 @@ export default function PlayGame() {
             </div>
           ) : (
             <div>
-              <div className="flex flex-col items-center">
-                <div className="text-white text-xl mb-2">Time Left: {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}</div>
-                <div className="text-white text-xl mb-2">Score: {score}</div>
+              {/* Modern Timer and Score UI */}
+              <div className={`flex flex-col sm:flex-row items-center justify-between w-full max-w-md mx-auto mb-6 p-4 bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl shadow-2xl border border-gray-700 transition-all duration-500 ${
+                timer <= 30 ? 'shadow-red-500/20 ring-1 ring-red-500/30' : 
+                timer <= 60 ? 'shadow-yellow-500/20 ring-1 ring-yellow-500/30' : ''
+              }`}>
+                {/* Timer Section */}
+                <div className="flex flex-col items-center mb-4 sm:mb-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="material-icons text-red-400 text-xl">timer</span>
+                    <span className="text-blue-200 text-sm font-medium uppercase tracking-wide">Time Left</span>
+                  </div>
+                  <div className="relative">
+                    {/* Timer Circle Progress */}
+                    <div className={`relative w-16 h-16 flex items-center justify-center ${
+                      timer <= 30 ? 'animate-pulse' : ''
+                    }`}>
+                      <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
+                        <circle
+                          cx="32"
+                          cy="32"
+                          r="28"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
+                          className="text-gray-700"
+                        />
+                        <circle
+                          cx="32"
+                          cy="32"
+                          r="28"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
+                          strokeDasharray={`${(timer / INITIAL_TIMER) * 175.93} 175.93`}
+                          className={`transition-all duration-1000 ease-out ${
+                            timer <= 30 ? 'text-red-500 animate-pulse' : 
+                            timer <= 60 ? 'text-yellow-500' : 'text-green-500'
+                          }`}
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className={`text-lg font-bold transition-all duration-300 ${
+                          timer <= 30 ? 'text-red-400 scale-110' : 
+                          timer <= 60 ? 'text-yellow-400 scale-105' : 'text-green-400'
+                        }`}>
+                          {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Score Section */}
+                <div className="flex flex-col items-center">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="material-icons text-yellow-400 text-xl">stars</span>
+                    <span className="text-blue-200 text-sm font-medium uppercase tracking-wide">Score</span>
+                  </div>
+                  <div className="relative">
+                    <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-bold text-2xl px-4 py-2 rounded-full shadow-lg border-2 border-yellow-300 min-w-[80px] text-center transition-all duration-300 hover:scale-105">
+                      {score}
+                    </div>
+                    {/* Score animation indicator */}
+                    {score > 0 && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-ping"></div>
+                    )}
+                  </div>
+                </div>
               </div>
               <div className="grid grid-cols-5 gap-2 bg-gray-900 p-4 rounded-lg shadow-lg">
                   {board.map((row, rowIdx) =>
@@ -938,32 +1007,39 @@ export default function PlayGame() {
                 </div>
               )}
               {powerupError && <div className="mt-2 text-red-400 font-bold">{powerupError}</div>}
-              <div className="mt-2 text-blue-200">Flectcoins: {flectcoins} | Gems: {gems}</div>
-              {hintWord && <div className="mt-2 text-yellow-300 font-bold">Hint: Try "{hintWord}"</div>}
-              <div className="mt-4">
-                <button className="px-6 py-2 rounded-lg bg-gray-700 text-white font-bold shadow hover:scale-105 transition-all duration-150 mr-2" onClick={() => setSelected([])}>Clear</button>
+              {/* Modern Currency Display */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-4 p-3 bg-gradient-to-r from-gray-800 via-black to-gray-800 rounded-xl shadow-lg border border-gray-600 hover:shadow-xl hover:border-gray-500 transition-all duration-300">
+                {/* Flectcoins */}
+                <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-pointer group">
+                  <div className="relative">
+                    <span className="material-icons text-yellow-400 text-xl group-hover:text-yellow-300 transition-colors">monetization_on</span>
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                  </div>
+                  <div className="flex flex-col items-start">
+                    <span className="text-yellow-200 text-xs font-medium uppercase tracking-wide group-hover:text-yellow-100 transition-colors">Flectcoins</span>
+                    <span className="text-yellow-400 font-bold text-lg group-hover:text-yellow-300 transition-colors" key={flectcoins}>{flectcoins.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="hidden sm:block w-px h-8 bg-gray-600"></div>
+
+                {/* Gems */}
+                <div className="flex items-center gap-2 hover:scale-105 transition-transform duration-200 cursor-pointer group">
+                  <div className="relative">
+                    <span className="material-icons text-purple-400 text-xl group-hover:text-purple-300 transition-colors">diamond</span>
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                  </div>
+                  <div className="flex flex-col items-start">
+                    <span className="text-purple-200 text-xs font-medium uppercase tracking-wide group-hover:text-purple-100 transition-colors">Gems</span>
+                    <span className="text-purple-400 font-bold text-lg group-hover:text-purple-300 transition-colors" key={gems}>{gems.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+              {hintWord && <div className="mt-2 text-yellow-300 font-bold">Hint: Try &quot;{hintWord}&quot;</div>}
+              <div className="mt-4 flex gap-3 justify-center">
+                <button className="px-6 py-2 rounded-lg bg-gray-700 text-white font-bold shadow hover:scale-105 transition-all duration-150" onClick={() => setSelected([])}>Clear</button>
                 <button className="px-6 py-2 rounded-lg bg-red-700 text-white font-bold shadow hover:scale-105 transition-all duration-150" onClick={handleGameOver} disabled={submitting || isFrozen}>End Game</button>
-                <button className="px-6 py-2 rounded-lg bg-green-700 text-white font-bold shadow hover:scale-105 transition-all duration-150 ml-2" onClick={() => {
-                  console.log("Test button clicked");
-                  console.log("Board:", board);
-                  console.log("Selected:", selected);
-                  if (selected.length >= 3) {
-                    const testWord = selected.map(sel => board[sel.row][sel.col]).join("");
-                    console.log("Test word:", testWord);
-                  }
-                }}>Test</button>
-                <button className="px-6 py-2 rounded-lg bg-purple-700 text-white font-bold shadow hover:scale-105 transition-all duration-150 ml-2" onClick={() => {
-                  // Force select some tiles and submit
-                  const testSelection = [
-                    { row: GRID_ROWS - 1, col: 0 },
-                    { row: GRID_ROWS - 1, col: 1 },
-                    { row: GRID_ROWS - 1, col: 2 }
-                  ];
-                  setSelected(testSelection);
-                  console.log("Forced selection:", testSelection);
-                  const testWord = testSelection.map(sel => board[sel.row][sel.col]).join("");
-                  console.log("Test word:", testWord);
-                }}>Force Submit</button>
               </div>
               {inDangerZone && !gameOver && (
                 <div className="text-red-400 font-bold mb-2 animate-pulse">Danger! Top row is full! (Debug: Danger zone active)</div>

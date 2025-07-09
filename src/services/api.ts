@@ -168,6 +168,101 @@ class ApiService {
       return true;
     }
   }
+
+  // Update user stats
+  async updateUserStats(stats: any): Promise<any> {
+    try {
+      const response = await this.makeRequest(
+        buildApiUrl('/user/update-stats'),
+        {
+          method: 'POST',
+          headers: this.getAuthHeaders(),
+          body: JSON.stringify(stats),
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update user stats');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Update user stats error:', error);
+      throw error;
+    }
+  }
+
+  // Complete a mission
+  async completeMission({ id, missionId, period }: { id: string; missionId: string; period: string }): Promise<any> {
+    try {
+      const response = await this.makeRequest(
+        buildApiUrl('/user/complete-mission'),
+        {
+          method: 'POST',
+          headers: this.getAuthHeaders(),
+          body: JSON.stringify({ id, missionId, period }),
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to complete mission');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Complete mission error:', error);
+      throw error;
+    }
+  }
+
+  // Fetch word definition
+  async getWordDefinition(word: string): Promise<{ definition: string; pronunciation?: string; attribution?: string }> {
+    try {
+      const response = await this.makeRequest(
+        buildApiUrl(`/word/definition?word=${encodeURIComponent(word)}`),
+        {
+          method: 'GET',
+          headers: this.getAuthHeaders(),
+        }
+      );
+      if (!response.ok) {
+        return { definition: 'No definition found.' };
+      }
+      const data = await response.json();
+      if (Array.isArray(data) && data.length > 0) {
+        const firstWithText = data.find((entry: any) => entry.text && entry.text.trim() !== '');
+        if (firstWithText) {
+          return {
+            definition: firstWithText.text,
+            pronunciation: firstWithText.pronunciation,
+            attribution: firstWithText.attributionText,
+          };
+        }
+      }
+      return { definition: 'No definition found.' };
+    } catch (error) {
+      return { definition: 'No definition found.' };
+    }
+  }
+
+  // Fetch user missions
+  async getMissions(): Promise<any> {
+    try {
+      const response = await this.makeRequest(
+        buildApiUrl('/user/missions'),
+        {
+          method: 'GET',
+          headers: this.getAuthHeaders(),
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch missions');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Get missions error:', error);
+      throw error;
+    }
+  }
 }
 
 export const apiService = new ApiService(); 
