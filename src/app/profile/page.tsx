@@ -34,6 +34,29 @@ export default function Profile() {
     fetchProfile();
   }, [router]);
 
+  // Refresh profile data when the page becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // Refetch profile data when page becomes visible
+        const fetchProfile = async () => {
+          try {
+            if (apiService.isAuthenticated()) {
+              const userProfile = await apiService.getUserProfile();
+              setProfile(userProfile);
+            }
+          } catch (error) {
+            console.error("Profile refresh error:", error);
+          }
+        };
+        fetchProfile();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
   const handleSignOut = async () => {
     await apiService.signOut();
     router.push("/");
@@ -76,6 +99,15 @@ export default function Profile() {
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-extrabold text-white">User Profile</h1>
         <div className="flex gap-3">
+          <button
+            onClick={() => {
+              setLoading(true);
+              apiService.getUserProfile().then(setProfile).catch(console.error).finally(() => setLoading(false));
+            }}
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+          >
+            Refresh
+          </button>
           <a href="/dashboard">
             <button
               className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded hover:scale-105 transition font-bold shadow"

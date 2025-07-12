@@ -55,16 +55,28 @@ const GRID_COLS = 5;
 const GRID_ROWS = 8;
 
 // Generate a board that starts with bottom 3 rows populated
+// Enhanced letter generation with vowel frequency
+function generateRandomLetter(): string {
+  const vowels = "AEIOU";
+  const consonants = "BCDFGHJKLMNPQRSTVWXYZ";
+  
+  // 30% chance for vowels, 70% for consonants (increased from ~19% natural frequency)
+  if (Math.random() < 0.3) {
+    return vowels[Math.floor(Math.random() * vowels.length)];
+  } else {
+    return consonants[Math.floor(Math.random() * consonants.length)];
+  }
+}
+
 function generateBoard() {
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const board = Array.from({ length: GRID_ROWS }, (_, rowIdx) =>
     Array.from({ length: GRID_COLS }, () => "")
   );
   
-  // Fill the bottom 3 rows with random letters
+  // Fill the bottom 3 rows with enhanced letter distribution
   for (let row = GRID_ROWS - 3; row < GRID_ROWS; row++) {
     for (let col = 0; col < GRID_COLS; col++) {
-      board[row][col] = letters[Math.floor(Math.random() * letters.length)];
+      board[row][col] = generateRandomLetter();
     }
   }
   
@@ -119,6 +131,7 @@ export default function PlayGame() {
   const [flectcoins, setFlectcoins] = useState(500); // Placeholder, ideally fetched from user profile
   const [gems, setGems] = useState(0);
   const [powerupError, setPowerupError] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   // Remove all wordSet and wordList logic
   const [wordFeedback, setWordFeedback] = useState<string | null>(null);
@@ -131,6 +144,9 @@ export default function PlayGame() {
   const HINT_COST = 50;
   const SHUFFLE_COST = 100;
   const FREEZE_COST = 200;
+
+  // Time bonus for finding words (seconds per letter)
+  const TIME_BONUS_PER_LETTER = 1; // 1 second per letter in the word (matches mobile app)
 
   // Compute longest word and top scoring word
   const longestWord = foundWords.reduce((a, b) => (b.length > a.length ? b : a), "");
@@ -150,13 +166,12 @@ export default function PlayGame() {
 
   // Function to add new letters at the top
   const addNewLetters = (board: string[][]) => {
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const newBoard = board.map(row => [...row]);
     
-    // Add new letters at the top row
+    // Add new letters at the top row with enhanced vowel frequency
     for (let col = 0; col < GRID_COLS; col++) {
       if (newBoard[0][col] === "") {
-        newBoard[0][col] = letters[Math.floor(Math.random() * letters.length)];
+        newBoard[0][col] = generateRandomLetter();
       }
     }
     
@@ -324,6 +339,7 @@ export default function PlayGame() {
         if (isMounted) {
           setFlectcoins(profile.flectcoins || 0);
           setGems(profile.gems || 0);
+          setUserProfile(profile); // Store full profile
           setPowerupError(null); // Clear any previous auth errors
         }
       })
@@ -434,7 +450,10 @@ export default function PlayGame() {
         if (isValidWord(word)) {
           setFoundWords(prev => [...prev, word]);
           setScore(prev => prev + word.length);
-          setWordFeedback("Good word!");
+          // Add time bonus for finding a word
+          const timeBonus = word.length * TIME_BONUS_PER_LETTER;
+          setTimer(prev => Math.min(prev + timeBonus, INITIAL_TIMER)); // Cap at initial timer
+          setWordFeedback(`Good word! +${timeBonus}s`);
           setTimeout(() => setWordFeedback(null), 1200);
           setBoard(prevBoard => {
             const newBoard = prevBoard.map(row => [...row]);
@@ -474,7 +493,10 @@ export default function PlayGame() {
         if (isValidWord(word)) {
           setFoundWords(prev => [...prev, word]);
           setScore(prev => prev + word.length);
-          setWordFeedback("Good word!");
+          // Add time bonus for finding a word
+          const timeBonus = word.length * TIME_BONUS_PER_LETTER;
+          setTimer(prev => Math.min(prev + timeBonus, INITIAL_TIMER)); // Cap at initial timer
+          setWordFeedback(`Good word! +${timeBonus}s`);
           setTimeout(() => setWordFeedback(null), 1200);
           setBoard(prevBoard => {
             const newBoard = prevBoard.map(row => [...row]);
@@ -489,7 +511,7 @@ export default function PlayGame() {
         }
         setSelected([]);
       }
-    }, 500); // 0.5 second pause to match mobile app
+    }, 1500); // 1.5 second pause to give more time for longer words
   };
 
   // Clear auto-submit timer on unmount
@@ -594,20 +616,29 @@ export default function PlayGame() {
   // Helper to update backend flectcoins and gems after powerup use
   const syncCurrency = async (newFlectcoins: number, newGems: number) => {
     try {
-      // Check if user is authenticated
       if (!apiService.isAuthenticated()) {
         console.warn("User not authenticated, skipping backend sync");
         return;
       }
-      
-      await apiService.updateUserStats({ flectcoins: newFlectcoins, gems: newGems });
+      if (!userProfile) {
+        console.warn("User profile not loaded, cannot sync currency");
+        return;
+      }
+      // Prepare full stats object for backend
+      const updatedStats = {
+        ...userProfile,
+        flectcoins: newFlectcoins,
+        gems: newGems,
+      };
+      console.log("Attempting to sync currency with full stats:", updatedStats);
+      const result = await apiService.updateUserStats(updatedStats);
+      console.log("Currency sync response:", result);
+      setUserProfile(updatedStats); // Update local profile state
       console.log("Currency synced successfully:", { flectcoins: newFlectcoins, gems: newGems });
     } catch (e: any) {
       console.error("Currency sync error:", e);
       const errorMessage = e.message || "Failed to sync currency with backend. Please try again.";
       setPowerupError(errorMessage);
-      // Don't revert the currency change - let the user keep the powerup
-      // The backend sync can be retried later
     }
   };
 
@@ -989,11 +1020,11 @@ export default function PlayGame() {
               >
                 {wordFeedback && (
                   <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full shadow-md font-semibold text-base
-                    ${wordFeedback === 'Good word!' ? 'bg-green-600 text-white' : ''}
-                    ${wordFeedback === 'Invalid word' ? 'bg-red-600 text-white' : ''}
+                    ${wordFeedback.includes('Good word!') ? 'bg-green-600 text-white' : ''}
+                    ${wordFeedback.includes('Invalid word') ? 'bg-red-600 text-white' : ''}
                   `}>
                     <span className="material-icons text-lg">
-                      {wordFeedback === 'Good word!' ? 'check_circle' : wordFeedback === 'Invalid word' ? 'cancel' : ''}
+                      {wordFeedback.includes('Good word!') ? 'check_circle' : wordFeedback.includes('Invalid word') ? 'cancel' : ''}
                     </span>
                     {wordFeedback}
                   </span>
