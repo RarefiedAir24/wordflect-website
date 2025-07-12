@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { apiService, UserProfile } from "@/services/api";
 // import words from "../words.json";
 import { useRouter } from "next/navigation";
@@ -82,7 +82,7 @@ function generateRandomLetter(): string {
 }
 
 function generateBoard() {
-  const board = Array.from({ length: GRID_ROWS }, (_, rowIdx) =>
+  const board = Array.from({ length: GRID_ROWS }, () =>
     Array.from({ length: GRID_COLS }, () => "")
   );
   
@@ -148,8 +148,7 @@ export default function PlayGame() {
 
   // Remove all wordSet and wordList logic
   const [wordFeedback, setWordFeedback] = useState<string | null>(null);
-  const [validatingWord, setValidatingWord] = useState(false);
-  const [lastValidationResult] = useState<unknown>(null); // Remove setLastValidationResult if not used
+  const [validatingWord] = useState(false);
   const [wordSet, setWordSet] = useState<Set<string> | null>(null);
   const [wordListLoading, setWordListLoading] = useState(true);
 
@@ -185,27 +184,6 @@ export default function PlayGame() {
     for (let col = 0; col < GRID_COLS; col++) {
       if (newBoard[0][col] === "") {
         newBoard[0][col] = generateRandomLetter();
-      }
-    }
-    
-    return newBoard;
-  };
-
-  // Function to make letters fall down
-  const makeLettersFall = (board: string[][]) => {
-    const newBoard = board.map(row => [...row]);
-    
-    // For each column, move letters down
-    for (let col = 0; col < GRID_COLS; col++) {
-      let writeRow = GRID_ROWS - 1;
-      for (let row = GRID_ROWS - 1; row >= 0; row--) {
-        if (newBoard[row][col] !== "") {
-          if (writeRow !== row) {
-            newBoard[writeRow][col] = newBoard[row][col];
-            newBoard[row][col] = "";
-          }
-          writeRow--;
-        }
       }
     }
     
@@ -325,7 +303,15 @@ export default function PlayGame() {
     setMissionsError(null);
     apiService.getMissions()
       .then((data) => {
-        if (isMounted) setMissions(data.missions || data);
+        if (isMounted) {
+          if (typeof data === 'object' && data !== null && 'missions' in data && Array.isArray((data as { missions?: unknown[] }).missions)) {
+            setMissions((data as { missions: Mission[] }).missions);
+          } else if (Array.isArray(data)) {
+            setMissions(data as Mission[]);
+          } else {
+            setMissions([]);
+          }
+        }
       })
       .catch((e) => {
         if (isMounted) setMissionsError(e.message || "Failed to fetch missions");
@@ -535,41 +521,6 @@ export default function PlayGame() {
   }, []);
 
   // Submit word button handler
-  const handleSubmitWord = () => {
-    if (validatingWord) return; // Prevent double submission
-    if (selected.length < 3) return;
-    const word = selected.map(sel => board[sel.row][sel.col]).join("");
-    setValidatingWord(true);
-    // apiService.getWordDefinition(word) // This line is removed
-    //   .then(result => { // This block is removed
-    //     if (result.definition && result.definition !== 'No definition found.') { // This block is removed
-    //       setFoundWords(prev => [...prev, word]); // This block is removed
-    //       setScore(prev => prev + word.length); // This block is removed
-    //       setWordFeedback("Good word!"); // This block is removed
-    //       setTimeout(() => setWordFeedback(null), 1200); // This block is removed
-    //       // Remove letters from board when word is submitted // This block is removed
-    //       setBoard(prevBoard => { // This block is removed
-    //         const newBoard = prevBoard.map(row => [...row]); // This block is removed
-    //         selected.forEach(sel => { // This block is removed
-    //           newBoard[sel.row][sel.col] = ""; // This block is removed
-    //         }); // This block is removed
-    //         return newBoard; // This block is removed
-    //       }); // This block is removed
-    //     } else { // This block is removed
-    //       setWordFeedback("Invalid word"); // This block is removed
-    //       setTimeout(() => setWordFeedback(null), 1200); // This block is removed
-    //     } // This block is removed
-    //   }) // This block is removed
-    //   .catch(e => { // This block is removed
-    //     setWordFeedback("Validation failed. Try again."); // This block is removed
-    //     setTimeout(() => setWordFeedback(null), 1200); // This block is removed
-    //   }) // This block is removed
-    //   .finally(() => { // This block is removed
-    //     setValidatingWord(false); // This block is removed
-    //   }); // This block is removed
-    // setSelected([]); // This line is removed
-  };
-
   const handleGameOver = async () => {
     setSubmitting(true);
     setError(null);
@@ -583,7 +534,10 @@ export default function PlayGame() {
         // Add more fields as needed for your backend
       });
       // Check for completed missions and call completeMission for each
-      const completedMissions = missions.filter(m => !m.completed && (m.progress + 1 >= (m.goal || m.target)));
+      const completedMissions = missions.filter(m => {
+        const goalOrTarget = m.goal ?? m.target;
+        return !m.completed && goalOrTarget !== undefined && (m.progress + 1 >= goalOrTarget);
+      });
       for (const mission of completedMissions) {
         try {
           await apiService.completeMission({
@@ -591,14 +545,14 @@ export default function PlayGame() {
             missionId: mission.id,
             period: mission.period || mission.type || 'daily', // fallback to daily if not specified
           });
-        } catch (e) {
+        } catch {
           // Optionally handle/report mission completion errors
         }
       }
       // Refetch missions to update state
       try {
         const data = await apiService.getMissions();
-        if (data && 'missions' in data && Array.isArray((data as { missions?: unknown[] }).missions)) {
+        if (typeof data === 'object' && data !== null && 'missions' in data && Array.isArray((data as { missions?: unknown[] }).missions)) {
           setMissions((data as { missions: Mission[] }).missions);
         } else if (Array.isArray(data)) {
           setMissions(data as Mission[]);
@@ -607,8 +561,8 @@ export default function PlayGame() {
         }
       } catch {}
       setSuccess("Stats and missions updated!");
-    } catch (e: any) {
-      setError(e.message || "Failed to update stats");
+    } catch (e: unknown) {
+      setError((e as Error).message || "Failed to update stats");
     } finally {
       setSubmitting(false);
       setGameOver(true);
@@ -654,9 +608,9 @@ export default function PlayGame() {
       console.log("Currency sync response:", result);
       setUserProfile(updatedStats); // Update local profile state
       console.log("Currency synced successfully:", { flectcoins: newFlectcoins, gems: newGems });
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("Currency sync error:", e);
-      const errorMessage = e.message || "Failed to sync currency with backend. Please try again.";
+      const errorMessage = (e as Error).message || "Failed to sync currency with backend. Please try again.";
       setPowerupError(errorMessage);
     }
   };
@@ -1050,12 +1004,6 @@ export default function PlayGame() {
                 )}
               </div>
               {validatingWord && <div className="text-blue-300 mb-2">Validating word...</div>}
-              {lastValidationResult !== null && (
-                <div className="mt-2 text-xs text-yellow-200 bg-gray-900 p-2 rounded">
-                  <b>Validation API response:</b>
-                  <pre>{typeof lastValidationResult === 'string' ? lastValidationResult : JSON.stringify(lastValidationResult, null, 2)}</pre>
-                </div>
-              )}
               {powerupError && <div className="mt-2 text-red-400 font-bold">{powerupError}</div>}
               {/* Modern Currency Display */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-4 p-3 bg-gradient-to-r from-gray-800 via-black to-gray-800 rounded-xl shadow-lg border border-gray-600 hover:shadow-xl hover:border-gray-500 transition-all duration-300">

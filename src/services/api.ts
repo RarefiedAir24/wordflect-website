@@ -170,7 +170,7 @@ class ApiService {
   }
 
   // Update user stats
-  async updateUserStats(stats: any): Promise<any> {
+  async updateUserStats(stats: Record<string, unknown>): Promise<unknown> {
     try {
       const response = await this.makeRequest(
         buildApiUrl('/user/update-stats'),
@@ -192,7 +192,7 @@ class ApiService {
   }
 
   // Complete a mission
-  async completeMission({ id, missionId, period }: { id: string; missionId: string; period: string }): Promise<any> {
+  async completeMission({ id, missionId, period }: { id: string; missionId: string; period: string }): Promise<unknown> {
     try {
       const response = await this.makeRequest(
         buildApiUrl('/user/complete-mission'),
@@ -228,7 +228,7 @@ class ApiService {
       }
       const data = await response.json();
       if (Array.isArray(data) && data.length > 0) {
-        const firstWithText = data.find((entry: any) => entry.text && entry.text.trim() !== '');
+        const firstWithText = data.find((entry: { text?: string }) => entry.text && entry.text.trim() !== '');
         if (firstWithText) {
           return {
             definition: firstWithText.text,
@@ -238,13 +238,13 @@ class ApiService {
         }
       }
       return { definition: 'No definition found.' };
-    } catch (error) {
+    } catch {
       return { definition: 'No definition found.' };
     }
   }
 
   // Fetch user missions
-  async getMissions(): Promise<any> {
+  async getMissions(): Promise<unknown> {
     try {
       const response = await this.makeRequest(
         buildApiUrl('/user/missions'),
