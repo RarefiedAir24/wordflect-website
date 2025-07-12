@@ -1,8 +1,21 @@
 "use client";
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { apiService } from "@/services/api";
+import { apiService, UserProfile } from "@/services/api";
 // import words from "../words.json";
 import { useRouter } from "next/navigation";
+
+// Define a Mission type for mission-related state and variables
+interface Mission {
+  id: string;
+  completed: boolean;
+  progress: number;
+  goal?: number;
+  target?: number;
+  period?: string;
+  type?: string;
+  title?: string;
+  name?: string;
+}
 
 // Error boundary component
 class ErrorBoundary extends React.Component<
@@ -121,7 +134,7 @@ export default function PlayGame() {
   const [success, setSuccess] = useState<string | null>(null);
   const [definitions, setDefinitions] = useState<Record<string, { definition: string; attribution?: string }>>({});
   const [loadingDefs, setLoadingDefs] = useState(false);
-  const [missions, setMissions] = useState<any[]>([]);
+  const [missions, setMissions] = useState<Mission[]>([]);
   const [missionsLoading, setMissionsLoading] = useState(false);
   const [missionsError, setMissionsError] = useState<string | null>(null);
   const [hintWord, setHintWord] = useState<string | null>(null);
@@ -131,12 +144,12 @@ export default function PlayGame() {
   const [flectcoins, setFlectcoins] = useState(500); // Placeholder, ideally fetched from user profile
   const [gems, setGems] = useState(0);
   const [powerupError, setPowerupError] = useState<string | null>(null);
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   // Remove all wordSet and wordList logic
   const [wordFeedback, setWordFeedback] = useState<string | null>(null);
   const [validatingWord, setValidatingWord] = useState(false);
-  const [lastValidationResult, setLastValidationResult] = useState<any>(null);
+  const [lastValidationResult] = useState<unknown>(null); // Remove setLastValidationResult if not used
   const [wordSet, setWordSet] = useState<Set<string> | null>(null);
   const [wordListLoading, setWordListLoading] = useState(true);
 
@@ -357,18 +370,18 @@ export default function PlayGame() {
     setWordListLoading(true);
     
     // Create a timeout promise
-    const timeoutPromise = new Promise((_, reject) => {
+    const timeoutPromise = new Promise<Error>((_, reject) => {
       setTimeout(() => reject(new Error('Request timeout')), 10000); // 10 second timeout
     });
     
     // Race between fetch and timeout
-    Promise.race([
+    Promise.race<Promise<Response | Error>>([
       fetch("/words.json"),
       timeoutPromise
     ])
-      .then((res: any) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
+      .then((res) => {
+        if (!(res instanceof Response) || !res.ok) {
+          throw new Error(`HTTP error! status: ${(res as Response).status}`);
         }
         return res.json();
       })
@@ -379,7 +392,7 @@ export default function PlayGame() {
         // Generate board after word list is loaded
         setBoard(generateBoard());
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         console.error("Failed to load word list:", error);
         setWordListLoading(false);
         // Still generate board even if word list fails
@@ -585,7 +598,13 @@ export default function PlayGame() {
       // Refetch missions to update state
       try {
         const data = await apiService.getMissions();
-        setMissions(data.missions || data);
+        if (data && 'missions' in data && Array.isArray((data as { missions?: unknown[] }).missions)) {
+          setMissions((data as { missions: Mission[] }).missions);
+        } else if (Array.isArray(data)) {
+          setMissions(data as Mission[]);
+        } else {
+          setMissions([]);
+        }
       } catch {}
       setSuccess("Stats and missions updated!");
     } catch (e: any) {
@@ -851,16 +870,16 @@ export default function PlayGame() {
                     <div className="text-blue-300 mb-2">Loading missions...</div>
                   ) : missionsError ? (
                     <div className="text-red-400 mb-2">{missionsError}</div>
-                  ) : missions.length === 0 ? (
-                    <div className="text-gray-400 mb-2">No missions found.</div>
-                  ) : (
+                  ) : Array.isArray(missions) && missions.length > 0 ? (
                     <ul className="mb-2">
-                      {Array.isArray(missions) && missions.map((mission, i) => (
+                      {missions.map((mission, i) => (
                         <li key={mission.id || i} className="mb-1 text-blue-100">
-                          <span className="font-bold text-white">{mission.title || mission.name}:</span> {mission.progress || 0}/{mission.goal || mission.target} {mission.completed ? <span className="text-green-400 ml-2">(Completed)</span> : null}
+                          <span className="font-bold text-white">{String(mission.title ?? mission.name ?? 'Mission')}:</span> {mission.progress ?? 0}/{mission.goal ?? mission.target ?? 0} {mission.completed ? <span className="text-green-400 ml-2">(Completed)</span> : null}
                         </li>
                       ))}
                     </ul>
+                  ) : (
+                    <div className="text-blue-200">No missions found.</div>
                   )}
                 </div>
                 {success && <div className="text-green-400 mb-2">{success}</div>}
@@ -1031,10 +1050,10 @@ export default function PlayGame() {
                 )}
               </div>
               {validatingWord && <div className="text-blue-300 mb-2">Validating word...</div>}
-              {lastValidationResult && (
+              {lastValidationResult !== null && (
                 <div className="mt-2 text-xs text-yellow-200 bg-gray-900 p-2 rounded">
                   <b>Validation API response:</b>
-                  <pre>{JSON.stringify(lastValidationResult, null, 2)}</pre>
+                  <pre>{typeof lastValidationResult === 'string' ? lastValidationResult : JSON.stringify(lastValidationResult, null, 2)}</pre>
                 </div>
               )}
               {powerupError && <div className="mt-2 text-red-400 font-bold">{powerupError}</div>}
