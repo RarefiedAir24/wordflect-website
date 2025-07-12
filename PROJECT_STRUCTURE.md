@@ -62,3 +62,30 @@ This website connects to the main Wordflect backend for user authentication, sta
 ---
 
 *This markdown is the source of truth for the website's structure, goals, and path forward. For backend and API details, always refer to the main Wordflect project's documentation linked above.*
+
+
+## 🎮 Game Mechanics Reference
+
+### Timer Reward System (v1.0.86+)
+
+For website content, features, or game explanations, here are the current timer reward mechanics:
+
+| Word Length | Time Reward |
+|-------------|-------------|
+| 3 letters   | +1 second   |
+| 4 letters   | +2 seconds  |
+| 5 letters   | +3 seconds  |
+| 6 letters   | +4 seconds  |
+| 7 letters   | +5 seconds  |
+| 8 letters   | +6 seconds  |
+| 9+ letters  | +0 seconds  |
+
+**Level Up Timer Reset**: When a player reaches a new level, the timer resets to exactly 2 minutes (120 seconds).
+
+**Notes for Website Content**:
+- No level-based time bonuses
+- No other time rewards outside of word length
+- Timer is capped at 120 seconds maximum
+- Level progression resets timer to exactly 120 seconds
+
+**Implementation**: See `../wordflect/src/screens/Gamescreen.tsx` in the `handleWordSubmit()` function.
