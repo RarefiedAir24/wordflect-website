@@ -380,7 +380,7 @@ export default function PlayGame() {
         }
       });
     return () => { isMounted = false; };
-  }, []);
+  }, [previousLevel]);
 
   // Load word list from public/words.json and generate board
   useEffect(() => {
@@ -565,10 +565,9 @@ export default function PlayGame() {
 
   // Calculate points needed for next level and progress
   useEffect(() => {
-    const currentLevelTotal = getTotalPointsForLevel(currentLevel);
     const nextLevelTotal = getTotalPointsForLevel(currentLevel + 1);
     setPointsToNextLevel(Math.max(0, nextLevelTotal - score));
-  }, [score, currentLevel]);
+  }, [score, currentLevel, getTotalPointsForLevel]);
 
   // Level up logic: when score reaches next level threshold
   useEffect(() => {
@@ -582,7 +581,7 @@ export default function PlayGame() {
       setTimeout(() => setLevelUpBanner({ show: false, newLevel: 0 }), 5000);
       setTimeout(() => setShowLevelUpPopup(false), 4000);
     }
-  }, [score, currentLevel]);
+  }, [score, currentLevel, getTotalPointsForLevel]);
 
   // On game over, update user profile if new level achieved
   const handleGameOver = async () => {
