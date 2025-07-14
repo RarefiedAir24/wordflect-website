@@ -121,6 +121,17 @@ function makeLettersFall(board: string[][]) {
   return newBoard;
 }
 
+// Helper to insert a new row at the top
+function insertNewRow(board: string[][]) {
+  const newBoard = board.map(row => [...row]);
+  for (let col = 0; col < GRID_COLS; col++) {
+    if (newBoard[0][col] === "") {
+      newBoard[0][col] = generateRandomLetter();
+    }
+  }
+  return makeLettersFall(newBoard);
+}
+
 export default function PlayGame() {
   const router = useRouter();
   const emptyBoard = Array.from({ length: GRID_ROWS }, () => Array.from({ length: GRID_COLS }, () => ""));
@@ -490,7 +501,7 @@ export default function PlayGame() {
             selected.forEach(sel => {
               newBoard[sel.row][sel.col] = "";
             });
-            return makeLettersFall(newBoard);
+            return insertNewRow(newBoard);
           });
         } else {
           setWordFeedback("Invalid word");
@@ -533,7 +544,7 @@ export default function PlayGame() {
             newPath.forEach(sel => {
               newBoard[sel.row][sel.col] = "";
             });
-            return makeLettersFall(newBoard);
+            return insertNewRow(newBoard);
           });
         } else {
           setWordFeedback("Invalid word");
