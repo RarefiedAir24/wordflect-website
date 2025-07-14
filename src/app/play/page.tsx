@@ -820,14 +820,6 @@ export default function PlayGame() {
     router.push('/signin');
   };
 
-  // For progress bar, calculate percent progress in current level
-  const currentLevelTotal = getTotalPointsForLevel(currentLevel);
-  const nextLevelTotal = getTotalPointsForLevel(currentLevel + 1);
-  const levelProgressPercent = Math.min(
-    100,
-    ((score - currentLevelTotal) / (nextLevelTotal - currentLevelTotal)) * 100
-  );
-
   return (
     <ErrorBoundary>
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black px-4 py-12">
