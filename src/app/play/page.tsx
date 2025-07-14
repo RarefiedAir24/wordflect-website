@@ -128,6 +128,9 @@ export default function PlayGame() {
   const [selected, setSelected] = useState<{ row: number; col: number }[]>([]);
   const [foundWords, setFoundWords] = useState<string[]>([]);
   const [score, setScore] = useState(0);
+  // Level always starts at 1 for each game
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const [pointsToNextLevel, setPointsToNextLevel] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -147,6 +150,9 @@ export default function PlayGame() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [levelUpBanner, setLevelUpBanner] = useState<{ show: boolean; newLevel: number }>({ show: false, newLevel: 0 });
   const [previousLevel, setPreviousLevel] = useState<number>(0);
+  // Popup for level up
+  const [showLevelUpPopup, setShowLevelUpPopup] = useState(false);
+  const [levelUpPopupLevel, setLevelUpPopupLevel] = useState(0);
 
   // Remove all wordSet and wordList logic
   const [wordFeedback, setWordFeedback] = useState<string | null>(null);
@@ -175,51 +181,63 @@ export default function PlayGame() {
   useEffect(() => { latestBoardRef.current = board; }, [board]);
 
   // Letter falling timer - letters fall every 2 seconds
-  const letterFallRef = useRef<NodeJS.Timeout | null>(null);
-  const [letterFallTimer, setLetterFallTimer] = useState(0);
+  // const letterFallRef = useRef<NodeJS.Timeout | null>(null);
+  // const [letterFallTimer, setLetterFallTimer] = useState(0);
+  // --- New: Row population timer logic matching mobile ---
+  const rowTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [rowPopulationTick, setRowPopulationTick] = useState(0);
 
-  // Function to add new letters at the top
-  const addNewLetters = (board: string[][]) => {
-    const newBoard = board.map(row => [...row]);
-    
-    // Add new letters at the top row with enhanced vowel frequency
-    for (let col = 0; col < GRID_COLS; col++) {
-      if (newBoard[0][col] === "") {
-        newBoard[0][col] = generateRandomLetter();
-      }
-    }
-    
-    return newBoard;
-  };
+  // Helper: count filled rows
+  function getFilledRows(board: string[][]) {
+    return board.filter(row => row.some(cell => cell !== "")).length;
+  }
 
-  // Continuous letter falling effect
+  // Helper: get base interval by zone
+  function getBaseInterval(filledRows: number) {
+    if (filledRows <= 1) return 12000; // Danger
+    if (filledRows <= 3) return 9000;  // Hot
+    if (filledRows <= 5) return 13000; // Warm
+    return 16000;                      // Cool
+  }
+
+  // Helper: apply level scaling
+  function getLevelScaledInterval(base: number, level: number) {
+    return base * Math.max(0.5, 1 - 0.05 * (level - 1));
+  }
+
+  // Row population effect (matches mobile)
   useEffect(() => {
     if (gameOver || validatingWord) return;
-    if (isFrozen) return; // Pause letter falling during freeze
-    
-    letterFallRef.current = setInterval(() => {
-      setLetterFallTimer(prev => prev + 1);
+    if (isFrozen) return;
+    // Clear any previous timer
+    if (rowTimerRef.current) clearTimeout(rowTimerRef.current);
+    // Calculate interval
+    const filledRows = getFilledRows(board);
+    const baseInterval = getBaseInterval(filledRows);
+    const interval = getLevelScaledInterval(baseInterval, currentLevel);
+    rowTimerRef.current = setTimeout(() => {
+      // Add new row (populate top row)
       setBoard(prevBoard => {
-        let newBoard = prevBoard;
-        // Add new letters at top every 4 seconds
-        if (letterFallTimer % 4 === 0) {
-          // Check if any cell in the top row is already filled
-          if (prevBoard[0].some(cell => cell !== "")) {
-            console.log("[GAME OVER] Tried to add new letter to full top row");
-            setGameOver(true);
-            return prevBoard;
-          }
-          newBoard = addNewLetters(newBoard);
+        // Check for game over (top row filled)
+        if (prevBoard[0].some(cell => cell !== "")) {
+          setGameOver(true);
+          return prevBoard;
         }
-        // Make letters fall down
+        // Add new letters at the top row
+        const newBoard = prevBoard.map(row => [...row]);
+        for (let col = 0; col < GRID_COLS; col++) {
+          if (newBoard[0][col] === "") {
+            newBoard[0][col] = generateRandomLetter();
+          }
+        }
         return makeLettersFall(newBoard);
       });
-    }, 2000); // Letters fall every 2 seconds
-    
+      setRowPopulationTick(tick => tick + 1); // trigger next
+    }, interval);
     return () => {
-      if (letterFallRef.current) clearInterval(letterFallRef.current);
+      if (rowTimerRef.current) clearTimeout(rowTimerRef.current);
     };
-  }, [gameOver, isFrozen, validatingWord, letterFallTimer]);
+  }, [gameOver, isFrozen, validatingWord, board, currentLevel, rowPopulationTick]);
 
   // Start and manage the timer
   useEffect(() => {
@@ -533,7 +551,34 @@ export default function PlayGame() {
     };
   }, []);
 
-  // Submit word button handler
+  // Level progression formula (same as dashboard)
+  function getPointsForLevel(level: number) {
+    const basePoints = 100;
+    return Math.round(basePoints * Math.pow(1.5, level - 1));
+  }
+
+  // Calculate points needed for next level
+  useEffect(() => {
+    const currentLevelPoints = getPointsForLevel(currentLevel);
+    const nextLevelPoints = getPointsForLevel(currentLevel + 1);
+    setPointsToNextLevel(Math.max(0, nextLevelPoints - score));
+  }, [score, currentLevel]);
+
+  // Level up logic: when score reaches next level threshold
+  useEffect(() => {
+    const nextLevelPoints = getPointsForLevel(currentLevel + 1);
+    if (score >= nextLevelPoints) {
+      setCurrentLevel((prev) => prev + 1);
+      setTimer(INITIAL_TIMER); // Reset timer to 120s
+      setLevelUpBanner({ show: true, newLevel: currentLevel + 1 });
+      setShowLevelUpPopup(true);
+      setLevelUpPopupLevel(currentLevel + 1);
+      setTimeout(() => setLevelUpBanner({ show: false, newLevel: 0 }), 5000);
+      setTimeout(() => setShowLevelUpPopup(false), 4000);
+    }
+  }, [score]);
+
+  // On game over, update user profile if new level achieved
   const handleGameOver = async () => {
     setSubmitting(true);
     setError(null);
@@ -573,6 +618,10 @@ export default function PlayGame() {
           setMissions([]);
         }
       } catch {}
+      // Update profile if new level achieved
+      if (userProfile && currentLevel > (userProfile.highestLevel || 1)) {
+        await apiService.updateUserStats({ highestLevel: currentLevel });
+      }
       setSuccess("Stats and missions updated!");
     } catch (e: unknown) {
       setError((e as Error).message || "Failed to update stats");
@@ -582,11 +631,13 @@ export default function PlayGame() {
     }
   };
 
+  // On replay, reset level and points
   const handleReplay = () => {
     setBoard(generateBoard());
     setSelected([]);
     setFoundWords([]);
     setScore(0);
+    setCurrentLevel(1);
     setGameOver(false);
     setError(null);
     setSuccess(null);
@@ -778,6 +829,21 @@ export default function PlayGame() {
             </div>
           </div>
         )}
+        {/* Level Up Popup Modal */}
+        {showLevelUpPopup && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm animate-fade-in">
+            <div className="relative bg-gradient-to-br from-gray-900/90 via-blue-900/90 to-purple-900/90 rounded-3xl shadow-2xl p-10 flex flex-col items-center gap-4 border-4 border-gradient-to-r from-blue-400 to-purple-500 animate-fade-in" style={{ minWidth: 340, maxWidth: 400 }}>
+              {/* Confetti effect using emoji */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 flex gap-2 text-3xl select-none pointer-events-none animate-bounce-slow" style={{marginTop: -32}}>
+                <span>🎉</span><span>🎊</span><span>✨</span><span>🎉</span><span>🎊</span>
+              </div>
+              <div className="text-6xl mb-2 drop-shadow-lg">🏆</div>
+              <h2 className="text-3xl font-extrabold text-white tracking-wide text-center mb-2 drop-shadow-lg">Level Up!</h2>
+              <div className="text-2xl font-bold text-blue-200 mb-1">You reached Level {levelUpPopupLevel}</div>
+              <div className="text-lg text-blue-100 mb-2">Timer reset to <span className='font-bold text-white'>2:00</span></div>
+            </div>
+          </div>
+        )}
         <div className="w-full max-w-2xl bg-black bg-opacity-80 rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-8 animate-fade-in">
           <div className="text-center mb-6">
             <h1 className="text-4xl sm:text-5xl font-extrabold text-blue-100 tracking-wider mb-2 drop-shadow-lg">
@@ -934,7 +1000,15 @@ export default function PlayGame() {
                     </div>
                   </div>
                 </div>
-
+                {/* Level and Points to Next Level Section */}
+                <div className="flex flex-col items-center mx-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="material-icons text-purple-400 text-xl">military_tech</span>
+                    <span className="text-blue-200 text-sm font-medium uppercase tracking-wide">Level</span>
+                  </div>
+                  <div className="text-2xl font-bold text-purple-300">{currentLevel}</div>
+                  <div className="text-xs text-blue-100">Next: {pointsToNextLevel} pts</div>
+                </div>
                 {/* Score Section */}
                 <div className="flex flex-col items-center">
                   <div className="flex items-center gap-2 mb-2">
