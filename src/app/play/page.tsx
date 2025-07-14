@@ -132,6 +132,22 @@ function insertNewRow(board: string[][]) {
   return makeLettersFall(newBoard);
 }
 
+// Helper to get highest filled row (0-based, so add 1 for count)
+function getHighestFilledRow(board: string[][]) {
+  for (let row = 0; row < GRID_ROWS; row++) {
+    if (board[row].some(cell => cell !== "")) {
+      return row;
+    }
+  }
+  return GRID_ROWS; // all empty
+}
+// Helper to check if board is too sparse (<60% filled)
+function isBoardTooSparse(board: string[][]) {
+  const total = GRID_ROWS * GRID_COLS;
+  const filled = board.flat().filter(cell => cell !== "").length;
+  return (filled / total) < 0.6;
+}
+
 export default function PlayGame() {
   const router = useRouter();
   const emptyBoard = Array.from({ length: GRID_ROWS }, () => Array.from({ length: GRID_COLS }, () => ""));
@@ -501,7 +517,12 @@ export default function PlayGame() {
             selected.forEach(sel => {
               newBoard[sel.row][sel.col] = "";
             });
-            return insertNewRow(newBoard);
+            const fallen = makeLettersFall(newBoard);
+            const highestRow = getHighestFilledRow(fallen);
+            if ((word.length >= 5 && highestRow > 1) || (isBoardTooSparse(fallen) && highestRow > 1)) {
+              return insertNewRow(fallen);
+            }
+            return fallen;
           });
         } else {
           setWordFeedback("Invalid word");
@@ -544,7 +565,12 @@ export default function PlayGame() {
             newPath.forEach(sel => {
               newBoard[sel.row][sel.col] = "";
             });
-            return insertNewRow(newBoard);
+            const fallen = makeLettersFall(newBoard);
+            const highestRow = getHighestFilledRow(fallen);
+            if ((word.length >= 5 && highestRow > 1) || (isBoardTooSparse(fallen) && highestRow > 1)) {
+              return insertNewRow(fallen);
+            }
+            return fallen;
           });
         } else {
           setWordFeedback("Invalid word");
