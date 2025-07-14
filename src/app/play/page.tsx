@@ -615,8 +615,12 @@ export default function PlayGame() {
       setLevelUpBanner({ show: true, newLevel: currentLevel + 1 });
       setShowLevelUpPopup(true);
       setLevelUpPopupLevel(currentLevel + 1);
+      setIsFrozen(true);
       setTimeout(() => setLevelUpBanner({ show: false, newLevel: 0 }), 5000);
-      setTimeout(() => setShowLevelUpPopup(false), 4000);
+      setTimeout(() => {
+        setShowLevelUpPopup(false);
+        setIsFrozen(false);
+      }, 4000);
     }
   }, [score, currentLevel, getTotalPointsForLevel]);
 
