@@ -490,7 +490,7 @@ export default function PlayGame() {
             selected.forEach(sel => {
               newBoard[sel.row][sel.col] = "";
             });
-            return newBoard;
+            return makeLettersFall(newBoard);
           });
         } else {
           setWordFeedback("Invalid word");
@@ -533,7 +533,7 @@ export default function PlayGame() {
             newPath.forEach(sel => {
               newBoard[sel.row][sel.col] = "";
             });
-            return newBoard;
+            return makeLettersFall(newBoard);
           });
         } else {
           setWordFeedback("Invalid word");
@@ -551,22 +551,29 @@ export default function PlayGame() {
     };
   }, []);
 
-  // Level progression formula (same as dashboard)
-  function getPointsForLevel(level: number) {
-    const basePoints = 100;
-    return Math.round(basePoints * Math.pow(1.5, level - 1));
+  // Level progression helpers (per markdown)
+  function getAdditionalPointsNeeded(level: number) {
+    return Math.floor(25 * Math.pow(1.15, level - 1));
+  }
+  function getTotalPointsForLevel(level: number) {
+    let total = 0;
+    for (let i = 1; i < level; i++) {
+      total += getAdditionalPointsNeeded(i);
+    }
+    return total;
   }
 
-  // Calculate points needed for next level
+  // Calculate points needed for next level and progress
   useEffect(() => {
-    const nextLevelPoints = getPointsForLevel(currentLevel + 1);
-    setPointsToNextLevel(Math.max(0, nextLevelPoints - score));
+    const currentLevelTotal = getTotalPointsForLevel(currentLevel);
+    const nextLevelTotal = getTotalPointsForLevel(currentLevel + 1);
+    setPointsToNextLevel(Math.max(0, nextLevelTotal - score));
   }, [score, currentLevel]);
 
   // Level up logic: when score reaches next level threshold
   useEffect(() => {
-    const nextLevelPoints = getPointsForLevel(currentLevel + 1);
-    if (score >= nextLevelPoints) {
+    const nextLevelTotal = getTotalPointsForLevel(currentLevel + 1);
+    if (score >= nextLevelTotal) {
       setCurrentLevel((prev) => prev + 1);
       setTimer(INITIAL_TIMER); // Reset timer to 120s
       setLevelUpBanner({ show: true, newLevel: currentLevel + 1 });
@@ -812,6 +819,14 @@ export default function PlayGame() {
     }
     router.push('/signin');
   };
+
+  // For progress bar, calculate percent progress in current level
+  const currentLevelTotal = getTotalPointsForLevel(currentLevel);
+  const nextLevelTotal = getTotalPointsForLevel(currentLevel + 1);
+  const levelProgressPercent = Math.min(
+    100,
+    ((score - currentLevelTotal) / (nextLevelTotal - currentLevelTotal)) * 100
+  );
 
   return (
     <ErrorBoundary>
