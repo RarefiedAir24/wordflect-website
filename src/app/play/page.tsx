@@ -145,6 +145,8 @@ export default function PlayGame() {
   const [gems, setGems] = useState(0);
   const [powerupError, setPowerupError] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [levelUpBanner, setLevelUpBanner] = useState<{ show: boolean; newLevel: number }>({ show: false, newLevel: 0 });
+  const [previousLevel, setPreviousLevel] = useState<number>(0);
 
   // Remove all wordSet and wordList logic
   const [wordFeedback, setWordFeedback] = useState<string | null>(null);
@@ -338,6 +340,17 @@ export default function PlayGame() {
         if (isMounted) {
           setFlectcoins(profile.flectcoins || 0);
           setGems(profile.gems || 0);
+          
+          // Check for level up
+          if (profile.highestLevel > previousLevel && previousLevel > 0) {
+            setLevelUpBanner({ show: true, newLevel: profile.highestLevel });
+            // Auto-hide banner after 5 seconds
+            setTimeout(() => {
+              setLevelUpBanner({ show: false, newLevel: 0 });
+            }, 5000);
+          }
+          
+          setPreviousLevel(profile.highestLevel);
           setUserProfile(profile); // Store full profile
           setPowerupError(null); // Clear any previous auth errors
         }
@@ -753,6 +766,18 @@ export default function PlayGame() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black px-4 py-12">
+        {/* Level Up Banner */}
+        {levelUpBanner.show && (
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
+            <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-black font-bold px-8 py-4 rounded-full shadow-2xl border-2 border-yellow-300 animate-bounce">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🎉</span>
+                <span className="text-lg">Level Up! You reached Level {levelUpBanner.newLevel}</span>
+                <span className="text-2xl">🎉</span>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="w-full max-w-2xl bg-black bg-opacity-80 rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-8 animate-fade-in">
           <div className="text-center mb-6">
             <h1 className="text-4xl sm:text-5xl font-extrabold text-blue-100 tracking-wider mb-2 drop-shadow-lg">

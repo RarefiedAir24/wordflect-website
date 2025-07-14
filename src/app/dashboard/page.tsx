@@ -5,6 +5,29 @@ import Image from "next/image";
 import Link from "next/link";
 import { apiService, UserProfile } from "@/services/api";
 
+// Calculate points needed for next level
+function calculateLevelProgress(points: number, currentLevel: number): {
+  pointsToNext: number;
+  progressPercentage: number;
+  totalPointsForLevel: number;
+} {
+  // Simple level progression: each level requires more points
+  const basePoints = 100; // Points needed for level 1
+  const pointsForCurrentLevel = basePoints * Math.pow(1.5, currentLevel - 1);
+  const pointsForNextLevel = basePoints * Math.pow(1.5, currentLevel);
+  
+  const pointsInCurrentLevel = points - pointsForCurrentLevel;
+  const pointsNeededForNextLevel = pointsForNextLevel - pointsForCurrentLevel;
+  
+  const progressPercentage = Math.min((pointsInCurrentLevel / pointsNeededForNextLevel) * 100, 100);
+  
+  return {
+    pointsToNext: Math.max(0, Math.ceil(pointsNeededForNextLevel - pointsInCurrentLevel)),
+    progressPercentage,
+    totalPointsForLevel: Math.ceil(pointsNeededForNextLevel)
+  };
+}
+
 export default function Dashboard() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,6 +90,8 @@ export default function Dashboard() {
     return null;
   }
 
+  const levelProgress = calculateLevelProgress(profile.points, profile.highestLevel);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-black px-4 py-12">
       <div className="w-full max-w-xl bg-black bg-opacity-70 rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-8 animate-fade-in">
@@ -103,6 +128,24 @@ export default function Dashboard() {
             <div className="text-center">
               <p className="text-lg text-blue-200 font-medium">Welcome, {profile.username}!</p>
               <p className="text-sm text-gray-300">Level {profile.highestLevel}</p>
+            </div>
+          </div>
+          
+          {/* Level Progress Bar */}
+          <div className="w-full max-w-sm">
+            <div className="flex justify-between text-sm text-gray-300 mb-2">
+              <span>Progress to Level {profile.highestLevel + 1}</span>
+              <span>{levelProgress.pointsToNext} points needed</span>
+            </div>
+            <div className="w-full bg-gray-700 rounded-full h-3">
+              <div 
+                className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300"
+                style={{ width: `${levelProgress.progressPercentage}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between text-xs text-gray-400 mt-1">
+              <span>{profile.points} points</span>
+              <span>{Math.ceil(levelProgress.totalPointsForLevel)} total</span>
             </div>
           </div>
         </div>
