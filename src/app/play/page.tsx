@@ -559,7 +559,6 @@ export default function PlayGame() {
 
   // Calculate points needed for next level
   useEffect(() => {
-    const currentLevelPoints = getPointsForLevel(currentLevel);
     const nextLevelPoints = getPointsForLevel(currentLevel + 1);
     setPointsToNextLevel(Math.max(0, nextLevelPoints - score));
   }, [score, currentLevel]);
@@ -576,7 +575,7 @@ export default function PlayGame() {
       setTimeout(() => setLevelUpBanner({ show: false, newLevel: 0 }), 5000);
       setTimeout(() => setShowLevelUpPopup(false), 4000);
     }
-  }, [score]);
+  }, [score, currentLevel]);
 
   // On game over, update user profile if new level achieved
   const handleGameOver = async () => {
