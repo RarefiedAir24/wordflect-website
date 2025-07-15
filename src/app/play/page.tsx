@@ -802,8 +802,10 @@ export default function PlayGame() {
   };
 
   // Auto-call handleGameOver when game ends (for any reason)
+  const hasHandledGameOver = useRef(false);
   useEffect(() => {
-    if (gameOver && !submitting) {
+    if (gameOver && !submitting && !hasHandledGameOver.current) {
+      hasHandledGameOver.current = true;
       console.log('🎮 Game ended automatically - calling handleGameOver');
       handleGameOver();
     }
@@ -821,6 +823,7 @@ export default function PlayGame() {
     setSuccess(null);
     setTimer(INITIAL_TIMER);
     setInDangerZone(false);
+    hasHandledGameOver.current = false; // Reset so next game can trigger
     if (dangerZoneTimeout.current) {
       clearTimeout(dangerZoneTimeout.current);
       dangerZoneTimeout.current = null;
