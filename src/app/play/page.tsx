@@ -839,16 +839,20 @@ export default function PlayGame() {
         console.warn("User profile not loaded, cannot sync currency");
         return;
       }
-      // Prepare full stats object for backend
+      // Prepare stats object with required fields for backend
       const updatedStats = {
-        ...userProfile,
+        id: userProfile.id,
+        score: score,
+        words: foundWords,
         flectcoins: newFlectcoins,
         gems: newGems,
       };
-      console.log("Attempting to sync currency with full stats:", updatedStats);
+      console.log("Attempting to sync currency with stats:", updatedStats);
       const result = await apiService.updateUserStats(updatedStats);
       console.log("Currency sync response:", result);
-      setUserProfile(updatedStats); // Update local profile state
+      
+      // Update local profile state with new currency values
+      setUserProfile(prev => prev ? { ...prev, flectcoins: newFlectcoins, gems: newGems } : null);
       console.log("Currency synced successfully:", { flectcoins: newFlectcoins, gems: newGems });
     } catch (e: unknown) {
       console.error("Currency sync error:", e);
