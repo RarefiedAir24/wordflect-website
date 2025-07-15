@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { apiService, UserProfile } from "@/services/api";
 // import words from "../words.json";
 import { useRouter } from "next/navigation";
@@ -409,13 +409,7 @@ export default function PlayGame() {
     return () => { isMounted = false; };
   }, [previousLevel]);
 
-  // Auto-call handleGameOver when game ends (for any reason)
-  useEffect(() => {
-    if (gameOver && !submitting) {
-      console.log('🎮 Game ended automatically - calling handleGameOver');
-      handleGameOver();
-    }
-  }, [gameOver]);
+
 
   // Load word list from public/words.json and generate board
   useEffect(() => {
@@ -597,16 +591,17 @@ export default function PlayGame() {
   }, []);
 
   // Level progression helpers (per markdown)
-  function getAdditionalPointsNeeded(level: number) {
+  const getAdditionalPointsNeeded = useCallback((level: number) => {
     return Math.floor(25 * Math.pow(1.15, level - 1));
-  }
-  function getTotalPointsForLevel(level: number) {
+  }, []);
+
+  const getTotalPointsForLevel = useCallback((level: number) => {
     let total = 0;
     for (let i = 1; i < level; i++) {
       total += getAdditionalPointsNeeded(i);
     }
     return total;
-  }
+  }, [getAdditionalPointsNeeded]);
 
   // Calculate points needed for next level and progress
   useEffect(() => {
@@ -680,8 +675,8 @@ export default function PlayGame() {
       console.log('📊 Sending game stats to backend:', gameStats);
 
       // Update user stats first
-      const statsResponse = await apiService.updateUserStats(gameStats);
-      console.log('✅ User stats updated successfully:', statsResponse);
+              await apiService.updateUserStats(gameStats);
+        console.log('✅ User stats updated successfully');
 
       console.log('🎯 Checking missions for completion...', missions);
 
@@ -772,6 +767,14 @@ export default function PlayGame() {
       setGameOver(true);
     }
   };
+
+  // Auto-call handleGameOver when game ends (for any reason)
+  useEffect(() => {
+    if (gameOver && !submitting) {
+      console.log('🎮 Game ended automatically - calling handleGameOver');
+      handleGameOver();
+    }
+  }, [gameOver, submitting]);
 
   // On replay, reset level and points
   const handleReplay = () => {

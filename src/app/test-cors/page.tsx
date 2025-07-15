@@ -50,7 +50,7 @@ export default function TestCors() {
       // Test 4: Test stats update endpoint
       addResult('📡 Testing /user/update-stats...');
       try {
-        const statsResult = await apiService.updateUserStats({
+        await apiService.updateUserStats({
           test: true,
           timestamp: Date.now()
         });
