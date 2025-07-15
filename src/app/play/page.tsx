@@ -68,20 +68,88 @@ const GRID_COLS = 5;
 const GRID_ROWS = 8;
 
 // Generate a board that starts with bottom 3 rows populated
-// Enhanced letter generation with vowel frequency
+// Enhanced letter generation with proper frequency distribution and rare letter guardrails
 function generateRandomLetter(): string {
-  const vowels = "AEIOU";
-  const consonants = "BCDFGHJKLMNPQRSTVWXYZ";
+  // Letter frequency distribution based on Scrabble/English usage
+  const letterFrequencies: Record<string, number> = {
+    // Vowels (30% total probability)
+    'A': 9.0, 'E': 12.0, 'I': 9.0, 'O': 8.0, 'U': 4.0,
+    // Common consonants (60% total probability)
+    'T': 9.0, 'N': 6.7, 'S': 6.3, 'H': 6.1, 'R': 6.0,
+    'D': 4.3, 'L': 4.0, 'C': 2.8, 'M': 2.4, 'W': 2.4,
+    'F': 2.2, 'G': 2.0, 'Y': 2.0, 'P': 1.9, 'B': 1.5,
+    'V': 0.98, 'K': 0.77, 'J': 0.15, 'X': 0.15, 'Q': 0.10,
+    'Z': 0.07
+  };
+
+  // Convert frequencies to cumulative probabilities
+  const letters = Object.keys(letterFrequencies);
+  const totalFreq = Object.values(letterFrequencies).reduce((sum, freq) => sum + freq, 0);
   
-  // 30% chance for vowels, 70% for consonants (increased from ~19% natural frequency)
-  if (Math.random() < 0.3) {
-    return vowels[Math.floor(Math.random() * vowels.length)];
-  } else {
-    return consonants[Math.floor(Math.random() * consonants.length)];
+  // Create cumulative probability array
+  let cumulative = 0;
+  const cumulativeProbs: { letter: string; prob: number }[] = [];
+  
+  for (const letter of letters) {
+    cumulative += letterFrequencies[letter] / totalFreq;
+    cumulativeProbs.push({ letter, prob: cumulative });
+  }
+
+  // Generate random letter based on frequency
+  const random = Math.random();
+  for (const { letter, prob } of cumulativeProbs) {
+    if (random <= prob) {
+      return letter;
+    }
+  }
+  
+  // Fallback to most common letter
+  return 'E';
+}
+
+// Track rare letters to prevent multiple instances
+const rareLettersOnBoard = new Set<string>();
+
+// Enhanced letter generation with rare letter guardrails
+function generateRandomLetterWithGuardrails(): string {
+  const rareLetters = ['Z', 'Q', 'X', 'J', 'K', 'V'];
+  const maxRareLettersOnBoard = 2; // Maximum rare letters allowed on board at once
+  
+  // Check if we're at the rare letter limit
+  const currentRareCount = Array.from(rareLettersOnBoard).length;
+  
+  if (currentRareCount >= maxRareLettersOnBoard) {
+    // Generate only common letters
+    const commonLetters = ['A', 'E', 'I', 'O', 'U', 'T', 'N', 'S', 'H', 'R', 'D', 'L', 'C', 'M', 'W', 'F', 'G', 'Y', 'P', 'B'];
+    return commonLetters[Math.floor(Math.random() * commonLetters.length)];
+  }
+  
+  // Generate letter with normal frequency
+  const letter = generateRandomLetter();
+  
+  // Track rare letters
+  if (rareLetters.includes(letter)) {
+    rareLettersOnBoard.add(letter);
+  }
+  
+  return letter;
+}
+
+// Reset rare letter tracking when board is cleared
+function resetRareLetterTracking() {
+  rareLettersOnBoard.clear();
+}
+
+// Remove rare letter from tracking when it's used
+function removeRareLetterFromTracking(letter: string) {
+  const rareLetters = ['Z', 'Q', 'X', 'J', 'K', 'V'];
+  if (rareLetters.includes(letter)) {
+    rareLettersOnBoard.delete(letter);
   }
 }
 
 function generateBoard() {
+  resetRareLetterTracking();
   const board = Array.from({ length: GRID_ROWS }, () =>
     Array.from({ length: GRID_COLS }, () => "")
   );
@@ -89,11 +157,12 @@ function generateBoard() {
   // Fill the bottom 3 rows with enhanced letter distribution
   for (let row = GRID_ROWS - 3; row < GRID_ROWS; row++) {
     for (let col = 0; col < GRID_COLS; col++) {
-      board[row][col] = generateRandomLetter();
+      board[row][col] = generateRandomLetterWithGuardrails();
     }
   }
   
   console.log("Generated board:", board);
+  console.log("Rare letters on board:", Array.from(rareLettersOnBoard));
   return board;
 }
 
@@ -126,7 +195,7 @@ function insertNewRow(board: string[][]) {
   const newBoard = board.map(row => [...row]);
   for (let col = 0; col < GRID_COLS; col++) {
     if (newBoard[0][col] === "") {
-      newBoard[0][col] = generateRandomLetter();
+      newBoard[0][col] = generateRandomLetterWithGuardrails();
     }
   }
   return makeLettersFall(newBoard);
@@ -280,7 +349,7 @@ export default function PlayGame() {
         const newBoard = prevBoard.map(row => [...row]);
         for (let col = 0; col < GRID_COLS; col++) {
           if (newBoard[0][col] === "") {
-            newBoard[0][col] = generateRandomLetter();
+            newBoard[0][col] = generateRandomLetterWithGuardrails();
           }
         }
         console.log('✅ New row added successfully');
@@ -548,7 +617,10 @@ export default function PlayGame() {
           setBoard(prevBoard => {
             const newBoard = prevBoard.map(row => [...row]);
             selected.forEach(sel => {
+              const letter = newBoard[sel.row][sel.col];
               newBoard[sel.row][sel.col] = "";
+              // Remove rare letter from tracking when used
+              removeRareLetterFromTracking(letter);
             });
             const fallen = makeLettersFall(newBoard);
             const highestRow = getHighestFilledRow(fallen);
@@ -596,7 +668,10 @@ export default function PlayGame() {
           setBoard(prevBoard => {
             const newBoard = prevBoard.map(row => [...row]);
             newPath.forEach(sel => {
+              const letter = newBoard[sel.row][sel.col];
               newBoard[sel.row][sel.col] = "";
+              // Remove rare letter from tracking when used
+              removeRareLetterFromTracking(letter);
             });
             const fallen = makeLettersFall(newBoard);
             const highestRow = getHighestFilledRow(fallen);
@@ -822,6 +897,7 @@ export default function PlayGame() {
 
   // On replay, reset level and points
   const handleReplay = () => {
+    resetRareLetterTracking(); // Reset rare letter tracking for new game
     setBoard(generateBoard());
     setSelected([]);
     setFoundWords([]);
@@ -944,6 +1020,19 @@ export default function PlayGame() {
       for (let row = 0; row < GRID_ROWS; row++) {
         shuffledBoard.push(existingLetters.slice(row * GRID_COLS, (row + 1) * GRID_COLS));
       }
+
+      // Reset rare letter tracking for shuffled board
+      resetRareLetterTracking();
+      shuffledBoard.forEach(row => {
+        row.forEach(letter => {
+          if (letter !== "") {
+            const rareLetters = ['Z', 'Q', 'X', 'J', 'K', 'V'];
+            if (rareLetters.includes(letter)) {
+              rareLettersOnBoard.add(letter);
+            }
+          }
+        });
+      });
 
       // Defensive check
       const isValid = Array.isArray(shuffledBoard)
