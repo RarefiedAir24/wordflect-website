@@ -2,10 +2,7 @@
 export const API_CONFIG = {
   // Base URL for the Wordflect API
   // For production, this should point to the actual deployed API
-  // For development, we use a proxy to avoid CORS issues
-  BASE_URL: process.env.NODE_ENV === 'development' 
-    ? 'http://localhost:3000/api/proxy' 
-    : (process.env.NEXT_PUBLIC_API_URL || 'https://api.wordflect.com'),
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'https://api.wordflect.com',
   
   // API Endpoints
   ENDPOINTS: {
@@ -32,10 +29,5 @@ export const API_CONFIG = {
 
 // Helper function to build full API URLs
 export const buildApiUrl = (endpoint: string): string => {
-  if (process.env.NODE_ENV === 'development') {
-    // Use proxy with query parameter for development
-    return `${API_CONFIG.BASE_URL}?path=${encodeURIComponent(endpoint)}`;
-  }
-  // Use direct API URL for production
   return `${API_CONFIG.BASE_URL}${endpoint}`;
 }; 
