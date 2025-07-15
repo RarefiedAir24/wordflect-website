@@ -697,12 +697,11 @@ export default function PlayGame() {
         score,
         words: foundWords,
         foundWords,
-        flectcoins, // Use current balance, do not add more
+        // Do NOT include flectcoins in game stats - they should only come from mission completions
         gems,
         wordsFound: foundWords.length,
         longestWord: foundWords.reduce((longest, word) => word.length > longest.length ? word : longest, ''),
         gameCompleted: true,
-        // No flectcoinsEarned field
         // Add more fields as needed for your backend
       };
 
