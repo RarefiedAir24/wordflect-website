@@ -49,10 +49,16 @@ export interface UserProfile {
 class ApiService {
   private getAuthHeaders(): HeadersInit {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    return {
+    const headers = {
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` })
     };
+    console.log('🔐 Auth headers:', { 
+      hasToken: !!token, 
+      tokenLength: token?.length,
+      headers: Object.keys(headers)
+    });
+    return headers;
   }
 
   private async makeRequest(url: string, options: RequestInit, retries = 0): Promise<Response> {
@@ -272,18 +278,32 @@ class ApiService {
   // Fetch user missions
   async getMissions(): Promise<unknown> {
     try {
+      const fullUrl = buildApiUrl(API_CONFIG.ENDPOINTS.USER_MISSIONS);
+      console.log('📤 Sending getMissions request:', {
+        url: fullUrl,
+        endpoint: API_CONFIG.ENDPOINTS.USER_MISSIONS,
+        baseUrl: API_CONFIG.BASE_URL
+      });
+      
       const response = await this.makeRequest(
-        buildApiUrl('/user/missions'),
+        fullUrl,
         {
           method: 'GET',
           headers: this.getAuthHeaders(),
         }
       );
+      
+      console.log('📥 getMissions response status:', response.status);
+      
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('❌ getMissions error response:', errorData);
         throw new Error(errorData.message || 'Failed to fetch missions');
       }
-      return await response.json();
+      
+      const result = await response.json();
+      console.log('✅ getMissions success:', result);
+      return result;
     } catch (error) {
       console.error('Get missions error:', error);
       throw error;
