@@ -252,13 +252,8 @@ class ApiService {
   // Fetch word definition
   async getWordDefinition(word: string): Promise<{ definition: string; pronunciation?: string; attribution?: string }> {
     try {
-      const response = await this.makeRequest(
-        buildApiUrl(`/word/definition?word=${encodeURIComponent(word)}`),
-        {
-          method: 'GET',
-          headers: this.getAuthHeaders(),
-        }
-      );
+      // Use proxy endpoint to avoid CORS issues
+      const response = await fetch(`/api/proxy-word-definition?word=${encodeURIComponent(word)}`);
       if (!response.ok) {
         return { definition: 'No definition found.' };
       }
