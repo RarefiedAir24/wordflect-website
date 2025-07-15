@@ -173,7 +173,7 @@ class ApiService {
   async updateUserStats(stats: Record<string, unknown>): Promise<unknown> {
     try {
       const response = await this.makeRequest(
-        buildApiUrl('/user/update-stats'),
+        buildApiUrl(API_CONFIG.ENDPOINTS.USER_UPDATE_STATS),
         {
           method: 'POST',
           headers: this.getAuthHeaders(),
@@ -195,7 +195,7 @@ class ApiService {
   async completeMission({ id, missionId, period }: { id: string; missionId: string; period: string }): Promise<unknown> {
     try {
       const response = await this.makeRequest(
-        buildApiUrl('/user/complete-mission'),
+        buildApiUrl(API_CONFIG.ENDPOINTS.USER_COMPLETE_MISSION),
         {
           method: 'POST',
           headers: this.getAuthHeaders(),

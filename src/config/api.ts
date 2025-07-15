@@ -10,6 +10,8 @@ export const API_CONFIG = {
     SIGNUP: '/signup',
     USER_PROFILE: '/user/profile',
     USER_MISSIONS: '/user/missions',
+    USER_UPDATE_STATS: '/user/update-stats',
+    USER_COMPLETE_MISSION: '/user/complete-mission',
     LEADERBOARD: '/leaderboard',
     USER_FRAMES: '/user/frames',
     WORD_OF_THE_DAY: '/word-of-the-day',

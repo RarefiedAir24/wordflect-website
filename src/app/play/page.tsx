@@ -629,32 +629,102 @@ export default function PlayGame() {
     setSubmitting(true);
     setError(null);
     setSuccess(null);
+    
+    // Check authentication first
+    if (!apiService.isAuthenticated()) {
+      console.warn('❌ User not authenticated - cannot post stats');
+      setError('You must be signed in to save your game stats and missions.');
+      setSubmitting(false);
+      setGameOver(true);
+      return;
+    }
+    
     try {
-      await apiService.updateUserStats({
+      console.log('🎮 Game Over - Starting stats update...', {
+        score,
+        foundWords: foundWords.length,
+        flectcoins,
+        gems,
+        currentLevel
+      });
+
+      // Calculate game stats for missions
+      const gameStats = {
         score,
         foundWords,
         flectcoins,
         gems,
+        wordsFound: foundWords.length,
+        longestWord: foundWords.reduce((longest, word) => word.length > longest.length ? word : longest, ''),
+        gameCompleted: true,
         // Add more fields as needed for your backend
-      });
+      };
+
+      console.log('📊 Sending game stats to backend:', gameStats);
+
+      // Update user stats first
+      await apiService.updateUserStats(gameStats);
+      console.log('✅ User stats updated successfully');
+
+      console.log('🎯 Checking missions for completion...', missions);
+
       // Check for completed missions and call completeMission for each
       const completedMissions = missions.filter(m => {
         const goalOrTarget = m.goal ?? m.target;
-        return !m.completed && goalOrTarget !== undefined && (m.progress + 1 >= goalOrTarget);
+        if (!goalOrTarget || m.completed) {
+          console.log(`❌ Mission ${m.id} skipped:`, { goalOrTarget, completed: m.completed });
+          return false;
+        }
+        
+        // Calculate new progress based on mission type
+        let newProgress = m.progress;
+        
+        // Add progress based on current game stats
+        if (m.type === 'words' || m.title?.toLowerCase().includes('word')) {
+          newProgress += foundWords.length;
+        } else if (m.type === 'score' || m.title?.toLowerCase().includes('score')) {
+          newProgress += score;
+        } else if (m.type === 'games' || m.title?.toLowerCase().includes('game')) {
+          newProgress += 1; // One game completed
+        } else {
+          // Default: assume it's word-based mission
+          newProgress += foundWords.length;
+        }
+        
+        const willComplete = newProgress >= goalOrTarget;
+        console.log(`🎯 Mission ${m.id} (${m.title || m.name}):`, {
+          currentProgress: m.progress,
+          newProgress,
+          goalOrTarget,
+          willComplete,
+          type: m.type,
+          title: m.title
+        });
+        
+        return willComplete;
       });
+
+      console.log('🏆 Missions to complete:', completedMissions.length);
+
+      // Complete missions
       for (const mission of completedMissions) {
         try {
+          console.log(`🏆 Completing mission: ${mission.id}`);
           await apiService.completeMission({
             id: mission.id,
             missionId: mission.id,
             period: mission.period || mission.type || 'daily', // fallback to daily if not specified
           });
-        } catch {
+          console.log(`✅ Mission ${mission.id} completed successfully`);
+        } catch (error) {
+          console.error('❌ Failed to complete mission:', mission.id, error);
           // Optionally handle/report mission completion errors
         }
       }
+
       // Refetch missions to update state
       try {
+        console.log('🔄 Refetching missions...');
         const data = await apiService.getMissions();
         if (typeof data === 'object' && data !== null && 'missions' in data && Array.isArray((data as { missions?: unknown[] }).missions)) {
           setMissions((data as { missions: Mission[] }).missions);
@@ -663,13 +733,20 @@ export default function PlayGame() {
         } else {
           setMissions([]);
         }
-      } catch {}
+        console.log('✅ Missions refetched successfully');
+      } catch (error) {
+        console.error('❌ Failed to refetch missions:', error);
+      }
+
       // Update profile if new level achieved
       if (userProfile && currentLevel > (userProfile.highestLevel || 1)) {
+        console.log(`🏆 New level achieved: ${currentLevel} (previous: ${userProfile.highestLevel})`);
         await apiService.updateUserStats({ highestLevel: currentLevel });
       }
+      
       setSuccess("Stats and missions updated!");
     } catch (e: unknown) {
+      console.error('❌ Game over error:', e);
       setError((e as Error).message || "Failed to update stats");
     } finally {
       setSubmitting(false);
