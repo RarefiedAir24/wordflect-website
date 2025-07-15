@@ -29,5 +29,10 @@ export const API_CONFIG = {
 
 // Helper function to build full API URLs
 export const buildApiUrl = (endpoint: string): string => {
+  // If it's a proxy route (starts with /api/), don't add the base URL
+  if (endpoint.startsWith('/api/')) {
+    return endpoint;
+  }
+  // Use direct API URL for production
   return `${API_CONFIG.BASE_URL}${endpoint}`;
 }; 

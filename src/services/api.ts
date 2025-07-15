@@ -178,13 +178,16 @@ class ApiService {
   // Update user stats
   async updateUserStats(stats: Record<string, unknown>): Promise<unknown> {
     try {
+      const url = buildApiUrl(API_CONFIG.ENDPOINTS.USER_UPDATE_STATS);
       console.log('📤 Sending updateUserStats request:', {
-        url: buildApiUrl(API_CONFIG.ENDPOINTS.USER_UPDATE_STATS),
+        url: url,
+        endpoint: API_CONFIG.ENDPOINTS.USER_UPDATE_STATS,
+        baseUrl: API_CONFIG.BASE_URL,
         stats
       });
       
       const response = await this.makeRequest(
-        buildApiUrl(API_CONFIG.ENDPOINTS.USER_UPDATE_STATS),
+        url,
         {
           method: 'POST',
           headers: this.getAuthHeaders(),
