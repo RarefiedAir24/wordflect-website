@@ -441,3 +441,145 @@ src/
 **Last Updated**: $(date)
 **Version**: 1.0.0
 **Status**: Production Ready ✅
+
+## 🅰️ Letter Frequency Guardrails (Web & Mobile Standard)
+
+### Rationale
+To ensure fair and enjoyable gameplay, the board should reflect realistic English letter frequencies and prevent rare letters (Z, Q, X, J, K, V) from appearing too often or in multiples. This prevents situations where players are stuck with unplayable tiles and matches the expectations of word game players.
+
+### Frequency Table (Based on Scrabble/English Usage)
+| Letter | Frequency |
+|--------|-----------|
+| E      | 12.0      |
+| A      | 9.0       |
+| I      | 9.0       |
+| O      | 8.0       |
+| T      | 9.0       |
+| N      | 6.7       |
+| S      | 6.3       |
+| H      | 6.1       |
+| R      | 6.0       |
+| D      | 4.3       |
+| L      | 4.0       |
+| U      | 4.0       |
+| C      | 2.8       |
+| M      | 2.4       |
+| W      | 2.4       |
+| F      | 2.2       |
+| G      | 2.0       |
+| Y      | 2.0       |
+| P      | 1.9       |
+| B      | 1.5       |
+| V      | 0.98      |
+| K      | 0.77      |
+| J      | 0.15      |
+| X      | 0.15      |
+| Q      | 0.10      |
+| Z      | 0.07      |
+
+### Rare Letter Guardrails
+- **Rare letters:** Z, Q, X, J, K, V
+- **Maximum allowed on board at once:** 2
+- If the board already contains 2 or more rare letters, only common letters are generated until a rare letter is used.
+- Rare letter tracking resets on new game, shuffle, or replay.
+
+### Reference Implementation (TypeScript/JavaScript)
+```ts
+// Frequency table
+const letterFrequencies: Record<string, number> = {
+  'A': 9.0, 'E': 12.0, 'I': 9.0, 'O': 8.0, 'U': 4.0,
+  'T': 9.0, 'N': 6.7, 'S': 6.3, 'H': 6.1, 'R': 6.0,
+  'D': 4.3, 'L': 4.0, 'C': 2.8, 'M': 2.4, 'W': 2.4,
+  'F': 2.2, 'G': 2.0, 'Y': 2.0, 'P': 1.9, 'B': 1.5,
+  'V': 0.98, 'K': 0.77, 'J': 0.15, 'X': 0.15, 'Q': 0.10, 'Z': 0.07
+};
+const rareLetters = ['Z', 'Q', 'X', 'J', 'K', 'V'];
+const maxRareLettersOnBoard = 2;
+let rareLettersOnBoard = new Set<string>();
+
+function generateRandomLetter(): string {
+  // ... (convert frequency table to cumulative probabilities)
+  // ... (pick a letter based on random number)
+}
+
+function generateRandomLetterWithGuardrails(): string {
+  if (rareLettersOnBoard.size >= maxRareLettersOnBoard) {
+    // Only generate common letters
+    const commonLetters = Object.keys(letterFrequencies).filter(l => !rareLetters.includes(l));
+    return commonLetters[Math.floor(Math.random() * commonLetters.length)];
+  }
+  const letter = generateRandomLetter();
+  if (rareLetters.includes(letter)) rareLettersOnBoard.add(letter);
+  return letter;
+}
+
+function resetRareLetterTracking() {
+  rareLettersOnBoard.clear();
+}
+function removeRareLetterFromTracking(letter: string) {
+  if (rareLetters.includes(letter)) rareLettersOnBoard.delete(letter);
+}
+```
+
+#### Example Usage in Board Generation
+```ts
+// When generating a new board or row:
+resetRareLetterTracking();
+for (let row = 0; row < ROWS; row++) {
+  for (let col = 0; col < COLS; col++) {
+    board[row][col] = generateRandomLetterWithGuardrails();
+  }
+}
+```
+
+#### When to Reset or Update Tracking
+- **On new game/replay:** Call `resetRareLetterTracking()`
+- **On shuffle:** Re-scan the board and re-add any rare letters to the set
+- **When a letter is used/removed:** Call `removeRareLetterFromTracking(letter)`
+
+### Mobile Implementation Notes
+- **Port the frequency table and guardrail logic to Swift/Kotlin/Flutter.**
+- Use a Set or List to track rare letters on the board.
+- Ensure all board generation (initial, row insert, shuffle) uses the guardrail logic.
+- Reset tracking on new game, shuffle, or replay.
+- Remove rare letter from tracking when it is used/removed.
+
+#### Example (Swift-like pseudocode)
+```swift
+let letterFrequencies: [Character: Double] = [
+  "A": 9.0, "E": 12.0, "I": 9.0, "O": 8.0, "U": 4.0,
+  "T": 9.0, "N": 6.7, "S": 6.3, "H": 6.1, "R": 6.0,
+  "D": 4.3, "L": 4.0, "C": 2.8, "M": 2.4, "W": 2.4,
+  "F": 2.2, "G": 2.0, "Y": 2.0, "P": 1.9, "B": 1.5,
+  "V": 0.98, "K": 0.77, "J": 0.15, "X": 0.15, "Q": 0.10, "Z": 0.07
+]
+let rareLetters: Set<Character> = ["Z", "Q", "X", "J", "K", "V"]
+var rareLettersOnBoard = Set<Character>()
+let maxRareLettersOnBoard = 2
+
+func generateRandomLetterWithGuardrails() -> Character {
+  if rareLettersOnBoard.count >= maxRareLettersOnBoard {
+    let commonLetters = letterFrequencies.keys.filter { !rareLetters.contains($0) }
+    return commonLetters.randomElement()!
+  }
+  let letter = generateRandomLetter() // Use frequency table logic
+  if rareLetters.contains(letter) { rareLettersOnBoard.insert(letter) }
+  return letter
+}
+
+func resetRareLetterTracking() { rareLettersOnBoard.removeAll() }
+func removeRareLetterFromTracking(_ letter: Character) {
+  if rareLetters.contains(letter) { rareLettersOnBoard.remove(letter) }
+}
+```
+
+### Review Checklist for Mobile Devs
+- [ ] Use the provided frequency table for all board/row generation
+- [ ] Implement rare letter guardrail logic (max 2 on board)
+- [ ] Reset rare letter tracking on new game, shuffle, and replay
+- [ ] Remove rare letter from tracking when it is used/removed
+- [ ] Test for edge cases: no more than 2 rare letters at any time
+
+---
+**This logic is now the standard for both web and mobile Wordflect.**
+If you have questions or need a language-specific implementation, contact the web team or open an issue in the main repo.
