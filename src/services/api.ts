@@ -172,6 +172,11 @@ class ApiService {
   // Update user stats
   async updateUserStats(stats: Record<string, unknown>): Promise<unknown> {
     try {
+      console.log('📤 Sending updateUserStats request:', {
+        url: buildApiUrl(API_CONFIG.ENDPOINTS.USER_UPDATE_STATS),
+        stats
+      });
+      
       const response = await this.makeRequest(
         buildApiUrl(API_CONFIG.ENDPOINTS.USER_UPDATE_STATS),
         {
@@ -180,11 +185,18 @@ class ApiService {
           body: JSON.stringify(stats),
         }
       );
+      
+      console.log('📥 updateUserStats response status:', response.status);
+      
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('❌ updateUserStats error response:', errorData);
         throw new Error(errorData.message || 'Failed to update user stats');
       }
-      return await response.json();
+      
+      const result = await response.json();
+      console.log('✅ updateUserStats success:', result);
+      return result;
     } catch (error) {
       console.error('Update user stats error:', error);
       throw error;
@@ -194,6 +206,13 @@ class ApiService {
   // Complete a mission
   async completeMission({ id, missionId, period }: { id: string; missionId: string; period: string }): Promise<unknown> {
     try {
+      console.log('📤 Sending completeMission request:', {
+        url: buildApiUrl(API_CONFIG.ENDPOINTS.USER_COMPLETE_MISSION),
+        id,
+        missionId,
+        period
+      });
+      
       const response = await this.makeRequest(
         buildApiUrl(API_CONFIG.ENDPOINTS.USER_COMPLETE_MISSION),
         {
@@ -202,11 +221,18 @@ class ApiService {
           body: JSON.stringify({ id, missionId, period }),
         }
       );
+      
+      console.log('📥 completeMission response status:', response.status);
+      
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('❌ completeMission error response:', errorData);
         throw new Error(errorData.message || 'Failed to complete mission');
       }
-      return await response.json();
+      
+      const result = await response.json();
+      console.log('✅ completeMission success:', result);
+      return result;
     } catch (error) {
       console.error('Complete mission error:', error);
       throw error;

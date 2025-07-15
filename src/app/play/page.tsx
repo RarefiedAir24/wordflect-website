@@ -639,6 +639,9 @@ export default function PlayGame() {
       return;
     }
     
+    console.log('🔐 Authentication check passed');
+    console.log('🌐 API URL:', process.env.NEXT_PUBLIC_API_URL || 'https://api.wordflect.com');
+    
     try {
       console.log('🎮 Game Over - Starting stats update...', {
         score,
@@ -663,8 +666,8 @@ export default function PlayGame() {
       console.log('📊 Sending game stats to backend:', gameStats);
 
       // Update user stats first
-      await apiService.updateUserStats(gameStats);
-      console.log('✅ User stats updated successfully');
+      const statsResponse = await apiService.updateUserStats(gameStats);
+      console.log('✅ User stats updated successfully:', statsResponse);
 
       console.log('🎯 Checking missions for completion...', missions);
 
@@ -710,12 +713,12 @@ export default function PlayGame() {
       for (const mission of completedMissions) {
         try {
           console.log(`🏆 Completing mission: ${mission.id}`);
-          await apiService.completeMission({
+          const missionResponse = await apiService.completeMission({
             id: mission.id,
             missionId: mission.id,
             period: mission.period || mission.type || 'daily', // fallback to daily if not specified
           });
-          console.log(`✅ Mission ${mission.id} completed successfully`);
+          console.log(`✅ Mission ${mission.id} completed successfully:`, missionResponse);
         } catch (error) {
           console.error('❌ Failed to complete mission:', mission.id, error);
           // Optionally handle/report mission completion errors
@@ -726,6 +729,8 @@ export default function PlayGame() {
       try {
         console.log('🔄 Refetching missions...');
         const data = await apiService.getMissions();
+        console.log('📡 Raw missions response:', data);
+        
         if (typeof data === 'object' && data !== null && 'missions' in data && Array.isArray((data as { missions?: unknown[] }).missions)) {
           setMissions((data as { missions: Mission[] }).missions);
         } else if (Array.isArray(data)) {
