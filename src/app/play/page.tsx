@@ -766,7 +766,7 @@ export default function PlayGame() {
           console.log(`✅ Mission ${mission.id} completed successfully:`, missionResponse);
           // Optionally update local flectcoins here if backend returns new balance
           if (missionResponse && typeof missionResponse === 'object' && 'flectcoins' in missionResponse) {
-            const newFlectcoins = (missionResponse as any).flectcoins;
+            const newFlectcoins = (missionResponse as Record<string, unknown>).flectcoins;
             if (typeof newFlectcoins === 'number') {
               setFlectcoins(newFlectcoins);
             }
@@ -819,7 +819,7 @@ export default function PlayGame() {
       console.log('🎮 Game ended automatically - calling handleGameOver');
       handleGameOver();
     }
-  }, [gameOver, submitting]);
+  }, [gameOver, submitting, handleGameOver]);
 
   // On replay, reset level and points
   const handleReplay = () => {
