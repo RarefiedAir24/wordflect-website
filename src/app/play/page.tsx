@@ -234,19 +234,45 @@ export default function PlayGame() {
 
   // Row population effect (matches mobile)
   useEffect(() => {
-    if (gameOver || validatingWord) return;
-    if (isFrozen) return;
+    console.log('🔄 Row insertion effect triggered:', {
+      gameOver,
+      validatingWord,
+      isFrozen,
+      filledRows: getFilledRows(board),
+      currentLevel
+    });
+    
+    if (gameOver || validatingWord) {
+      console.log('⏸️ Row insertion paused:', { gameOver, validatingWord });
+      return;
+    }
+    if (isFrozen) {
+      console.log('⏸️ Row insertion paused (frozen)');
+      return;
+    }
+    
     // Clear any previous timer
     if (rowTimerRef.current) clearTimeout(rowTimerRef.current);
+    
     // Calculate interval
     const filledRows = getFilledRows(board);
     const baseInterval = getBaseInterval(filledRows);
     const interval = getLevelScaledInterval(baseInterval, currentLevel);
+    
+    console.log('⏰ Setting row timer:', {
+      filledRows,
+      baseInterval,
+      interval,
+      currentLevel
+    });
+    
     rowTimerRef.current = setTimeout(() => {
+      console.log('📦 Adding new row...');
       // Add new row (populate top row)
       setBoard(prevBoard => {
         // Check for game over (top row filled)
         if (prevBoard[0].some(cell => cell !== "")) {
+          console.log('🎮 Game over - top row filled');
           setGameOver(true);
           return prevBoard;
         }
@@ -257,12 +283,17 @@ export default function PlayGame() {
             newBoard[0][col] = generateRandomLetter();
           }
         }
+        console.log('✅ New row added successfully');
         return makeLettersFall(newBoard);
       });
       setRowPopulationTick(tick => tick + 1); // trigger next
     }, interval);
+    
     return () => {
-      if (rowTimerRef.current) clearTimeout(rowTimerRef.current);
+      if (rowTimerRef.current) {
+        console.log('🧹 Cleaning up row timer');
+        clearTimeout(rowTimerRef.current);
+      }
     };
   }, [gameOver, isFrozen, validatingWord, board, currentLevel, rowPopulationTick]);
 
