@@ -409,6 +409,14 @@ export default function PlayGame() {
     return () => { isMounted = false; };
   }, [previousLevel]);
 
+  // Auto-call handleGameOver when game ends (for any reason)
+  useEffect(() => {
+    if (gameOver && !submitting) {
+      console.log('🎮 Game ended automatically - calling handleGameOver');
+      handleGameOver();
+    }
+  }, [gameOver]);
+
   // Load word list from public/words.json and generate board
   useEffect(() => {
     setWordListLoading(true);
@@ -626,6 +634,12 @@ export default function PlayGame() {
 
   // On game over, update user profile if new level achieved
   const handleGameOver = async () => {
+    // Prevent multiple calls
+    if (submitting) {
+      console.log('🔄 handleGameOver already in progress, skipping');
+      return;
+    }
+    
     setSubmitting(true);
     setError(null);
     setSuccess(null);
