@@ -691,25 +691,46 @@ export default function PlayGame() {
         currentLevel
       });
 
+      // Calculate flectcoins earned from this game
+      // Base flectcoins: 10 per word found + bonus for score
+      const baseFlectcoins = foundWords.length * 10;
+      const scoreBonus = Math.floor(score / 10); // 1 flectcoin per 10 points
+      const flectcoinsEarned = baseFlectcoins + scoreBonus;
+      const newFlectcoins = flectcoins + flectcoinsEarned;
+
+      console.log('💰 Flectcoin calculation:', {
+        wordsFound: foundWords.length,
+        baseFlectcoins,
+        score,
+        scoreBonus,
+        flectcoinsEarned,
+        oldFlectcoins: flectcoins,
+        newFlectcoins
+      });
+
       // Calculate game stats for missions
       const gameStats = {
         id: userProfile?.id || 'unknown',
         score,
         words: foundWords,
         foundWords,
-        flectcoins,
+        flectcoins: newFlectcoins, // Use calculated new flectcoins
         gems,
         wordsFound: foundWords.length,
         longestWord: foundWords.reduce((longest, word) => word.length > longest.length ? word : longest, ''),
         gameCompleted: true,
+        flectcoinsEarned, // Add this to track what was earned
         // Add more fields as needed for your backend
       };
 
       console.log('📊 Sending game stats to backend:', gameStats);
 
       // Update user stats first
-              await apiService.updateUserStats(gameStats);
-        console.log('✅ User stats updated successfully');
+      await apiService.updateUserStats(gameStats);
+      console.log('✅ User stats updated successfully');
+
+      // Update local flectcoins state
+      setFlectcoins(newFlectcoins);
 
       console.log('🎯 Checking missions for completion...', missions);
 
@@ -791,7 +812,7 @@ export default function PlayGame() {
         await apiService.updateUserStats({ highestLevel: currentLevel });
       }
       
-      setSuccess("Stats and missions updated!");
+      setSuccess(`Stats and missions updated! Earned ${flectcoinsEarned} flectcoins!`);
     } catch (e: unknown) {
       console.error('❌ Game over error:', e);
       setError((e as Error).message || "Failed to update stats");
