@@ -766,7 +766,10 @@ export default function PlayGame() {
           console.log(`✅ Mission ${mission.id} completed successfully:`, missionResponse);
           // Optionally update local flectcoins here if backend returns new balance
           if (missionResponse && typeof missionResponse === 'object' && 'flectcoins' in missionResponse) {
-            setFlectcoins(missionResponse.flectcoins);
+            const newFlectcoins = (missionResponse as any).flectcoins;
+            if (typeof newFlectcoins === 'number') {
+              setFlectcoins(newFlectcoins);
+            }
           }
         } catch (error) {
           console.error('❌ Failed to complete mission:', mission.id, error);
