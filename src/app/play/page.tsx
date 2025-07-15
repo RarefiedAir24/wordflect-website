@@ -662,7 +662,9 @@ export default function PlayGame() {
 
       // Calculate game stats for missions
       const gameStats = {
+        id: userProfile?.id || 'unknown',
         score,
+        words: foundWords,
         foundWords,
         flectcoins,
         gems,
