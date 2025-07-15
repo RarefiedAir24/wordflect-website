@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     const apiRes = await fetch(`https://api.wordflect.com/word/definition?word=${encodeURIComponent(word)}`);
     const data = await apiRes.json();
     return NextResponse.json(data, { status: apiRes.status });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch word definition' }, { status: 500 });
   }
 } 
