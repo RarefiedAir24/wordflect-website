@@ -193,11 +193,12 @@ class ApiService {
       );
       
       console.log('📥 updateUserStats response status:', response.status);
+      console.log('📥 updateUserStats response headers:', Object.fromEntries(response.headers.entries()));
       
       if (!response.ok) {
         const errorData = await response.json();
         console.error('❌ updateUserStats error response:', errorData);
-        throw new Error(errorData.message || 'Failed to update user stats');
+        throw new Error(errorData.message || `HTTP ${response.status}: Failed to update user stats`);
       }
       
       const result = await response.json();
@@ -303,6 +304,11 @@ class ApiService {
       
       const result = await response.json();
       console.log('✅ getMissions success:', result);
+      console.log('📋 Missions response type:', typeof result);
+      console.log('📋 Missions is array:', Array.isArray(result));
+      if (typeof result === 'object' && result !== null) {
+        console.log('📋 Missions object keys:', Object.keys(result));
+      }
       return result;
     } catch (error) {
       console.error('Get missions error:', error);
