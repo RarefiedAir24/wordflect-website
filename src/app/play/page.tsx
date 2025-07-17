@@ -1019,27 +1019,85 @@ export default function PlayGame() {
     }
   };
 
-  // Hint: find a possible word (just pick the first 3+ letter word for now)
+  // Hint: find a valid word that can be formed on the board
   const handleHint = () => {
     if (flectcoins < HINT_COST) {
       setPowerupError("Not enough flectcoins for Hint.");
       return;
     }
+    
     const newFlectcoins = flectcoins - HINT_COST;
     setFlectcoins(newFlectcoins);
     setPowerupError(null);
     syncCurrency(newFlectcoins, gems);
-    if (foundWords.length === GRID_ROWS * GRID_COLS) return;
-    // Find a possible word (for now, just a random 3+ letter sequence)
+    
+    if (foundWords.length === GRID_ROWS * GRID_COLS) {
+      setPowerupError("Board is full!");
+      return;
+    }
+    
+    // Find a valid word that can be formed on the board
+    const possibleWords: string[] = [];
+    
+    // Check horizontal words (left to right)
     for (let r = 0; r < GRID_ROWS; r++) {
       for (let c = 0; c < GRID_COLS - 2; c++) {
         const word = board[r][c] + board[r][c + 1] + board[r][c + 2];
-        if (!foundWords.includes(word)) {
-          setHintWord(word);
-          setTimeout(() => setHintWord(null), 3000);
-          return;
+        if (word.length >= getMinimumWordLength(currentLevel) && 
+            !foundWords.includes(word) && 
+            wordSet?.has(word.toUpperCase())) {
+          possibleWords.push(word);
         }
       }
+    }
+    
+    // Check vertical words (top to bottom)
+    for (let r = 0; r < GRID_ROWS - 2; r++) {
+      for (let c = 0; c < GRID_COLS; c++) {
+        const word = board[r][c] + board[r + 1][c] + board[r + 2][c];
+        if (word.length >= getMinimumWordLength(currentLevel) && 
+            !foundWords.includes(word) && 
+            wordSet?.has(word.toUpperCase())) {
+          possibleWords.push(word);
+        }
+      }
+    }
+    
+    // Check diagonal words (top-left to bottom-right)
+    for (let r = 0; r < GRID_ROWS - 2; r++) {
+      for (let c = 0; c < GRID_COLS - 2; c++) {
+        const word = board[r][c] + board[r + 1][c + 1] + board[r + 2][c + 2];
+        if (word.length >= getMinimumWordLength(currentLevel) && 
+            !foundWords.includes(word) && 
+            wordSet?.has(word.toUpperCase())) {
+          possibleWords.push(word);
+        }
+      }
+    }
+    
+    // Check diagonal words (top-right to bottom-left)
+    for (let r = 0; r < GRID_ROWS - 2; r++) {
+      for (let c = 2; c < GRID_COLS; c++) {
+        const word = board[r][c] + board[r + 1][c - 1] + board[r + 2][c - 2];
+        if (word.length >= getMinimumWordLength(currentLevel) && 
+            !foundWords.includes(word) && 
+            wordSet?.has(word.toUpperCase())) {
+          possibleWords.push(word);
+        }
+      }
+    }
+    
+    if (possibleWords.length > 0) {
+      // Pick a random valid word from the list
+      const randomWord = possibleWords[Math.floor(Math.random() * possibleWords.length)];
+      setHintWord(randomWord);
+      setTimeout(() => setHintWord(null), 5000); // Show hint for 5 seconds
+      console.log(`[HINT] Found ${possibleWords.length} possible words, showing: ${randomWord}`);
+    } else {
+      setPowerupError("No valid words found on the board.");
+      // Refund the flectcoins since no hint was found
+      setFlectcoins(flectcoins);
+      syncCurrency(flectcoins, gems);
     }
   };
 
