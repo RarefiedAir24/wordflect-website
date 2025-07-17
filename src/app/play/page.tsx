@@ -162,9 +162,10 @@ function drawLetterFromBagWithBoardCheck(board: string[][], row: number, col: nu
 }
 
 // Enhanced letter generation with rare letter guardrails (legacy function for backward compatibility)
-function generateRandomLetterWithGuardrails(): string {
-  return drawLetterFromBagWithBoardCheck([], 0, 0);
-}
+// This function is kept for compatibility but is no longer used directly
+// function generateRandomLetterWithGuardrails(): string {
+//   return drawLetterFromBagWithBoardCheck([], 0, 0);
+// }
 
 // Reset rare letter tracking when board is cleared
 function resetRareLetterTracking() {
@@ -461,7 +462,7 @@ export default function PlayGame() {
         clearTimeout(rowTimerRef.current);
       }
     };
-  }, [gameOver, isFrozen, validatingWord, board, currentLevel, rowPopulationTick]);
+  }, [gameOver, isFrozen, validatingWord, board, currentLevel, rowPopulationTick, foundWords.length, score]);
 
   // Start and manage the timer
   useEffect(() => {
@@ -835,7 +836,7 @@ export default function PlayGame() {
   }, [score, currentLevel, getTotalPointsForLevel]);
 
   // On game over, update user profile if new level achieved
-  const handleGameOver = async () => {
+  const handleGameOver = useCallback(async () => {
     // Prevent multiple calls
     if (submitting) {
       console.log('🔄 handleGameOver already in progress, skipping');
@@ -984,7 +985,7 @@ export default function PlayGame() {
       setSubmitting(false);
       setGameOver(true);
     }
-  };
+  }, [submitting, userProfile, score, foundWords, flectcoins, gems, currentLevel, missions]);
 
   // Auto-call handleGameOver when game ends (for any reason)
   const hasHandledGameOver = useRef(false);
