@@ -222,14 +222,24 @@ function makeLettersFall(board: string[][]) {
   return newBoard;
 }
 
-// Helper to insert a new row at the top
+// Helper to insert a new row at the bottom (not top)
 function insertNewRow(board: string[][]) {
   const newBoard = board.map(row => [...row]);
-  for (let col = 0; col < GRID_COLS; col++) {
-    if (newBoard[0][col] === "") {
-      newBoard[0][col] = drawLetterFromBagWithBoardCheck(newBoard, 0, col);
+  
+  // Find the lowest row with empty cells
+  for (let row = GRID_ROWS - 1; row >= 0; row--) {
+    const hasEmptyCells = newBoard[row].some(cell => cell === "");
+    if (hasEmptyCells) {
+      // Add letters to this row
+      for (let col = 0; col < GRID_COLS; col++) {
+        if (newBoard[row][col] === "") {
+          newBoard[row][col] = drawLetterFromBagWithBoardCheck(newBoard, row, col);
+        }
+      }
+      break; // Only fill one row at a time
     }
   }
+  
   return newBoard;
 }
 
@@ -377,101 +387,101 @@ export default function PlayGame() {
     return base * Math.max(0.5, 1 - 0.05 * (level - 1));
   }
 
-  // Row population effect (matches mobile)
-  useEffect(() => {
-    console.log('🔄 Row insertion effect triggered:', {
-      gameOver,
-      validatingWord,
-      isFrozen,
-      filledRows: getFilledRows(board),
-      currentLevel
-    });
+  // Row population effect (matches mobile) - DISABLED to prevent top row filling
+  // useEffect(() => {
+  //   console.log('🔄 Row insertion effect triggered:', {
+  //     gameOver,
+  //     validatingWord,
+  //     isFrozen,
+  //     filledRows: getFilledRows(board),
+  //     currentLevel
+  //   });
     
-    if (gameOver || validatingWord) {
-      console.log('⏸️ Row insertion paused:', { gameOver, validatingWord });
-      return;
-    }
-    if (isFrozen) {
-      console.log('⏸️ Row insertion paused (frozen)');
-      return;
-    }
+  //   if (gameOver || validatingWord) {
+  //     console.log('⏸️ Row insertion paused:', { gameOver, validatingWord });
+  //     return;
+  //   }
+  //   if (isFrozen) {
+  //     console.log('⏸️ Row insertion paused (frozen)');
+  //     return;
+  //   }
     
-    // Don't start row insertion immediately - give players time to play
-    if (foundWords.length === 0 && score === 0) {
-      console.log('⏸️ Row insertion paused - game just started');
-      return;
-    }
+  //   // Don't start row insertion immediately - give players time to play
+  //   if (foundWords.length === 0 && score === 0) {
+  //     console.log('⏸️ Row insertion paused - game just started');
+  //     return;
+  //   }
     
-    // Clear any previous timer
-    if (rowTimerRef.current) clearTimeout(rowTimerRef.current);
+  //   // Clear any previous timer
+  //   if (rowTimerRef.current) clearTimeout(rowTimerRef.current);
     
-    // Calculate interval
-    const filledRows = getFilledRows(board);
-    const baseInterval = getBaseInterval(filledRows);
-    const interval = getLevelScaledInterval(baseInterval, currentLevel);
+  //   // Calculate interval
+  //   const filledRows = getFilledRows(board);
+  //   const baseInterval = getBaseInterval(filledRows);
+  //   const interval = getLevelScaledInterval(baseInterval, currentLevel);
     
-    console.log('⏰ Setting row timer:', {
-      filledRows,
-      baseInterval,
-      interval,
-      currentLevel
-    });
+  //   console.log('⏰ Setting row timer:', {
+  //     filledRows,
+  //     baseInterval,
+  //     interval,
+  //     currentLevel
+  //   });
     
-    rowTimerRef.current = setTimeout(() => {
-      console.log('📦 Adding new row...');
-      // Add new row (populate bottom rows instead of top)
-      setBoard(prevBoard => {
-        // Check for game over (top row filled)
-        if (prevBoard[0].some(cell => cell !== "")) {
-          console.log('🎮 Game over - top row filled');
-          setGameOver(true);
-          return prevBoard;
-        }
+  //   rowTimerRef.current = setTimeout(() => {
+  //     console.log('📦 Adding new row...');
+  //     // Add new row (populate bottom rows instead of top)
+  //     setBoard(prevBoard => {
+  //       // Check for game over (top row filled)
+  //       if (prevBoard[0].some(cell => cell !== "")) {
+  //         console.log('🎮 Game over - top row filled');
+  //         setGameOver(true);
+  //         return prevBoard;
+  //       }
         
-        // Only add letters if there's space and the board isn't too full
-        const filledRows = getFilledRows(prevBoard);
-        if (filledRows >= 5) {
-          console.log('⏸️ Skipping row addition - board too full');
-          return prevBoard;
-        }
+  //       // Only add letters if there's space and the board isn't too full
+  //       const filledRows = getFilledRows(prevBoard);
+  //       if (filledRows >= 5) {
+  //         console.log('⏸️ Skipping row addition - board too full');
+  //         return prevBoard;
+  //       }
         
-        // Add new letters to the bottom rows (not the top)
-        const newBoard = prevBoard.map(row => [...row]);
-        let addedLetters = 0;
+  //       // Add new letters to the bottom rows (not the top)
+  //       const newBoard = prevBoard.map(row => [...row]);
+  //       let addedLetters = 0;
         
-        // Find the lowest empty row
-        for (let row = GRID_ROWS - 1; row >= 0; row--) {
-          const hasEmptyCells = newBoard[row].some(cell => cell === "");
-          if (hasEmptyCells) {
-            // Add letters to this row
-            for (let col = 0; col < GRID_COLS; col++) {
-              if (newBoard[row][col] === "") {
-                newBoard[row][col] = drawLetterFromBagWithBoardCheck(newBoard, row, col);
-                addedLetters++;
-              }
-            }
-            break; // Only fill one row at a time
-          }
-        }
+  //       // Find the lowest empty row
+  //       for (let row = GRID_ROWS - 1; row >= 0; row--) {
+  //         const hasEmptyCells = newBoard[row].some(cell => cell === "");
+  //         if (hasEmptyCells) {
+  //           // Add letters to this row
+  //           for (let col = 0; col < GRID_COLS; col++) {
+  //             if (newBoard[row][col] === "") {
+  //               newBoard[row][col] = drawLetterFromBagWithBoardCheck(newBoard, row, col);
+  //               addedLetters++;
+  //             }
+  //           }
+  //           break; // Only fill one row at a time
+  //         }
+  //       }
         
-        if (addedLetters > 0) {
-          console.log('✅ New letters added to bottom rows successfully');
-          return newBoard; // Don't call makeLettersFall here - let letters stay where they are
-        } else {
-          console.log('⏸️ No space for new letters');
-          return prevBoard;
-        }
-      });
-      setRowPopulationTick(tick => tick + 1); // trigger next
-    }, interval);
+  //       if (addedLetters > 0) {
+  //         console.log('✅ New letters added to bottom rows successfully');
+  //         return newBoard; // Don't call makeLettersFall here - let letters stay where they are
+  //       } else {
+  //         console.log('⏸️ No space for new letters');
+  //         return prevBoard;
+  //       }
+  //     });
+  //     setRowPopulationTick(tick => tick + 1); // trigger next
+  //   }, interval);
     
-    return () => {
-      if (rowTimerRef.current) {
-        console.log('🧹 Cleaning up row timer');
-        clearTimeout(rowTimerRef.current);
-      }
-    };
-  }, [gameOver, isFrozen, validatingWord, board, currentLevel, rowPopulationTick, foundWords.length, score]);
+  //   return () => {
+  //     if (rowTimerRef.current) {
+  //       console.log('🧹 Cleaning up row timer');
+  //       clearTimeout(rowTimerRef.current);
+  //     }
+  //   };
+  // }, [gameOver, isFrozen, validatingWord, board, currentLevel, rowPopulationTick, foundWords.length, score]);
 
   // Start and manage the timer
   useEffect(() => {
