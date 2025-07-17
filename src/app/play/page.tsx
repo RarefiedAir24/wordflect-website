@@ -248,51 +248,7 @@ function isBoardTooSparse(board: string[][]) {
   return (filled / total) < 0.6;
 }
 
-export default function PlayGame() {
-  const router = useRouter();
-  const emptyBoard = Array.from({ length: GRID_ROWS }, () => Array.from({ length: GRID_COLS }, () => ""));
-  const [board, setBoard] = useState<string[][]>(emptyBoard);
-  const [selected, setSelected] = useState<{ row: number; col: number }[]>([]);
-  const [foundWords, setFoundWords] = useState<string[]>([]);
-  const [score, setScore] = useState(0);
-  // Level always starts at 1 for each game
-  const [currentLevel, setCurrentLevel] = useState(1);
-  const [pointsToNextLevel, setPointsToNextLevel] = useState(0);
-  const [gameOver, setGameOver] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [definitions, setDefinitions] = useState<Record<string, { definition: string; attribution?: string }>>({});
-  const [loadingDefs, setLoadingDefs] = useState(false);
-  const [missions, setMissions] = useState<Mission[]>([]);
-  const [missionsLoading, setMissionsLoading] = useState(false);
-  const [missionsError, setMissionsError] = useState<string | null>(null);
-  const [hintWord, setHintWord] = useState<string | null>(null);
-  const [isShuffling, setIsShuffling] = useState(false);
-  const [isFrozen, setIsFrozen] = useState(false);
-  const [freezeTimeout, setFreezeTimeout] = useState<NodeJS.Timeout | null>(null);
-  const [flectcoins, setFlectcoins] = useState(500); // Placeholder, ideally fetched from user profile
-  const [gems, setGems] = useState(0);
-  const [powerupError, setPowerupError] = useState<string | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [levelUpBanner, setLevelUpBanner] = useState<{ show: boolean; newLevel: number }>({ show: false, newLevel: 0 });
-  const [previousLevel, setPreviousLevel] = useState<number>(0);
-  // Popup for level up
-  const [showLevelUpPopup, setShowLevelUpPopup] = useState(false);
-  const [levelUpPopupLevel, setLevelUpPopupLevel] = useState(0);
-
-  // Remove all wordSet and wordList logic
-  const [wordFeedback, setWordFeedback] = useState<string | null>(null);
-  const [validatingWord] = useState(false);
-  const [wordSet, setWordSet] = useState<Set<string> | null>(null);
-  const [wordListLoading, setWordListLoading] = useState(true);
-
-  // Powerup costs (adjust as needed)
-  const HINT_COST = 50;
-  const SHUFFLE_COST = 100;
-  const FREEZE_COST = 200;
-
-  // Progressive Difficulty System (v1.0.107)
+// Progressive Difficulty System (v1.0.107)
 // Time bonus decreases as player level increases
 function getTimeBonus(wordLength: number, level: number): number {
   const baseBonus = (() => {
@@ -338,6 +294,50 @@ function calculateWordScore(word: string, level: number): number {
   
   return letterScore + levelBonus;
 }
+
+export default function PlayGame() {
+  const router = useRouter();
+  const emptyBoard = Array.from({ length: GRID_ROWS }, () => Array.from({ length: GRID_COLS }, () => ""));
+  const [board, setBoard] = useState<string[][]>(emptyBoard);
+  const [selected, setSelected] = useState<{ row: number; col: number }[]>([]);
+  const [foundWords, setFoundWords] = useState<string[]>([]);
+  const [score, setScore] = useState(0);
+  // Level always starts at 1 for each game
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const [pointsToNextLevel, setPointsToNextLevel] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [definitions, setDefinitions] = useState<Record<string, { definition: string; attribution?: string }>>({});
+  const [loadingDefs, setLoadingDefs] = useState(false);
+  const [missions, setMissions] = useState<Mission[]>([]);
+  const [missionsLoading, setMissionsLoading] = useState(false);
+  const [missionsError, setMissionsError] = useState<string | null>(null);
+  const [hintWord, setHintWord] = useState<string | null>(null);
+  const [isShuffling, setIsShuffling] = useState(false);
+  const [isFrozen, setIsFrozen] = useState(false);
+  const [freezeTimeout, setFreezeTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [flectcoins, setFlectcoins] = useState(500); // Placeholder, ideally fetched from user profile
+  const [gems, setGems] = useState(0);
+  const [powerupError, setPowerupError] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [levelUpBanner, setLevelUpBanner] = useState<{ show: boolean; newLevel: number }>({ show: false, newLevel: 0 });
+  const [previousLevel, setPreviousLevel] = useState<number>(0);
+  // Popup for level up
+  const [showLevelUpPopup, setShowLevelUpPopup] = useState(false);
+  const [levelUpPopupLevel, setLevelUpPopupLevel] = useState(0);
+
+  // Remove all wordSet and wordList logic
+  const [wordFeedback, setWordFeedback] = useState<string | null>(null);
+  const [validatingWord] = useState(false);
+  const [wordSet, setWordSet] = useState<Set<string> | null>(null);
+  const [wordListLoading, setWordListLoading] = useState(true);
+
+  // Powerup costs (adjust as needed)
+  const HINT_COST = 50;
+  const SHUFFLE_COST = 100;
+  const FREEZE_COST = 200;
 
   // Compute longest word and top scoring word
   const longestWord = foundWords.reduce((a, b) => (b.length > a.length ? b : a), "");
@@ -1394,13 +1394,19 @@ function calculateWordScore(word: string, level: number): number {
                       const isSelected = selected.some(sel => sel.row === rowIdx && sel.col === colIdx);
                       // Add pulse animation to filled cells in the top row
                       const isTopRow = rowIdx === 0 && cell !== "";
+                      const letterPoints = cell ? LETTER_POINTS[cell as keyof typeof LETTER_POINTS] || 1 : 0;
                       return (
                         <button
                           key={`${rowIdx}-${colIdx}`}
-                          className={`aspect-square w-full max-w-[60px] sm:max-w-[70px] rounded-lg flex items-center justify-center text-lg sm:text-2xl font-bold transition border-2 ${isSelected ? "bg-blue-400 text-white border-blue-600" : "bg-white text-gray-900 border-gray-300 hover:bg-blue-100"} ${isTopRow ? "animate-pulse ring-2 ring-red-400" : ""}`}
+                          className={`aspect-square w-full max-w-[60px] sm:max-w-[70px] rounded-lg flex flex-col items-center justify-center text-lg sm:text-2xl font-bold transition border-2 relative ${isSelected ? "bg-blue-400 text-white border-blue-600" : "bg-white text-gray-900 border-gray-300 hover:bg-blue-100"} ${isTopRow ? "animate-pulse ring-2 ring-red-400" : ""}`}
                           onClick={() => handleCellClick(rowIdx, colIdx)}
                         >
-                          {cell}
+                          <span className="text-lg sm:text-2xl">{cell}</span>
+                          {cell && (
+                            <span className={`absolute bottom-1 right-1 text-xs font-bold ${isSelected ? "text-blue-100" : "text-gray-600"}`}>
+                              {letterPoints}
+                            </span>
+                          )}
                         </button>
                       );
                     })
