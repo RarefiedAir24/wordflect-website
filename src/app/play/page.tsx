@@ -365,10 +365,10 @@ export default function PlayGame() {
 
   // Helper: get base interval by zone
   function getBaseInterval(filledRows: number) {
-    if (filledRows <= 1) return 12000; // Danger
-    if (filledRows <= 3) return 9000;  // Hot
-    if (filledRows <= 5) return 13000; // Warm
-    return 16000;                      // Cool
+    if (filledRows <= 1) return 30000; // Danger - much slower
+    if (filledRows <= 3) return 25000; // Hot - slower
+    if (filledRows <= 5) return 20000; // Warm - slower
+    return 35000;                      // Cool - much slower
   }
 
   // Helper: apply level scaling
@@ -392,6 +392,12 @@ export default function PlayGame() {
     }
     if (isFrozen) {
       console.log('⏸️ Row insertion paused (frozen)');
+      return;
+    }
+    
+    // Don't start row insertion immediately - give players time to play
+    if (foundWords.length === 0 && score === 0) {
+      console.log('⏸️ Row insertion paused - game just started');
       return;
     }
     
@@ -420,15 +426,31 @@ export default function PlayGame() {
           setGameOver(true);
           return prevBoard;
         }
-        // Add new letters at the top row
+        
+        // Only add letters if there's space and the board isn't too full
+        const filledRows = getFilledRows(prevBoard);
+        if (filledRows >= 6) {
+          console.log('⏸️ Skipping row addition - board too full');
+          return prevBoard;
+        }
+        
+        // Add new letters at the top row (only if empty)
         const newBoard = prevBoard.map(row => [...row]);
+        let addedLetters = 0;
         for (let col = 0; col < GRID_COLS; col++) {
           if (newBoard[0][col] === "") {
-            newBoard[0][col] = generateRandomLetterWithGuardrails();
+            newBoard[0][col] = drawLetterFromBagWithBoardCheck(newBoard, 0, col);
+            addedLetters++;
           }
         }
-        console.log('✅ New row added successfully');
-        return makeLettersFall(newBoard);
+        
+        if (addedLetters > 0) {
+          console.log('✅ New row added successfully');
+          return makeLettersFall(newBoard);
+        } else {
+          console.log('⏸️ No space for new letters');
+          return prevBoard;
+        }
       });
       setRowPopulationTick(tick => tick + 1); // trigger next
     }, interval);
