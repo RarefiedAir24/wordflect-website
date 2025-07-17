@@ -376,15 +376,15 @@ export default function PlayGame() {
 
   // Helper: get base interval by zone
   function getBaseInterval(filledRows: number) {
-    if (filledRows <= 1) return 30000; // Danger - much slower
-    if (filledRows <= 3) return 25000; // Hot - slower
-    if (filledRows <= 5) return 20000; // Warm - slower
-    return 35000;                      // Cool - much slower
+    if (filledRows <= 1) return 8000;  // Danger - much faster
+    if (filledRows <= 3) return 6000;  // Hot - faster
+    if (filledRows <= 5) return 5000;  // Warm - faster
+    return 10000;                      // Cool - faster
   }
 
   // Helper: apply level scaling
   function getLevelScaledInterval(base: number, level: number) {
-    return base * Math.max(0.5, 1 - 0.05 * (level - 1));
+    return base * Math.max(0.7, 1 - 0.02 * (level - 1));
   }
 
   // Row population effect (matches mobile) - TIMER-BASED ROW INSERTION
