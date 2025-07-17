@@ -1,3 +1,4 @@
+// Deployment trigger: row insertion fix (true row shifting, new row at bottom)
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { apiService, UserProfile } from "@/services/api";
@@ -224,21 +225,18 @@ function makeLettersFall(board: string[][]) {
 
 // Helper to insert a new row at the bottom (not top)
 function insertNewRow(board: string[][]) {
+  // Shift all rows up (like Tetris) and add new row at bottom
   const newBoard = board.map(row => [...row]);
   
-  // Find the lowest row with empty cells
-  for (let row = GRID_ROWS - 1; row >= 0; row--) {
-    const hasEmptyCells = newBoard[row].some(cell => cell === "");
-    if (hasEmptyCells) {
-      // Add letters to this row
-      for (let col = 0; col < GRID_COLS; col++) {
-        if (newBoard[row][col] === "") {
-          newBoard[row][col] = drawLetterFromBagWithBoardCheck(newBoard, row, col);
-        }
-      }
-      break; // Only fill one row at a time
-    }
+  // Shift all existing rows up by 1
+  for (let row = 0; row < GRID_ROWS - 1; row++) {
+    newBoard[row] = [...newBoard[row + 1]];
   }
+  
+  // Add new row at the bottom with fresh letters
+  newBoard[GRID_ROWS - 1] = Array.from({ length: GRID_COLS }, () => 
+    drawLetterFromBagWithBoardCheck(newBoard, GRID_ROWS - 1, 0)
+  );
   
   return newBoard;
 }
@@ -376,15 +374,15 @@ export default function PlayGame() {
 
   // Helper: get base interval by zone
   function getBaseInterval(filledRows: number) {
-    if (filledRows <= 1) return 8000;  // Danger - much faster
-    if (filledRows <= 3) return 6000;  // Hot - faster
-    if (filledRows <= 5) return 5000;  // Warm - faster
-    return 10000;                      // Cool - faster
+    if (filledRows <= 1) return 12000; // Danger zone (≤1 row): 12 seconds
+    if (filledRows <= 3) return 9000;  // Hot zone (≤3 rows): 9 seconds
+    if (filledRows <= 5) return 13000; // Warm zone (≤5 rows): 13 seconds
+    return 16000;                      // Cool zone (>5 rows): 16 seconds
   }
 
-  // Helper: apply level scaling
+  // Helper: apply level scaling (matches mobile: 5% faster per level, minimum 50% speed)
   function getLevelScaledInterval(base: number, level: number) {
-    return base * Math.max(0.7, 1 - 0.02 * (level - 1));
+    return base * Math.max(0.5, 1 - 0.05 * (level - 1));
   }
 
   // Row population effect (matches mobile) - TIMER-BASED ROW INSERTION
@@ -429,7 +427,6 @@ export default function PlayGame() {
     
     rowTimerRef.current = setTimeout(() => {
       console.log('📦 Adding new row...');
-      // Add new row (populate bottom rows instead of top)
       setBoard(prevBoard => {
         // Check for game over (top row filled)
         if (prevBoard[0].some(cell => cell !== "")) {
@@ -438,39 +435,9 @@ export default function PlayGame() {
           return prevBoard;
         }
         
-        // Only add letters if there's space and the board isn't too full
-        const filledRows = getFilledRows(prevBoard);
-        if (filledRows >= 5) {
-          console.log('⏸️ Skipping row addition - board too full');
-          return prevBoard;
-        }
-        
-        // Add new letters to the bottom rows (not the top)
-        const newBoard = prevBoard.map(row => [...row]);
-        let addedLetters = 0;
-        
-        // Find the lowest empty row
-        for (let row = GRID_ROWS - 1; row >= 0; row--) {
-          const hasEmptyCells = newBoard[row].some(cell => cell === "");
-          if (hasEmptyCells) {
-            // Add letters to this row
-            for (let col = 0; col < GRID_COLS; col++) {
-              if (newBoard[row][col] === "") {
-                newBoard[row][col] = drawLetterFromBagWithBoardCheck(newBoard, row, col);
-                addedLetters++;
-              }
-            }
-            break; // Only fill one row at a time
-          }
-        }
-        
-        if (addedLetters > 0) {
-          console.log('✅ New letters added to bottom rows successfully');
-          return newBoard; // Don't call makeLettersFall here - let letters stay where they are
-        } else {
-          console.log('⏸️ No space for new letters');
-          return prevBoard;
-        }
+        // Insert new row (shifts all rows up and adds fresh row at bottom)
+        console.log('✅ New row inserted successfully');
+        return insertNewRow(prevBoard);
       });
       setRowPopulationTick(tick => tick + 1); // trigger next
     }, interval);
@@ -1445,7 +1412,21 @@ export default function PlayGame() {
                         >
                           <span className="text-lg sm:text-2xl">{cell}</span>
                           {cell && (
-                            <span className={`absolute bottom-1 right-1 text-xs font-bold ${isSelected ? "text-blue-100" : "text-gray-600"}`}>
+                            <span
+                              className={`absolute bottom-1 right-1 text-xs font-bold flex items-center justify-center rounded-full shadow-md border-2 border-white bg-[#1976d2] text-white w-5 h-5 sm:w-6 sm:h-6 select-none pointer-events-none`}
+                              style={{
+                                fontSize: '0.75rem',
+                                lineHeight: '1.25rem',
+                                boxShadow: '0 1px 4px rgba(25, 118, 210, 0.25)',
+                                borderWidth: '2px',
+                                borderColor: '#fff',
+                                backgroundColor: '#1976d2',
+                                minWidth: '1.25rem',
+                                minHeight: '1.25rem',
+                                padding: 0,
+                                zIndex: 2,
+                              }}
+                            >
                               {letterPoints}
                             </span>
                           )}

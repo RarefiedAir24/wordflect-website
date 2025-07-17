@@ -1,3 +1,4 @@
+## [Unreleased] - Row insertion now matches mobile (shifts all rows up, adds new row at bottom). Deployment trigger.
 # Wordflect Web Game
 
 A Next.js web implementation of the Wordflect word-finding game, designed to match the mobile app's functionality and user experience.
