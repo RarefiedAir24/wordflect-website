@@ -318,7 +318,7 @@ export default function PlayGame() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [definitions, setDefinitions] = useState<Record<string, { definition: string; attribution?: string }>>({});
+  const [definitions] = useState<Record<string, { definition: string; attribution?: string }>>({});
   const [loadingDefs, setLoadingDefs] = useState(false);
   const [missions, setMissions] = useState<Mission[]>([]);
   const [missionsLoading, setMissionsLoading] = useState(false);
