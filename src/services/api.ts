@@ -1,3 +1,4 @@
+// Deployment trigger: Add logging for word definition API responses
 // API service for Wordflect backend integration
 import { API_CONFIG, buildApiUrl } from "@/config/api";
 
@@ -254,10 +255,11 @@ class ApiService {
     try {
       // Use proxy endpoint to avoid CORS issues
       const response = await fetch(`/api/proxy-word-definition?word=${encodeURIComponent(word)}`);
+      const data = await response.json();
+      console.log('[Word Definition Debug]', { word, data }); // <-- Added logging
       if (!response.ok) {
         return { definition: 'No definition found.' };
       }
-      const data = await response.json();
       if (Array.isArray(data) && data.length > 0) {
         const firstWithText = data.find((entry: { text?: string }) => entry.text && entry.text.trim() !== '');
         if (firstWithText) {
@@ -269,7 +271,8 @@ class ApiService {
         }
       }
       return { definition: 'No definition found.' };
-    } catch {
+    } catch (err) {
+      console.log('[Word Definition Error]', { word, err }); // <-- Added error logging
       return { definition: 'No definition found.' };
     }
   }

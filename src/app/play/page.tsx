@@ -233,10 +233,10 @@ function insertNewRow(board: string[][]) {
     newBoard[row] = [...newBoard[row + 1]];
   }
   
-  // Add new row at the bottom with fresh letters
-  newBoard[GRID_ROWS - 1] = Array.from({ length: GRID_COLS }, () => 
-    drawLetterFromBagWithBoardCheck(newBoard, GRID_ROWS - 1, 0)
-  );
+  // Add new row at the bottom with fresh letters (proper column-aware generation for mobile parity)
+newBoard[GRID_ROWS - 1] = Array.from({ length: GRID_COLS }, (_, col) => 
+  drawLetterFromBagWithBoardCheck(newBoard, GRID_ROWS - 1, col)
+);
   
   return newBoard;
 }
@@ -404,11 +404,7 @@ export default function PlayGame() {
       return;
     }
     
-    // Don't start row insertion immediately - give players time to play
-    if (foundWords.length === 0 && score === 0) {
-      console.log('⏸️ Row insertion paused - game just started');
-      return;
-    }
+    // Row insertion starts immediately to match mobile behavior
     
     // Clear any previous timer
     if (rowTimerRef.current) clearTimeout(rowTimerRef.current);
@@ -506,25 +502,11 @@ export default function PlayGame() {
     };
   }, [board, gameOver, inDangerZone]);
 
-  // Fetch definitions for all found words at game over
+  // Fetch definitions for all found words at game over (disabled to fix API errors)
   useEffect(() => {
     if (!gameOver || foundWords.length === 0) return;
-    let isMounted = true;
-    setLoadingDefs(true);
-    const fetchAllDefs = async () => {
-      const defs: Record<string, { definition: string; attribution?: string }> = {};
-      for (const word of foundWords) {
-        if (!defs[word]) {
-          defs[word] = await apiService.getWordDefinition(word);
-        }
-      }
-      if (isMounted) {
-        setDefinitions(defs);
-        setLoadingDefs(false);
-      }
-    };
-    fetchAllDefs();
-    return () => { isMounted = false; };
+    // Temporarily disabled to avoid API errors - will re-enable when API is fixed
+    setLoadingDefs(false);
   }, [gameOver, foundWords]);
 
   // Fetch missions at game start
