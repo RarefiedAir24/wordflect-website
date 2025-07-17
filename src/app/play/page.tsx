@@ -110,29 +110,60 @@ function generateRandomLetter(): string {
 // Track rare letters to prevent multiple instances
 const rareLettersOnBoard = new Set<string>();
 
-// Enhanced letter generation with rare letter guardrails
-function generateRandomLetterWithGuardrails(): string {
+// Board-Aware Letter Generation & Anti-Clustering System (v1.0.107)
+function drawLetterFromBagWithBoardCheck(board: string[][], row: number, col: number): string {
   const rareLetters = ['Z', 'Q', 'X', 'J', 'K', 'V'];
-  const maxRareLettersOnBoard = 2; // Maximum rare letters allowed on board at once
+  const maxRareLettersOnBoard = 2;
   
-  // Check if we're at the rare letter limit
+  // Check current rare letter count
   const currentRareCount = Array.from(rareLettersOnBoard).length;
   
-  if (currentRareCount >= maxRareLettersOnBoard) {
-    // Generate only common letters
-    const commonLetters = ['A', 'E', 'I', 'O', 'U', 'T', 'N', 'S', 'H', 'R', 'D', 'L', 'C', 'M', 'W', 'F', 'G', 'Y', 'P', 'B'];
-    return commonLetters[Math.floor(Math.random() * commonLetters.length)];
+  // Anti-repetition: Check surrounding cells for the same letter
+  const surroundingLetters = new Set<string>();
+  for (let r = Math.max(0, row - 1); r <= Math.min(GRID_ROWS - 1, row + 1); r++) {
+    for (let c = Math.max(0, col - 1); c <= Math.min(GRID_COLS - 1, col + 1); c++) {
+      if (board[r][c] && !(r === row && c === col)) {
+        surroundingLetters.add(board[r][c]);
+      }
+    }
   }
   
-  // Generate letter with normal frequency
-  const letter = generateRandomLetter();
+  // Generate letter with anti-clustering
+  let attempts = 0;
+  const maxAttempts = 10;
   
-  // Track rare letters
-  if (rareLetters.includes(letter)) {
-    rareLettersOnBoard.add(letter);
+  while (attempts < maxAttempts) {
+    let letter: string;
+    
+    // If at rare letter limit, generate only common letters
+    if (currentRareCount >= maxRareLettersOnBoard) {
+      const commonLetters = ['A', 'E', 'I', 'O', 'U', 'T', 'N', 'S', 'H', 'R', 'D', 'L', 'C', 'M', 'W', 'F', 'G', 'Y', 'P', 'B'];
+      letter = commonLetters[Math.floor(Math.random() * commonLetters.length)];
+    } else {
+      // Generate letter with normal frequency
+      letter = generateRandomLetter();
+    }
+    
+    // Anti-clustering: Avoid repeating the same letter in adjacent cells
+    if (!surroundingLetters.has(letter)) {
+      // Track rare letters
+      if (rareLetters.includes(letter)) {
+        rareLettersOnBoard.add(letter);
+      }
+      return letter;
+    }
+    
+    attempts++;
   }
   
-  return letter;
+  // Fallback: return a common letter if anti-clustering fails
+  const fallbackLetters = ['A', 'E', 'I', 'O', 'U', 'T', 'N', 'S', 'H', 'R'];
+  return fallbackLetters[Math.floor(Math.random() * fallbackLetters.length)];
+}
+
+// Enhanced letter generation with rare letter guardrails (legacy function for backward compatibility)
+function generateRandomLetterWithGuardrails(): string {
+  return drawLetterFromBagWithBoardCheck([], 0, 0);
 }
 
 // Reset rare letter tracking when board is cleared
@@ -154,10 +185,10 @@ function generateBoard() {
     Array.from({ length: GRID_COLS }, () => "")
   );
   
-  // Fill the bottom 3 rows with enhanced letter distribution
+  // Fill the bottom 3 rows with board-aware letter generation
   for (let row = GRID_ROWS - 3; row < GRID_ROWS; row++) {
     for (let col = 0; col < GRID_COLS; col++) {
-      board[row][col] = generateRandomLetterWithGuardrails();
+      board[row][col] = drawLetterFromBagWithBoardCheck(board, row, col);
     }
   }
   
@@ -195,10 +226,10 @@ function insertNewRow(board: string[][]) {
   const newBoard = board.map(row => [...row]);
   for (let col = 0; col < GRID_COLS; col++) {
     if (newBoard[0][col] === "") {
-      newBoard[0][col] = generateRandomLetterWithGuardrails();
+      newBoard[0][col] = drawLetterFromBagWithBoardCheck(newBoard, 0, col);
     }
   }
-  return makeLettersFall(newBoard);
+  return newBoard;
 }
 
 // Helper to get highest filled row (0-based, so add 1 for count)
@@ -261,8 +292,52 @@ export default function PlayGame() {
   const SHUFFLE_COST = 100;
   const FREEZE_COST = 200;
 
-  // Time bonus for finding words (seconds per letter)
-  const TIME_BONUS_PER_LETTER = 1; // 1 second per letter in the word (matches mobile app)
+  // Progressive Difficulty System (v1.0.107)
+// Time bonus decreases as player level increases
+function getTimeBonus(wordLength: number, level: number): number {
+  const baseBonus = (() => {
+    switch (wordLength) {
+      case 3: return 1;
+      case 4: return 2;
+      case 5: return 3;
+      case 6: return 4;
+      case 7: return 5;
+      case 8: return 6;
+      default: return 0;
+    }
+  })();
+  
+  let reduction = 0;
+  if (level >= 5 && level <= 9) reduction = 1;
+  else if (level >= 10 && level <= 14) reduction = 2;
+  else if (level >= 15 && level <= 19) reduction = 3;
+  else if (level >= 20) reduction = 4;
+  
+  return Math.max(0, baseBonus - reduction);
+}
+
+// Progressive Word Length Requirement (v1.0.107)
+function getMinimumWordLength(level: number): number {
+  if (level >= 40) return 4;
+  return 3;
+}
+
+// Letter-Based Scoring System (v1.0.107)
+const LETTER_POINTS = {
+  A: 1, B: 3, C: 3, D: 2, E: 1, F: 4, G: 2, H: 4, I: 1, J: 8, K: 5, L: 1, M: 3, N: 1, O: 1, P: 3, Q: 10, R: 1, S: 1, T: 1, U: 1, V: 4, W: 4, X: 8, Y: 4, Z: 10
+};
+
+function calculateWordScore(word: string, level: number): number {
+  // Calculate letter score
+  const letterScore = word.split('').reduce((total, letter) => {
+    return total + (LETTER_POINTS[letter as keyof typeof LETTER_POINTS] || 1);
+  }, 0);
+  
+  // Add level bonus
+  const levelBonus = Math.floor(letterScore * (level - 1) * 0.1);
+  
+  return letterScore + levelBonus;
+}
 
   // Compute longest word and top scoring word
   const longestWord = foundWords.reduce((a, b) => (b.length > a.length ? b : a), "");
@@ -608,11 +683,13 @@ export default function PlayGame() {
         const word = selected.map(sel => board[sel.row][sel.col]).join("");
         if (isValidWord(word)) {
           setFoundWords(prev => [...prev, word]);
-          setScore(prev => prev + word.length);
-          // Add time bonus for finding a word
-          const timeBonus = word.length * TIME_BONUS_PER_LETTER;
+          // Use letter-based scoring system
+          const wordScore = calculateWordScore(word, currentLevel);
+          setScore(prev => prev + wordScore);
+          // Add time bonus for finding a word (progressive difficulty)
+          const timeBonus = getTimeBonus(word.length, currentLevel);
           setTimer(prev => Math.min(prev + timeBonus, INITIAL_TIMER)); // Cap at initial timer
-          setWordFeedback(`Good word! +${timeBonus}s`);
+          setWordFeedback(`Good word! +${wordScore}pts +${timeBonus}s`);
           setTimeout(() => setWordFeedback(null), 1200);
           setBoard(prevBoard => {
             const newBoard = prevBoard.map(row => [...row]);
@@ -659,11 +736,13 @@ export default function PlayGame() {
         const word = newPath.map(sel => board[sel.row][sel.col]).join("");
         if (isValidWord(word)) {
           setFoundWords(prev => [...prev, word]);
-          setScore(prev => prev + word.length);
-          // Add time bonus for finding a word
-          const timeBonus = word.length * TIME_BONUS_PER_LETTER;
+          // Use letter-based scoring system
+          const wordScore = calculateWordScore(word, currentLevel);
+          setScore(prev => prev + wordScore);
+          // Add time bonus for finding a word (progressive difficulty)
+          const timeBonus = getTimeBonus(word.length, currentLevel);
           setTimer(prev => Math.min(prev + timeBonus, INITIAL_TIMER)); // Cap at initial timer
-          setWordFeedback(`Good word! +${timeBonus}s`);
+          setWordFeedback(`Good word! +${wordScore}pts +${timeBonus}s`);
           setTimeout(() => setWordFeedback(null), 1200);
           setBoard(prevBoard => {
             const newBoard = prevBoard.map(row => [...row]);
@@ -1076,7 +1155,7 @@ export default function PlayGame() {
 
   // Replace all uses of apiService.getWordDefinition(word) with local validation
   const isValidWord = (word: string) => {
-    return word.length >= 3 && wordSet?.has(word.toUpperCase());
+    return word.length >= getMinimumWordLength(currentLevel) && wordSet?.has(word.toUpperCase());
   };
 
   // Show loading spinner if word list is not ready
@@ -1309,7 +1388,7 @@ export default function PlayGame() {
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-5 gap-2 bg-gray-900 p-4 rounded-lg shadow-lg">
+              <div className="grid grid-cols-5 gap-1 sm:gap-2 bg-gray-900 p-2 sm:p-4 rounded-lg shadow-lg max-w-md mx-auto">
                   {board.map((row, rowIdx) =>
                     row.map((cell, colIdx) => {
                       const isSelected = selected.some(sel => sel.row === rowIdx && sel.col === colIdx);
@@ -1318,7 +1397,7 @@ export default function PlayGame() {
                       return (
                         <button
                           key={`${rowIdx}-${colIdx}`}
-                          className={`w-14 h-14 sm:w-16 sm:h-16 rounded-lg flex items-center justify-center text-2xl font-bold transition border-2 ${isSelected ? "bg-blue-400 text-white border-blue-600" : "bg-white text-gray-900 border-gray-300 hover:bg-blue-100"} ${isTopRow ? "animate-pulse ring-2 ring-red-400" : ""}`}
+                          className={`aspect-square w-full max-w-[60px] sm:max-w-[70px] rounded-lg flex items-center justify-center text-lg sm:text-2xl font-bold transition border-2 ${isSelected ? "bg-blue-400 text-white border-blue-600" : "bg-white text-gray-900 border-gray-300 hover:bg-blue-100"} ${isTopRow ? "animate-pulse ring-2 ring-red-400" : ""}`}
                           onClick={() => handleCellClick(rowIdx, colIdx)}
                         >
                           {cell}
