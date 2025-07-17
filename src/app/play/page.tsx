@@ -419,7 +419,7 @@ export default function PlayGame() {
     
     rowTimerRef.current = setTimeout(() => {
       console.log('📦 Adding new row...');
-      // Add new row (populate top row)
+      // Add new row (populate bottom rows instead of top)
       setBoard(prevBoard => {
         // Check for game over (top row filled)
         if (prevBoard[0].some(cell => cell !== "")) {
@@ -430,24 +430,33 @@ export default function PlayGame() {
         
         // Only add letters if there's space and the board isn't too full
         const filledRows = getFilledRows(prevBoard);
-        if (filledRows >= 6) {
+        if (filledRows >= 5) {
           console.log('⏸️ Skipping row addition - board too full');
           return prevBoard;
         }
         
-        // Add new letters at the top row (only if empty)
+        // Add new letters to the bottom rows (not the top)
         const newBoard = prevBoard.map(row => [...row]);
         let addedLetters = 0;
-        for (let col = 0; col < GRID_COLS; col++) {
-          if (newBoard[0][col] === "") {
-            newBoard[0][col] = drawLetterFromBagWithBoardCheck(newBoard, 0, col);
-            addedLetters++;
+        
+        // Find the lowest empty row
+        for (let row = GRID_ROWS - 1; row >= 0; row--) {
+          const hasEmptyCells = newBoard[row].some(cell => cell === "");
+          if (hasEmptyCells) {
+            // Add letters to this row
+            for (let col = 0; col < GRID_COLS; col++) {
+              if (newBoard[row][col] === "") {
+                newBoard[row][col] = drawLetterFromBagWithBoardCheck(newBoard, row, col);
+                addedLetters++;
+              }
+            }
+            break; // Only fill one row at a time
           }
         }
         
         if (addedLetters > 0) {
-          console.log('✅ New row added successfully');
-          return makeLettersFall(newBoard);
+          console.log('✅ New letters added to bottom rows successfully');
+          return newBoard; // Don't call makeLettersFall here - let letters stay where they are
         } else {
           console.log('⏸️ No space for new letters');
           return prevBoard;
