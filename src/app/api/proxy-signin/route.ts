@@ -28,7 +28,10 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'User-Agent': 'Wordflect-Web/1.0'
+        'User-Agent': 'Wordflect-Web/1.0',
+        'X-API-Key': process.env.WORDFLECT_API_KEY || '',
+        'X-Client-Version': '1.0.107',
+        'X-Platform': 'web'
       },
       body: JSON.stringify(requestData) // Re-stringify to ensure proper formatting
     });
