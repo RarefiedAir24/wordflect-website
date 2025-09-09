@@ -1,0 +1,84 @@
+{
+    "items": [
+        {
+            "id": "1y3tkvezsl",
+            "name": "dev-wordflect-auth",
+            "createdDate": "2025-05-17T10:13:41-04:00",
+            "apiKeySource": "HEADER",
+            "endpointConfiguration": {
+                "types": [
+                    "EDGE"
+                ],
+                "ipAddressType": "ipv4"
+            },
+            "tags": {
+                "STAGE": "dev",
+                "aws:cloudformation:logical-id": "ApiGatewayRestApi",
+                "aws:cloudformation:stack-id": "arn:aws:cloudformation:us-east-2:516141816050:stack/wordflect-auth-dev/09dfe830-3329-11f0-a228-0210e11444d5",
+                "aws:cloudformation:stack-name": "wordflect-auth-dev"
+            },
+            "disableExecuteApiEndpoint": false,
+            "rootResourceId": "d3wq6newnl"
+        },
+        {
+            "id": "am8zjeetod",
+            "name": "prod-wordflect-backend",
+            "createdDate": "2025-06-19T15:26:49-04:00",
+            "apiKeySource": "HEADER",
+            "endpointConfiguration": {
+                "types": [
+                    "EDGE"
+                ],
+                "ipAddressType": "ipv4"
+            },
+            "tags": {
+                "STAGE": "prod",
+                "aws:cloudformation:logical-id": "ApiGatewayRestApi",
+                "aws:cloudformation:stack-id": "arn:aws:cloudformation:us-east-2:516141816050:stack/wordflect-backend-prod/132bcab0-4d43-11f0-821d-0a8b44081d77",
+                "aws:cloudformation:stack-name": "wordflect-backend-prod"
+            },
+            "disableExecuteApiEndpoint": false,
+            "rootResourceId": "finzyrjbje"
+        },
+        {
+            "id": "e0pe7q3jw6",
+            "name": "prod-wordflect-backend-search",
+            "createdDate": "2025-06-26T11:53:01-04:00",
+            "apiKeySource": "HEADER",
+            "endpointConfiguration": {
+                "types": [
+                    "EDGE"
+                ],
+                "ipAddressType": "ipv4"
+            },
+            "tags": {
+                "STAGE": "prod",
+                "aws:cloudformation:logical-id": "ApiGatewayRestApi",
+                "aws:cloudformation:stack-id": "arn:aws:cloudformation:us-east-2:516141816050:stack/wordflect-backend-search-prod/a184ecd0-52a5-11f0-aa51-02721231c643",
+                "aws:cloudformation:stack-name": "wordflect-backend-search-prod"
+            },
+            "disableExecuteApiEndpoint": false,
+            "rootResourceId": "xbv8lr62l8"
+        },
+        {
+            "id": "rgj50hrcmd",
+            "name": "dev-wordflect-backend",
+            "createdDate": "2025-05-17T13:47:42-04:00",
+            "apiKeySource": "HEADER",
+            "endpointConfiguration": {
+                "types": [
+                    "EDGE"
+                ],
+                "ipAddressType": "ipv4"
+            },
+            "tags": {
+                "STAGE": "dev",
+                "aws:cloudformation:logical-id": "ApiGatewayRestApi",
+                "aws:cloudformation:stack-id": "arn:aws:cloudformation:us-east-2:516141816050:stack/wordflect-backend-dev/06bdc500-3347-11f0-9554-0a4a5ae203db",
+                "aws:cloudformation:stack-name": "wordflect-backend-dev"
+            },
+            "disableExecuteApiEndpoint": false,
+            "rootResourceId": "gwa5cj3r92"
+        }
+    ]
+}

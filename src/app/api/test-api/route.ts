@@ -6,25 +6,51 @@ export async function GET() {
   try {
     console.log('🧪 Test: Checking if API is reachable at:', API_BASE_URL);
     
-    // Test basic connectivity
-    const response = await fetch(`${API_BASE_URL}/`, {
-      method: 'GET',
-      headers: {
-        'User-Agent': 'Wordflect-Web/1.0'
-      }
-    });
-
-    console.log('🧪 Test: Response status:', response.status);
-    console.log('🧪 Test: Response headers:', Object.fromEntries(response.headers.entries()));
+    // Test multiple possible API URLs
+    const testUrls = [
+      `${API_BASE_URL}/`,
+      `${API_BASE_URL}/signin`,
+      `${API_BASE_URL}/api/signin`,
+      `${API_BASE_URL}/auth/signin`,
+      'https://dev-api.wordflect.com/',
+      'https://dev-api.wordflect.com/signin',
+      'https://wordflect-api.vercel.app/',
+      'https://wordflect-api.vercel.app/signin'
+    ];
     
-    const text = await response.text();
-    console.log('🧪 Test: Response body:', text);
+    const results = [];
+    
+    for (const url of testUrls) {
+      try {
+        console.log('🧪 Test: Trying URL:', url);
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'User-Agent': 'Wordflect-Web/1.0'
+          }
+        });
+
+        const text = await response.text();
+        results.push({
+          url,
+          status: response.status,
+          headers: Object.fromEntries(response.headers.entries()),
+          body: text.substring(0, 200) // Limit response size
+        });
+        
+        console.log('🧪 Test: URL', url, 'Status:', response.status);
+      } catch (error) {
+        results.push({
+          url,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
+        console.log('🧪 Test: URL', url, 'Error:', error);
+      }
+    }
     
     return NextResponse.json({
       apiUrl: API_BASE_URL,
-      status: response.status,
-      headers: Object.fromEntries(response.headers.entries()),
-      body: text.substring(0, 500) // Limit response size
+      results
     });
   } catch (error) {
     console.error('🧪 Test: Error:', error);

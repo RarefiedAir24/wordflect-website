@@ -2,7 +2,7 @@
 export const API_CONFIG = {
   // Base URL for the Wordflect API
   // For production, this should point to the actual deployed API
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'https://api.wordflect.com',
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'https://am8zjeetod.execute-api.us-east-2.amazonaws.com/prod',
   
   // API Endpoints
   ENDPOINTS: {
