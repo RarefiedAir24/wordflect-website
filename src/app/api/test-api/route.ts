@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.wordflect.com';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://am8zjeetod.execute-api.us-east-2.amazonaws.com/prod';
 
 export async function GET() {
   try {
@@ -12,6 +12,8 @@ export async function GET() {
       `${API_BASE_URL}/signin`,
       `${API_BASE_URL}/api/signin`,
       `${API_BASE_URL}/auth/signin`,
+      'https://api.wordflect.com/',
+      'https://api.wordflect.com/signin',
       'https://dev-api.wordflect.com/',
       'https://dev-api.wordflect.com/signin',
       'https://wordflect-api.vercel.app/',
