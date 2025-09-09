@@ -63,16 +63,25 @@ export async function POST(request: NextRequest) {
     const finalEndpoint = workingEndpoint || '/signin';
     console.log(`📤 Proxy: Using endpoint: ${finalEndpoint}`);
     
-    // Now try the actual POST request
-    const response = await fetch(`${API_BASE_URL}${finalEndpoint}`, {
+    // Try with API key in request body (common pattern)
+    console.log('📤 Proxy: Attempting with API key in request body');
+    const requestWithApiKey = {
+      ...requestData,
+      apiKey: process.env.WORDFLECT_API_KEY || 'web-client-key',
+      clientVersion: '1.0.107',
+      platform: 'web'
+    };
+    
+    const response = await fetch(`${API_BASE_URL}/signin`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': process.env.WORDFLECT_API_KEY || '',
-        'X-Client-Version': '1.0.107',
-        'X-Platform': 'web'
+        'Accept': 'application/json',
+        'User-Agent': 'Wordflect-Web/1.0.107',
+        'X-Platform': 'web',
+        'X-Client-Version': '1.0.107'
       },
-      body: JSON.stringify(requestData)
+      body: JSON.stringify(requestWithApiKey)
     });
     console.log('📤 Proxy: Fetch request completed, status:', response.status);
 
