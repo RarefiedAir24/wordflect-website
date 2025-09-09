@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.wordflect.com';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log('🧪 Test: Checking if API is reachable at:', API_BASE_URL);
     
