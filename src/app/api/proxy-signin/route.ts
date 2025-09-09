@@ -24,16 +24,12 @@ export async function POST(request: NextRequest) {
     console.log('📤 Proxy: Making request to:', `${API_BASE_URL}/signin`);
     console.log('📤 Proxy: Request data:', requestData);
     
-    // Try with headers that might match mobile app
+    // Try with minimal headers first
     console.log('📤 Proxy: About to make fetch request to:', `${API_BASE_URL}/signin`);
     const response = await fetch(`${API_BASE_URL}/signin`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'Wordflect-Mobile/1.0.200',
-        'X-Platform': 'mobile',
-        'X-Client-Version': '1.0.200'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(requestData)
     });
