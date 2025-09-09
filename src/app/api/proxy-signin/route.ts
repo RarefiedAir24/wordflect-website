@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE_URL = 'https://api.wordflect.com';
 
+// Try different possible signin endpoints
+const SIGNIN_ENDPOINTS = [
+  '/signin',
+  '/auth/signin', 
+  '/user/signin',
+  '/api/signin',
+  '/auth/login',
+  '/user/login'
+];
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
@@ -24,24 +34,37 @@ export async function POST(request: NextRequest) {
     console.log('📤 Proxy: Making request to:', `${API_BASE_URL}/signin`);
     console.log('📤 Proxy: Request data:', requestData);
     
-    // First, let's test if the API endpoint is accessible with a GET request
-    console.log('📤 Proxy: Testing API endpoint accessibility with GET request');
-    try {
-      const testResponse = await fetch(`${API_BASE_URL}/signin`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
+    // Test all possible signin endpoints
+    console.log('📤 Proxy: Testing all possible signin endpoints');
+    let workingEndpoint = null;
+    
+    for (const endpoint of SIGNIN_ENDPOINTS) {
+      try {
+        console.log(`📤 Proxy: Testing endpoint: ${endpoint}`);
+        const testResponse = await fetch(`${API_BASE_URL}${endpoint}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log(`📤 Proxy: ${endpoint} - Status: ${testResponse.status}`);
+        
+        if (testResponse.status !== 403) {
+          console.log(`📤 Proxy: Found working endpoint: ${endpoint}`);
+          workingEndpoint = endpoint;
+          break;
         }
-      });
-      console.log('📤 Proxy: GET test response status:', testResponse.status);
-      console.log('📤 Proxy: GET test response headers:', Object.fromEntries(testResponse.headers.entries()));
-    } catch (testError) {
-      console.log('📤 Proxy: GET test failed:', testError);
+      } catch (testError) {
+        console.log(`📤 Proxy: ${endpoint} - Error:`, testError);
+      }
     }
     
-    // Now try the actual POST request with potential API key
-    console.log('📤 Proxy: About to make POST request to:', `${API_BASE_URL}/signin`);
-    const response = await fetch(`${API_BASE_URL}/signin`, {
+    // Use the working endpoint or default to /signin
+    const finalEndpoint = workingEndpoint || '/signin';
+    console.log(`📤 Proxy: Using endpoint: ${finalEndpoint}`);
+    
+    // Now try the actual POST request
+    const response = await fetch(`${API_BASE_URL}${finalEndpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
