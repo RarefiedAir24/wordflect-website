@@ -1,15 +1,21 @@
-# Wordflect Website API Integration
+# Wordflect Web API Integration
+
+**Version**: 1.0.107 (Web Implementation)
+**Last Updated**: December 2024
 
 ## Overview
 
-The Wordflect website now integrates with the main Wordflect backend API, allowing users to sign in with their in-app credentials and view their profile data.
+The Wordflect web application integrates with the main Wordflect backend API (v1.0.200), providing full authentication, game statistics, and mission tracking capabilities. The web version uses CORS proxy routes to handle cross-origin requests seamlessly.
 
 ## Features
 
 - ✅ **Real Authentication**: Users can sign in with their Wordflect app credentials
-- ✅ **Profile Display**: Shows user stats, achievements, frames, and game data
+- ✅ **Profile Display**: Shows user stats, achievements, and game data
+- ✅ **Mission System**: Complete mission tracking and completion
+- ✅ **Game Statistics**: Real-time stats updates and progress tracking
 - ✅ **Session Management**: Automatic token storage and authentication checks
-- ✅ **Error Handling**: Proper error messages and authentication failure handling
+- ✅ **CORS Proxy Solution**: Seamless API integration without backend changes
+- ✅ **Error Handling**: Comprehensive error messages and authentication failure handling
 - ✅ **Responsive Design**: Works on all devices with beautiful UI
 
 ## API Endpoints Used
@@ -17,6 +23,16 @@ The Wordflect website now integrates with the main Wordflect backend API, allowi
 ### Authentication
 - `POST /signin` - User sign in with email/password
 - `GET /user/profile` - Fetch user profile data (requires authentication)
+
+### Game Statistics
+- `POST /user/update-stats` - Update user game statistics and progress
+- `GET /user/missions` - Fetch user missions and progress
+- `POST /user/complete-mission` - Complete a mission and claim rewards
+
+### CORS Proxy Routes (Web-Specific)
+- `GET /api/proxy-word-definition` - Proxy for word definition lookups
+- `POST /api/proxy-stats` - Proxy for user stats updates
+- `POST /api/contact` - Contact form submission handler
 
 ### Response Format Examples
 

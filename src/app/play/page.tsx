@@ -5,7 +5,7 @@ import { apiService, UserProfile } from "@/services/api";
 // import words from "../words.json";
 import { useRouter } from "next/navigation";
 
-// Define a Mission type for mission-related state and variables
+// Define a Mission type for mission-related state and variables (mobile app v1.0.200)
 interface Mission {
   id: string;
   completed: boolean;
@@ -16,7 +16,51 @@ interface Mission {
   type?: string;
   title?: string;
   name?: string;
+  reward?: number;
+  rewardType?: 'flectcoins' | 'gems';
+  description?: string;
 }
+
+// Mission definitions (mobile app v1.0.200)
+const DAILY_MISSIONS = [
+  { id: 'play-1-game', title: 'Play 1 Game Today', target: 1, reward: 25, rewardType: 'flectcoins', type: 'games', period: 'daily' },
+  { id: 'find-10-words', title: 'Find 10 Words', target: 10, reward: 10, rewardType: 'flectcoins', type: 'words', period: 'daily' },
+  { id: 'find-15-words', title: 'Find 15 Words', target: 15, reward: 15, rewardType: 'flectcoins', type: 'words', period: 'daily' },
+  { id: 'find-20-words', title: 'Find 20 Words', target: 20, reward: 20, rewardType: 'flectcoins', type: 'words', period: 'daily' },
+  { id: 'find-25-words', title: 'Find 25 Words', target: 25, reward: 25, rewardType: 'flectcoins', type: 'words', period: 'daily' },
+  { id: 'find-30-words', title: 'Find 30 Words', target: 30, reward: 30, rewardType: 'flectcoins', type: 'words', period: 'daily' },
+  { id: 'find-40-words', title: 'Find 40 Words', target: 40, reward: 40, rewardType: 'flectcoins', type: 'words', period: 'daily' },
+  { id: 'find-50-words', title: 'Find 50 Words', target: 50, reward: 50, rewardType: 'flectcoins', type: 'words', period: 'daily' },
+  { id: 'find-10-words-4plus', title: 'Find 10 Words with 4+ Letters', target: 10, reward: 12, rewardType: 'flectcoins', type: 'words', period: 'daily', minLength: 4 },
+  { id: 'find-10-words-5plus', title: 'Find 10 Words with 5+ Letters', target: 10, reward: 15, rewardType: 'flectcoins', type: 'words', period: 'daily', minLength: 5 },
+  { id: 'find-10-words-6plus', title: 'Find 10 Words with 6+ Letters', target: 10, reward: 18, rewardType: 'flectcoins', type: 'words', period: 'daily', minLength: 6 },
+  { id: 'find-10-words-7plus', title: 'Find 10 Words with 7+ Letters', target: 10, reward: 22, rewardType: 'flectcoins', type: 'words', period: 'daily', minLength: 7 },
+  { id: 'find-10-words-8plus', title: 'Find 10 Words with 8+ Letters', target: 10, reward: 26, rewardType: 'flectcoins', type: 'words', period: 'daily', minLength: 8 },
+  { id: 'find-5-words-8plus', title: 'Find 5 Words with 8+ Letters', target: 5, reward: 15, rewardType: 'flectcoins', type: 'words', period: 'daily', minLength: 8 },
+  { id: 'word-of-the-day', title: 'Find the Word of the Day', target: 1, reward: 100, rewardType: 'gems', type: 'special', period: 'daily' }
+];
+
+const WEEKLY_MISSIONS = [
+  { id: 'play-5-games-week', title: 'Play 5 Games', target: 5, reward: 50, rewardType: 'flectcoins', type: 'games', period: 'weekly' },
+  { id: 'find-50-words-week', title: 'Find 50 Words', target: 50, reward: 75, rewardType: 'flectcoins', type: 'words', period: 'weekly' },
+  { id: 'score-500-points-week', title: 'Score 500 Points', target: 500, reward: 100, rewardType: 'flectcoins', type: 'score', period: 'weekly' },
+  { id: 'find-10-long-words-week', title: 'Find 10 Long Words', target: 10, reward: 125, rewardType: 'flectcoins', type: 'words', period: 'weekly', minLength: 8 },
+  { id: 'complete-5-games-no-hints-week', title: 'Complete 5 Games Without Hints', target: 5, reward: 200, rewardType: 'flectcoins', type: 'games', period: 'weekly', noHints: true },
+  { id: 'play-every-day-week', title: 'Play Every Day', target: 7, reward: 300, rewardType: 'flectcoins', type: 'streak', period: 'weekly' },
+  { id: 'score-1000-points-week', title: 'Score 1000 Points', target: 1000, reward: 150, rewardType: 'flectcoins', type: 'score', period: 'weekly' },
+  { id: 'word-of-the-day-streak-week', title: 'Find the Word of the Day 7 Days in a Row', target: 7, reward: 500, rewardType: 'gems', type: 'streak', period: 'weekly' }
+];
+
+const GLOBAL_MISSIONS = [
+  { id: 'reach-level-10', title: 'Reach Level 10', target: 10, reward: 2000, rewardType: 'flectcoins', type: 'level', period: 'global' },
+  { id: 'reach-level-25', title: 'Reach Level 25', target: 25, reward: 5000, rewardType: 'flectcoins', type: 'level', period: 'global' },
+  { id: 'reach-level-50', title: 'Reach Level 50', target: 50, reward: 10000, rewardType: 'flectcoins', type: 'level', period: 'global' },
+  { id: 'play-100-games', title: 'Play 100 Games', target: 100, reward: 5000, rewardType: 'flectcoins', type: 'games', period: 'global' },
+  { id: 'find-1000-words', title: 'Find 1000 Words', target: 1000, reward: 8000, rewardType: 'flectcoins', type: 'words', period: 'global' },
+  { id: 'find-5000-words', title: 'Find 5000 Words', target: 5000, reward: 25000, rewardType: 'flectcoins', type: 'words', period: 'global' },
+  { id: 'score-10000-points', title: 'Score 10000 Points', target: 10000, reward: 15000, rewardType: 'flectcoins', type: 'score', period: 'global' },
+  { id: 'maintain-7-day-login-streak', title: 'Maintain 7-Day Login Streak', target: 7, reward: 1000, rewardType: 'flectcoins', type: 'streak', period: 'global' }
+];
 
 // Error boundary component
 class ErrorBoundary extends React.Component<
@@ -65,7 +109,7 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-const GRID_COLS = 5;
+const GRID_COLS = 8;
 const GRID_ROWS = 8;
 
 // Generate a board that starts with bottom 3 rows populated
@@ -187,74 +231,43 @@ function generateBoard() {
     Array.from({ length: GRID_COLS }, () => "")
   );
   
-  // Fill the bottom 3 rows with board-aware letter generation
-  for (let row = GRID_ROWS - 3; row < GRID_ROWS; row++) {
+  // Fill the entire 8x8 board with letters (prepopulated system)
+  for (let row = 0; row < GRID_ROWS; row++) {
     for (let col = 0; col < GRID_COLS; col++) {
       board[row][col] = drawLetterFromBagWithBoardCheck(board, row, col);
     }
   }
   
-  console.log("Generated board:", board);
+  console.log("Generated prepopulated board:", board);
   console.log("Rare letters on board:", Array.from(rareLettersOnBoard));
   return board;
 }
 
-// Function to make letters fall down when they're used
-function makeLettersFall(board: string[][]) {
-  const newBoard = board.map(row => [...row]);
-  
-  // For each column, move letters down
-  for (let col = 0; col < GRID_COLS; col++) {
-    let writeRow = GRID_ROWS - 1;
-    for (let row = GRID_ROWS - 1; row >= 0; row--) {
-      if (newBoard[row][col] !== "") {
-        if (writeRow !== row) {
-          newBoard[writeRow][col] = newBoard[row][col];
-          newBoard[row][col] = "";
-        }
-        writeRow--;
-      }
-    }
-  }
-  
-  // Don't add new letters immediately - let them fall naturally over time
-  // New letters will be added by the game mechanics later
-  
-  return newBoard;
-}
+// Prepopulated board system - letters are simply removed when words are found
+// No falling or row insertion mechanics needed
 
-// Helper to insert a new row at the bottom (not top)
-function insertNewRow(board: string[][]) {
-  // Shift all rows up (like Tetris) and add new row at bottom
-  const newBoard = board.map(row => [...row]);
-  
-  // Shift all existing rows up by 1
-  for (let row = 0; row < GRID_ROWS - 1; row++) {
-    newBoard[row] = [...newBoard[row + 1]];
-  }
-  
-  // Add new row at the bottom with fresh letters (proper column-aware generation for mobile parity)
-newBoard[GRID_ROWS - 1] = Array.from({ length: GRID_COLS }, (_, col) => 
-  drawLetterFromBagWithBoardCheck(newBoard, GRID_ROWS - 1, col)
-);
-  
-  return newBoard;
-}
-
-// Helper to get highest filled row (0-based, so add 1 for count)
-function getHighestFilledRow(board: string[][]) {
-  for (let row = 0; row < GRID_ROWS; row++) {
-    if (board[row].some(cell => cell !== "")) {
-      return row;
-    }
-  }
-  return GRID_ROWS; // all empty
-}
-// Helper to check if board is too sparse (<60% filled)
+// Helper to check if board is too sparse for gameplay
 function isBoardTooSparse(board: string[][]) {
   const total = GRID_ROWS * GRID_COLS;
   const filled = board.flat().filter(cell => cell !== "").length;
-  return (filled / total) < 0.6;
+  return (filled / total) < 0.1; // Game over if less than 10% of letters remain
+}
+
+// Perfect Clear System - Check if only 1 row remains with letters
+function checkPerfectClearCondition(board: string[][]): boolean {
+  const filledRows = board.filter(row => row.some(cell => cell !== "")).length;
+  return filledRows === 1;
+}
+
+// Generate confetti for Perfect Clear celebration
+function generatePerfectClearConfetti(): Array<{id: number, x: number, y: number, color: string}> {
+  const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'];
+  return Array.from({ length: 50 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    color: colors[Math.floor(Math.random() * colors.length)]
+  }));
 }
 
 // Progressive Difficulty System (v1.0.107)
@@ -287,21 +300,34 @@ function getMinimumWordLength(level: number): number {
   return 3;
 }
 
-// Letter-Based Scoring System (v1.0.107)
+// Mobile App Scoring System (v1.0.200)
 const LETTER_POINTS = {
   A: 1, B: 3, C: 3, D: 2, E: 1, F: 4, G: 2, H: 4, I: 1, J: 8, K: 5, L: 1, M: 3, N: 1, O: 1, P: 3, Q: 10, R: 1, S: 1, T: 1, U: 1, V: 4, W: 4, X: 8, Y: 4, Z: 10
 };
 
 function calculateWordScore(word: string, level: number): number {
-  // Calculate letter score
+  // Calculate letter score (Scrabble-style point values)
   const letterScore = word.split('').reduce((total, letter) => {
     return total + (LETTER_POINTS[letter as keyof typeof LETTER_POINTS] || 1);
   }, 0);
   
-  // Add level bonus
+  // Add level bonus: Math.floor(baseScore * (level - 1) * 0.1)
   const levelBonus = Math.floor(letterScore * (level - 1) * 0.1);
   
   return letterScore + levelBonus;
+}
+
+// Mobile App Level Progression System
+function getAdditionalPointsNeeded(level: number): number {
+  return Math.floor(25 * Math.pow(1.15, level - 1));
+}
+
+function getTotalPointsForLevel(level: number): number {
+  let total = 0;
+  for (let i = 1; i < level; i++) {
+    total += getAdditionalPointsNeeded(i);
+  }
+  return total;
 }
 
 export default function PlayGame() {
@@ -327,7 +353,7 @@ export default function PlayGame() {
   const [isShuffling, setIsShuffling] = useState(false);
   const [isFrozen, setIsFrozen] = useState(false);
   const [freezeTimeout, setFreezeTimeout] = useState<NodeJS.Timeout | null>(null);
-  const [flectcoins, setFlectcoins] = useState(500); // Placeholder, ideally fetched from user profile
+  const [flectcoins, setFlectcoins] = useState(150); // Mobile app starting balance
   const [gems, setGems] = useState(0);
   const [powerupError, setPowerupError] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -336,6 +362,11 @@ export default function PlayGame() {
   // Popup for level up
   const [showLevelUpPopup, setShowLevelUpPopup] = useState(false);
   const [levelUpPopupLevel, setLevelUpPopupLevel] = useState(0);
+  
+  // Perfect Clear System
+  const [perfectClearCount, setPerfectClearCount] = useState(0);
+  const [showPerfectClearCelebration, setShowPerfectClearCelebration] = useState(false);
+  const [perfectClearConfetti, setPerfectClearConfetti] = useState<Array<{id: number, x: number, y: number, color: string}>>([]);
 
   // Remove all wordSet and wordList logic
   const [wordFeedback, setWordFeedback] = useState<string | null>(null);
@@ -343,10 +374,10 @@ export default function PlayGame() {
   const [wordSet, setWordSet] = useState<Set<string> | null>(null);
   const [wordListLoading, setWordListLoading] = useState(true);
 
-  // Powerup costs (adjust as needed)
-  const HINT_COST = 50;
-  const SHUFFLE_COST = 100;
-  const FREEZE_COST = 200;
+  // Powerup costs (mobile app v1.0.200)
+  const HINT_COST = 25;
+  const SHUFFLE_COST = 40;
+  const FREEZE_COST = 80;
 
   // Compute longest word and top scoring word
   const longestWord = foundWords.reduce((a, b) => (b.length > a.length ? b : a), "");
@@ -355,96 +386,13 @@ export default function PlayGame() {
   const INITIAL_TIMER = 120;
   const [timer, setTimer] = useState(INITIAL_TIMER); // 2 minutes
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const dangerZoneTimeout = useRef<NodeJS.Timeout | null>(null);
-  const [inDangerZone, setInDangerZone] = useState(false);
   const latestBoardRef = useRef<string[][]>(emptyBoard);
   useEffect(() => { latestBoardRef.current = board; }, [board]);
 
-  // Letter falling timer - letters fall every 2 seconds
-  // const letterFallRef = useRef<NodeJS.Timeout | null>(null);
-  // const [letterFallTimer, setLetterFallTimer] = useState(0);
-  // --- New: Row population timer logic matching mobile ---
-  const rowTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const [rowPopulationTick, setRowPopulationTick] = useState(0);
+  // Prepopulated board system - no row insertion or falling mechanics needed
 
-  // Helper: count filled rows
-  function getFilledRows(board: string[][]) {
-    return board.filter(row => row.some(cell => cell !== "")).length;
-  }
-
-  // Helper: get base interval by zone
-  function getBaseInterval(filledRows: number) {
-    if (filledRows <= 1) return 12000; // Danger zone (≤1 row): 12 seconds
-    if (filledRows <= 3) return 9000;  // Hot zone (≤3 rows): 9 seconds
-    if (filledRows <= 5) return 13000; // Warm zone (≤5 rows): 13 seconds
-    return 16000;                      // Cool zone (>5 rows): 16 seconds
-  }
-
-  // Helper: apply level scaling (matches mobile: 5% faster per level, minimum 50% speed)
-  function getLevelScaledInterval(base: number, level: number) {
-    return base * Math.max(0.5, 1 - 0.05 * (level - 1));
-  }
-
-  // Row population effect (matches mobile) - TIMER-BASED ROW INSERTION
-  useEffect(() => {
-    console.log('🔄 Row insertion effect triggered:', {
-      gameOver,
-      validatingWord,
-      isFrozen,
-      filledRows: getFilledRows(board),
-      currentLevel
-    });
-    
-    if (gameOver || validatingWord) {
-      console.log('⏸️ Row insertion paused:', { gameOver, validatingWord });
-      return;
-    }
-    if (isFrozen) {
-      console.log('⏸️ Row insertion paused (frozen)');
-      return;
-    }
-    
-    // Row insertion starts immediately to match mobile behavior
-    
-    // Clear any previous timer
-    if (rowTimerRef.current) clearTimeout(rowTimerRef.current);
-    
-    // Calculate interval
-    const filledRows = getFilledRows(board);
-    const baseInterval = getBaseInterval(filledRows);
-    const interval = getLevelScaledInterval(baseInterval, currentLevel);
-    
-    console.log('⏰ Setting row timer:', {
-      filledRows,
-      baseInterval,
-      interval,
-      currentLevel
-    });
-    
-    rowTimerRef.current = setTimeout(() => {
-      console.log('📦 Adding new row...');
-      setBoard(prevBoard => {
-        // Check for game over (top row filled)
-        if (prevBoard[0].some(cell => cell !== "")) {
-          console.log('🎮 Game over - top row filled');
-          setGameOver(true);
-          return prevBoard;
-        }
-        
-        // Insert new row (shifts all rows up and adds fresh row at bottom)
-        console.log('✅ New row inserted successfully');
-        return insertNewRow(prevBoard);
-      });
-      setRowPopulationTick(tick => tick + 1); // trigger next
-    }, interval);
-    
-    return () => {
-      if (rowTimerRef.current) {
-        console.log('🧹 Cleaning up row timer');
-        clearTimeout(rowTimerRef.current);
-      }
-    };
-  }, [gameOver, isFrozen, validatingWord, board, currentLevel, rowPopulationTick, foundWords.length, score]);
+  // Prepopulated board system - no row insertion needed
+  // Game over is determined by timer or when board becomes too sparse
 
   // Start and manage the timer
   useEffect(() => {
@@ -468,39 +416,20 @@ export default function PlayGame() {
     if (!gameOver && timer === 0) setTimer(INITIAL_TIMER);
   }, [gameOver, timer]);
 
-  // Danger zone logic: delay game over if top row is full
+  // Prepopulated board game over logic: check if board becomes too sparse
   useEffect(() => {
     if (gameOver) return;
-    const topRowFull = board[0] && board[0].every(cell => cell !== "");
-    if (topRowFull && !inDangerZone) {
-      setInDangerZone(true);
-      console.log("[DANGER ZONE] Top row is full");
-      dangerZoneTimeout.current = setTimeout(() => {
-        const latestBoard = latestBoardRef.current;
-        if (latestBoard[0] && latestBoard[0].every(cell => cell !== "")) {
-          console.log("[GAME OVER] Top row still full after danger zone");
-          setGameOver(true);
-        } else {
-          console.log("[DANGER ZONE CLEARED] Top row not full after delay");
-        }
-        setInDangerZone(false);
-        dangerZoneTimeout.current = null;
-      }, 2000); // 2 second delay
-    } else if (!topRowFull && inDangerZone) {
-      setInDangerZone(false);
-      if (dangerZoneTimeout.current) {
-        clearTimeout(dangerZoneTimeout.current);
-        dangerZoneTimeout.current = null;
-      }
-      console.log("[DANGER ZONE CANCELLED] Top row cleared");
+    
+    // Check if board has too few letters remaining (game over condition)
+    const totalCells = GRID_ROWS * GRID_COLS;
+    const remainingLetters = board.flat().filter(cell => cell !== "").length;
+    const sparsityThreshold = 0.1; // Game over if less than 10% of letters remain
+    
+    if (remainingLetters / totalCells < sparsityThreshold) {
+      console.log("[GAME OVER] Board too sparse - not enough letters to form words");
+      setGameOver(true);
     }
-    return () => {
-      if (dangerZoneTimeout.current && (!inDangerZone || gameOver)) {
-        clearTimeout(dangerZoneTimeout.current);
-        dangerZoneTimeout.current = null;
-      }
-    };
-  }, [board, gameOver, inDangerZone]);
+  }, [board, gameOver]);
 
   // Fetch definitions for all found words at game over (disabled to fix API errors)
   useEffect(() => {
@@ -690,12 +619,8 @@ export default function PlayGame() {
               // Remove rare letter from tracking when used
               removeRareLetterFromTracking(letter);
             });
-            const fallen = makeLettersFall(newBoard);
-            const highestRow = getHighestFilledRow(fallen);
-            if ((word.length >= 5 && highestRow > 1) || (isBoardTooSparse(fallen) && highestRow > 1)) {
-              return insertNewRow(fallen);
-            }
-            return fallen;
+            // In prepopulated system, letters are simply removed (no falling)
+            return newBoard;
           });
         } else {
           setWordFeedback("Invalid word");
@@ -743,12 +668,8 @@ export default function PlayGame() {
               // Remove rare letter from tracking when used
               removeRareLetterFromTracking(letter);
             });
-            const fallen = makeLettersFall(newBoard);
-            const highestRow = getHighestFilledRow(fallen);
-            if ((word.length >= 5 && highestRow > 1) || (isBoardTooSparse(fallen) && highestRow > 1)) {
-              return insertNewRow(fallen);
-            }
-            return fallen;
+            // In prepopulated system, letters are simply removed (no falling)
+            return newBoard;
           });
         } else {
           setWordFeedback("Invalid word");
@@ -756,7 +677,7 @@ export default function PlayGame() {
         }
         setSelected([]);
       }
-    }, 1500); // 1.5 second pause to give more time for longer words
+    }, 1000); // 1 second auto-submit to match mobile app
   };
 
   // Clear auto-submit timer on unmount
@@ -766,26 +687,22 @@ export default function PlayGame() {
     };
   }, []);
 
-  // Level progression helpers (per markdown)
-  const getAdditionalPointsNeeded = useCallback((level: number) => {
-    return Math.floor(25 * Math.pow(1.15, level - 1));
+  // Level progression helpers (mobile app system)
+  const getAdditionalPointsNeededCallback = useCallback((level: number) => {
+    return getAdditionalPointsNeeded(level);
   }, []);
 
-  const getTotalPointsForLevel = useCallback((level: number) => {
-    let total = 0;
-    for (let i = 1; i < level; i++) {
-      total += getAdditionalPointsNeeded(i);
-    }
-    return total;
-  }, [getAdditionalPointsNeeded]);
+  const getTotalPointsForLevelCallback = useCallback((level: number) => {
+    return getTotalPointsForLevel(level);
+  }, []);
 
-  // Calculate points needed for next level and progress
+  // Calculate points needed for next level and progress (mobile app system)
   useEffect(() => {
     const nextLevelTotal = getTotalPointsForLevel(currentLevel + 1);
     setPointsToNextLevel(Math.max(0, nextLevelTotal - score));
-  }, [score, currentLevel, getTotalPointsForLevel]);
+  }, [score, currentLevel]);
 
-  // Level up logic: when score reaches next level threshold
+  // Level up logic: when score reaches next level threshold (mobile app system)
   useEffect(() => {
     const nextLevelTotal = getTotalPointsForLevel(currentLevel + 1);
     if (score >= nextLevelTotal) {
@@ -801,7 +718,7 @@ export default function PlayGame() {
         setIsFrozen(false);
       }, 4000);
     }
-  }, [score, currentLevel, getTotalPointsForLevel]);
+  }, [score, currentLevel]);
 
   // On game over, update user profile if new level achieved
   const handleGameOver = useCallback(async () => {
@@ -977,12 +894,7 @@ export default function PlayGame() {
     setError(null);
     setSuccess(null);
     setTimer(INITIAL_TIMER);
-    setInDangerZone(false);
     hasHandledGameOver.current = false; // Reset so next game can trigger
-    if (dangerZoneTimeout.current) {
-      clearTimeout(dangerZoneTimeout.current);
-      dangerZoneTimeout.current = null;
-    }
     console.log("Replay: timer reset to", INITIAL_TIMER);
   };
 
@@ -1278,25 +1190,56 @@ export default function PlayGame() {
                   <span className="text-5xl mb-2">🏆</span>
                   <h2 className="text-4xl font-extrabold text-white tracking-wide text-center mb-2 drop-shadow-lg">Game Over!</h2>
                 </div>
-                <div className="flex flex-col items-center gap-2 w-full">
+                <div className="flex flex-col items-center gap-4 w-full">
+                  {/* Main Stats */}
                   <div className="flex flex-wrap gap-4 justify-center w-full">
                     <div className="flex flex-col items-center">
-                      <span className="text-blue-200 text-lg">Score</span>
+                      <span className="text-blue-200 text-lg">Final Score</span>
                       <span className="bg-blue-600 text-white font-bold text-2xl px-6 py-2 rounded-full shadow border border-blue-300">{score}</span>
                     </div>
                     <div className="flex flex-col items-center">
                       <span className="text-blue-200 text-lg">Words Found</span>
                       <span className="bg-green-600 text-white font-bold text-2xl px-6 py-2 rounded-full shadow border border-green-300">{foundWords.length}</span>
                     </div>
+                    <div className="flex flex-col items-center">
+                      <span className="text-blue-200 text-lg">Level Reached</span>
+                      <span className="bg-purple-600 text-white font-bold text-2xl px-6 py-2 rounded-full shadow border border-purple-300">{currentLevel}</span>
+                    </div>
                   </div>
-                  <div className="flex flex-wrap gap-4 justify-center w-full mt-4">
+                  
+                  {/* Word Stats */}
+                  <div className="flex flex-wrap gap-4 justify-center w-full">
                     <div className="flex flex-col items-center">
                       <span className="text-blue-200 text-lg">Longest Word</span>
                       <span className="bg-purple-600 text-white font-bold text-xl px-4 py-1 rounded-full shadow border border-purple-300">{longestWord || "-"}</span>
                     </div>
                     <div className="flex flex-col items-center">
-                      <span className="text-blue-200 text-lg">Top Scoring Word</span>
-                      <span className="bg-yellow-500 text-black font-bold text-xl px-4 py-1 rounded-full shadow border border-yellow-300">{topScoringWord || "-"}</span>
+                      <span className="text-blue-200 text-lg">Average Word Length</span>
+                      <span className="bg-yellow-500 text-black font-bold text-xl px-4 py-1 rounded-full shadow border border-yellow-300">
+                        {foundWords.length > 0 ? (foundWords.reduce((sum, word) => sum + word.length, 0) / foundWords.length).toFixed(1) : "-"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <span className="text-blue-200 text-lg">Time Played</span>
+                      <span className="bg-red-600 text-white font-bold text-xl px-4 py-1 rounded-full shadow border border-red-300">
+                        {Math.floor((INITIAL_TIMER - timer) / 60)}:{(INITIAL_TIMER - timer) % 60 < 10 ? '0' : ''}{(INITIAL_TIMER - timer) % 60}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Power-up Usage */}
+                  <div className="flex flex-wrap gap-4 justify-center w-full">
+                    <div className="flex flex-col items-center">
+                      <span className="text-blue-200 text-lg">Flectcoins Spent</span>
+                      <span className="bg-yellow-600 text-white font-bold text-xl px-4 py-1 rounded-full shadow border border-yellow-300">
+                        {150 - flectcoins}
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <span className="text-blue-200 text-lg">Remaining Flectcoins</span>
+                      <span className="bg-yellow-500 text-black font-bold text-xl px-4 py-1 rounded-full shadow border border-yellow-300">
+                        {flectcoins}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1321,19 +1264,44 @@ export default function PlayGame() {
                   </div>
                 )}
                 <div className="w-full max-w-lg mb-4">
-                  <h2 className="text-xl font-bold text-white mb-2">Missions</h2>
+                  <h2 className="text-xl font-bold text-white mb-2">Mission Progress</h2>
                   {missionsLoading ? (
                     <div className="text-blue-300 mb-2">Loading missions...</div>
                   ) : missionsError ? (
                     <div className="text-red-400 mb-2">{missionsError}</div>
                   ) : Array.isArray(missions) && missions.length > 0 ? (
-                    <ul className="mb-2">
-                      {missions.map((mission, i) => (
-                        <li key={mission.id || i} className="mb-1 text-blue-100">
-                          <span className="font-bold text-white">{String(mission.title ?? mission.name ?? 'Mission')}:</span> {mission.progress ?? 0}/{mission.goal ?? mission.target ?? 0} {mission.completed ? <span className="text-green-400 ml-2">(Completed)</span> : null}
-                        </li>
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold text-yellow-300">Daily Missions</h3>
+                      {missions.filter(m => m.period === 'daily').slice(0, 3).map((mission, i) => (
+                        <div key={mission.id || i} className="flex justify-between items-center bg-gray-800 p-2 rounded">
+                          <span className="text-blue-100 text-sm">{mission.title}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-white text-sm">{mission.progress ?? 0}/{mission.goal ?? mission.target ?? 0}</span>
+                            {mission.completed ? <span className="text-green-400 text-sm">✓</span> : null}
+                          </div>
+                        </div>
                       ))}
-                    </ul>
+                      <h3 className="text-lg font-semibold text-purple-300 mt-3">Weekly Missions</h3>
+                      {missions.filter(m => m.period === 'weekly').slice(0, 2).map((mission, i) => (
+                        <div key={mission.id || i} className="flex justify-between items-center bg-gray-800 p-2 rounded">
+                          <span className="text-blue-100 text-sm">{mission.title}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-white text-sm">{mission.progress ?? 0}/{mission.goal ?? mission.target ?? 0}</span>
+                            {mission.completed ? <span className="text-green-400 text-sm">✓</span> : null}
+                          </div>
+                        </div>
+                      ))}
+                      <h3 className="text-lg font-semibold text-green-300 mt-3">Global Missions</h3>
+                      {missions.filter(m => m.period === 'global').slice(0, 2).map((mission, i) => (
+                        <div key={mission.id || i} className="flex justify-between items-center bg-gray-800 p-2 rounded">
+                          <span className="text-blue-100 text-sm">{mission.title}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-white text-sm">{mission.progress ?? 0}/{mission.goal ?? mission.target ?? 0}</span>
+                            {mission.completed ? <span className="text-green-400 text-sm">✓</span> : null}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <div className="text-blue-200">No missions found.</div>
                   )}
@@ -1437,7 +1405,7 @@ export default function PlayGame() {
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-5 gap-1 sm:gap-2 bg-gray-900 p-2 sm:p-4 rounded-lg shadow-lg max-w-md mx-auto">
+              <div className="grid grid-cols-8 gap-1 sm:gap-2 bg-gray-900 p-2 sm:p-4 rounded-lg shadow-lg max-w-2xl mx-auto">
                   {board.map((row, rowIdx) =>
                     row.map((cell, colIdx) => {
                       const isSelected = selected.some(sel => sel.row === rowIdx && sel.col === colIdx);
@@ -1447,10 +1415,10 @@ export default function PlayGame() {
                       return (
                         <button
                           key={`${rowIdx}-${colIdx}`}
-                          className={`aspect-square w-full max-w-[60px] sm:max-w-[70px] rounded-lg flex flex-col items-center justify-center text-lg sm:text-2xl font-bold transition border-2 relative ${isSelected ? "bg-blue-400 text-white border-blue-600" : "bg-white text-gray-900 border-gray-300 hover:bg-blue-100"} ${isTopRow ? "animate-pulse ring-2 ring-red-400" : ""}`}
+                          className={`aspect-square w-full max-w-[45px] sm:max-w-[55px] rounded-lg flex flex-col items-center justify-center text-sm sm:text-lg font-bold transition border-2 relative ${isSelected ? "bg-blue-400 text-white border-blue-600" : "bg-white text-gray-900 border-gray-300 hover:bg-blue-100"} ${isTopRow ? "animate-pulse ring-2 ring-red-400" : ""}`}
                           onClick={() => handleCellClick(rowIdx, colIdx)}
                         >
-                          <span className="text-lg sm:text-2xl">{cell}</span>
+                          <span className="text-sm sm:text-lg">{cell}</span>
                           {cell && (
                             <span
                               className={`absolute bottom-1 right-1 text-xs font-bold flex items-center justify-center rounded-full shadow-md border-2 border-white bg-[#1976d2] text-white w-5 h-5 sm:w-6 sm:h-6 select-none pointer-events-none`}
@@ -1569,9 +1537,6 @@ export default function PlayGame() {
                 <button className="px-6 py-2 rounded-lg bg-gray-700 text-white font-bold shadow hover:scale-105 transition-all duration-150" onClick={() => setSelected([])}>Clear</button>
                 <button className="px-6 py-2 rounded-lg bg-red-700 text-white font-bold shadow hover:scale-105 transition-all duration-150" onClick={handleGameOver} disabled={submitting || isFrozen}>End Game</button>
               </div>
-              {inDangerZone && !gameOver && (
-                <div className="text-red-400 font-bold mb-2 animate-pulse">Danger! Top row is full! (Debug: Danger zone active)</div>
-              )}
               {gameOver && (
                 <div className="text-red-400 font-bold mb-2">Game Over Triggered (Debug)</div>
               )}

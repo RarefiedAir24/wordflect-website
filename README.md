@@ -1,27 +1,38 @@
-// Test: trigger Vercel deployment
-## [Unreleased] - Row insertion now matches mobile (shifts all rows up, adds new row at bottom). Deployment trigger.
 # Wordflect Web Game
 
-A Next.js web implementation of the Wordflect word-finding game, designed to match the mobile app's functionality and user experience.
+**Version**: 1.0.107 (Web Implementation)
+**Platform**: Web (Next.js)
+**Status**: Production Ready ✅
+
+A Next.js web implementation of the Wordflect word-finding game, designed to match the mobile app's core functionality and user experience. This web version provides the essential gameplay features while the full mobile app (v1.0.200) includes additional features like battles, frames, and advanced progression systems.
 
 ## 🎮 Game Features
 
 ### Core Gameplay
 - **Word Finding**: Connect adjacent letters to form valid words (3+ letters)
+- **Game Board**: 8x8 prepopulated grid (64 cells) matching mobile app
 - **Timer System**: 2-minute countdown with time bonuses for word completion
-- **Level Progression**: Score-based leveling with timer resets
-- **Row Insertion**: Dynamic board population matching mobile app timing
-- **Power-ups**: Hint, Shuffle, and Freeze abilities using flectcoins
+- **Level Progression**: Score-based leveling with timer resets (mobile app formula)
+- **Prepopulated Board**: Full board with letters, simple removal when words found
+- **Power-ups**: Hint (25), Shuffle (40), and Freeze (80) abilities using flectcoins
 
-### Mission System
-- **Daily/Weekly Missions**: Progress tracking for words found, scores, and games played
-- **Mission Rewards**: Flectcoins awarded only through mission completions
-- **Completion Logic**: Prevents repeated progress on completed missions
+### Web-Specific Features
+- **Responsive Design**: Optimized for desktop and mobile browsers
+- **Touch & Click Support**: Works with both mouse and touch interactions
+- **Real-time Validation**: Instant word validation with local word set
+- **Progressive Web App**: Can be installed on mobile devices
 
-### Currency System
-- **Flectcoins**: Earned exclusively through mission completions
-- **Gems**: Premium currency for special features
-- **Power-up Costs**: Hint (50), Shuffle (100), Freeze (200) flectcoins
+### Mission System (Mobile App v1.0.200)
+- **Daily Missions**: 15 different daily missions (10-50 flectcoins + 100 gems for Word of the Day)
+- **Weekly Missions**: 8 weekly missions (50-300 flectcoins + 500 gems for Word of the Day streak)
+- **Global Missions**: 8 one-time completion missions (1000-25000 flectcoins)
+- **Mission Rewards**: Flectcoins and gems awarded through mission completions
+- **Progress Tracking**: Real-time progress updates during gameplay
+
+### Currency System (Mobile App v1.0.200)
+- **Flectcoins**: Earned through mission completions, starting balance 150
+- **Gems**: Premium currency for frame purchases and special rewards
+- **Power-up Costs**: Hint (25), Shuffle (40), Freeze (80) flectcoins
 
 ## 🛠 Technical Implementation
 
@@ -32,10 +43,12 @@ A Next.js web implementation of the Wordflect word-finding game, designed to mat
 - **API Integration**: Custom API service with authentication
 
 ### Key Components
-- **Game Board**: 5x8 grid with dynamic letter generation
-- **Timer System**: Visual countdown with danger zone indicators
-- **Mission Tracking**: Real-time progress updates
-- **Word Validation**: Local word set with 3+ letter minimum
+- **Game Board**: 5x8 grid with dynamic letter generation and anti-clustering
+- **Timer System**: Visual countdown with danger zone indicators and circular progress
+- **Mission Tracking**: Real-time progress updates with backend synchronization
+- **Word Validation**: Local word set with 3+ letter minimum and frequency-based generation
+- **Letter Points System**: Scrabble-style letter scoring with visual indicators
+- **Progressive Difficulty**: Level-based time bonus scaling and minimum word length requirements
 
 ### API Integration
 ```typescript
@@ -359,25 +372,45 @@ src/
 ## 🎯 Game Mechanics
 
 ### Word Validation
-- Minimum 3 letters required
-- Must be in local word set
-- Adjacent letter connections only
+- Minimum 3 letters required (4+ letters at level 40+)
+- Must be in local word set (loaded from `/public/words.json`)
+- Adjacent letter connections only (8-directional)
+- Auto-submit after 1.5 seconds of selection
 
 ### Scoring System
-- 1 point per letter in word
-- Time bonus: 1 second per letter
-- Level progression: Exponential point requirements
+- **Letter-Based Scoring**: Scrabble-style point values (A=1, B=3, Q=10, Z=10, etc.)
+- **Level Bonus**: Additional points based on current level
+- **Time Bonus**: Progressive time rewards based on word length and level
+- **Level Progression**: Exponential point requirements (25 * 1.15^(level-1))
 
 ### Timer System
-- 2-minute initial timer
-- Time bonuses for word completion
-- Danger zone indicators (≤30s)
-- Timer resets on level up
+- 2-minute initial timer (120 seconds)
+- Time bonuses: 1-6 seconds based on word length (reduced at higher levels)
+- Danger zone indicators (≤30s with red pulsing)
+- Timer resets to 120s on level up
+- Visual circular progress indicator
 
 ### Row Insertion Logic
-- Dynamic timing based on filled rows
-- Level scaling affects insertion speed
-- Pauses during game over or freeze states
+- Dynamic timing based on filled rows (12-16 seconds)
+- Level scaling: 5% faster per level (minimum 50% speed)
+- Pauses during game over, freeze states, or word validation
+- Anti-clustering system prevents letter repetition
+
+## 📱 Web vs Mobile Comparison
+
+### Web Version (This Implementation)
+- **Grid**: 8x8 (64 cells) - prepopulated board matching mobile
+- **Timer**: 2 minutes (120 seconds)
+- **Features**: Core gameplay, missions, power-ups, authentication, mobile app scoring
+- **Platform**: Next.js web application
+- **Deployment**: Vercel with automatic deployments
+
+### Mobile Version (v1.0.200)
+- **Grid**: 8x8 (64 cells) - full mobile experience
+- **Timer**: 2 minutes (120 seconds)
+- **Features**: All web features + battles, frames, leaderboards, perfect clear system
+- **Platform**: React Native + Expo (iOS TestFlight)
+- **Deployment**: App Store distribution
 
 ## 🔐 Authentication
 
