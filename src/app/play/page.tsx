@@ -21,7 +21,8 @@ interface Mission {
   description?: string;
 }
 
-// Mission definitions (mobile app v1.0.200)
+// Mission definitions (mobile app v1.0.200) - Used in Game Over screen
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const DAILY_MISSIONS = [
   { id: 'play-1-game', title: 'Play 1 Game Today', target: 1, reward: 25, rewardType: 'flectcoins', type: 'games', period: 'daily' },
   { id: 'find-10-words', title: 'Find 10 Words', target: 10, reward: 10, rewardType: 'flectcoins', type: 'words', period: 'daily' },
@@ -40,7 +41,8 @@ const DAILY_MISSIONS = [
   { id: 'word-of-the-day', title: 'Find the Word of the Day', target: 1, reward: 100, rewardType: 'gems', type: 'special', period: 'daily' }
 ];
 
-const WEEKLY_MISSIONS = [
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const WEEKLY_MISSIONS = [ // Used in Game Over screen
   { id: 'play-5-games-week', title: 'Play 5 Games', target: 5, reward: 50, rewardType: 'flectcoins', type: 'games', period: 'weekly' },
   { id: 'find-50-words-week', title: 'Find 50 Words', target: 50, reward: 75, rewardType: 'flectcoins', type: 'words', period: 'weekly' },
   { id: 'score-500-points-week', title: 'Score 500 Points', target: 500, reward: 100, rewardType: 'flectcoins', type: 'score', period: 'weekly' },
@@ -51,7 +53,8 @@ const WEEKLY_MISSIONS = [
   { id: 'word-of-the-day-streak-week', title: 'Find the Word of the Day 7 Days in a Row', target: 7, reward: 500, rewardType: 'gems', type: 'streak', period: 'weekly' }
 ];
 
-const GLOBAL_MISSIONS = [
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const GLOBAL_MISSIONS = [ // Used in Game Over screen
   { id: 'reach-level-10', title: 'Reach Level 10', target: 10, reward: 2000, rewardType: 'flectcoins', type: 'level', period: 'global' },
   { id: 'reach-level-25', title: 'Reach Level 25', target: 25, reward: 5000, rewardType: 'flectcoins', type: 'level', period: 'global' },
   { id: 'reach-level-50', title: 'Reach Level 50', target: 50, reward: 10000, rewardType: 'flectcoins', type: 'level', period: 'global' },
@@ -246,29 +249,29 @@ function generateBoard() {
 // Prepopulated board system - letters are simply removed when words are found
 // No falling or row insertion mechanics needed
 
-// Helper to check if board is too sparse for gameplay
-function isBoardTooSparse(board: string[][]) {
-  const total = GRID_ROWS * GRID_COLS;
-  const filled = board.flat().filter(cell => cell !== "").length;
-  return (filled / total) < 0.1; // Game over if less than 10% of letters remain
-}
+// Helper to check if board is too sparse for gameplay (for future implementation)
+// function isBoardTooSparse(board: string[][]) {
+//   const total = GRID_ROWS * GRID_COLS;
+//   const filled = board.flat().filter(cell => cell !== "").length;
+//   return (filled / total) < 0.1; // Game over if less than 10% of letters remain
+// }
 
-// Perfect Clear System - Check if only 1 row remains with letters
-function checkPerfectClearCondition(board: string[][]): boolean {
-  const filledRows = board.filter(row => row.some(cell => cell !== "")).length;
-  return filledRows === 1;
-}
+// Perfect Clear System - Check if only 1 row remains with letters (for future implementation)
+// function checkPerfectClearCondition(board: string[][]): boolean {
+//   const filledRows = board.filter(row => row.some(cell => cell !== "")).length;
+//   return filledRows === 1;
+// }
 
-// Generate confetti for Perfect Clear celebration
-function generatePerfectClearConfetti(): Array<{id: number, x: number, y: number, color: string}> {
-  const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'];
-  return Array.from({ length: 50 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    color: colors[Math.floor(Math.random() * colors.length)]
-  }));
-}
+// Generate confetti for Perfect Clear celebration (for future implementation)
+// function generatePerfectClearConfetti(): Array<{id: number, x: number, y: number, color: string}> {
+//   const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'];
+//   return Array.from({ length: 50 }, (_, i) => ({
+//     id: i,
+//     x: Math.random() * 100,
+//     y: Math.random() * 100,
+//     color: colors[Math.floor(Math.random() * colors.length)]
+//   }));
+// }
 
 // Progressive Difficulty System (v1.0.107)
 // Time bonus decreases as player level increases
@@ -363,10 +366,10 @@ export default function PlayGame() {
   const [showLevelUpPopup, setShowLevelUpPopup] = useState(false);
   const [levelUpPopupLevel, setLevelUpPopupLevel] = useState(0);
   
-  // Perfect Clear System
-  const [perfectClearCount, setPerfectClearCount] = useState(0);
-  const [showPerfectClearCelebration, setShowPerfectClearCelebration] = useState(false);
-  const [perfectClearConfetti, setPerfectClearConfetti] = useState<Array<{id: number, x: number, y: number, color: string}>>([]);
+  // Perfect Clear System (for future implementation)
+  // const [perfectClearCount, setPerfectClearCount] = useState(0);
+  // const [showPerfectClearCelebration, setShowPerfectClearCelebration] = useState(false);
+  // const [perfectClearConfetti, setPerfectClearConfetti] = useState<Array<{id: number, x: number, y: number, color: string}>>([]);
 
   // Remove all wordSet and wordList logic
   const [wordFeedback, setWordFeedback] = useState<string | null>(null);
@@ -381,7 +384,7 @@ export default function PlayGame() {
 
   // Compute longest word and top scoring word
   const longestWord = foundWords.reduce((a, b) => (b.length > a.length ? b : a), "");
-  const topScoringWord = longestWord; // For now, score = length
+  // const topScoringWord = longestWord; // For now, score = length (for future use)
 
   const INITIAL_TIMER = 120;
   const [timer, setTimer] = useState(INITIAL_TIMER); // 2 minutes
@@ -687,14 +690,14 @@ export default function PlayGame() {
     };
   }, []);
 
-  // Level progression helpers (mobile app system)
-  const getAdditionalPointsNeededCallback = useCallback((level: number) => {
-    return getAdditionalPointsNeeded(level);
-  }, []);
+  // Level progression helpers (mobile app system) - for future use
+  // const getAdditionalPointsNeededCallback = useCallback((level: number) => {
+  //   return getAdditionalPointsNeeded(level);
+  // }, []);
 
-  const getTotalPointsForLevelCallback = useCallback((level: number) => {
-    return getTotalPointsForLevel(level);
-  }, []);
+  // const getTotalPointsForLevelCallback = useCallback((level: number) => {
+  //   return getTotalPointsForLevel(level);
+  // }, []);
 
   // Calculate points needed for next level and progress (mobile app system)
   useEffect(() => {
