@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
     console.log('📤 Proxy: Request data:', requestData);
     
     // Try with minimal headers first
+    console.log('📤 Proxy: About to make fetch request to:', `${API_BASE_URL}/signin`);
     const response = await fetch(`${API_BASE_URL}/signin`, {
       method: 'POST',
       headers: {
@@ -32,6 +33,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify(requestData)
     });
+    console.log('📤 Proxy: Fetch request completed, status:', response.status);
 
     console.log('📥 Proxy: Response status:', response.status);
     console.log('📥 Proxy: Response headers:', Object.fromEntries(response.headers.entries()));
