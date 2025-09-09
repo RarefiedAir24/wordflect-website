@@ -7,6 +7,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     domains: [
+      'wordflect-profile-images.s3.amazonaws.com',
       'wordflect-profile-images.s3.us-east-2.amazonaws.com',
       'wordflect-avatar-frames.s3.us-east-2.amazonaws.com'
     ]
