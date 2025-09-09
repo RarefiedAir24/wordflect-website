@@ -6,15 +6,15 @@ export const API_CONFIG = {
   
   // API Endpoints
   ENDPOINTS: {
-    SIGNIN: '/signin',
-    SIGNUP: '/signup',
-    USER_PROFILE: '/user/profile',
-    USER_MISSIONS: '/user/missions',
+    SIGNIN: '/api/proxy-signin', // Use proxy to bypass CORS
+    SIGNUP: '/api/proxy-signup', // Use proxy to bypass CORS
+    USER_PROFILE: '/api/proxy-profile', // Use proxy to bypass CORS
+    USER_MISSIONS: '/api/proxy-missions', // Use proxy to bypass CORS
     USER_UPDATE_STATS: '/api/proxy-stats', // Use proxy to bypass CORS
-    USER_COMPLETE_MISSION: '/user/complete-mission',
-    LEADERBOARD: '/leaderboard',
-    USER_FRAMES: '/user/frames',
-    WORD_OF_THE_DAY: '/word-of-the-day',
+    USER_COMPLETE_MISSION: '/api/proxy-complete-mission', // Use proxy to bypass CORS
+    LEADERBOARD: '/api/proxy-leaderboard', // Use proxy to bypass CORS
+    USER_FRAMES: '/api/proxy-frames', // Use proxy to bypass CORS
+    WORD_OF_THE_DAY: '/api/proxy-word-of-the-day', // Use proxy to bypass CORS
   },
   
   // Request timeout in milliseconds
