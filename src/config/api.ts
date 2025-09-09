@@ -6,7 +6,7 @@ export const API_CONFIG = {
   
   // API Endpoints
   ENDPOINTS: {
-    SIGNIN: '/signin', // Direct API call for testing
+    SIGNIN: '/api/proxy-signin', // Use proxy to bypass CORS
     SIGNUP: '/api/proxy-signup', // Use proxy to bypass CORS
     USER_PROFILE: '/api/proxy-profile', // Use proxy to bypass CORS
     USER_MISSIONS: '/api/proxy-missions', // Use proxy to bypass CORS
