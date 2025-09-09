@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
     
     console.log('📤 Proxy: Forwarding signin request to:', `${API_BASE_URL}/signin`);
     console.log('📤 Proxy: Request body:', body);
+    console.log('📤 Proxy: Request headers:', Object.fromEntries(request.headers.entries()));
     
     // Parse the request body to validate it
     let requestData;
@@ -23,19 +24,13 @@ export async function POST(request: NextRequest) {
     console.log('📤 Proxy: Making request to:', `${API_BASE_URL}/signin`);
     console.log('📤 Proxy: Request data:', requestData);
     
+    // Try with minimal headers first
     const response = await fetch(`${API_BASE_URL}/signin`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'Wordflect-Web/1.0',
-        'X-API-Key': process.env.WORDFLECT_API_KEY || '',
-        'X-Client-Version': '1.0.107',
-        'X-Platform': 'web',
-        'Origin': 'https://www.wordflect.com',
-        'Referer': 'https://www.wordflect.com/signin'
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify(requestData) // Re-stringify to ensure proper formatting
+      body: JSON.stringify(requestData)
     });
 
     console.log('📥 Proxy: Response status:', response.status);
