@@ -19,6 +19,9 @@ export default function Profile() {
         }
 
         const userProfile = await apiService.getUserProfile();
+        console.log('Profile data:', userProfile);
+        console.log('Profile image URL:', userProfile.profileImageUrl);
+        console.log('Selected frame:', userProfile.selectedFrame);
         setProfile(userProfile);
       } catch (error) {
         console.error("Profile fetch error:", error);
@@ -142,13 +145,13 @@ export default function Profile() {
               </div>
             )}
             {profile.selectedFrame && (
-              <div className="absolute -inset-2">
+              <div className="absolute -inset-2 pointer-events-none">
                 <Image
                   src={profile.selectedFrame.imageUrl}
                   alt={profile.selectedFrame.name}
                   width={96}
                   height={96}
-                  className="w-24 h-24"
+                  className="w-24 h-24 object-contain"
                 />
               </div>
             )}
