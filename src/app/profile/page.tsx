@@ -131,13 +131,20 @@ export default function Profile() {
         {/* User Header */}
         <div className="flex items-center mb-8">
           <div className="relative mr-6">
-            {profile.profileImageUrl ? (
+            {profile.profileImageUrl && profile.profileImageUrl.trim() !== '' ? (
               <Image
                 src={profile.profileImageUrl}
                 alt="Profile"
                 width={80}
                 height={80}
                 className="rounded-full border-4 border-white shadow-lg"
+                onError={(e) => {
+                  console.error('Profile image failed to load:', profile.profileImageUrl);
+                  e.currentTarget.style.display = 'none';
+                }}
+                onLoad={() => {
+                  console.log('Profile image loaded successfully:', profile.profileImageUrl);
+                }}
               />
             ) : (
               <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center text-2xl font-bold text-gray-600">
@@ -145,13 +152,13 @@ export default function Profile() {
               </div>
             )}
             {profile.selectedFrame && (
-              <div className="absolute -inset-2 pointer-events-none">
+              <div className="absolute -inset-4 pointer-events-none">
                 <Image
                   src={profile.selectedFrame.imageUrl}
                   alt={profile.selectedFrame.name}
-                  width={96}
-                  height={96}
-                  className="w-24 h-24 object-contain"
+                  width={112}
+                  height={112}
+                  className="w-28 h-28 object-contain"
                 />
               </div>
             )}
