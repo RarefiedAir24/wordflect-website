@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         }
       });
       console.log('📤 Proxy: GET test response status:', testResponse.status);
-      console.log('📤 Proxy: GET test response headers:', Object.fromEntries(testResponse.entries()));
+      console.log('📤 Proxy: GET test response headers:', Object.fromEntries(testResponse.headers.entries()));
     } catch (testError) {
       console.log('📤 Proxy: GET test failed:', testError);
     }
