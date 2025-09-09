@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE_URL = 'https://am8zjeetod.execute-api.us-east-2.amazonaws.com/prod';
+const API_BASE_URL = 'https://api.wordflect.com';
 
 export async function GET(request: NextRequest) {
   try {
