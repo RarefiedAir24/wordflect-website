@@ -4,17 +4,17 @@ export const API_CONFIG = {
   // For production, this should point to the actual deployed API
   BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'https://api.wordflect.com',
   
-  // API Endpoints
+  // API Endpoints - Using proxy routes to bypass CORS
   ENDPOINTS: {
-    SIGNIN: '/signin', // Direct API call
-    SIGNUP: '/signup', // Direct API call
-    USER_PROFILE: '/user/profile', // Direct API call
-    USER_MISSIONS: '/user/missions', // Direct API call
-    USER_UPDATE_STATS: '/user/update-stats', // Direct API call
-    USER_COMPLETE_MISSION: '/user/complete-mission', // Direct API call
-    LEADERBOARD: '/leaderboard', // Direct API call
-    USER_FRAMES: '/user/frames', // Direct API call
-    WORD_OF_THE_DAY: '/word-of-the-day', // Direct API call
+    SIGNIN: '/api/proxy-signin', // Use proxy to bypass CORS
+    SIGNUP: '/api/proxy-signup', // Use proxy to bypass CORS
+    USER_PROFILE: '/api/proxy-profile', // Use proxy to bypass CORS
+    USER_MISSIONS: '/api/proxy-missions', // Use proxy to bypass CORS
+    USER_UPDATE_STATS: '/api/proxy-stats', // Use proxy to bypass CORS
+    USER_COMPLETE_MISSION: '/api/proxy-complete-mission', // Use proxy to bypass CORS
+    LEADERBOARD: '/api/proxy-leaderboard', // Use proxy to bypass CORS
+    USER_FRAMES: '/api/proxy-frames', // Use proxy to bypass CORS
+    WORD_OF_THE_DAY: '/api/proxy-word-of-the-day', // Use proxy to bypass CORS
   },
   
   // Request timeout in milliseconds
@@ -29,6 +29,10 @@ export const API_CONFIG = {
 
 // Helper function to build full API URLs
 export const buildApiUrl = (endpoint: string): string => {
-  // Always use direct API URL for production
+  // If it's a proxy route (starts with /api/), don't add the base URL
+  if (endpoint.startsWith('/api/')) {
+    return endpoint;
+  }
+  // Use direct API URL for production
   return `${API_CONFIG.BASE_URL}${endpoint}`;
 }; 
