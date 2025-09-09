@@ -31,7 +31,9 @@ export async function POST(request: NextRequest) {
         'User-Agent': 'Wordflect-Web/1.0',
         'X-API-Key': process.env.WORDFLECT_API_KEY || '',
         'X-Client-Version': '1.0.107',
-        'X-Platform': 'web'
+        'X-Platform': 'web',
+        'Origin': 'https://www.wordflect.com',
+        'Referer': 'https://www.wordflect.com/signin'
       },
       body: JSON.stringify(requestData) // Re-stringify to ensure proper formatting
     });
