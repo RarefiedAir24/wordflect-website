@@ -19,6 +19,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
     
+    // Test with a simple request first
+    console.log('📤 Proxy: Making request to:', `${API_BASE_URL}/signin`);
+    console.log('📤 Proxy: Request data:', requestData);
+    
     const response = await fetch(`${API_BASE_URL}/signin`, {
       method: 'POST',
       headers: {
