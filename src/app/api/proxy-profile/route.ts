@@ -17,6 +17,10 @@ export async function GET(request: NextRequest) {
     console.log('📥 Proxy: Response status:', response.status);
     
     const data = await response.json();
+    console.log('📥 Proxy: Profile data received:', JSON.stringify(data, null, 2));
+    console.log('📥 Proxy: Profile image URL:', data.profileImageUrl);
+    console.log('📥 Proxy: Selected frame:', data.selectedFrame);
+    
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
     console.error('Proxy error:', error);

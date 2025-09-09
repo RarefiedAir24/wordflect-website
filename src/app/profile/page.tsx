@@ -152,13 +152,20 @@ export default function Profile() {
               </div>
             )}
             {profile.selectedFrame && (
-              <div className="absolute -inset-4 pointer-events-none">
+              <div className="absolute -inset-6 pointer-events-none">
                 <Image
                   src={profile.selectedFrame.imageUrl}
                   alt={profile.selectedFrame.name}
-                  width={112}
-                  height={112}
-                  className="w-28 h-28 object-contain"
+                  width={128}
+                  height={128}
+                  className="w-32 h-32 object-contain"
+                  onError={(e) => {
+                    console.error('Frame image failed to load:', profile.selectedFrame?.imageUrl);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                  onLoad={() => {
+                    console.log('Frame image loaded successfully:', profile.selectedFrame?.imageUrl);
+                  }}
                 />
               </div>
             )}
