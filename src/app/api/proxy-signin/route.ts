@@ -24,12 +24,30 @@ export async function POST(request: NextRequest) {
     console.log('📤 Proxy: Making request to:', `${API_BASE_URL}/signin`);
     console.log('📤 Proxy: Request data:', requestData);
     
-    // Try with minimal headers first
-    console.log('📤 Proxy: About to make fetch request to:', `${API_BASE_URL}/signin`);
+    // First, let's test if the API endpoint is accessible with a GET request
+    console.log('📤 Proxy: Testing API endpoint accessibility with GET request');
+    try {
+      const testResponse = await fetch(`${API_BASE_URL}/signin`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log('📤 Proxy: GET test response status:', testResponse.status);
+      console.log('📤 Proxy: GET test response headers:', Object.fromEntries(testResponse.entries()));
+    } catch (testError) {
+      console.log('📤 Proxy: GET test failed:', testError);
+    }
+    
+    // Now try the actual POST request with potential API key
+    console.log('📤 Proxy: About to make POST request to:', `${API_BASE_URL}/signin`);
     const response = await fetch(`${API_BASE_URL}/signin`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-API-Key': process.env.WORDFLECT_API_KEY || '',
+        'X-Client-Version': '1.0.107',
+        'X-Platform': 'web'
       },
       body: JSON.stringify(requestData)
     });
