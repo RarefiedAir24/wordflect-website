@@ -228,6 +228,35 @@ function removeRareLetterFromTracking(letter: string) {
   }
 }
 
+// Handle letter falling when words are formed
+function applyLetterFalling(board: string[][]): string[][] {
+  const newBoard = board.map(row => [...row]);
+  
+  // For each column, move letters down to fill empty spaces
+  for (let col = 0; col < GRID_COLS; col++) {
+    const column = [];
+    
+    // Collect all non-empty letters in this column
+    for (let row = 0; row < GRID_ROWS; row++) {
+      if (newBoard[row][col] !== "") {
+        column.push(newBoard[row][col]);
+      }
+    }
+    
+    // Clear the column
+    for (let row = 0; row < GRID_ROWS; row++) {
+      newBoard[row][col] = "";
+    }
+    
+    // Place letters at the bottom of the column
+    for (let i = 0; i < column.length; i++) {
+      newBoard[GRID_ROWS - 1 - i][col] = column[column.length - 1 - i];
+    }
+  }
+  
+  return newBoard;
+}
+
 function generateBoard() {
   resetRareLetterTracking();
   const board = Array.from({ length: GRID_ROWS }, () =>
@@ -656,8 +685,8 @@ export default function PlayGame() {
               // Remove rare letter from tracking when used
               removeRareLetterFromTracking(letter);
             });
-            // In prepopulated system, letters are simply removed (no falling)
-            return newBoard;
+            // Apply letter falling to fill empty spaces
+            return applyLetterFalling(newBoard);
           });
         } else {
           setWordFeedback("Invalid word");
@@ -705,8 +734,8 @@ export default function PlayGame() {
               // Remove rare letter from tracking when used
               removeRareLetterFromTracking(letter);
             });
-            // In prepopulated system, letters are simply removed (no falling)
-            return newBoard;
+            // Apply letter falling to fill empty spaces
+            return applyLetterFalling(newBoard);
           });
         } else {
           setWordFeedback("Invalid word");
