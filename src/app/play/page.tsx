@@ -489,6 +489,14 @@ export default function PlayGame() {
       return;
     }
     
+    // Check if user profile exists
+    if (!userProfile || !userProfile.id) {
+      console.warn("User profile not loaded - skipping missions fetch");
+      setMissionsLoading(false);
+      setMissionsError("Loading user profile...");
+      return;
+    }
+    
     apiService.getMissions()
       .then((data) => {
         if (isMounted) {
@@ -505,12 +513,14 @@ export default function PlayGame() {
         if (isMounted) {
           console.error("Missions fetch error:", e);
           // Handle specific error cases
-          if (e.message && e.message.includes("Forbidden")) {
+          if (e.message && (e.message.includes("Forbidden") || e.message.includes("403"))) {
             setMissionsError("Access denied. Please sign in again.");
           } else if (e.message && e.message.includes("Authentication failed")) {
             setMissionsError("Please sign in to view missions");
+          } else if (e.message && e.message.includes("401")) {
+            setMissionsError("Session expired. Please sign in again.");
           } else {
-            setMissionsError(e.message || "Failed to fetch missions");
+            setMissionsError("Unable to load missions. Please try again later.");
           }
         }
       })
@@ -518,7 +528,7 @@ export default function PlayGame() {
         if (isMounted) setMissionsLoading(false);
       });
     return () => { isMounted = false; };
-  }, []);
+  }, [userProfile]);
 
   // Fetch user profile at game start for flectcoins and gems
   useEffect(() => {
@@ -1359,6 +1369,35 @@ export default function PlayGame() {
                           Try signing out and signing back in.
                         </div>
                       )}
+                      <button 
+                        onClick={() => {
+                          setMissionsError(null);
+                          setMissionsLoading(true);
+                          // Retry missions fetch
+                          if (apiService.isAuthenticated() && userProfile?.id) {
+                            apiService.getMissions()
+                              .then((data) => {
+                                if (typeof data === 'object' && data !== null && 'missions' in data && Array.isArray((data as { missions?: unknown[] }).missions)) {
+                                  setMissions((data as { missions: Mission[] }).missions);
+                                } else if (Array.isArray(data)) {
+                                  setMissions(data as Mission[]);
+                                } else {
+                                  setMissions([]);
+                                }
+                              })
+                              .catch((e) => {
+                                console.error("Missions retry error:", e);
+                                setMissionsError("Unable to load missions. Please try again later.");
+                              })
+                              .finally(() => {
+                                setMissionsLoading(false);
+                              });
+                          }
+                        }}
+                        className="mt-2 px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                      >
+                        Retry
+                      </button>
                     </div>
                   ) : Array.isArray(missions) && missions.length > 0 ? (
                     <div className="space-y-2">
