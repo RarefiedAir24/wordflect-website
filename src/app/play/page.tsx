@@ -354,8 +354,8 @@ export default function PlayGame() {
   const [missionsError, setMissionsError] = useState<string | null>(null);
   const [hintWord, setHintWord] = useState<string | null>(null);
   const [isShuffling, setIsShuffling] = useState(false);
-  const [isFrozen, setIsFrozen] = useState(false);
-  const [freezeTimeout, setFreezeTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [letterSwapActive, setLetterSwapActive] = useState(false);
+  const [swapSelection, setSwapSelection] = useState<{row: number, col: number} | null>(null);
   const [flectcoins, setFlectcoins] = useState(150); // Mobile app starting balance
   const [gems, setGems] = useState(0);
   const [powerupError, setPowerupError] = useState<string | null>(null);
@@ -380,7 +380,7 @@ export default function PlayGame() {
   // Powerup costs (mobile app v1.0.200)
   const HINT_COST = 25;
   const SHUFFLE_COST = 40;
-  const FREEZE_COST = 80;
+  const LETTER_SWAP_COST = 60;
 
   // Compute longest word and top scoring word
   const longestWord = foundWords.reduce((a, b) => (b.length > a.length ? b : a), "");
@@ -400,7 +400,7 @@ export default function PlayGame() {
   // Start and manage the timer
   useEffect(() => {
     if (gameOver || validatingWord) return;
-    if (isFrozen) return; // Pause timer during freeze
+    // Timer continues during letter swap
     if (timer <= 0) {
       console.log("[GAME OVER] Timer reached zero");
       setGameOver(true);
@@ -412,7 +412,7 @@ export default function PlayGame() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [gameOver, isFrozen, timer, validatingWord]);
+  }, [gameOver, timer, validatingWord]);
 
   // Reset timer on replay
   useEffect(() => {
@@ -595,6 +595,12 @@ export default function PlayGame() {
     console.log(`Current selected path:`, selected);
     console.log(`WordSet loaded:`, wordFeedback ? `Yes (Validating: ${validatingWord})` : 'No');
     
+    // Handle letter swap mode first
+    if (letterSwapActive) {
+      handleLetterSwapClick(row, col);
+      return;
+    }
+    
     // Check if this cell is already in the current path
     const isAlreadySelected = selected.some(sel => sel.row === row && sel.col === col);
     console.log(`Is already selected:`, isAlreadySelected);
@@ -742,11 +748,9 @@ export default function PlayGame() {
       setLevelUpBanner({ show: true, newLevel: currentLevel + 1 });
       setShowLevelUpPopup(true);
       setLevelUpPopupLevel(currentLevel + 1);
-      setIsFrozen(true);
       setTimeout(() => setLevelUpBanner({ show: false, newLevel: 0 }), 5000);
       setTimeout(() => {
         setShowLevelUpPopup(false);
-        setIsFrozen(false);
       }, 4000);
     }
   }, [score, currentLevel]);
@@ -1129,20 +1133,40 @@ export default function PlayGame() {
     }
   };
 
-  // Freeze: disables the End Game button for 10 seconds (simulate freeze effect)
-  const handleFreeze = () => {
-    if (flectcoins < FREEZE_COST) {
-      setPowerupError("Not enough flectcoins for Freeze.");
+  // Letter Swap: allows swapping two letters on the board
+  const handleLetterSwap = () => {
+    if (flectcoins < LETTER_SWAP_COST) {
+      setPowerupError("Not enough flectcoins for Letter Swap.");
       return;
     }
-    const newFlectcoins = flectcoins - FREEZE_COST;
+    const newFlectcoins = flectcoins - LETTER_SWAP_COST;
     setFlectcoins(newFlectcoins);
     setPowerupError(null);
     syncCurrency(newFlectcoins, gems);
-    setIsFrozen(true);
-    if (freezeTimeout) clearTimeout(freezeTimeout);
-    const timeout = setTimeout(() => setIsFrozen(false), 10000);
-    setFreezeTimeout(timeout);
+    setLetterSwapActive(true);
+    setSwapSelection(null);
+  };
+
+  // Handle letter selection for changing to any letter A-Z
+  const handleLetterSwapClick = (row: number, col: number) => {
+    if (!letterSwapActive) return;
+    
+    // Select the tile to change
+    setSwapSelection({ row, col });
+  };
+
+  // Handle letter selection from A-Z picker
+  const handleLetterChange = (newLetter: string) => {
+    if (!swapSelection) return;
+    
+    // Change the selected tile to the new letter
+    const newBoard = board.map(row => [...row]);
+    newBoard[swapSelection.row][swapSelection.col] = newLetter;
+    setBoard(newBoard);
+    
+    // Exit swap mode
+    setLetterSwapActive(false);
+    setSwapSelection(null);
   };
 
   // Replace all uses of apiService.getWordDefinition(word) with local validation
@@ -1450,10 +1474,20 @@ export default function PlayGame() {
                       // Add pulse animation to filled cells in the top row
                       const isTopRow = rowIdx === 0 && cell !== "";
                       const letterPoints = cell ? LETTER_POINTS[cell as keyof typeof LETTER_POINTS] || 1 : 0;
+                      
+                      // Letter swap mode styling
+                      const isSwapSelected = swapSelection && swapSelection.row === rowIdx && swapSelection.col === colIdx;
+                      const isSwapMode = letterSwapActive;
+                      
                       return (
                         <button
                           key={`${rowIdx}-${colIdx}`}
-                          className={`aspect-square w-full max-w-[45px] sm:max-w-[55px] rounded-lg flex flex-col items-center justify-center text-sm sm:text-lg font-bold transition border-2 relative ${isSelected ? "bg-blue-400 text-white border-blue-600" : "bg-white text-gray-900 border-gray-300 hover:bg-blue-100"} ${isTopRow ? "animate-pulse ring-2 ring-red-400" : ""}`}
+                          className={`aspect-square w-full max-w-[45px] sm:max-w-[55px] rounded-lg flex flex-col items-center justify-center text-sm sm:text-lg font-bold transition border-2 relative ${
+                            isSelected ? "bg-blue-400 text-white border-blue-600" : 
+                            isSwapSelected ? "bg-cyan-400 text-white border-cyan-600" :
+                            isSwapMode ? "bg-white text-gray-900 border-gray-300 hover:bg-cyan-100 cursor-pointer" :
+                            "bg-white text-gray-900 border-gray-300 hover:bg-blue-100"
+                          } ${isTopRow ? "animate-pulse ring-2 ring-red-400" : ""}`}
                           onClick={() => handleCellClick(rowIdx, colIdx)}
                         >
                           {/* Main letter - larger and more prominent */}
@@ -1514,13 +1548,43 @@ export default function PlayGame() {
                 </button>
                 <button
                   className="flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-cyan-400 to-cyan-600 text-white font-bold shadow-md hover:from-cyan-500 hover:to-cyan-700 active:scale-95 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 disabled:opacity-60 disabled:cursor-not-allowed"
-                  onClick={handleFreeze}
-                  disabled={isFrozen || flectcoins < FREEZE_COST}
-                  aria-label="Freeze"
+                  onClick={handleLetterSwap}
+                  disabled={letterSwapActive || flectcoins < LETTER_SWAP_COST}
+                  aria-label="Letter Swap"
                 >
-                  <span className="material-icons text-lg">ac_unit</span> Freeze ({FREEZE_COST})
+                  <span className="material-icons text-lg">swap_horiz</span> Letter Swap ({LETTER_SWAP_COST})
                 </button>
               </div>
+              {/* Letter Swap Mode Indicator */}
+              {letterSwapActive && (
+                <div className="mt-2 text-center">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-600 text-white font-bold shadow-md">
+                    <span className="material-icons text-lg">swap_horiz</span>
+                    {swapSelection ? "Choose a letter to replace the selected tile" : "Click a tile to change its letter"}
+                  </div>
+                </div>
+              )}
+              
+              {/* A-Z Letter Picker */}
+              {letterSwapActive && swapSelection && (
+                <div className="mt-4 p-4 bg-gray-800 rounded-lg">
+                  <div className="text-white text-center mb-3 font-bold">Choose a letter:</div>
+                  <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 max-w-md mx-auto">
+                    {Array.from({ length: 26 }, (_, i) => {
+                      const letter = String.fromCharCode(65 + i); // A-Z
+                      return (
+                        <button
+                          key={letter}
+                          onClick={() => handleLetterChange(letter)}
+                          className="w-8 h-8 sm:w-10 sm:h-10 bg-white text-gray-900 font-bold rounded hover:bg-cyan-200 transition-colors"
+                        >
+                          {letter}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               {/* Improved Feedback UI - Pill/Badge Style with Icon */}
               <div className={`mt-4 flex justify-center min-h-[40px] transition-opacity duration-300 ${wordFeedback ? 'opacity-100' : 'opacity-0'}`}
                 aria-live="polite"
@@ -1571,7 +1635,7 @@ export default function PlayGame() {
               {hintWord && <div className="mt-2 text-yellow-300 font-bold">Hint: Try &quot;{hintWord}&quot;</div>}
               <div className="mt-4 flex gap-3 justify-center">
                 <button className="px-6 py-2 rounded-lg bg-gray-700 text-white font-bold shadow hover:scale-105 transition-all duration-150" onClick={() => setSelected([])}>Clear</button>
-                <button className="px-6 py-2 rounded-lg bg-red-700 text-white font-bold shadow hover:scale-105 transition-all duration-150" onClick={handleGameOver} disabled={submitting || isFrozen}>End Game</button>
+                <button className="px-6 py-2 rounded-lg bg-red-700 text-white font-bold shadow hover:scale-105 transition-all duration-150" onClick={handleGameOver} disabled={submitting}>End Game</button>
               </div>
               {gameOver && (
                 <div className="text-red-400 font-bold mb-2">Game Over Triggered (Debug)</div>
