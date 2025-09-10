@@ -1471,8 +1471,6 @@ export default function PlayGame() {
                   {board.map((row, rowIdx) =>
                     row.map((cell, colIdx) => {
                       const isSelected = selected.some(sel => sel.row === rowIdx && sel.col === colIdx);
-                      // Add pulse animation to filled cells in the top row
-                      const isTopRow = rowIdx === 0 && cell !== "";
                       const letterPoints = cell ? LETTER_POINTS[cell as keyof typeof LETTER_POINTS] || 1 : 0;
                       
                       // Letter swap mode styling
@@ -1487,7 +1485,7 @@ export default function PlayGame() {
                             isSwapSelected ? "bg-cyan-400 text-white border-cyan-600" :
                             isSwapMode ? "bg-white text-gray-900 border-gray-300 hover:bg-cyan-100 cursor-pointer" :
                             "bg-white text-gray-900 border-gray-300 hover:bg-blue-100"
-                          } ${isTopRow ? "animate-pulse ring-2 ring-red-400" : ""}`}
+                          }`}
                           onClick={() => handleCellClick(rowIdx, colIdx)}
                         >
                           {/* Main letter - larger and more prominent */}
