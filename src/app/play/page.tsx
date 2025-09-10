@@ -423,12 +423,17 @@ export default function PlayGame() {
   useEffect(() => {
     if (gameOver) return;
     
-    // Check if board has too few letters remaining (game over condition)
+    // Don't check sparsity until the board has been populated with letters
+    // This prevents immediate game over when starting with an empty board
     const totalCells = GRID_ROWS * GRID_COLS;
     const remainingLetters = board.flat().filter(cell => cell !== "").length;
     const sparsityThreshold = 0.1; // Game over if less than 10% of letters remain
     
-    if (remainingLetters / totalCells < sparsityThreshold) {
+    // Only check sparsity if the board was previously populated (has some letters)
+    // This prevents the initial empty board from triggering game over
+    const hasBeenPopulated = board.some(row => row.some(cell => cell !== ""));
+    
+    if (hasBeenPopulated && remainingLetters / totalCells < sparsityThreshold) {
       console.log("[GAME OVER] Board too sparse - not enough letters to form words");
       setGameOver(true);
     }
@@ -446,6 +451,15 @@ export default function PlayGame() {
     let isMounted = true;
     setMissionsLoading(true);
     setMissionsError(null);
+    
+    // Check authentication before fetching missions
+    if (!apiService.isAuthenticated()) {
+      console.warn("User not authenticated - skipping missions fetch");
+      setMissionsLoading(false);
+      setMissionsError("Please sign in to view missions");
+      return;
+    }
+    
     apiService.getMissions()
       .then((data) => {
         if (isMounted) {
@@ -459,7 +473,17 @@ export default function PlayGame() {
         }
       })
       .catch((e) => {
-        if (isMounted) setMissionsError(e.message || "Failed to fetch missions");
+        if (isMounted) {
+          console.error("Missions fetch error:", e);
+          // Handle specific error cases
+          if (e.message && e.message.includes("Forbidden")) {
+            setMissionsError("Access denied. Please sign in again.");
+          } else if (e.message && e.message.includes("Authentication failed")) {
+            setMissionsError("Please sign in to view missions");
+          } else {
+            setMissionsError(e.message || "Failed to fetch missions");
+          }
+        }
       })
       .finally(() => {
         if (isMounted) setMissionsLoading(false);
@@ -534,13 +558,17 @@ export default function PlayGame() {
         setWordSet(new Set(words.map(w => w.toUpperCase())));
         setWordListLoading(false);
         // Generate board after word list is loaded
-        setBoard(generateBoard());
+        const newBoard = generateBoard();
+        console.log("Generated initial board:", newBoard);
+        setBoard(newBoard);
       })
       .catch((error: unknown) => {
         console.error("Failed to load word list:", error);
         setWordListLoading(false);
         // Still generate board even if word list fails
-        setBoard(generateBoard());
+        const newBoard = generateBoard();
+        console.log("Generated fallback board:", newBoard);
+        setBoard(newBoard);
         // Set a fallback word set with common words
         const fallbackWords = ["CAT", "DOG", "THE", "AND", "FOR", "ARE", "BUT", "NOT", "YOU", "ALL", "CAN", "HER", "WAS", "ONE", "OUR", "OUT", "DAY", "GET", "HAS", "HIM", "HIS", "HOW", "MAN", "NEW", "NOW", "OLD", "SEE", "TWO", "WAY", "WHO", "BOY", "DID", "ITS", "LET", "PUT", "SAY", "SHE", "TOO", "USE"];
         setWordSet(new Set(fallbackWords));
@@ -1271,7 +1299,14 @@ export default function PlayGame() {
                   {missionsLoading ? (
                     <div className="text-blue-300 mb-2">Loading missions...</div>
                   ) : missionsError ? (
-                    <div className="text-red-400 mb-2">{missionsError}</div>
+                    <div className="text-red-400 mb-2">
+                      {missionsError}
+                      {missionsError.includes("Access denied") && (
+                        <div className="text-sm text-gray-400 mt-1">
+                          Try signing out and signing back in.
+                        </div>
+                      )}
+                    </div>
                   ) : Array.isArray(missions) && missions.length > 0 ? (
                     <div className="space-y-2">
                       <h3 className="text-lg font-semibold text-yellow-300">Daily Missions</h3>
