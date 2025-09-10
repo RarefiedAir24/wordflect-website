@@ -1456,21 +1456,19 @@ export default function PlayGame() {
                           className={`aspect-square w-full max-w-[45px] sm:max-w-[55px] rounded-lg flex flex-col items-center justify-center text-sm sm:text-lg font-bold transition border-2 relative ${isSelected ? "bg-blue-400 text-white border-blue-600" : "bg-white text-gray-900 border-gray-300 hover:bg-blue-100"} ${isTopRow ? "animate-pulse ring-2 ring-red-400" : ""}`}
                           onClick={() => handleCellClick(rowIdx, colIdx)}
                         >
-                          <span className="text-sm sm:text-lg">{cell}</span>
+                          {/* Main letter - larger and more prominent */}
+                          <span className="text-lg sm:text-xl font-extrabold leading-none">{cell}</span>
+                          {/* Point value - smaller and positioned at bottom */}
                           {cell && (
                             <span
-                              className={`absolute bottom-1 right-1 text-xs font-bold flex items-center justify-center rounded-full shadow-md border-2 border-white bg-[#1976d2] text-white w-5 h-5 sm:w-6 sm:h-6 select-none pointer-events-none`}
+                              className="absolute bottom-0.5 right-0.5 text-xs font-bold flex items-center justify-center rounded-full shadow-sm border border-gray-400 bg-gray-200 text-gray-700 w-4 h-4 sm:w-5 sm:h-5 select-none pointer-events-none"
                               style={{
-                                fontSize: '0.75rem',
-                                lineHeight: '1.25rem',
-                                boxShadow: '0 1px 4px rgba(25, 118, 210, 0.25)',
-                                borderWidth: '2px',
-                                borderColor: '#fff',
-                                backgroundColor: '#1976d2',
-                                minWidth: '1.25rem',
-                                minHeight: '1.25rem',
+                                fontSize: '0.6rem',
+                                lineHeight: '1rem',
+                                minWidth: '1rem',
+                                minHeight: '1rem',
                                 padding: 0,
-                                zIndex: 2,
+                                zIndex: 1,
                               }}
                             >
                               {letterPoints}
