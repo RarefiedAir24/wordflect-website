@@ -12,7 +12,7 @@ A Next.js web implementation of the Wordflect word-finding game, designed to mat
 - **Word Finding**: Connect adjacent letters to form valid words (3+ letters)
 - **Game Board**: 8x8 prepopulated grid (64 cells) matching mobile app
 - **Timer System**: 2-minute countdown with time bonuses for word completion
-- **Level Progression**: Score-based leveling with timer resets (mobile app formula)
+- **Level Progression**: Score-based leveling (mobile app formula)
 - **Prepopulated Board**: Full board with letters, simple removal when words found
 - **Power-ups**: Hint (25), Shuffle (40), and Freeze (80) abilities using flectcoins
 
@@ -387,7 +387,7 @@ src/
 - 2-minute initial timer (120 seconds)
 - Time bonuses: 1-6 seconds based on word length (reduced at higher levels)
 - Danger zone indicators (≤30s with red pulsing)
-- Timer resets to 120s on level up
+- Timer continues from current value on level up (no reset)
 - Visual circular progress indicator
 
 ### Row Insertion Logic

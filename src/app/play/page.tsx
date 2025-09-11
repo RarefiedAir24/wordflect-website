@@ -257,6 +257,79 @@ function applyLetterFalling(board: string[][]): string[][] {
   return newBoard;
 }
 
+// Check if a vertical column is completely empty and should be cleared
+function checkVerticalColumnClearing(board: string[][]): { clearedColumns: number[], newBoard: string[][] } {
+  const clearedColumns: number[] = [];
+  const newBoard = board.map(row => [...row]);
+  
+  // Check each column for complete emptiness
+  for (let col = 0; col < GRID_COLS; col++) {
+    let isEmpty = true;
+    for (let row = 0; row < GRID_ROWS; row++) {
+      if (newBoard[row][col] !== "") {
+        isEmpty = false;
+        break;
+      }
+    }
+    
+    if (isEmpty) {
+      clearedColumns.push(col);
+    }
+  }
+  
+  // If columns were cleared, apply board constricting
+  if (clearedColumns.length > 0) {
+    return applyBoardConstricting(newBoard, clearedColumns);
+  }
+  
+  return { clearedColumns, newBoard };
+}
+
+// Apply board constricting - move outside rows inward when vertical columns are cleared
+function applyBoardConstricting(board: string[][], clearedColumns: number[]): { clearedColumns: number[], newBoard: string[][] } {
+  const newBoard = board.map(row => [...row]);
+  
+  // Sort cleared columns to process from outside inward
+  const sortedClearedColumns = [...clearedColumns].sort((a, b) => {
+    const distanceA = Math.min(a, GRID_COLS - 1 - a);
+    const distanceB = Math.min(b, GRID_COLS - 1 - b);
+    return distanceA - distanceB;
+  });
+  
+  // For each cleared column, move rows inward
+  for (const clearedCol of sortedClearedColumns) {
+    // Determine which side to move from (closer to edge)
+    const distanceFromLeft = clearedCol;
+    const distanceFromRight = GRID_COLS - 1 - clearedCol;
+    
+    if (distanceFromLeft <= distanceFromRight) {
+      // Move from left side
+      for (let col = clearedCol; col > 0; col--) {
+        for (let row = 0; row < GRID_ROWS; row++) {
+          newBoard[row][col] = newBoard[row][col - 1];
+        }
+      }
+      // Clear the leftmost column
+      for (let row = 0; row < GRID_ROWS; row++) {
+        newBoard[row][0] = "";
+      }
+    } else {
+      // Move from right side
+      for (let col = clearedCol; col < GRID_COLS - 1; col++) {
+        for (let row = 0; row < GRID_ROWS; row++) {
+          newBoard[row][col] = newBoard[row][col + 1];
+        }
+      }
+      // Clear the rightmost column
+      for (let row = 0; row < GRID_ROWS; row++) {
+        newBoard[row][GRID_COLS - 1] = "";
+      }
+    }
+  }
+  
+  return { clearedColumns, newBoard };
+}
+
 function generateBoard() {
   resetRareLetterTracking();
   const board = Array.from({ length: GRID_ROWS }, () =>
@@ -275,8 +348,8 @@ function generateBoard() {
   return board;
 }
 
-// Prepopulated board system - letters are simply removed when words are found
-// No falling or row insertion mechanics needed
+// Prepopulated board system with board constricting mechanics
+// When words are found, letters fall down and empty vertical columns cause board constriction
 
 // Helper to check if board is too sparse for gameplay (for future implementation)
 // function isBoardTooSparse(board: string[][]) {
@@ -386,6 +459,7 @@ export default function PlayGame() {
   const [letterSwapActive, setLetterSwapActive] = useState(false);
   const [swapSelection, setSwapSelection] = useState<{row: number, col: number} | null>(null);
   const [flectcoins, setFlectcoins] = useState(150); // Mobile app starting balance
+  const [flectcoinsSpentThisGame, setFlectcoinsSpentThisGame] = useState(0); // Track flectcoins spent in current game only
   const [gems, setGems] = useState(0);
   const [powerupError, setPowerupError] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -421,9 +495,8 @@ export default function PlayGame() {
   const latestBoardRef = useRef<string[][]>(emptyBoard);
   useEffect(() => { latestBoardRef.current = board; }, [board]);
 
-  // Prepopulated board system - no row insertion or falling mechanics needed
+  // Prepopulated board system with board constricting mechanics
 
-  // Prepopulated board system - no row insertion needed
   // Game over is determined by timer or when board becomes too sparse
 
   // Start and manage the timer
@@ -515,10 +588,12 @@ export default function PlayGame() {
           // Handle specific error cases
           if (e.message && (e.message.includes("Forbidden") || e.message.includes("403"))) {
             setMissionsError("Access denied. Please sign in again.");
-          } else if (e.message && e.message.includes("Authentication failed")) {
-            setMissionsError("Please sign in to view missions");
+          } else if (e.message && (e.message.includes("Authentication failed") || e.message.includes("Session expired"))) {
+            setMissionsError("Session expired. Please sign in again.");
           } else if (e.message && e.message.includes("401")) {
             setMissionsError("Session expired. Please sign in again.");
+          } else if (e.message && e.message.includes("Unauthorized")) {
+            setMissionsError("Please sign in to view missions");
           } else {
             setMissionsError("Unable to load missions. Please try again later.");
           }
@@ -544,7 +619,8 @@ export default function PlayGame() {
     apiService.getUserProfile()
       .then(profile => {
         if (isMounted) {
-          setFlectcoins(profile.flectcoins || 0);
+          const userFlectcoins = profile.flectcoins || 0;
+          setFlectcoins(userFlectcoins);
           setGems(profile.gems || 0);
           
           // Check for level up
@@ -696,7 +772,10 @@ export default function PlayGame() {
               removeRareLetterFromTracking(letter);
             });
             // Apply letter falling to fill empty spaces
-            return applyLetterFalling(newBoard);
+            const boardAfterFalling = applyLetterFalling(newBoard);
+            // Check for vertical column clearing and apply board constricting
+            const { newBoard: finalBoard } = checkVerticalColumnClearing(boardAfterFalling);
+            return finalBoard;
           });
         } else {
           setWordFeedback("Invalid word");
@@ -745,7 +824,10 @@ export default function PlayGame() {
               removeRareLetterFromTracking(letter);
             });
             // Apply letter falling to fill empty spaces
-            return applyLetterFalling(newBoard);
+            const boardAfterFalling = applyLetterFalling(newBoard);
+            // Check for vertical column clearing and apply board constricting
+            const { newBoard: finalBoard } = checkVerticalColumnClearing(boardAfterFalling);
+            return finalBoard;
           });
         } else {
           setWordFeedback("Invalid word");
@@ -783,7 +865,6 @@ export default function PlayGame() {
     const nextLevelTotal = getTotalPointsForLevel(currentLevel + 1);
     if (score >= nextLevelTotal) {
       setCurrentLevel((prev) => prev + 1);
-      setTimer(INITIAL_TIMER); // Reset timer to 120s
       setLevelUpBanner({ show: true, newLevel: currentLevel + 1 });
       setShowLevelUpPopup(true);
       setLevelUpPopupLevel(currentLevel + 1);
@@ -889,7 +970,11 @@ export default function PlayGame() {
 
       console.log('🏆 Missions to complete:', completedMissions.length);
 
-      // Complete missions
+      // Calculate final flectcoins balance: start with current balance, deduct spent, add mission rewards
+      let finalFlectcoins = flectcoins; // Current balance after power-ups
+      let totalMissionRewards = 0;
+
+      // Complete missions and track rewards
       for (const mission of completedMissions) {
         try {
           console.log(`🏆 Completing mission: ${mission.id}`);
@@ -899,11 +984,18 @@ export default function PlayGame() {
             period: mission.period || mission.type || 'daily', // fallback to daily if not specified
           });
           console.log(`✅ Mission ${mission.id} completed successfully:`, missionResponse);
-          // Optionally update local flectcoins here if backend returns new balance
+          
+          // Track mission rewards
+          if (mission.rewardType === 'flectcoins' && mission.reward) {
+            totalMissionRewards += mission.reward;
+            console.log(`💰 Mission ${mission.id} reward: ${mission.reward} flectcoins`);
+          }
+          
+          // Update local flectcoins if backend returns new balance
           if (missionResponse && typeof missionResponse === 'object' && 'flectcoins' in missionResponse) {
             const newFlectcoins = (missionResponse as Record<string, unknown>).flectcoins;
             if (typeof newFlectcoins === 'number') {
-              setFlectcoins(newFlectcoins);
+              finalFlectcoins = newFlectcoins;
             }
           }
         } catch (error) {
@@ -911,6 +1003,14 @@ export default function PlayGame() {
           // Optionally handle/report mission completion errors
         }
       }
+
+      // Update local flectcoins state with final balance
+      setFlectcoins(finalFlectcoins);
+      console.log(`💰 Final flectcoins calculation:`, {
+        spentThisGame: flectcoinsSpentThisGame,
+        missionRewards: totalMissionRewards,
+        finalBalance: finalFlectcoins
+      });
 
       // Refetch missions to update state
       try {
@@ -969,6 +1069,7 @@ export default function PlayGame() {
     setSuccess(null);
     setTimer(INITIAL_TIMER);
     hasHandledGameOver.current = false; // Reset so next game can trigger
+    setFlectcoinsSpentThisGame(0); // Reset flectcoins spent tracking for new game
     console.log("Replay: timer reset to", INITIAL_TIMER);
   };
 
@@ -1014,6 +1115,7 @@ export default function PlayGame() {
     
     const newFlectcoins = flectcoins - HINT_COST;
     setFlectcoins(newFlectcoins);
+    setFlectcoinsSpentThisGame(prev => prev + HINT_COST); // Track spending in current game
     setPowerupError(null);
     syncCurrency(newFlectcoins, gems);
     
@@ -1104,6 +1206,7 @@ export default function PlayGame() {
     try {
       const newFlectcoins = flectcoins - SHUFFLE_COST;
       setFlectcoins(newFlectcoins);
+      setFlectcoinsSpentThisGame(prev => prev + SHUFFLE_COST); // Track spending in current game
       setPowerupError(null);
       syncCurrency(newFlectcoins, gems);
       setIsShuffling(true);
@@ -1180,6 +1283,7 @@ export default function PlayGame() {
     }
     const newFlectcoins = flectcoins - LETTER_SWAP_COST;
     setFlectcoins(newFlectcoins);
+    setFlectcoinsSpentThisGame(prev => prev + LETTER_SWAP_COST); // Track spending in current game
     setPowerupError(null);
     syncCurrency(newFlectcoins, gems);
     setLetterSwapActive(true);
@@ -1326,7 +1430,7 @@ export default function PlayGame() {
                     <div className="flex flex-col items-center">
                       <span className="text-blue-200 text-lg">Flectcoins Spent</span>
                       <span className="bg-yellow-600 text-white font-bold text-xl px-4 py-1 rounded-full shadow border border-yellow-300">
-                        {150 - flectcoins}
+                        {flectcoinsSpentThisGame}
                       </span>
                     </div>
                     <div className="flex flex-col items-center">

@@ -113,12 +113,12 @@ For website content, features, or game explanations, here are the current timer 
 | 8 letters   | +6 seconds  |
 | 9+ letters  | +0 seconds  |
 
-**Level Up Timer Reset**: When a player reaches a new level, the timer resets to exactly 2 minutes (120 seconds).
+**Level Up Timer**: When a player reaches a new level, the timer continues from its current value (no reset).
 
 **Notes for Website Content**:
 - No level-based time bonuses
 - No other time rewards outside of word length
 - Timer is capped at 120 seconds maximum
-- Level progression resets timer to exactly 120 seconds
+- Level progression does not reset the timer
 
 **Implementation**: See `../wordflect/src/screens/Gamescreen.tsx` in the `handleWordSubmit()` function.

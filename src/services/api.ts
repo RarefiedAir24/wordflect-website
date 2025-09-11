@@ -280,6 +280,13 @@ class ApiService {
   // Fetch user missions
   async getMissions(): Promise<unknown> {
     try {
+      // Check if token is expired before making request
+      if (this.isTokenExpired()) {
+        console.warn('Token is expired, clearing auth data');
+        await this.signOut();
+        throw new Error('Session expired. Please sign in again.');
+      }
+
       const fullUrl = buildApiUrl(API_CONFIG.ENDPOINTS.USER_MISSIONS);
       console.log('📤 Sending getMissions request:', {
         url: fullUrl,
@@ -298,6 +305,12 @@ class ApiService {
       console.log('📥 getMissions response status:', response.status);
       
       if (!response.ok) {
+        if (response.status === 401) {
+          // Token expired or invalid
+          console.warn('401 response, clearing auth data');
+          await this.signOut();
+          throw new Error('Session expired. Please sign in again.');
+        }
         const errorData = await response.json();
         console.error('❌ getMissions error response:', errorData);
         throw new Error(errorData.message || 'Failed to fetch missions');
