@@ -13,6 +13,9 @@ export default function Profile() {
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
   const [expandedLetters, setExpandedLetters] = useState<Record<string, boolean>>({});
   const [timeAnalytics, setTimeAnalytics] = useState<Record<string, unknown> | null>(null);
+  const [themeAnalytics, setThemeAnalytics] = useState<Record<string, unknown> | null>(null);
+  const [selectedThemeDay, setSelectedThemeDay] = useState<string | null>(null);
+  const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
 
   // Derived UI helpers
   const winRate = (p: UserProfile) => {
@@ -154,7 +157,9 @@ export default function Profile() {
       
       try {
         const analytics = await apiService.getDetailedStatistics();
-        console.log('Time analytics:', analytics);
+        console.log('Time analytics raw response:', analytics);
+        console.log('Time analytics type:', typeof analytics);
+        console.log('Time analytics keys:', analytics ? Object.keys(analytics) : 'null');
         setTimeAnalytics(analytics as Record<string, unknown> | null);
       } catch (error) {
         console.error("Time analytics fetch error:", error);
@@ -164,6 +169,26 @@ export default function Profile() {
 
     if (profile) {
       fetchTimeAnalytics();
+    }
+  }, [profile]);
+
+  // Fetch theme analytics
+  useEffect(() => {
+    const fetchThemeAnalytics = async () => {
+      if (!apiService.isAuthenticated()) return;
+      
+      try {
+        const analytics = await apiService.getThemeAnalytics();
+        console.log('Theme analytics:', analytics);
+        setThemeAnalytics(analytics as Record<string, unknown> | null);
+      } catch (error) {
+        console.error("Theme analytics fetch error:", error);
+        setThemeAnalytics(null);
+      }
+    };
+
+    if (profile) {
+      fetchThemeAnalytics();
     }
   }, [profile]);
 
@@ -214,6 +239,46 @@ export default function Profile() {
       performance: 0,
       status: 'No data'
     };
+  };
+
+  // Helper function to get theme data
+  const getThemeData = (day: string) => {
+    if (!themeAnalytics || !themeAnalytics.themes || !Array.isArray(themeAnalytics.themes)) {
+      return {
+        wordsFound: 0,
+        totalWords: 20,
+        completionPercent: 0,
+        words: []
+      };
+    }
+
+    const themeData = themeAnalytics.themes.find((t: Record<string, unknown>) => t.day === day);
+    if (themeData) {
+      const wordsFound = (themeData.wordsFound as number) || 0;
+      const totalWords = (themeData.totalWords as number) || 20;
+      const words = (themeData.words as string[]) || [];
+      const completionPercent = totalWords > 0 ? Math.round((wordsFound / totalWords) * 100) : 0;
+
+      return {
+        wordsFound,
+        totalWords,
+        completionPercent,
+        words
+      };
+    }
+
+    return {
+      wordsFound: 0,
+      totalWords: 20,
+      completionPercent: 0,
+      words: []
+    };
+  };
+
+  // Handle theme day click
+  const handleThemeDayClick = async (day: string) => {
+    setSelectedThemeDay(day);
+    setIsThemeModalOpen(true);
   };
 
   if (loading) {
@@ -563,133 +628,189 @@ export default function Profile() {
         {/* Theme Performance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {/* Monday - Food & Drinks */}
-          <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-4 border border-orange-200">
-            <div className="flex items-center justify-between mb-2">
-              <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">M</span>
+          {(() => {
+            const themeData = getThemeData('monday');
+            return (
+              <div 
+                className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-4 border border-orange-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                onClick={() => handleThemeDayClick('monday')}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">🍕</span>
+                  </div>
+                  <span className="text-xs text-orange-600 font-semibold">MONDAY</span>
+                </div>
+                <p className="text-lg font-bold text-orange-900">Food & Drinks</p>
+                <p className="text-xs text-orange-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="w-full bg-orange-200 rounded-full h-2">
+                    <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${themeData.completionPercent}%` }}></div>
+                  </div>
+                  <span className="text-xs text-orange-600 font-semibold">{themeData.completionPercent}%</span>
+                </div>
               </div>
-              <span className="text-xs text-orange-600 font-semibold">MONDAY</span>
-            </div>
-            <p className="text-lg font-bold text-orange-900">Food & Drinks</p>
-            <p className="text-xs text-orange-700 mt-1">PIZZA, BURGER, SALAD...</p>
-            <div className="mt-2 flex items-center gap-2">
-              <div className="w-full bg-orange-200 rounded-full h-2">
-                <div className="bg-orange-500 h-2 rounded-full" style={{ width: '75%' }}></div>
-              </div>
-              <span className="text-xs text-orange-600 font-semibold">75%</span>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Tuesday - Common Nouns */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
-            <div className="flex items-center justify-between mb-2">
-              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">T</span>
+          {(() => {
+            const themeData = getThemeData('tuesday');
+            return (
+              <div 
+                className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                onClick={() => handleThemeDayClick('tuesday')}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">🏠</span>
+                  </div>
+                  <span className="text-xs text-blue-600 font-semibold">TUESDAY</span>
+                </div>
+                <p className="text-lg font-bold text-blue-900">Common Nouns</p>
+                <p className="text-xs text-blue-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="w-full bg-blue-200 rounded-full h-2">
+                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${themeData.completionPercent}%` }}></div>
+                  </div>
+                  <span className="text-xs text-blue-600 font-semibold">{themeData.completionPercent}%</span>
+                </div>
               </div>
-              <span className="text-xs text-blue-600 font-semibold">TUESDAY</span>
-            </div>
-            <p className="text-lg font-bold text-blue-900">Common Nouns</p>
-            <p className="text-xs text-blue-700 mt-1">HOUSE, CAR, TREE...</p>
-            <div className="mt-2 flex items-center gap-2">
-              <div className="w-full bg-blue-200 rounded-full h-2">
-                <div className="bg-blue-500 h-2 rounded-full" style={{ width: '60%' }}></div>
-              </div>
-              <span className="text-xs text-blue-600 font-semibold">60%</span>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Wednesday - Verbs */}
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
-            <div className="flex items-center justify-between mb-2">
-              <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">W</span>
+          {(() => {
+            const themeData = getThemeData('wednesday');
+            return (
+              <div 
+                className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                onClick={() => handleThemeDayClick('wednesday')}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">🏃</span>
+                  </div>
+                  <span className="text-xs text-green-600 font-semibold">WEDNESDAY</span>
+                </div>
+                <p className="text-lg font-bold text-green-900">Verbs</p>
+                <p className="text-xs text-green-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="w-full bg-green-200 rounded-full h-2">
+                    <div className="bg-green-500 h-2 rounded-full" style={{ width: `${themeData.completionPercent}%` }}></div>
+                  </div>
+                  <span className="text-xs text-green-600 font-semibold">{themeData.completionPercent}%</span>
+                </div>
               </div>
-              <span className="text-xs text-green-600 font-semibold">WEDNESDAY</span>
-            </div>
-            <p className="text-lg font-bold text-green-900">Verbs</p>
-            <p className="text-xs text-green-700 mt-1">RUN, WALK, JUMP...</p>
-            <div className="mt-2 flex items-center gap-2">
-              <div className="w-full bg-green-200 rounded-full h-2">
-                <div className="bg-green-500 h-2 rounded-full" style={{ width: '85%' }}></div>
-              </div>
-              <span className="text-xs text-green-600 font-semibold">85%</span>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Thursday - Adjectives */}
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
-            <div className="flex items-center justify-between mb-2">
-              <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">T</span>
+          {(() => {
+            const themeData = getThemeData('thursday');
+            return (
+              <div 
+                className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                onClick={() => handleThemeDayClick('thursday')}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">⭐</span>
+                  </div>
+                  <span className="text-xs text-purple-600 font-semibold">THURSDAY</span>
+                </div>
+                <p className="text-lg font-bold text-purple-900">Adjectives</p>
+                <p className="text-xs text-purple-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="w-full bg-purple-200 rounded-full h-2">
+                    <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${themeData.completionPercent}%` }}></div>
+                  </div>
+                  <span className="text-xs text-purple-600 font-semibold">{themeData.completionPercent}%</span>
+                </div>
               </div>
-              <span className="text-xs text-purple-600 font-semibold">THURSDAY</span>
-            </div>
-            <p className="text-lg font-bold text-purple-900">Adjectives</p>
-            <p className="text-xs text-purple-700 mt-1">BIG, SMALL, FAST...</p>
-            <div className="mt-2 flex items-center gap-2">
-              <div className="w-full bg-purple-200 rounded-full h-2">
-                <div className="bg-purple-500 h-2 rounded-full" style={{ width: '70%' }}></div>
-              </div>
-              <span className="text-xs text-purple-600 font-semibold">70%</span>
-            </div>
-          </div>
+            );
+          })()}
         </div>
 
         {/* Additional Theme Days */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {/* Friday - Animals */}
-          <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-200">
-            <div className="flex items-center justify-between mb-2">
-              <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">F</span>
+          {(() => {
+            const themeData = getThemeData('friday');
+            return (
+              <div 
+                className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                onClick={() => handleThemeDayClick('friday')}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">🐕</span>
+                  </div>
+                  <span className="text-xs text-yellow-600 font-semibold">FRIDAY</span>
+                </div>
+                <p className="text-lg font-bold text-yellow-900">Animals</p>
+                <p className="text-xs text-yellow-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="w-full bg-yellow-200 rounded-full h-2">
+                    <div className="bg-yellow-500 h-2 rounded-full" style={{ width: `${themeData.completionPercent}%` }}></div>
+                  </div>
+                  <span className="text-xs text-yellow-600 font-semibold">{themeData.completionPercent}%</span>
+                </div>
               </div>
-              <span className="text-xs text-yellow-600 font-semibold">FRIDAY</span>
-            </div>
-            <p className="text-lg font-bold text-yellow-900">Animals</p>
-            <p className="text-xs text-yellow-700 mt-1">DOG, CAT, BIRD...</p>
-            <div className="mt-2 flex items-center gap-2">
-              <div className="w-full bg-yellow-200 rounded-full h-2">
-                <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '90%' }}></div>
-              </div>
-              <span className="text-xs text-yellow-600 font-semibold">90%</span>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Saturday - Nature */}
-          <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-4 border border-teal-200">
-            <div className="flex items-center justify-between mb-2">
-              <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">S</span>
+          {(() => {
+            const themeData = getThemeData('saturday');
+            return (
+              <div 
+                className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-4 border border-teal-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                onClick={() => handleThemeDayClick('saturday')}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">🌳</span>
+                  </div>
+                  <span className="text-xs text-teal-600 font-semibold">SATURDAY</span>
+                </div>
+                <p className="text-lg font-bold text-teal-900">Nature</p>
+                <p className="text-xs text-teal-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="w-full bg-teal-200 rounded-full h-2">
+                    <div className="bg-teal-500 h-2 rounded-full" style={{ width: `${themeData.completionPercent}%` }}></div>
+                  </div>
+                  <span className="text-xs text-teal-600 font-semibold">{themeData.completionPercent}%</span>
+                </div>
               </div>
-              <span className="text-xs text-teal-600 font-semibold">SATURDAY</span>
-            </div>
-            <p className="text-lg font-bold text-teal-900">Nature</p>
-            <p className="text-xs text-teal-700 mt-1">TREE, FLOWER, GRASS...</p>
-            <div className="mt-2 flex items-center gap-2">
-              <div className="w-full bg-teal-200 rounded-full h-2">
-                <div className="bg-teal-500 h-2 rounded-full" style={{ width: '65%' }}></div>
-              </div>
-              <span className="text-xs text-teal-600 font-semibold">65%</span>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Sunday - Technology */}
-          <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-4 border border-gray-200">
-            <div className="flex items-center justify-between mb-2">
-              <div className="w-8 h-8 bg-gray-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">S</span>
+          {(() => {
+            const themeData = getThemeData('sunday');
+            return (
+              <div 
+                className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                onClick={() => handleThemeDayClick('sunday')}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="w-8 h-8 bg-gray-500 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">📱</span>
+                  </div>
+                  <span className="text-xs text-gray-600 font-semibold">SUNDAY</span>
+                </div>
+                <p className="text-lg font-bold text-gray-900">Technology</p>
+                <p className="text-xs text-gray-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-gray-500 h-2 rounded-full" style={{ width: `${themeData.completionPercent}%` }}></div>
+                  </div>
+                  <span className="text-xs text-gray-600 font-semibold">{themeData.completionPercent}%</span>
+                </div>
               </div>
-              <span className="text-xs text-gray-600 font-semibold">SUNDAY</span>
-            </div>
-            <p className="text-lg font-bold text-gray-900">Technology</p>
-            <p className="text-xs text-gray-700 mt-1">PHONE, COMPUTER...</p>
-            <div className="mt-2 flex items-center gap-2">
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-gray-500 h-2 rounded-full" style={{ width: '80%' }}></div>
-              </div>
-              <span className="text-xs text-gray-600 font-semibold">80%</span>
-            </div>
-          </div>
+            );
+          })()}
         </div>
 
         {/* Theme Performance Summary */}
@@ -1289,6 +1410,67 @@ export default function Profile() {
                         </button>
                       </div>
                     )}
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Theme Words Modal */}
+      {isThemeModalOpen && selectedThemeDay && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 capitalize">
+                  {selectedThemeDay} Theme Words
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {(() => {
+                    const themeData = getThemeData(selectedThemeDay);
+                    return `${themeData.wordsFound}/${themeData.totalWords} words found`;
+                  })()}
+                </p>
+              </div>
+              <button
+                onClick={() => setIsThemeModalOpen(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {(() => {
+                const themeData = getThemeData(selectedThemeDay);
+                if (themeData.words.length === 0) {
+                  return (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">No theme words found yet</h3>
+                      <p className="text-gray-600">Play games on {selectedThemeDay} to discover theme words!</p>
+                    </div>
+                  );
+                }
+                
+                return (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {themeData.words.map((word: string, index: number) => (
+                      <div
+                        key={index}
+                        className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 text-center hover:shadow-md transition-shadow"
+                      >
+                        <span className="font-semibold text-blue-900 text-sm">{word}</span>
+                      </div>
+                    ))}
                   </div>
                 );
               })()}
