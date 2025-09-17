@@ -481,6 +481,241 @@ export default function Profile() {
         </div>
       </div>
 
+      {/* Theme Analytics */}
+      <div className="mt-8 bg-white rounded-xl p-6 shadow-lg border border-blue-100">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full flex items-center justify-center">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="font-bold text-xl text-blue-950">Theme Analytics</h3>
+            <p className="text-sm text-blue-700">Track your performance across daily theme challenges</p>
+          </div>
+        </div>
+
+        {/* Theme Performance Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {/* Monday - Food & Drinks */}
+          <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-4 border border-orange-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">M</span>
+              </div>
+              <span className="text-xs text-orange-600 font-semibold">MONDAY</span>
+            </div>
+            <p className="text-lg font-bold text-orange-900">Food & Drinks</p>
+            <p className="text-xs text-orange-700 mt-1">PIZZA, BURGER, SALAD...</p>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="w-full bg-orange-200 rounded-full h-2">
+                <div className="bg-orange-500 h-2 rounded-full" style={{ width: '75%' }}></div>
+              </div>
+              <span className="text-xs text-orange-600 font-semibold">75%</span>
+            </div>
+          </div>
+
+          {/* Tuesday - Common Nouns */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">T</span>
+              </div>
+              <span className="text-xs text-blue-600 font-semibold">TUESDAY</span>
+            </div>
+            <p className="text-lg font-bold text-blue-900">Common Nouns</p>
+            <p className="text-xs text-blue-700 mt-1">HOUSE, CAR, TREE...</p>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="w-full bg-blue-200 rounded-full h-2">
+                <div className="bg-blue-500 h-2 rounded-full" style={{ width: '60%' }}></div>
+              </div>
+              <span className="text-xs text-blue-600 font-semibold">60%</span>
+            </div>
+          </div>
+
+          {/* Wednesday - Verbs */}
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">W</span>
+              </div>
+              <span className="text-xs text-green-600 font-semibold">WEDNESDAY</span>
+            </div>
+            <p className="text-lg font-bold text-green-900">Verbs</p>
+            <p className="text-xs text-green-700 mt-1">RUN, WALK, JUMP...</p>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="w-full bg-green-200 rounded-full h-2">
+                <div className="bg-green-500 h-2 rounded-full" style={{ width: '85%' }}></div>
+              </div>
+              <span className="text-xs text-green-600 font-semibold">85%</span>
+            </div>
+          </div>
+
+          {/* Thursday - Adjectives */}
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">T</span>
+              </div>
+              <span className="text-xs text-purple-600 font-semibold">THURSDAY</span>
+            </div>
+            <p className="text-lg font-bold text-purple-900">Adjectives</p>
+            <p className="text-xs text-purple-700 mt-1">BIG, SMALL, FAST...</p>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="w-full bg-purple-200 rounded-full h-2">
+                <div className="bg-purple-500 h-2 rounded-full" style={{ width: '70%' }}></div>
+              </div>
+              <span className="text-xs text-purple-600 font-semibold">70%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Additional Theme Days */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {/* Friday - Animals */}
+          <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">F</span>
+              </div>
+              <span className="text-xs text-yellow-600 font-semibold">FRIDAY</span>
+            </div>
+            <p className="text-lg font-bold text-yellow-900">Animals</p>
+            <p className="text-xs text-yellow-700 mt-1">DOG, CAT, BIRD...</p>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="w-full bg-yellow-200 rounded-full h-2">
+                <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '90%' }}></div>
+              </div>
+              <span className="text-xs text-yellow-600 font-semibold">90%</span>
+            </div>
+          </div>
+
+          {/* Saturday - Nature */}
+          <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-4 border border-teal-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">S</span>
+              </div>
+              <span className="text-xs text-teal-600 font-semibold">SATURDAY</span>
+            </div>
+            <p className="text-lg font-bold text-teal-900">Nature</p>
+            <p className="text-xs text-teal-700 mt-1">TREE, FLOWER, GRASS...</p>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="w-full bg-teal-200 rounded-full h-2">
+                <div className="bg-teal-500 h-2 rounded-full" style={{ width: '65%' }}></div>
+              </div>
+              <span className="text-xs text-teal-600 font-semibold">65%</span>
+            </div>
+          </div>
+
+          {/* Sunday - Technology */}
+          <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-4 border border-gray-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-8 h-8 bg-gray-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">S</span>
+              </div>
+              <span className="text-xs text-gray-600 font-semibold">SUNDAY</span>
+            </div>
+            <p className="text-lg font-bold text-gray-900">Technology</p>
+            <p className="text-xs text-gray-700 mt-1">PHONE, COMPUTER...</p>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="bg-gray-500 h-2 rounded-full" style={{ width: '80%' }}></div>
+              </div>
+              <span className="text-xs text-gray-600 font-semibold">80%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Theme Performance Summary */}
+        <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-lg p-4 border border-violet-200 mb-6">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-6 h-6 bg-violet-600 rounded-full flex items-center justify-center">
+              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <h4 className="font-semibold text-violet-900">Theme Performance Summary</h4>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+              <span className="text-violet-800">
+                <strong>Best Theme:</strong> Animals (Friday) - 90%
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-violet-800">
+                <strong>Most Consistent:</strong> Verbs (Wednesday) - 85%
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span className="text-violet-800">
+                <strong>Total Theme Words:</strong> 127 found
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Theme Search & Filter */}
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center">
+              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <h4 className="font-semibold text-gray-900">Theme Word Search</h4>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Search Period</label>
+              <div className="flex gap-2">
+                <input 
+                  type="date" 
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  placeholder="Start date"
+                />
+                <input 
+                  type="date" 
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  placeholder="End date"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Theme</label>
+              <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent">
+                <option value="">All Themes</option>
+                <option value="food">Food & Drinks (Monday)</option>
+                <option value="nouns">Common Nouns (Tuesday)</option>
+                <option value="verbs">Verbs (Wednesday)</option>
+                <option value="adjectives">Adjectives (Thursday)</option>
+                <option value="animals">Animals (Friday)</option>
+                <option value="nature">Nature (Saturday)</option>
+                <option value="technology">Technology (Sunday)</option>
+              </select>
+            </div>
+          </div>
+          <div className="mt-4 flex gap-2">
+            <button className="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-200 font-semibold flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              Search Theme Words
+            </button>
+            <button className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Interactivity: Words Explorer (Accordion Modal) */}
       <div className="mt-8 bg-white rounded-xl p-6 shadow-lg border border-blue-100">
         <div className="flex items-center justify-between mb-4">
