@@ -11,6 +11,7 @@ export default function Profile() {
   const router = useRouter();
   const [range, setRange] = useState<"7d" | "30d" | "90d" | "1y" | "all">("30d");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   // Derived UI helpers
   const winRate = (p: UserProfile) => {
@@ -112,6 +113,11 @@ export default function Profile() {
     };
     load();
   }, [range]);
+
+  // Reset pagination on search/range changes
+  useEffect(() => {
+    setPage(1);
+  }, [search, range]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -401,13 +407,10 @@ export default function Profile() {
         </div>
         {(() => {
           const pageSize = 20;
-          const [page, setPage] = (function() {
-            const ReactRef = (React as unknown as { useState: typeof useState }).useState;
-            return ReactRef(1);
-          })();
           const filtered = aggregated(profile).filtered;
           const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-          const pageItems = filtered.slice((page - 1) * pageSize, page * pageSize);
+          const safePage = Math.min(page, totalPages);
+          const pageItems = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
           return (
             <div>
               <div className="overflow-x-auto rounded-lg border border-blue-100">
@@ -436,10 +439,10 @@ export default function Profile() {
                 </table>
               </div>
               <div className="mt-3 flex items-center justify-between">
-                <span className="text-xs text-blue-700">Page {page} of {totalPages} • {filtered.length} results</span>
+                <span className="text-xs text-blue-700">Page {safePage} of {totalPages} • {filtered.length} results</span>
                 <div className="flex gap-2">
-                  <button disabled={page<=1} onClick={() => setPage(page-1)} className={`px-2 py-1 rounded text-sm border ${page<=1? 'opacity-40 cursor-not-allowed':'hover:bg-blue-50'} border-blue-200`}>Prev</button>
-                  <button disabled={page>=totalPages} onClick={() => setPage(page+1)} className={`px-2 py-1 rounded text-sm border ${page>=totalPages? 'opacity-40 cursor-not-allowed':'hover:bg-blue-50'} border-blue-200`}>Next</button>
+                  <button disabled={safePage<=1} onClick={() => setPage(safePage-1)} className={`px-2 py-1 rounded text-sm border ${safePage<=1? 'opacity-40 cursor-not-allowed':'hover:bg-blue-50'} border-blue-200`}>Prev</button>
+                  <button disabled={safePage>=totalPages} onClick={() => setPage(safePage+1)} className={`px-2 py-1 rounded text-sm border ${safePage>=totalPages? 'opacity-40 cursor-not-allowed':'hover:bg-blue-50'} border-blue-200`}>Next</button>
                 </div>
               </div>
             </div>
