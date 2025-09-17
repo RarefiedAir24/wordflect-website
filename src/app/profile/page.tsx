@@ -113,8 +113,8 @@ export default function Profile() {
   // Backend history integration
   const [historyDays, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
   
-  // Calculate history metrics for the selected period
-  const historyMetrics = (() => {
+  // Calculate history metrics for the selected period - make it reactive to range changes
+  const historyMetrics = React.useMemo(() => {
     // Always use the data that's being displayed in the chart
     const chartData = historyDays && historyDays.length > 0 ? historyDays : (profile ? aggregated(profile).days : []);
     
@@ -139,7 +139,7 @@ export default function Profile() {
     }
     
     return { totalWords: 0, avgPerDay: 0, avgLength: 0 };
-  })();
+  }, [historyDays, profile, range, customDateRange, aggregated]); // Add dependencies to make it reactive
   
   useEffect(() => {
     const load = async () => {
@@ -255,7 +255,7 @@ export default function Profile() {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-    }, [router]);
+  }, [router]);
 
   // Fetch time analytics
   useEffect(() => {
@@ -268,7 +268,7 @@ export default function Profile() {
         console.log('Time analytics type:', typeof analytics);
         console.log('Time analytics keys:', analytics ? Object.keys(analytics) : 'null');
         setTimeAnalytics(analytics as Record<string, unknown> | null);
-      } catch (error) {
+          } catch (error) {
         console.error("Time analytics fetch error:", error);
         setTimeAnalytics(null);
       }
@@ -470,24 +470,24 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setLoading(true);
-                  apiService.getUserProfile().then(setProfile).catch(console.error).finally(() => setLoading(false));
-                }}
+        <div className="flex gap-3">
+          <button
+            onClick={() => {
+              setLoading(true);
+              apiService.getUserProfile().then(setProfile).catch(console.error).finally(() => setLoading(false));
+            }}
                 className="bg-emerald-500 text-white px-4 py-2 rounded hover:bg-emerald-600 transition shadow"
-              >
-                Refresh
-              </button>
-              <a href="/dashboard">
+          >
+            Refresh
+          </button>
+          <a href="/dashboard">
                 <button className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded hover:scale-105 transition font-bold shadow">
-                  Dashboard
-                </button>
-              </a>
+              Dashboard
+            </button>
+          </a>
               <button onClick={handleSignOut} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition shadow">
-                Sign Out
-              </button>
+            Sign Out
+          </button>
             </div>
           </div>
         </div>
@@ -616,7 +616,7 @@ export default function Profile() {
                       max={new Date().toISOString().split('T')[0]}
                       className="px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
                     />
-                </div>
+              </div>
                 <div>
                   <label className="block text-sm font-medium text-blue-700 mb-1">End Date</label>
                   <input 
@@ -655,8 +655,8 @@ export default function Profile() {
                   </button>
                 </div>
               </div>
-            </div>
-          )}
+              </div>
+            )}
           
           {/* Date Range Display */}
           <div className="mb-4 text-center">
@@ -693,7 +693,7 @@ export default function Profile() {
               })()}
             </p>
           </div>
-          <Sparkline data={(historyDays && historyDays.length ? historyDays : aggregated(profile).days)} height={96} color="#4f46e5" />
+          <Sparkline data={(historyDays && historyDays.length ? historyDays : aggregated(profile).days)} height={120} color="#4f46e5" />
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
             <MiniStat title="Words (found)" value={historyMetrics.totalWords.toLocaleString()} />
             <MiniStat title="Avg/Day" value={historyMetrics.avgPerDay} />
@@ -708,8 +708,8 @@ export default function Profile() {
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
-            </div>
-            <div>
+          </div>
+          <div>
               <h3 className="font-bold text-lg text-blue-950">Activity Snapshot</h3>
               <p className="text-xs text-blue-700">Quick overview of your current status</p>
             </div>
@@ -843,8 +843,8 @@ export default function Profile() {
               </span>
             </div>
           </div>
+          </div>
         </div>
-      </div>
 
       {/* Theme Analytics */}
       <div className="mt-8 bg-white rounded-xl p-6 shadow-lg border border-blue-100">
@@ -857,8 +857,8 @@ export default function Profile() {
           <div>
             <h3 className="font-bold text-xl text-blue-950">Theme Analytics</h3>
             <p className="text-sm text-blue-700">Track your performance across daily theme challenges</p>
+            </div>
           </div>
-        </div>
 
         {/* Theme Performance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -873,9 +873,9 @@ export default function Profile() {
                 <div className="flex items-center justify-between mb-2">
                   <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">🍕</span>
-                  </div>
+            </div>
                   <span className="text-xs text-orange-600 font-semibold">MONDAY</span>
-                </div>
+          </div>
                 <p className="text-lg font-bold text-orange-900">Food & Drinks</p>
                 <p className="text-xs text-orange-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
@@ -899,9 +899,9 @@ export default function Profile() {
                 <div className="flex items-center justify-between mb-2">
                   <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">🏠</span>
-                  </div>
+            </div>
                   <span className="text-xs text-blue-600 font-semibold">TUESDAY</span>
-                </div>
+          </div>
                 <p className="text-lg font-bold text-blue-900">Common Nouns</p>
                 <p className="text-xs text-blue-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
@@ -925,9 +925,9 @@ export default function Profile() {
                 <div className="flex items-center justify-between mb-2">
                   <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">🏃</span>
-                  </div>
+            </div>
                   <span className="text-xs text-green-600 font-semibold">WEDNESDAY</span>
-                </div>
+          </div>
                 <p className="text-lg font-bold text-green-900">Verbs</p>
                 <p className="text-xs text-green-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
@@ -951,7 +951,7 @@ export default function Profile() {
                 <div className="flex items-center justify-between mb-2">
                   <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">⭐</span>
-                  </div>
+            </div>
                   <span className="text-xs text-purple-600 font-semibold">THURSDAY</span>
                 </div>
                 <p className="text-lg font-bold text-purple-900">Adjectives</p>
@@ -965,7 +965,7 @@ export default function Profile() {
               </div>
             );
           })()}
-        </div>
+          </div>
 
         {/* Additional Theme Days */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -980,15 +980,15 @@ export default function Profile() {
                 <div className="flex items-center justify-between mb-2">
                   <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">🐕</span>
-                  </div>
+            </div>
                   <span className="text-xs text-yellow-600 font-semibold">FRIDAY</span>
-                </div>
+          </div>
                 <p className="text-lg font-bold text-yellow-900">Animals</p>
                 <p className="text-xs text-yellow-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-yellow-200 rounded-full h-2">
                     <div className="bg-yellow-500 h-2 rounded-full" style={{ width: `${themeData.completionPercent}%` }}></div>
-                  </div>
+        </div>
                   <span className="text-xs text-yellow-600 font-semibold">{themeData.completionPercent}%</span>
                 </div>
               </div>
@@ -1063,7 +1063,7 @@ export default function Profile() {
               <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
               <span className="text-violet-800">
                 <strong>Best Theme:</strong> Animals (Friday) - 90%
-              </span>
+                </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -1628,10 +1628,10 @@ export default function Profile() {
                                   ))}
                                 </tbody>
                               </table>
-                            </div>
-                          </div>
-                        )}
-                      </div>
+            </div>
+          </div>
+        )}
+      </div>
                     ))}
                     {!letters.length && (
                       <div className="text-center py-16">
@@ -1697,9 +1697,9 @@ export default function Profile() {
                       </div>
                       <h3 className="text-xl font-semibold text-gray-900 mb-2">No theme words found yet</h3>
                       <p className="text-gray-600">Play games on {selectedThemeDay} to discover theme words!</p>
-                    </div>
-                  );
-                }
+    </div>
+  );
+} 
                 
                 return (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -1777,11 +1777,11 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
   
-  const chartHeight = height - 40; // Reserve more space for labels
-  const leftMargin = 80; // Even more space for Y-axis labels to prevent stacking
+  const chartHeight = height - 50; // Reserve even more space for labels
+  const leftMargin = 90; // Even more space for Y-axis labels to prevent stacking
   const rightMargin = 30;
-  const topMargin = 15;
-  const bottomMargin = 25;
+  const topMargin = 20;
+  const bottomMargin = 30;
   const width = Math.max(400, data.length * 10) + leftMargin + rightMargin; // Wider for better spacing
   const max = Math.max(1, ...data.map(d => d.value));
   
@@ -1901,8 +1901,8 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
         
         {/* Y-axis labels - Better spacing and distribution */}
         {(() => {
-          // Create better distributed Y-axis labels
-          const numLabels = 5; // Fixed number of labels for consistent spacing
+          // Create better distributed Y-axis labels with more spacing
+          const numLabels = 4; // Reduced to 4 labels for better spacing
           const labels = [];
           
           // Create evenly distributed labels
@@ -1921,11 +1921,11 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
             return (
               <g key={i}>
                 <text 
-                  x={leftMargin - 25} 
-                  y={y + 5} 
+                  x={leftMargin - 30} 
+                  y={y + 6} 
                   textAnchor="end" 
                   className="text-xs fill-gray-600 font-medium"
-                  fontSize="10"
+                  fontSize="11"
                 >
                   {value}
                 </text>
