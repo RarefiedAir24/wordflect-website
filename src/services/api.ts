@@ -45,6 +45,12 @@ export interface UserProfile {
   firstPlaceFinishes: number;
   secondPlaceFinishes: number;
   thirdPlaceFinishes: number;
+  // Optional time-based engagement fields (populated by backend if available)
+  totalPlayTimeMinutes?: number; // total minutes played across sessions
+  daysLoggedIn?: number; // total distinct days logged in
+  currentStreakDays?: number; // current consecutive login days
+  longestStreakDays?: number; // longest streak achieved
+  lastLoginAt?: string; // ISO timestamp of last login
 }
 
 class ApiService {

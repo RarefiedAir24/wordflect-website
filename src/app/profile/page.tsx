@@ -294,6 +294,21 @@ export default function Profile() {
         </div>
       </div>
 
+      {/* Time-based Engagement */}
+      {(profile.totalPlayTimeMinutes || profile.daysLoggedIn || profile.currentStreakDays) && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          {typeof profile.totalPlayTimeMinutes === 'number' && (
+            <MiniStat title="Time Played" value={`${Math.floor(profile.totalPlayTimeMinutes / 60)}h ${(profile.totalPlayTimeMinutes % 60)}m`} subtitle="Total across sessions" />
+          )}
+          {typeof profile.daysLoggedIn === 'number' && (
+            <MiniStat title="Days Logged In" value={profile.daysLoggedIn} subtitle="All-time" />
+          )}
+          {typeof profile.currentStreakDays === 'number' && (
+            <MiniStat title="Current Streak" value={`${profile.currentStreakDays}d`} subtitle={typeof profile.longestStreakDays === 'number' ? `Longest ${profile.longestStreakDays}d` : undefined} />
+          )}
+        </div>
+      )}
+
       {/* Deep Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
         <div className="bg-white rounded-xl p-5 shadow lg:col-span-2">
@@ -358,10 +373,9 @@ export default function Profile() {
             </div>
           </div>
           <Sparkline data={(historyDays && historyDays.length ? historyDays : aggregated(profile).days)} height={96} color="#4f46e5" />
-          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
             <MiniStat title="Words (range)" value={(historyDays && historyDays.length ? historyDays.reduce((a,b)=>a+b.value,0) : aggregated(profile).totalWords).toLocaleString()} />
             <MiniStat title="Avg/Day" value={(historyDays && historyDays.length ? Math.round(historyDays.reduce((a,b)=>a+b.value,0) / historyDays.length) : aggregated(profile).avgPerDay)} />
-            <MiniStat title="Unique" value={aggregated(profile).uniqueWords.toLocaleString()} />
             <MiniStat title="Avg Length" value={(historyDays && historyDays.length ? (()=>{ const sum = historyDays.reduce((a,b)=> a + (b.avgLen || 0), 0); const cnt = historyDays.filter(d=>d.avgLen!==undefined).length; return cnt? (sum/cnt).toFixed(1) : '0.0'; })() : (aggregated(profile).avgLenAll ? aggregated(profile).avgLenAll.toFixed(1) : '0.0'))} />
           </div>
         </div>
@@ -372,12 +386,11 @@ export default function Profile() {
           <div className="space-y-2 text-sm text-blue-900">
             <div className="flex items-center justify-between"><span>Leaderboard Placements</span><span className="font-semibold">{profile.leaderboardPlacements}</span></div>
             <div className="flex items-center justify-between"><span>Current Level</span><span className="font-semibold">{profile.highestLevel}</span></div>
-            <div className="flex items-center justify-between"><span>Unique Words</span><span className="font-semibold">{new Set(profile.allFoundWords.map(w => (typeof w === 'string' ? w : w.word))).size.toLocaleString()}</span></div>
           </div>
         </div>
       </div>
 
-      {/* Interactivity: Search + CSV + Chips */}
+      {/* Interactivity: Modern Words Explorer */}
       <div className="mt-8 bg-white rounded-xl p-5 shadow">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
           <h3 className="font-bold text-lg text-blue-950">Words Explorer</h3>
@@ -386,21 +399,52 @@ export default function Profile() {
             <button onClick={() => downloadCsv(aggregated(profile).filtered)} className="px-3 py-2 rounded text-sm bg-blue-600 text-white hover:bg-blue-700">Export CSV</button>
           </div>
         </div>
-        {aggregated(profile).filtered.length ? (
-          <div className="flex flex-wrap gap-2">
-            {aggregated(profile).filtered.slice(0, 120).map((e, i) => {
-              const len = e.word.length;
-              const color = len >= 8 ? 'bg-purple-100 text-purple-800 border-purple-200' : len >= 6 ? 'bg-blue-100 text-blue-800 border-blue-200' : 'bg-emerald-100 text-emerald-800 border-emerald-200';
-              return (
-                <span key={i} className={`px-2 py-1 rounded-full text-sm border ${color}`} title={e.date.toDateString()}>
-                  {e.word}
-                </span>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="text-sm text-blue-700">No results.</p>
-        )}
+        {(() => {
+          const pageSize = 20;
+          const [page, setPage] = (function() {
+            const ReactRef = (React as unknown as { useState: typeof useState }).useState;
+            return ReactRef(1);
+          })();
+          const filtered = aggregated(profile).filtered;
+          const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+          const pageItems = filtered.slice((page - 1) * pageSize, page * pageSize);
+          return (
+            <div>
+              <div className="overflow-x-auto rounded-lg border border-blue-100">
+                <table className="min-w-full text-sm">
+                  <thead className="bg-blue-50 text-blue-900">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-semibold">Word</th>
+                      <th className="px-3 py-2 text-left font-semibold">Length</th>
+                      <th className="px-3 py-2 text-left font-semibold">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pageItems.map((e, i) => (
+                      <tr key={i} className="odd:bg-white even:bg-blue-50/40">
+                        <td className="px-3 py-2 font-medium text-blue-950">{e.word}</td>
+                        <td className="px-3 py-2 text-blue-800">{e.word.length}</td>
+                        <td className="px-3 py-2 text-blue-700">{e.date.toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                    {pageItems.length === 0 && (
+                      <tr>
+                        <td colSpan={3} className="px-3 py-6 text-center text-blue-700">No results.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-xs text-blue-700">Page {page} of {totalPages} • {filtered.length} results</span>
+                <div className="flex gap-2">
+                  <button disabled={page<=1} onClick={() => setPage(page-1)} className={`px-2 py-1 rounded text-sm border ${page<=1? 'opacity-40 cursor-not-allowed':'hover:bg-blue-50'} border-blue-200`}>Prev</button>
+                  <button disabled={page>=totalPages} onClick={() => setPage(page+1)} className={`px-2 py-1 rounded text-sm border ${page>=totalPages? 'opacity-40 cursor-not-allowed':'hover:bg-blue-50'} border-blue-200`}>Next</button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
