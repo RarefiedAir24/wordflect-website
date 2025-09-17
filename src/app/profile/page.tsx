@@ -106,13 +106,13 @@ export default function Profile() {
       rec.lenCount += 1;
     });
     
-    console.log('Filtering results:', {
-      range,
-      totalEntries: entries.length,
-      filteredEntriesCount,
-      startDate: start.toISOString(),
-      endDate: endDate.toISOString()
-    });
+    console.log('=== FILTERING RESULTS ===');
+    console.log('Range:', range);
+    console.log('Total entries:', entries.length);
+    console.log('Filtered entries:', filteredEntriesCount);
+    console.log('Start date:', start.toISOString());
+    console.log('End date:', endDate.toISOString());
+    console.log('========================');
 
     const days: { date: Date; value: number; avgLen?: number }[] = [];
     const cursor = new Date(start);
