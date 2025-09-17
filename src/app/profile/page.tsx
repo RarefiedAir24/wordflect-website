@@ -132,14 +132,15 @@ export default function Profile() {
         avgPerDay, 
         avgLength, 
         dataPoints: chartData.length,
-        dataSource: historyDays ? 'backend' : 'aggregated'
+        dataSource: historyDays ? 'backend' : 'aggregated',
+        sampleData: chartData.slice(0, 3).map(d => ({ date: d.date.toISOString(), value: d.value }))
       });
       
       return { totalWords, avgPerDay, avgLength };
     }
     
     return { totalWords: 0, avgPerDay: 0, avgLength: 0 };
-  }, [historyDays, profile, range, customDateRange, aggregated]); // Add dependencies to make it reactive
+  }, [historyDays, profile, range, aggregated]); // Add dependencies to make it reactive
   
   useEffect(() => {
     const load = async () => {
@@ -183,8 +184,9 @@ export default function Profile() {
             setHistoryDays(filteredData);
           }
         } else {
-          console.log('Loading standard range data:', range);
-          const res = await apiService.getUserHistory({ range });
+          console.log('Loading data for range:', range);
+          // Always fetch all data and filter client-side to ensure consistency
+          const res = await apiService.getUserHistory({ range: "all" });
           const allData = Array.isArray(res.days) ? res.days.map(d => ({
             date: new Date(d.date),
             value: typeof d.value === 'number' ? d.value : 0,
@@ -209,7 +211,14 @@ export default function Profile() {
           })();
           
           const filteredData = allData.filter(d => d.date >= startDate && d.date <= now);
-          console.log('Backend data filtered:', filteredData.length, 'entries for range:', range);
+          console.log('Backend data filtering details:', {
+            range,
+            startDate: startDate.toISOString(),
+            endDate: now.toISOString(),
+            totalBackendData: allData.length,
+            filteredData: filteredData.length,
+            sampleDates: allData.slice(0, 3).map(d => ({ date: d.date.toISOString(), value: d.value }))
+          });
           setHistoryDays(filteredData);
         }
       } catch (error) {
