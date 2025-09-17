@@ -99,20 +99,41 @@ export default function Profile() {
     const load = async () => {
       try {
         if (!apiService.isAuthenticated()) return;
-        const res = await apiService.getUserHistory({ range });
-        const parsed = Array.isArray(res.days) ? res.days.map(d => ({
-          date: new Date(d.date),
-          value: typeof d.value === 'number' ? d.value : 0,
-          avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
-        })) : [];
-        setHistoryDays(parsed);
+        
+        // For custom range, we need to get all data and filter client-side
+        // since the API doesn't support custom date ranges
+        if (range === "custom" && customDateRange.start && customDateRange.end) {
+          const res = await apiService.getUserHistory({ range: "all" });
+          const allData = Array.isArray(res.days) ? res.days.map(d => ({
+            date: new Date(d.date),
+            value: typeof d.value === 'number' ? d.value : 0,
+            avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
+          })) : [];
+          
+          // Filter data by custom date range
+          const startDate = new Date(customDateRange.start);
+          const endDate = new Date(customDateRange.end);
+          const filteredData = allData.filter(d => 
+            d.date >= startDate && d.date <= endDate
+          );
+          
+          setHistoryDays(filteredData);
+        } else {
+          const res = await apiService.getUserHistory({ range });
+          const parsed = Array.isArray(res.days) ? res.days.map(d => ({
+            date: new Date(d.date),
+            value: typeof d.value === 'number' ? d.value : 0,
+            avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
+          })) : [];
+          setHistoryDays(parsed);
+        }
       } catch {
         console.warn('Falling back to client aggregation for history');
         setHistoryDays(null);
       }
     };
     load();
-  }, [range]);
+  }, [range, customDateRange]);
 
 
   useEffect(() => {
@@ -523,7 +544,7 @@ export default function Profile() {
                   <button 
                     onClick={() => {
                       if (customDateRange.start && customDateRange.end) {
-                        // Trigger data refresh with custom range
+                        // The useEffect will automatically trigger when customDateRange changes
                         console.log('Custom range selected:', customDateRange);
                       }
                     }}
@@ -1653,16 +1674,20 @@ function RadialProgress({ percent }: { percent: number }) {
 
 function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Date; value: number }[]; height?: number; color?: string }) {
   const chartHeight = height - 30; // Reserve space for labels
-  const width = Math.max(300, data.length * 8);
+  const leftMargin = 30; // Space for Y-axis labels
+  const rightMargin = 20;
+  const topMargin = 10;
+  const bottomMargin = 20;
+  const width = Math.max(300, data.length * 8) + leftMargin + rightMargin;
   const max = Math.max(1, ...data.map(d => d.value));
   
   const points = data.map((d, i) => {
-    const x = (i / Math.max(1, data.length - 1)) * (width - 40) + 20;
-    const y = chartHeight - (d.value / max) * (chartHeight - 20) - 10;
+    const x = (i / Math.max(1, data.length - 1)) * (width - leftMargin - rightMargin) + leftMargin;
+    const y = chartHeight - (d.value / max) * (chartHeight - topMargin - bottomMargin) - bottomMargin;
     return `${x},${y}`;
   }).join(' ');
   
-  const area = `20,${chartHeight-10} ${points} ${width-20},${chartHeight-10}`;
+  const area = `${leftMargin},${chartHeight-bottomMargin} ${points} ${width-rightMargin},${chartHeight-bottomMargin}`;
   
   // Generate date labels (show every nth date to avoid crowding)
   const labelInterval = Math.max(1, Math.floor(data.length / 6));
@@ -1677,7 +1702,7 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
             <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e5e7eb" strokeWidth="0.5"/>
           </pattern>
         </defs>
-        <rect width={width} height={chartHeight} fill="url(#grid)" />
+        <rect x={leftMargin} y={0} width={width - leftMargin - rightMargin} height={chartHeight} fill="url(#grid)" />
         
         {/* Area under the curve */}
         <polyline points={area} fill={`${color}15`} stroke="none" />
@@ -1687,8 +1712,8 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
         
         {/* Data points */}
         {data.map((d, i) => {
-          const x = (i / Math.max(1, data.length - 1)) * (width - 40) + 20;
-          const y = chartHeight - (d.value / max) * (chartHeight - 20) - 10;
+          const x = (i / Math.max(1, data.length - 1)) * (width - leftMargin - rightMargin) + leftMargin;
+          const y = chartHeight - (d.value / max) * (chartHeight - topMargin - bottomMargin) - bottomMargin;
           return (
             <circle key={i} cx={x} cy={y} r="3" fill={color} stroke="white" strokeWidth="1" />
           );
@@ -1697,7 +1722,7 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
         {/* Date labels */}
         {dateLabels.map((d, i) => {
           const originalIndex = data.findIndex(item => item.date.getTime() === d.date.getTime());
-          const x = (originalIndex / Math.max(1, data.length - 1)) * (width - 40) + 20;
+          const x = (originalIndex / Math.max(1, data.length - 1)) * (width - leftMargin - rightMargin) + leftMargin;
           return (
             <g key={i}>
               <text 
@@ -1716,11 +1741,11 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
         {/* Y-axis labels */}
         {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
           const value = Math.round(max * ratio);
-          const y = chartHeight - (ratio * (chartHeight - 20)) - 10;
+          const y = chartHeight - (ratio * (chartHeight - topMargin - bottomMargin)) - bottomMargin;
           return (
             <g key={i}>
               <text 
-                x="10" 
+                x={leftMargin - 5} 
                 y={y + 3} 
                 textAnchor="end" 
                 className="text-xs fill-gray-500"
