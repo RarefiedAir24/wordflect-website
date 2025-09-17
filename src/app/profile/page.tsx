@@ -861,27 +861,27 @@ export default function Profile() {
               <div className="flex gap-2">
                 <input 
                   type="date" 
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                   placeholder="Start date"
                 />
                 <input 
                   type="date" 
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                   placeholder="End date"
                 />
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Theme</label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent">
-                <option value="">All Themes</option>
-                <option value="food">Food & Drinks (Monday)</option>
-                <option value="nouns">Common Nouns (Tuesday)</option>
-                <option value="verbs">Verbs (Wednesday)</option>
-                <option value="adjectives">Adjectives (Thursday)</option>
-                <option value="animals">Animals (Friday)</option>
-                <option value="nature">Nature (Saturday)</option>
-                <option value="technology">Technology (Sunday)</option>
+              <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white text-gray-900">
+                <option value="" className="text-gray-900">All Themes</option>
+                <option value="food" className="text-gray-900">Food & Drinks (Monday)</option>
+                <option value="nouns" className="text-gray-900">Common Nouns (Tuesday)</option>
+                <option value="verbs" className="text-gray-900">Verbs (Wednesday)</option>
+                <option value="adjectives" className="text-gray-900">Adjectives (Thursday)</option>
+                <option value="animals" className="text-gray-900">Animals (Friday)</option>
+                <option value="nature" className="text-gray-900">Nature (Saturday)</option>
+                <option value="technology" className="text-gray-900">Technology (Sunday)</option>
               </select>
             </div>
           </div>
