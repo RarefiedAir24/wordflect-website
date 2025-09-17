@@ -15,6 +15,7 @@ export const API_CONFIG = {
     LEADERBOARD: '/api/proxy-leaderboard', // Use proxy to bypass CORS
     USER_FRAMES: '/api/proxy-frames', // Use proxy to bypass CORS
     WORD_OF_THE_DAY: '/api/proxy-word-of-the-day', // Use proxy to bypass CORS
+    USER_HISTORY: '/api/proxy-history', // Historical stats
   },
   
   // Request timeout in milliseconds

@@ -62,6 +62,30 @@ class ApiService {
     return headers;
   }
 
+  // Historical stats (time series) from backend
+  async getUserHistory(params: { range?: string } = {}): Promise<{ days: { date: string; value: number; avgLen?: number }[] }> {
+    try {
+      const url = new URL(buildApiUrl(API_CONFIG.ENDPOINTS.USER_HISTORY), window.location.origin);
+      if (params.range) url.searchParams.set('range', params.range);
+      const response = await this.makeRequest(url.toString(), {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          await this.signOut();
+          throw new Error('Authentication failed. Please sign in again.');
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch user history');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Get user history error:', error);
+      throw error;
+    }
+  }
+
   private async makeRequest(url: string, options: RequestInit, retries = 0): Promise<Response> {
     try {
       const controller = new AbortController();
