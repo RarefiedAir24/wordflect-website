@@ -193,41 +193,10 @@ export default function Profile() {
           }
         } else {
           console.log('Loading data for range:', range);
-          // Always fetch all data and filter client-side to ensure consistency
-          const res = await apiService.getUserHistory({ range: "all" });
-          const allData = Array.isArray(res.days) ? res.days.map(d => ({
-            date: new Date(d.date),
-            value: typeof d.value === 'number' ? d.value : 0,
-            avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
-          })) : [];
-          
-          // Filter the backend data based on the selected range
-          const now = new Date();
-          const startDate = (() => {
-            const d = new Date(now);
-            if (range === '7d') { d.setDate(d.getDate() - 6); return d; }
-            if (range === '30d') { d.setDate(d.getDate() - 29); return d; }
-            if (range === '90d') { d.setDate(d.getDate() - 89); return d; }
-            if (range === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
-            if (range === 'all') { 
-              // For 'all', use the earliest date from the data
-              return allData.length > 0 
-                ? new Date(Math.min(...allData.map(d => d.date.getTime())))
-                : new Date(0);
-            }
-            return new Date(0);
-          })();
-          
-          const filteredData = allData.filter(d => d.date >= startDate && d.date <= now);
-          console.log('Backend data filtering details:', {
-            range,
-            startDate: startDate.toISOString(),
-            endDate: now.toISOString(),
-            totalBackendData: allData.length,
-            filteredData: filteredData.length,
-            sampleDates: allData.slice(0, 3).map(d => ({ date: d.date.toISOString(), value: d.value }))
-          });
-          setHistoryDays(filteredData);
+          // Since 7D works correctly with aggregated data, use the same approach for all ranges
+          // This ensures consistency and avoids backend API issues
+          console.log('Using aggregated data approach for range:', range);
+          setHistoryDays(null); // This will trigger the aggregated function to be used
         }
       } catch (error) {
         console.warn('Falling back to client aggregation for history:', error);
