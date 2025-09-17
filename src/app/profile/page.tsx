@@ -38,6 +38,7 @@ export default function Profile() {
 
   // Historical aggregation derived from words list
   const aggregated = React.useCallback((p: UserProfile) => {
+    console.log('Aggregated function called with range:', range);
     type WordEntry = { word: string; date: Date };
     const entries: WordEntry[] = p.allFoundWords
       .map((w) => {
@@ -66,6 +67,13 @@ export default function Profile() {
       }
       return new Date(0);
     })();
+    
+    console.log('Date filtering:', {
+      range,
+      startDate: start.toISOString(),
+      endDate: now.toISOString(),
+      totalEntries: entries.length
+    });
 
     const keyOf = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const dayCounts = new Map<string, { date: Date; count: number; avgLenSum: number; lenCount: number }>();
@@ -107,6 +115,16 @@ export default function Profile() {
     })();
 
     const filtered = entries.sort((a, b) => b.date.getTime() - a.date.getTime());
+    
+    console.log('Aggregated function result:', {
+      range,
+      totalWords,
+      avgPerDay,
+      daysCount: days.length,
+      filteredEntriesCount: filtered.length,
+      sampleDays: days.slice(0, 3).map(d => ({ date: d.date.toISOString(), value: d.value }))
+    });
+    
     return { days, max, totalWords, avgPerDay, uniqueWords, avgLenAll, filtered };
   }, [range, customDateRange]); // Add dependencies for the aggregated function
 
