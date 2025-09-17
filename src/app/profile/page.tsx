@@ -408,7 +408,17 @@ export default function Profile() {
       {/* Deep Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
         <div className="bg-white rounded-xl p-5 shadow lg:col-span-2">
-          <h3 className="font-bold text-lg mb-4 text-blue-950">Game & Battle</h3>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-bold text-xl text-blue-950">Game & Battle</h3>
+              <p className="text-sm text-blue-700">Track your gaming performance and battle statistics</p>
+            </div>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <MiniStat title="Games Played" value={profile.gamesPlayed.toLocaleString()} subtitle="Lifetime" />
             <MiniStat title="Top Score" value={profile.topScore.toLocaleString()} subtitle="Best single game" />
@@ -458,8 +468,16 @@ export default function Profile() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Historical & Sparkline */}
         <div className="bg-white rounded-xl p-5 shadow lg:col-span-2">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-            <h3 className="font-bold text-lg text-blue-950">History</h3>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-xl text-blue-950">History</h3>
+              <p className="text-sm text-blue-700">View your word discovery trends over time</p>
+            </div>
             <div className="flex items-center gap-2">
               {(["7d","30d","90d","1y","all"] as const).map(r => (
                 <button key={r} onClick={() => setRange(r)} className={`px-2 py-1 rounded text-sm border ${range===r? 'bg-blue-600 text-white border-blue-600':'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'}`}>
@@ -1206,9 +1224,14 @@ export default function Profile() {
 
       {/* Interactivity: Words Explorer (Accordion Modal) */}
       <div className="mt-8 bg-white rounded-xl p-6 shadow-lg border border-blue-100">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="font-bold text-xl text-blue-950 mb-1">Words Explorer</h3>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h3 className="font-bold text-xl text-blue-950">Words Explorer</h3>
             <p className="text-sm text-blue-700">Browse and explore all your discovered words organized by letter</p>
           </div>
           <div className="flex items-center gap-3">
