@@ -97,6 +97,18 @@ export default function Profile() {
       date: e.date.toISOString(),
       isInRange: e.date >= start && e.date <= endDate
     })));
+    
+    // Debug: Count how many words are actually in range
+    const wordsInRange = entries.filter(e => e.date >= start && e.date <= endDate);
+    const wordsOutOfRange = entries.filter(e => e.date < start || e.date > endDate);
+    console.log('Words in range:', wordsInRange.length);
+    console.log('Words out of range:', wordsOutOfRange.length);
+    if (wordsOutOfRange.length > 0) {
+      console.log('Sample out-of-range words:', wordsOutOfRange.slice(0, 3).map(e => ({
+        word: e.word,
+        date: e.date.toISOString()
+      })));
+    }
 
     const keyOf = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const dayCounts = new Map<string, { date: Date; count: number; avgLenSum: number; lenCount: number }>();
