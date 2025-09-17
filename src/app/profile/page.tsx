@@ -97,18 +97,29 @@ export default function Profile() {
   
   // Calculate history metrics for the selected period
   const historyMetrics = (() => {
-    if (!historyDays || historyDays.length === 0) {
-      return { totalWords: 0, avgPerDay: 0, avgLength: 0 };
+    // If we have backend data, use it
+    if (historyDays && historyDays.length > 0) {
+      const totalWords = historyDays.reduce((sum, day) => sum + day.value, 0);
+      const avgPerDay = historyDays.length > 0 ? Math.round(totalWords / historyDays.length * 10) / 10 : 0;
+      const wordsWithLength = historyDays.filter(day => day.avgLen !== undefined);
+      const avgLength = wordsWithLength.length > 0 
+        ? Math.round(wordsWithLength.reduce((sum, day) => sum + (day.avgLen || 0), 0) / wordsWithLength.length * 10) / 10
+        : 0;
+      
+      return { totalWords, avgPerDay, avgLength };
     }
     
-    const totalWords = historyDays.reduce((sum, day) => sum + day.value, 0);
-    const avgPerDay = historyDays.length > 0 ? Math.round(totalWords / historyDays.length * 10) / 10 : 0;
-    const wordsWithLength = historyDays.filter(day => day.avgLen !== undefined);
-    const avgLength = wordsWithLength.length > 0 
-      ? Math.round(wordsWithLength.reduce((sum, day) => sum + (day.avgLen || 0), 0) / wordsWithLength.length * 10) / 10
-      : 0;
+    // Fallback to aggregated data with proper range filtering
+    if (profile) {
+      const agg = aggregated(profile);
+      return { 
+        totalWords: agg.totalWords, 
+        avgPerDay: agg.avgPerDay, 
+        avgLength: agg.avgLenAll || 0 
+      };
+    }
     
-    return { totalWords, avgPerDay, avgLength };
+    return { totalWords: 0, avgPerDay: 0, avgLength: 0 };
   })();
   
   useEffect(() => {
