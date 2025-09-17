@@ -85,7 +85,10 @@ export default function Profile() {
       range,
       startDate: start.toISOString(),
       endDate: endDate.toISOString(),
-      totalEntries: entries.length
+      totalEntries: entries.length,
+      sampleEntryDates: entries.slice(0, 5).map(e => e.date.toISOString()),
+      earliestEntry: entries.length > 0 ? new Date(Math.min(...entries.map(e => e.date.getTime()))).toISOString() : 'none',
+      latestEntry: entries.length > 0 ? new Date(Math.max(...entries.map(e => e.date.getTime()))).toISOString() : 'none'
     });
 
     const keyOf = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
