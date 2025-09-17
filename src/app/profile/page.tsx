@@ -400,14 +400,36 @@ export default function Profile() {
       </div>
 
       {isExplorerOpen && (
-        <div className="fixed inset-0 z-50 grid place-items-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setIsExplorerOpen(false)} />
-          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3 border-b border-blue-100">
-              <h4 className="font-bold text-blue-950">Words Explorer</h4>
-              <button onClick={() => setIsExplorerOpen(false)} className="px-2 py-1 rounded text-sm border border-blue-200 hover:bg-blue-50">Close</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsExplorerOpen(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden border border-gray-200">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-xl text-white">Words Explorer</h4>
+                    <p className="text-indigo-100 text-sm">Browse your discovered words by letter</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsExplorerOpen(false)} 
+                  className="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
+                >
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
-            <div className="p-4 overflow-y-auto max-h-[85vh]">
+            
+            {/* Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(95vh-80px)] bg-gray-50">
               {(() => {
                 const map = new Map<string, { first: Date; last: Date; count: number }>();
                 aggregated(profile).filtered.forEach(e => {
@@ -429,39 +451,91 @@ export default function Profile() {
                 letters.forEach(l => groups[l].sort((a,b) => a.word.localeCompare(b.word)));
                 const toggle = (l: string) => setExpandedLetters(s => ({ ...s, [l]: !s[l] }));
                 return (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {letters.map(l => (
-                      <div key={l} className="border border-blue-100 rounded-lg overflow-hidden shadow-sm">
+                      <div key={l} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                         <button 
                           onClick={() => toggle(l)} 
-                          className={`w-full flex items-center justify-between px-4 py-3 transition-colors ${
+                          className={`w-full flex items-center justify-between px-6 py-4 transition-all duration-200 ${
                             expandedLetters[l] 
-                              ? 'bg-blue-600 text-white' 
-                              : 'bg-blue-50 hover:bg-blue-100 text-blue-950'
+                              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg' 
+                              : 'bg-white hover:bg-gray-50 text-gray-900'
                           }`}
                         >
-                          <span className="font-semibold text-lg">{l}</span>
-                          <span className="text-sm opacity-75">{groups[l].length} words</span>
+                          <div className="flex items-center gap-4">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl ${
+                              expandedLetters[l] 
+                                ? 'bg-white/20 text-white' 
+                                : 'bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700'
+                            }`}>
+                              {l}
+                            </div>
+                            <div className="text-left">
+                              <span className="font-bold text-lg">Letter {l}</span>
+                              <p className={`text-sm ${expandedLetters[l] ? 'text-indigo-100' : 'text-gray-600'}`}>
+                                {groups[l].length} words discovered
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              expandedLetters[l] 
+                                ? 'bg-white/20 text-white' 
+                                : 'bg-indigo-100 text-indigo-700'
+                            }`}>
+                              {groups[l].length}
+                            </span>
+                            <svg 
+                              className={`w-5 h-5 transition-transform duration-200 ${
+                                expandedLetters[l] ? 'rotate-180' : ''
+                              }`} 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
                         </button>
                         {expandedLetters[l] && (
-                          <div className="bg-white">
-                            <div className="overflow-x-auto max-h-64 overflow-y-auto">
-                              <table className="min-w-full text-sm">
-                                <thead className="bg-blue-50 sticky top-0">
-                                  <tr className="text-blue-900">
-                                    <th className="px-4 py-3 text-left font-semibold">Word</th>
-                                    <th className="px-4 py-3 text-left font-semibold">First Found</th>
-                                    <th className="px-4 py-3 text-left font-semibold">Most Recent</th>
-                                    <th className="px-4 py-3 text-left font-semibold">Times Found</th>
+                          <div className="bg-white border-t border-gray-100">
+                            <div className="overflow-x-auto max-h-80 overflow-y-auto">
+                              <table className="min-w-full">
+                                <thead className="bg-gray-50 sticky top-0">
+                                  <tr className="text-gray-700">
+                                    <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wider">Word</th>
+                                    <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wider">First Found</th>
+                                    <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wider">Most Recent</th>
+                                    <th className="px-6 py-4 text-left font-semibold text-sm uppercase tracking-wider">Times Found</th>
                                   </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className="divide-y divide-gray-100">
                                   {groups[l].map((row, idx) => (
-                                    <tr key={idx} className="odd:bg-blue-50/30 even:bg-white hover:bg-blue-100/50 transition-colors">
-                                      <td className="px-4 py-2 font-medium text-blue-950">{row.word}</td>
-                                      <td className="px-4 py-2 text-blue-800">{row.first.toLocaleDateString()}</td>
-                                      <td className="px-4 py-2 text-blue-800">{row.last.toLocaleDateString()}</td>
-                                      <td className="px-4 py-2 text-blue-800 font-semibold">{row.count}</td>
+                                    <tr key={idx} className="hover:bg-indigo-50/50 transition-colors">
+                                      <td className="px-6 py-4">
+                                        <span className="font-semibold text-gray-900 text-lg">{row.word}</span>
+                                      </td>
+                                      <td className="px-6 py-4 text-gray-700">
+                                        <div className="flex items-center gap-2">
+                                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                          </svg>
+                                          {row.first.toLocaleDateString()}
+                                        </div>
+                                      </td>
+                                      <td className="px-6 py-4 text-gray-700">
+                                        <div className="flex items-center gap-2">
+                                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                          </svg>
+                                          {row.last.toLocaleDateString()}
+                                        </div>
+                                      </td>
+                                      <td className="px-6 py-4">
+                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-indigo-100 text-indigo-800">
+                                          {row.count} {row.count === 1 ? 'time' : 'times'}
+                                        </span>
+                                      </td>
                                     </tr>
                                   ))}
                                 </tbody>
@@ -472,9 +546,20 @@ export default function Profile() {
                       </div>
                     ))}
                     {!letters.length && (
-                      <div className="text-center py-8 text-blue-700">
-                        <p className="text-lg">No words found.</p>
-                        <p className="text-sm mt-2">Start playing to discover words!</p>
+                      <div className="text-center py-16">
+                        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                          <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                          </svg>
+                        </div>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">No words discovered yet</h3>
+                        <p className="text-gray-600 mb-6">Start playing Wordflect to discover amazing words!</p>
+                        <button 
+                          onClick={() => setIsExplorerOpen(false)}
+                          className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-semibold"
+                        >
+                          Start Playing
+                        </button>
                       </div>
                     )}
                   </div>
