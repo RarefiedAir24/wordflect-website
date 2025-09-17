@@ -10,6 +10,11 @@ export default function Profile() {
   const [error, setError] = useState("");
   const router = useRouter();
   const [range, setRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("30d");
+  
+  // Debug range changes
+  React.useEffect(() => {
+    console.log('Range state changed to:', range);
+  }, [range]);
   const [customDateRange, setCustomDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
   const [expandedLetters, setExpandedLetters] = useState<Record<string, boolean>>({});
@@ -68,25 +73,6 @@ export default function Profile() {
       return new Date(0);
     })();
     
-    console.log('Date filtering:', {
-      range,
-      startDate: start.toISOString(),
-      endDate: now.toISOString(),
-      totalEntries: entries.length
-    });
-
-    const keyOf = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    const dayCounts = new Map<string, { date: Date; count: number; avgLenSum: number; lenCount: number }>();
-    entries.forEach((e) => {
-      if (e.date < start) return;
-      const k = keyOf(e.date);
-      if (!dayCounts.has(k)) dayCounts.set(k, { date: new Date(e.date.getFullYear(), e.date.getMonth(), e.date.getDate()), count: 0, avgLenSum: 0, lenCount: 0 });
-      const rec = dayCounts.get(k)!;
-      rec.count += 1;
-      rec.avgLenSum += e.word.length;
-      rec.lenCount += 1;
-    });
-
     // Determine the end date based on range
     const endDate = (() => {
       if (range === 'custom' && customDateRange.end) {
@@ -94,6 +80,36 @@ export default function Profile() {
       }
       return now;
     })();
+    
+    console.log('Date filtering:', {
+      range,
+      startDate: start.toISOString(),
+      endDate: endDate.toISOString(),
+      totalEntries: entries.length
+    });
+
+    const keyOf = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const dayCounts = new Map<string, { date: Date; count: number; avgLenSum: number; lenCount: number }>();
+    let filteredEntriesCount = 0;
+    entries.forEach((e) => {
+      // Filter entries to only include those within the date range
+      if (e.date < start || e.date > endDate) return;
+      filteredEntriesCount++;
+      const k = keyOf(e.date);
+      if (!dayCounts.has(k)) dayCounts.set(k, { date: new Date(e.date.getFullYear(), e.date.getMonth(), e.date.getDate()), count: 0, avgLenSum: 0, lenCount: 0 });
+      const rec = dayCounts.get(k)!;
+      rec.count += 1;
+      rec.avgLenSum += e.word.length;
+      rec.lenCount += 1;
+    });
+    
+    console.log('Filtering results:', {
+      range,
+      totalEntries: entries.length,
+      filteredEntriesCount,
+      startDate: start.toISOString(),
+      endDate: endDate.toISOString()
+    });
 
     const days: { date: Date; value: number; avgLen?: number }[] = [];
     const cursor = new Date(start);
@@ -600,7 +616,10 @@ export default function Profile() {
             </div>
             <div className="flex items-center gap-2">
               {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
-                <button key={r} onClick={() => setRange(r)} className={`px-2 py-1 rounded text-sm border ${range===r? 'bg-blue-600 text-white border-blue-600':'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'}`}>
+                <button key={r} onClick={() => {
+                  console.log('Button clicked for range:', r);
+                  setRange(r);
+                }} className={`px-2 py-1 rounded text-sm border ${range===r? 'bg-blue-600 text-white border-blue-600':'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'}`}>
                   {r.toUpperCase()}
                 </button>
               ))}
