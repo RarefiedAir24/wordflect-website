@@ -371,12 +371,12 @@ export default function Profile() {
       {isExplorerOpen && (
         <div className="fixed inset-0 z-50 grid place-items-center">
           <div className="absolute inset-0 bg-black/50" onClick={() => setIsExplorerOpen(false)} />
-          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[80vh] overflow-hidden">
+          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-hidden">
             <div className="flex items-center justify-between px-5 py-3 border-b border-blue-100">
               <h4 className="font-bold text-blue-950">Words Explorer</h4>
               <button onClick={() => setIsExplorerOpen(false)} className="px-2 py-1 rounded text-sm border border-blue-200 hover:bg-blue-50">Close</button>
             </div>
-            <div className="p-4 overflow-y-auto">
+            <div className="p-4 overflow-y-auto max-h-[85vh]">
               {(() => {
                 const map = new Map<string, { first: Date; last: Date; count: number }>();
                 aggregated(profile).filtered.forEach(e => {
@@ -398,41 +398,53 @@ export default function Profile() {
                 letters.forEach(l => groups[l].sort((a,b) => a.word.localeCompare(b.word)));
                 const toggle = (l: string) => setExpandedLetters(s => ({ ...s, [l]: !s[l] }));
                 return (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {letters.map(l => (
-                      <div key={l} className="border border-blue-100 rounded-lg overflow-hidden">
-                        <button onClick={() => toggle(l)} className="w-full flex items-center justify-between px-4 py-2 bg-blue-50 hover:bg-blue-100">
-                          <span className="font-semibold text-blue-950">{l}</span>
-                          <span className="text-xs text-blue-700">{groups[l].length} words</span>
+                      <div key={l} className="border border-blue-100 rounded-lg overflow-hidden shadow-sm">
+                        <button 
+                          onClick={() => toggle(l)} 
+                          className={`w-full flex items-center justify-between px-4 py-3 transition-colors ${
+                            expandedLetters[l] 
+                              ? 'bg-blue-600 text-white' 
+                              : 'bg-blue-50 hover:bg-blue-100 text-blue-950'
+                          }`}
+                        >
+                          <span className="font-semibold text-lg">{l}</span>
+                          <span className="text-sm opacity-75">{groups[l].length} words</span>
                         </button>
                         {expandedLetters[l] && (
-                          <div className="overflow-x-auto">
-                            <table className="min-w-full text-sm">
-                              <thead className="bg-white">
-                                <tr className="text-blue-900">
-                                  <th className="px-3 py-2 text-left font-semibold">Word</th>
-                                  <th className="px-3 py-2 text-left font-semibold">First Found</th>
-                                  <th className="px-3 py-2 text-left font-semibold">Most Recent</th>
-                                  <th className="px-3 py-2 text-left font-semibold">Times Found</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {groups[l].map((row, idx) => (
-                                  <tr key={idx} className="odd:bg-blue-50/30 even:bg-white">
-                                    <td className="px-3 py-2 font-medium text-blue-950">{row.word}</td>
-                                    <td className="px-3 py-2 text-blue-800">{row.first.toLocaleDateString()}</td>
-                                    <td className="px-3 py-2 text-blue-800">{row.last.toLocaleDateString()}</td>
-                                    <td className="px-3 py-2 text-blue-800">{row.count}</td>
+                          <div className="bg-white">
+                            <div className="overflow-x-auto max-h-64 overflow-y-auto">
+                              <table className="min-w-full text-sm">
+                                <thead className="bg-blue-50 sticky top-0">
+                                  <tr className="text-blue-900">
+                                    <th className="px-4 py-3 text-left font-semibold">Word</th>
+                                    <th className="px-4 py-3 text-left font-semibold">First Found</th>
+                                    <th className="px-4 py-3 text-left font-semibold">Most Recent</th>
+                                    <th className="px-4 py-3 text-left font-semibold">Times Found</th>
                                   </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                                </thead>
+                                <tbody>
+                                  {groups[l].map((row, idx) => (
+                                    <tr key={idx} className="odd:bg-blue-50/30 even:bg-white hover:bg-blue-100/50 transition-colors">
+                                      <td className="px-4 py-2 font-medium text-blue-950">{row.word}</td>
+                                      <td className="px-4 py-2 text-blue-800">{row.first.toLocaleDateString()}</td>
+                                      <td className="px-4 py-2 text-blue-800">{row.last.toLocaleDateString()}</td>
+                                      <td className="px-4 py-2 text-blue-800 font-semibold">{row.count}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
                           </div>
                         )}
                       </div>
                     ))}
                     {!letters.length && (
-                      <div className="text-sm text-blue-700">No words found.</div>
+                      <div className="text-center py-8 text-blue-700">
+                        <p className="text-lg">No words found.</p>
+                        <p className="text-sm mt-2">Start playing to discover words!</p>
+                      </div>
                     )}
                   </div>
                 );
