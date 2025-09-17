@@ -9,7 +9,8 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
-  const [range, setRange] = useState<"7d" | "30d" | "90d" | "1y" | "all">("30d");
+  const [range, setRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("30d");
+  const [customDateRange, setCustomDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
   const [expandedLetters, setExpandedLetters] = useState<Record<string, boolean>>({});
   const [timeAnalytics, setTimeAnalytics] = useState<Record<string, unknown> | null>(null);
@@ -488,12 +489,87 @@ export default function Profile() {
               <p className="text-sm text-blue-700">View your word discovery trends over time</p>
             </div>
             <div className="flex items-center gap-2">
-              {(["7d","30d","90d","1y","all"] as const).map(r => (
+              {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
                 <button key={r} onClick={() => setRange(r)} className={`px-2 py-1 rounded text-sm border ${range===r? 'bg-blue-600 text-white border-blue-600':'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'}`}>
                   {r.toUpperCase()}
                 </button>
               ))}
             </div>
+          </div>
+          
+          {/* Custom Date Range Picker */}
+          {range === "custom" && (
+            <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 mb-1">Start Date</label>
+                  <input 
+                    type="date" 
+                    value={customDateRange.start}
+                    onChange={(e) => setCustomDateRange(prev => ({ ...prev, start: e.target.value }))}
+                    className="px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 mb-1">End Date</label>
+                  <input 
+                    type="date" 
+                    value={customDateRange.end}
+                    onChange={(e) => setCustomDateRange(prev => ({ ...prev, end: e.target.value }))}
+                    className="px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+                  />
+                </div>
+                <div className="flex items-end">
+                  <button 
+                    onClick={() => {
+                      if (customDateRange.start && customDateRange.end) {
+                        // Trigger data refresh with custom range
+                        console.log('Custom range selected:', customDateRange);
+                      }
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Date Range Display */}
+          <div className="mb-4 text-center">
+            <p className="text-sm text-blue-600 font-medium">
+              {(() => {
+                if (range === "custom" && customDateRange.start && customDateRange.end) {
+                  const startDate = new Date(customDateRange.start).toLocaleDateString();
+                  const endDate = new Date(customDateRange.end).toLocaleDateString();
+                  return `Custom Range: ${startDate} - ${endDate}`;
+                } else if (range === "7d") {
+                  const endDate = new Date();
+                  const startDate = new Date();
+                  startDate.setDate(endDate.getDate() - 7);
+                  return `Last 7 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+                } else if (range === "30d") {
+                  const endDate = new Date();
+                  const startDate = new Date();
+                  startDate.setDate(endDate.getDate() - 30);
+                  return `Last 30 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+                } else if (range === "90d") {
+                  const endDate = new Date();
+                  const startDate = new Date();
+                  startDate.setDate(endDate.getDate() - 90);
+                  return `Last 90 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+                } else if (range === "1y") {
+                  const endDate = new Date();
+                  const startDate = new Date();
+                  startDate.setFullYear(endDate.getFullYear() - 1);
+                  return `Last Year: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+                } else if (range === "all") {
+                  return "All Time Data";
+                }
+                return "Select a date range";
+              })()}
+            </p>
           </div>
           <Sparkline data={(historyDays && historyDays.length ? historyDays : aggregated(profile).days)} height={96} color="#4f46e5" />
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -1576,19 +1652,85 @@ function RadialProgress({ percent }: { percent: number }) {
 }
 
 function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Date; value: number }[]; height?: number; color?: string }) {
-  const width = Math.max(240, data.length * 6);
+  const chartHeight = height - 30; // Reserve space for labels
+  const width = Math.max(300, data.length * 8);
   const max = Math.max(1, ...data.map(d => d.value));
+  
   const points = data.map((d, i) => {
-    const x = (i / Math.max(1, data.length - 1)) * (width - 8) + 4;
-    const y = height - (d.value / max) * (height - 8) - 4;
+    const x = (i / Math.max(1, data.length - 1)) * (width - 40) + 20;
+    const y = chartHeight - (d.value / max) * (chartHeight - 20) - 10;
     return `${x},${y}`;
   }).join(' ');
-  const area = `4,${height-4} ${points} ${width-4},${height-4}`;
+  
+  const area = `20,${chartHeight-10} ${points} ${width-20},${chartHeight-10}`;
+  
+  // Generate date labels (show every nth date to avoid crowding)
+  const labelInterval = Math.max(1, Math.floor(data.length / 6));
+  const dateLabels = data.filter((_, i) => i % labelInterval === 0 || i === data.length - 1);
+  
   return (
     <div className="w-full overflow-x-auto">
       <svg width={width} height={height} className="block">
+        {/* Grid lines */}
+        <defs>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e5e7eb" strokeWidth="0.5"/>
+          </pattern>
+        </defs>
+        <rect width={width} height={chartHeight} fill="url(#grid)" />
+        
+        {/* Area under the curve */}
+        <polyline points={area} fill={`${color}15`} stroke="none" />
+        
+        {/* Main line */}
         <polyline points={points} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        <polyline points={area} fill={`${color}20`} stroke="none" />
+        
+        {/* Data points */}
+        {data.map((d, i) => {
+          const x = (i / Math.max(1, data.length - 1)) * (width - 40) + 20;
+          const y = chartHeight - (d.value / max) * (chartHeight - 20) - 10;
+          return (
+            <circle key={i} cx={x} cy={y} r="3" fill={color} stroke="white" strokeWidth="1" />
+          );
+        })}
+        
+        {/* Date labels */}
+        {dateLabels.map((d, i) => {
+          const originalIndex = data.findIndex(item => item.date.getTime() === d.date.getTime());
+          const x = (originalIndex / Math.max(1, data.length - 1)) * (width - 40) + 20;
+          return (
+            <g key={i}>
+              <text 
+                x={x} 
+                y={chartHeight + 15} 
+                textAnchor="middle" 
+                className="text-xs fill-gray-600"
+                fontSize="10"
+              >
+                {d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </text>
+            </g>
+          );
+        })}
+        
+        {/* Y-axis labels */}
+        {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
+          const value = Math.round(max * ratio);
+          const y = chartHeight - (ratio * (chartHeight - 20)) - 10;
+          return (
+            <g key={i}>
+              <text 
+                x="10" 
+                y={y + 3} 
+                textAnchor="end" 
+                className="text-xs fill-gray-500"
+                fontSize="9"
+              >
+                {value}
+              </text>
+            </g>
+          );
+        })}
       </svg>
     </div>
   );
