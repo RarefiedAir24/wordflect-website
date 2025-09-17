@@ -12,8 +12,6 @@ export default function Profile() {
   const [range, setRange] = useState<"7d" | "30d" | "90d" | "1y" | "all">("30d");
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
   const [expandedLetters, setExpandedLetters] = useState<Record<string, boolean>>({});
-  const [detailedStats, setDetailedStats] = useState<Record<string, unknown> | null>(null);
-  const [themeAnalytics, setThemeAnalytics] = useState<Record<string, unknown> | null>(null);
 
   // Derived UI helpers
   const winRate = (p: UserProfile) => {
@@ -111,22 +109,6 @@ export default function Profile() {
     load();
   }, [range]);
 
-  useEffect(() => {
-    const loadAnalytics = async () => {
-      if (!apiService.isAuthenticated()) return;
-      try {
-        const [detailed, themes] = await Promise.all([
-          apiService.getDetailedStatistics().catch(() => null),
-          apiService.getThemeAnalytics().catch(() => null)
-        ]);
-        setDetailedStats(detailed as Record<string, unknown> | null);
-        setThemeAnalytics(themes as Record<string, unknown> | null);
-      } catch (error) {
-        console.warn('Analytics loading failed:', error);
-      }
-    };
-    loadAnalytics();
-  }, []);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -292,59 +274,6 @@ export default function Profile() {
           </div>
         </div>
       </div>
-
-      {/* Enhanced Time-based Engagement - Temporarily disabled for build */}
-      {detailedStats && (
-        <div className="bg-white rounded-xl p-5 shadow mb-10">
-          <h3 className="font-bold text-lg mb-4 text-blue-950">Enhanced Analytics</h3>
-          <p className="text-blue-700">Detailed analytics will be displayed here once backend data is available.</p>
-        </div>
-      )}
-
-      {/* Theme Analytics */}
-      {themeAnalytics && (
-        <div className="bg-white rounded-xl p-5 shadow mb-10">
-          <h3 className="font-bold text-lg mb-4 text-blue-950">Theme Performance</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(themeAnalytics.themes as Array<Record<string, unknown>>)?.map((theme, idx: number) => (
-              <div key={idx} className="rounded-lg border border-blue-100 p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold text-blue-950">{String(theme.name || 'Unknown')}</h4>
-                  <span className="text-sm text-blue-700">{String(theme.completionRate || 0)}%</span>
-                </div>
-                <div className="space-y-1 text-sm text-blue-800">
-                  <div className="flex justify-between">
-                    <span>Words Found:</span>
-                    <span className="font-medium">{String(theme.wordsFound || 0)}/{String(theme.totalWords || 0)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Success Rate:</span>
-                    <span className="font-medium">{String(theme.successRate || 0)}%</span>
-                  </div>
-                  {theme.bestDay && (
-                    <div className="flex justify-between">
-                      <span>Best Day:</span>
-                      <span className="font-medium">{String(theme.bestDay)}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Performance Trends */}
-      {detailedStats?.scoreProgression && (
-        <div className="bg-white rounded-xl p-5 shadow mb-10">
-          <h3 className="font-bold text-lg mb-4 text-blue-950">Performance Trends</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <MiniStat title="Score Trend" value={(detailedStats.scoreProgression as Record<string, unknown>).trend && (detailedStats.scoreProgression as Record<string, unknown>).trend as number > 0 ? `+${(detailedStats.scoreProgression as Record<string, unknown>).trend as number}%` : `${(detailedStats.scoreProgression as Record<string, unknown>).trend as number}%`} subtitle="vs last period" />
-            <MiniStat title="Best Week" value={(detailedStats.scoreProgression as Record<string, unknown>).bestWeek ? ((detailedStats.scoreProgression as Record<string, unknown>).bestWeek as number).toLocaleString() : 'N/A'} subtitle="Highest weekly score" />
-            <MiniStat title="Improvement" value={(detailedStats.scoreProgression as Record<string, unknown>).improvement && (detailedStats.scoreProgression as Record<string, unknown>).improvement as number > 0 ? `+${(detailedStats.scoreProgression as Record<string, unknown>).improvement as number}%` : `${(detailedStats.scoreProgression as Record<string, unknown>).improvement as number}%`} subtitle="Overall progress" />
-          </div>
-        </div>
-      )}
 
       {/* Deep Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
