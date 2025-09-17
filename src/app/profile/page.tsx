@@ -1773,51 +1773,111 @@ function RadialProgress({ percent }: { percent: number }) {
 }
 
 function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Date; value: number }[]; height?: number; color?: string }) {
-  const chartHeight = height - 30; // Reserve space for labels
-  const leftMargin = 50; // Increased space for Y-axis labels
-  const rightMargin = 20;
-  const topMargin = 10;
-  const bottomMargin = 20;
-  const width = Math.max(300, data.length * 8) + leftMargin + rightMargin;
+  const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
+  
+  const chartHeight = height - 40; // Reserve more space for labels
+  const leftMargin = 60; // More space for Y-axis labels
+  const rightMargin = 30;
+  const topMargin = 15;
+  const bottomMargin = 25;
+  const width = Math.max(400, data.length * 10) + leftMargin + rightMargin; // Wider for better spacing
   const max = Math.max(1, ...data.map(d => d.value));
   
   const points = data.map((d, i) => {
     const x = (i / Math.max(1, data.length - 1)) * (width - leftMargin - rightMargin) + leftMargin;
     const y = chartHeight - (d.value / max) * (chartHeight - topMargin - bottomMargin) - bottomMargin;
-    return `${x},${y}`;
-  }).join(' ');
+    return { x, y, data: d, index: i };
+  });
   
-  const area = `${leftMargin},${chartHeight-bottomMargin} ${points} ${width-rightMargin},${chartHeight-bottomMargin}`;
+  const pointsString = points.map(p => `${p.x},${p.y}`).join(' ');
+  const area = `${leftMargin},${chartHeight-bottomMargin} ${pointsString} ${width-rightMargin},${chartHeight-bottomMargin}`;
   
   // Generate date labels (show every nth date to avoid crowding)
   const labelInterval = Math.max(1, Math.floor(data.length / 6));
   const dateLabels = data.filter((_, i) => i % labelInterval === 0 || i === data.length - 1);
   
+  const handlePointHover = (index: number, event: React.MouseEvent) => {
+    setHoveredPoint(index);
+    const rect = event.currentTarget.getBoundingClientRect();
+    setTooltipPosition({
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top - 10
+    });
+  };
+  
+  const handlePointLeave = () => {
+    setHoveredPoint(null);
+    setTooltipPosition(null);
+  };
+  
   return (
-    <div className="w-full overflow-x-auto">
-      <svg width={width} height={height} className="block">
+    <div className="w-full overflow-x-auto relative">
+      <svg 
+        width={width} 
+        height={height} 
+        className="block cursor-pointer"
+        onMouseLeave={handlePointLeave}
+      >
         {/* Grid lines */}
         <defs>
           <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e5e7eb" strokeWidth="0.5"/>
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f3f4f6" strokeWidth="0.5"/>
           </pattern>
+          <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor={color} stopOpacity="0.2"/>
+            <stop offset="100%" stopColor={color} stopOpacity="0.05"/>
+          </linearGradient>
         </defs>
+        
+        {/* Background grid */}
         <rect x={leftMargin} y={0} width={width - leftMargin - rightMargin} height={chartHeight} fill="url(#grid)" />
         
         {/* Area under the curve */}
-        <polyline points={area} fill={`${color}15`} stroke="none" />
+        <polyline points={area} fill="url(#areaGradient)" stroke="none" />
         
-        {/* Main line */}
-        <polyline points={points} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        {/* Main line with gradient */}
+        <defs>
+          <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor={color} stopOpacity="0.8"/>
+            <stop offset="100%" stopColor={color} stopOpacity="1"/>
+          </linearGradient>
+        </defs>
+        <polyline 
+          points={pointsString} 
+          fill="none" 
+          stroke="url(#lineGradient)" 
+          strokeWidth="3" 
+          strokeLinejoin="round" 
+          strokeLinecap="round"
+          className="transition-all duration-200"
+        />
         
-        {/* Data points */}
-        {data.map((d, i) => {
-          const x = (i / Math.max(1, data.length - 1)) * (width - leftMargin - rightMargin) + leftMargin;
-          const y = chartHeight - (d.value / max) * (chartHeight - topMargin - bottomMargin) - bottomMargin;
-          return (
-            <circle key={i} cx={x} cy={y} r="3" fill={color} stroke="white" strokeWidth="1" />
-          );
-        })}
+        {/* Interactive data points */}
+        {points.map((point, i) => (
+          <g key={i}>
+            {/* Invisible larger hit area for better interaction */}
+            <circle 
+              cx={point.x} 
+              cy={point.y} 
+              r="8" 
+              fill="transparent" 
+              onMouseEnter={(e) => handlePointHover(i, e)}
+              onMouseMove={(e) => handlePointHover(i, e)}
+              className="cursor-pointer"
+            />
+            {/* Visible point */}
+            <circle 
+              cx={point.x} 
+              cy={point.y} 
+              r={hoveredPoint === i ? "5" : "3"} 
+              fill={hoveredPoint === i ? "#ffffff" : color}
+              stroke={hoveredPoint === i ? color : "#ffffff"}
+              strokeWidth={hoveredPoint === i ? "3" : "2"}
+              className="transition-all duration-200 drop-shadow-sm"
+            />
+          </g>
+        ))}
         
         {/* Date labels */}
         {dateLabels.map((d, i) => {
@@ -1827,9 +1887,9 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
             <g key={i}>
               <text 
                 x={x} 
-                y={chartHeight + 15} 
+                y={chartHeight + 18} 
                 textAnchor="middle" 
-                className="text-xs fill-gray-600"
+                className="text-xs fill-gray-600 font-medium"
                 fontSize="10"
               >
                 {d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -1857,11 +1917,11 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
             return (
               <g key={i}>
                 <text 
-                  x={leftMargin - 10} 
-                  y={y + 3} 
+                  x={leftMargin - 15} 
+                  y={y + 4} 
                   textAnchor="end" 
-                  className="text-xs fill-gray-500"
-                  fontSize="10"
+                  className="text-xs fill-gray-600 font-medium"
+                  fontSize="11"
                 >
                   {value}
                 </text>
@@ -1870,6 +1930,29 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
           });
         })()}
       </svg>
+      
+      {/* Interactive Tooltip */}
+      {hoveredPoint !== null && tooltipPosition && (
+        <div 
+          className="absolute bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg pointer-events-none z-10"
+          style={{
+            left: tooltipPosition.x - 50,
+            top: tooltipPosition.y - 40,
+            transform: 'translateX(-50%)'
+          }}
+        >
+          <div className="font-semibold">
+            {points[hoveredPoint].data.date.toLocaleDateString('en-US', { 
+              month: 'short', 
+              day: 'numeric',
+              year: 'numeric'
+            })}
+          </div>
+          <div className="text-blue-300">
+            {points[hoveredPoint].data.value} words found
+          </div>
+        </div>
+      )}
     </div>
   );
 }
