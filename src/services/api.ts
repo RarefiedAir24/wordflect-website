@@ -92,6 +92,163 @@ class ApiService {
     }
   }
 
+  // Enhanced Statistics Endpoints
+  async getDetailedStatistics(): Promise<unknown> {
+    try {
+      const response = await this.makeRequest(buildApiUrl(API_CONFIG.ENDPOINTS.USER_STATISTICS_DETAILED), {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          await this.signOut();
+          throw new Error('Authentication failed. Please sign in again.');
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch detailed statistics');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Get detailed statistics error:', error);
+      throw error;
+    }
+  }
+
+  async getDailyStatistics(date: string): Promise<unknown> {
+    try {
+      const url = new URL(buildApiUrl(API_CONFIG.ENDPOINTS.USER_STATISTICS_DAILY), window.location.origin);
+      url.searchParams.set('date', date);
+      const response = await this.makeRequest(url.toString(), {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          await this.signOut();
+          throw new Error('Authentication failed. Please sign in again.');
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch daily statistics');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Get daily statistics error:', error);
+      throw error;
+    }
+  }
+
+  async getWeeklyStatistics(week: string): Promise<unknown> {
+    try {
+      const url = new URL(buildApiUrl(API_CONFIG.ENDPOINTS.USER_STATISTICS_WEEKLY), window.location.origin);
+      url.searchParams.set('week', week);
+      const response = await this.makeRequest(url.toString(), {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          await this.signOut();
+          throw new Error('Authentication failed. Please sign in again.');
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch weekly statistics');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Get weekly statistics error:', error);
+      throw error;
+    }
+  }
+
+  async getMonthlyStatistics(month: string): Promise<unknown> {
+    try {
+      const url = new URL(buildApiUrl(API_CONFIG.ENDPOINTS.USER_STATISTICS_MONTHLY), window.location.origin);
+      url.searchParams.set('month', month);
+      const response = await this.makeRequest(url.toString(), {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          await this.signOut();
+          throw new Error('Authentication failed. Please sign in again.');
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch monthly statistics');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Get monthly statistics error:', error);
+      throw error;
+    }
+  }
+
+  async trackSession(data: { action: 'start' | 'end'; sessionId?: string; score?: number; level?: number; wordsFound?: number }): Promise<unknown> {
+    try {
+      const response = await this.makeRequest(buildApiUrl(API_CONFIG.ENDPOINTS.USER_SESSION_TRACK), {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          await this.signOut();
+          throw new Error('Authentication failed. Please sign in again.');
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to track session');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Track session error:', error);
+      throw error;
+    }
+  }
+
+  async getThemeAnalytics(): Promise<unknown> {
+    try {
+      const response = await this.makeRequest(buildApiUrl(API_CONFIG.ENDPOINTS.USER_THEME_ANALYTICS), {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          await this.signOut();
+          throw new Error('Authentication failed. Please sign in again.');
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch theme analytics');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Get theme analytics error:', error);
+      throw error;
+    }
+  }
+
+  async getThemeDayStatistics(date: string): Promise<unknown> {
+    try {
+      const url = new URL(buildApiUrl(API_CONFIG.ENDPOINTS.USER_THEME_DAY), window.location.origin);
+      url.searchParams.set('date', date);
+      const response = await this.makeRequest(url.toString(), {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          await this.signOut();
+          throw new Error('Authentication failed. Please sign in again.');
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch theme day statistics');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Get theme day statistics error:', error);
+      throw error;
+    }
+  }
+
   private async makeRequest(url: string, options: RequestInit, retries = 0): Promise<Response> {
     try {
       const controller = new AbortController();

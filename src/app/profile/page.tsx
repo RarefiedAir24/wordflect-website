@@ -12,6 +12,11 @@ export default function Profile() {
   const [range, setRange] = useState<"7d" | "30d" | "90d" | "1y" | "all">("30d");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [isExplorerOpen, setIsExplorerOpen] = useState(false);
+  const [expandedLetters, setExpandedLetters] = useState<Record<string, boolean>>({});
+  const [detailedStats, setDetailedStats] = useState<any>(null);
+  const [themeAnalytics, setThemeAnalytics] = useState<any>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   // Derived UI helpers
   const winRate = (p: UserProfile) => {
@@ -118,6 +123,27 @@ export default function Profile() {
   useEffect(() => {
     setPage(1);
   }, [search, range]);
+
+  // Load detailed analytics
+  useEffect(() => {
+    const loadAnalytics = async () => {
+      if (!apiService.isAuthenticated()) return;
+      setAnalyticsLoading(true);
+      try {
+        const [detailed, themes] = await Promise.all([
+          apiService.getDetailedStatistics().catch(() => null),
+          apiService.getThemeAnalytics().catch(() => null)
+        ]);
+        setDetailedStats(detailed);
+        setThemeAnalytics(themes);
+      } catch (error) {
+        console.warn('Analytics loading failed:', error);
+      } finally {
+        setAnalyticsLoading(false);
+      }
+    };
+    loadAnalytics();
+  }, []);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -300,18 +326,71 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Time-based Engagement */}
-      {(profile.totalPlayTimeMinutes || profile.daysLoggedIn || profile.currentStreakDays) && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          {typeof profile.totalPlayTimeMinutes === 'number' && (
-            <MiniStat title="Time Played" value={`${Math.floor(profile.totalPlayTimeMinutes / 60)}h ${(profile.totalPlayTimeMinutes % 60)}m`} subtitle="Total across sessions" />
-          )}
-          {typeof profile.daysLoggedIn === 'number' && (
-            <MiniStat title="Days Logged In" value={profile.daysLoggedIn} subtitle="All-time" />
-          )}
-          {typeof profile.currentStreakDays === 'number' && (
-            <MiniStat title="Current Streak" value={`${profile.currentStreakDays}d`} subtitle={typeof profile.longestStreakDays === 'number' ? `Longest ${profile.longestStreakDays}d` : undefined} />
-          )}
+      {/* Enhanced Time-based Engagement */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        {detailedStats?.totalPlayTimeMinutes ? (
+          <MiniStat title="Total Play Time" value={`${Math.floor(detailedStats.totalPlayTimeMinutes / 60)}h ${(detailedStats.totalPlayTimeMinutes % 60)}m`} subtitle="All sessions" />
+        ) : profile.totalPlayTimeMinutes ? (
+          <MiniStat title="Time Played" value={`${Math.floor(profile.totalPlayTimeMinutes / 60)}h ${(profile.totalPlayTimeMinutes % 60)}m`} subtitle="Total across sessions" />
+        ) : null}
+        
+        {detailedStats?.sessionCount ? (
+          <MiniStat title="Sessions" value={detailedStats.sessionCount.toLocaleString()} subtitle="Total sessions" />
+        ) : null}
+        
+        {detailedStats?.averageSessionMinutes ? (
+          <MiniStat title="Avg Session" value={`${Math.round(detailedStats.averageSessionMinutes)}m`} subtitle="Per session" />
+        ) : null}
+        
+        {detailedStats?.loginStreak ? (
+          <MiniStat title="Login Streak" value={`${detailedStats.loginStreak}d`} subtitle={detailedStats.longestStreak ? `Longest ${detailedStats.longestStreak}d` : undefined} />
+        ) : profile.currentStreakDays ? (
+          <MiniStat title="Current Streak" value={`${profile.currentStreakDays}d`} subtitle={typeof profile.longestStreakDays === 'number' ? `Longest ${profile.longestStreakDays}d` : undefined} />
+        ) : null}
+      </div>
+
+      {/* Theme Analytics */}
+      {themeAnalytics && (
+        <div className="bg-white rounded-xl p-5 shadow mb-10">
+          <h3 className="font-bold text-lg mb-4 text-blue-950">Theme Performance</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {themeAnalytics.themes?.map((theme: any, idx: number) => (
+              <div key={idx} className="rounded-lg border border-blue-100 p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-blue-950">{theme.name}</h4>
+                  <span className="text-sm text-blue-700">{theme.completionRate}%</span>
+                </div>
+                <div className="space-y-1 text-sm text-blue-800">
+                  <div className="flex justify-between">
+                    <span>Words Found:</span>
+                    <span className="font-medium">{theme.wordsFound}/{theme.totalWords}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Success Rate:</span>
+                    <span className="font-medium">{theme.successRate}%</span>
+                  </div>
+                  {theme.bestDay && (
+                    <div className="flex justify-between">
+                      <span>Best Day:</span>
+                      <span className="font-medium">{theme.bestDay}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Performance Trends */}
+      {detailedStats?.scoreProgression && (
+        <div className="bg-white rounded-xl p-5 shadow mb-10">
+          <h3 className="font-bold text-lg mb-4 text-blue-950">Performance Trends</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <MiniStat title="Score Trend" value={detailedStats.scoreProgression.trend > 0 ? `+${detailedStats.scoreProgression.trend}%` : `${detailedStats.scoreProgression.trend}%`} subtitle="vs last period" />
+            <MiniStat title="Best Week" value={detailedStats.scoreProgression.bestWeek?.toLocaleString() || 'N/A'} subtitle="Highest weekly score" />
+            <MiniStat title="Improvement" value={detailedStats.scoreProgression.improvement > 0 ? `+${detailedStats.scoreProgression.improvement}%` : `${detailedStats.scoreProgression.improvement}%`} subtitle="Overall progress" />
+          </div>
         </div>
       )}
 
@@ -396,59 +475,93 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Interactivity: Modern Words Explorer */}
+      {/* Interactivity: Words Explorer (Accordion Modal) */}
       <div className="mt-8 bg-white rounded-xl p-5 shadow">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+        <div className="flex items-center justify-between mb-2">
           <h3 className="font-bold text-lg text-blue-950">Words Explorer</h3>
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search words..." className="w-full md:w-64 px-3 py-2 rounded border border-blue-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <div className="flex items-center gap-2">
             <button onClick={() => downloadCsv(aggregated(profile).filtered)} className="px-3 py-2 rounded text-sm bg-blue-600 text-white hover:bg-blue-700">Export CSV</button>
+            <button onClick={() => setIsExplorerOpen(true)} className="px-3 py-2 rounded text-sm bg-indigo-600 text-white hover:bg-indigo-700">Open</button>
           </div>
         </div>
-        {(() => {
-          const pageSize = 20;
-          const filtered = aggregated(profile).filtered;
-          const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-          const safePage = Math.min(page, totalPages);
-          const pageItems = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
-          return (
-            <div>
-              <div className="overflow-x-auto rounded-lg border border-blue-100">
-                <table className="min-w-full text-sm">
-                  <thead className="bg-blue-50 text-blue-900">
-                    <tr>
-                      <th className="px-3 py-2 text-left font-semibold">Word</th>
-                      <th className="px-3 py-2 text-left font-semibold">Length</th>
-                      <th className="px-3 py-2 text-left font-semibold">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pageItems.map((e, i) => (
-                      <tr key={i} className="odd:bg-white even:bg-blue-50/40">
-                        <td className="px-3 py-2 font-medium text-blue-950">{e.word}</td>
-                        <td className="px-3 py-2 text-blue-800">{e.word.length}</td>
-                        <td className="px-3 py-2 text-blue-700">{e.date.toLocaleDateString()}</td>
-                      </tr>
-                    ))}
-                    {pageItems.length === 0 && (
-                      <tr>
-                        <td colSpan={3} className="px-3 py-6 text-center text-blue-700">No results.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              <div className="mt-3 flex items-center justify-between">
-                <span className="text-xs text-blue-700">Page {safePage} of {totalPages} • {filtered.length} results</span>
-                <div className="flex gap-2">
-                  <button disabled={safePage<=1} onClick={() => setPage(safePage-1)} className={`px-2 py-1 rounded text-sm border ${safePage<=1? 'opacity-40 cursor-not-allowed':'hover:bg-blue-50'} border-blue-200`}>Prev</button>
-                  <button disabled={safePage>=totalPages} onClick={() => setPage(safePage+1)} className={`px-2 py-1 rounded text-sm border ${safePage>=totalPages? 'opacity-40 cursor-not-allowed':'hover:bg-blue-50'} border-blue-200`}>Next</button>
-                </div>
-              </div>
-            </div>
-          );
-        })()}
+        <p className="text-sm text-blue-700">Browse words by starting letter in a focused modal.</p>
       </div>
+
+      {isExplorerOpen && (
+        <div className="fixed inset-0 z-50 grid place-items-center">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setIsExplorerOpen(false)} />
+          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-blue-100">
+              <h4 className="font-bold text-blue-950">Words Explorer</h4>
+              <button onClick={() => setIsExplorerOpen(false)} className="px-2 py-1 rounded text-sm border border-blue-200 hover:bg-blue-50">Close</button>
+            </div>
+            <div className="p-4 overflow-y-auto">
+              {(() => {
+                // Build first/last seen and counts per word
+                const map = new Map<string, { first: Date; last: Date; count: number }>();
+                aggregated(profile).filtered.forEach(e => {
+                  const key = (e.word || '').toLowerCase();
+                  if (!key) return;
+                  const info = map.get(key) || { first: e.date, last: e.date, count: 0 };
+                  info.first = e.date < info.first ? e.date : info.first;
+                  info.last = e.date > info.last ? e.date : info.last;
+                  info.count += 1;
+                  map.set(key, info);
+                });
+                // Group by starting letter A-Z (non-letters under #)
+                const groups: Record<string, Array<{ word: string; first: Date; last: Date; count: number }>> = {};
+                map.forEach((v, k) => {
+                  const letter = /^[a-z]/i.test(k) ? k[0].toUpperCase() : '#';
+                  if (!groups[letter]) groups[letter] = [];
+                  groups[letter].push({ word: k, first: v.first, last: v.last, count: v.count });
+                });
+                const letters = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')].filter(l => groups[l]?.length);
+                letters.forEach(l => groups[l].sort((a,b) => a.word.localeCompare(b.word)));
+                const toggle = (l: string) => setExpandedLetters(s => ({ ...s, [l]: !s[l] }));
+                return (
+                  <div className="space-y-2">
+                    {letters.map(l => (
+                      <div key={l} className="border border-blue-100 rounded-lg overflow-hidden">
+                        <button onClick={() => toggle(l)} className="w-full flex items-center justify-between px-4 py-2 bg-blue-50 hover:bg-blue-100">
+                          <span className="font-semibold text-blue-950">{l}</span>
+                          <span className="text-xs text-blue-700">{groups[l].length} words</span>
+                        </button>
+                        {expandedLetters[l] && (
+                          <div className="overflow-x-auto">
+                            <table className="min-w-full text-sm">
+                              <thead className="bg-white">
+                                <tr className="text-blue-900">
+                                  <th className="px-3 py-2 text-left font-semibold">Word</th>
+                                  <th className="px-3 py-2 text-left font-semibold">First Found</th>
+                                  <th className="px-3 py-2 text-left font-semibold">Most Recent</th>
+                                  <th className="px-3 py-2 text-left font-semibold">Times Found</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {groups[l].map((row, idx) => (
+                                  <tr key={idx} className="odd:bg-blue-50/30 even:bg-white">
+                                    <td className="px-3 py-2 font-medium text-blue-950">{row.word}</td>
+                                    <td className="px-3 py-2 text-blue-800">{row.first.toLocaleDateString()}</td>
+                                    <td className="px-3 py-2 text-blue-800">{row.last.toLocaleDateString()}</td>
+                                    <td className="px-3 py-2 text-blue-800">{row.count}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    {!letters.length && (
+                      <div className="text-sm text-blue-700">No words found.</div>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
