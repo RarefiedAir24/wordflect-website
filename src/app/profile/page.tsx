@@ -356,6 +356,131 @@ export default function Profile() {
         </div>
       </div>
 
+      {/* Time & Usage Analytics */}
+      <div className="mt-8 bg-white rounded-xl p-6 shadow-lg border border-blue-100">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="font-bold text-xl text-blue-950">Time & Usage Analytics</h3>
+            <p className="text-sm text-blue-700">Your engagement and playing patterns</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {/* Total Play Time */}
+          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <span className="text-xs text-emerald-600 font-semibold">TOTAL TIME</span>
+            </div>
+            <p className="text-2xl font-bold text-emerald-900">
+              {profile.totalPlayTimeMinutes 
+                ? `${Math.floor(profile.totalPlayTimeMinutes / 60)}h ${profile.totalPlayTimeMinutes % 60}m`
+                : 'N/A'
+              }
+            </p>
+            <p className="text-xs text-emerald-700 mt-1">Across all sessions</p>
+          </div>
+
+          {/* Days Logged In */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <span className="text-xs text-blue-600 font-semibold">DAYS ACTIVE</span>
+            </div>
+            <p className="text-2xl font-bold text-blue-900">
+              {profile.daysLoggedIn || 'N/A'}
+            </p>
+            <p className="text-xs text-blue-700 mt-1">Total days played</p>
+          </div>
+
+          {/* Current Streak */}
+          <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-4 border border-orange-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <span className="text-xs text-orange-600 font-semibold">CURRENT STREAK</span>
+            </div>
+            <p className="text-2xl font-bold text-orange-900">
+              {profile.currentStreakDays || 'N/A'}
+            </p>
+            <p className="text-xs text-orange-700 mt-1">Consecutive days</p>
+          </div>
+
+          {/* Longest Streak */}
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+              </div>
+              <span className="text-xs text-purple-600 font-semibold">BEST STREAK</span>
+            </div>
+            <p className="text-2xl font-bold text-purple-900">
+              {profile.longestStreakDays || 'N/A'}
+            </p>
+            <p className="text-xs text-purple-700 mt-1">Longest streak</p>
+          </div>
+        </div>
+
+        {/* Additional Time Insights */}
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center">
+              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h4 className="font-semibold text-gray-900">Time Insights</h4>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+              <span className="text-gray-700">
+                <strong>Avg. Session:</strong> {profile.totalPlayTimeMinutes && profile.gamesPlayed 
+                  ? `${Math.round(profile.totalPlayTimeMinutes / profile.gamesPlayed)}m`
+                  : 'N/A'
+                }
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span className="text-gray-700">
+                <strong>Last Login:</strong> {profile.lastLoginAt 
+                  ? new Date(profile.lastLoginAt).toLocaleDateString()
+                  : 'N/A'
+                }
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <span className="text-gray-700">
+                <strong>Consistency:</strong> {profile.daysLoggedIn && profile.gamesPlayed
+                  ? `${Math.round((profile.daysLoggedIn / profile.gamesPlayed) * 100)}%`
+                  : 'N/A'
+                }
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Interactivity: Words Explorer (Accordion Modal) */}
       <div className="mt-8 bg-white rounded-xl p-6 shadow-lg border border-blue-100">
         <div className="flex items-center justify-between mb-4">
