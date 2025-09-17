@@ -12,6 +12,7 @@ export default function Profile() {
   const [range, setRange] = useState<"7d" | "30d" | "90d" | "1y" | "all">("30d");
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
   const [expandedLetters, setExpandedLetters] = useState<Record<string, boolean>>({});
+  const [timeAnalytics, setTimeAnalytics] = useState<Record<string, unknown> | null>(null);
 
   // Derived UI helpers
   const winRate = (p: UserProfile) => {
@@ -144,11 +145,75 @@ export default function Profile() {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [router]);
+    }, [router]);
+
+  // Fetch time analytics
+  useEffect(() => {
+    const fetchTimeAnalytics = async () => {
+      if (!apiService.isAuthenticated()) return;
+      
+      try {
+        const analytics = await apiService.getDetailedStatistics();
+        console.log('Time analytics:', analytics);
+        setTimeAnalytics(analytics as Record<string, unknown> | null);
+      } catch (error) {
+        console.error("Time analytics fetch error:", error);
+        setTimeAnalytics(null);
+      }
+    };
+
+    if (profile) {
+      fetchTimeAnalytics();
+    }
+  }, [profile]);
 
   const handleSignOut = async () => {
     await apiService.signOut();
     router.push("/");
+  };
+
+  // Helper function to get time period data
+  const getTimePeriodData = (period: string) => {
+    if (!timeAnalytics || !timeAnalytics.timePeriods || !Array.isArray(timeAnalytics.timePeriods)) {
+      return {
+        wordsFound: 0,
+        gamesPlayed: 0,
+        avgPerGame: 0,
+        performance: 0,
+        status: 'No data'
+      };
+    }
+
+    const periodData = timeAnalytics.timePeriods.find((p: Record<string, unknown>) => p.period === period);
+    if (periodData) {
+      const wordsFound = (periodData.wordsFound as number) || 0;
+      const gamesPlayed = (periodData.gamesPlayed as number) || 0;
+      const avgPerGame = gamesPlayed > 0 ? Math.round(wordsFound / gamesPlayed) : 0;
+      const performance = Math.min(100, Math.round((wordsFound / 100) * 100)); // Scale to 100 max
+      
+      let status = 'No data';
+      if (performance >= 80) status = '🏆 Peak performance!';
+      else if (performance >= 60) status = '📈 Good performance';
+      else if (performance >= 40) status = '📊 Average performance';
+      else if (performance > 0) status = '📉 Lower performance';
+      else status = '😴 No activity';
+
+      return {
+        wordsFound,
+        gamesPlayed,
+        avgPerGame,
+        performance,
+        status
+      };
+    }
+
+    return {
+      wordsFound: 0,
+      gamesPlayed: 0,
+      avgPerGame: 0,
+      performance: 0,
+      status: 'No data'
+    };
   };
 
   if (loading) {
@@ -712,6 +777,308 @@ export default function Profile() {
               </svg>
               Reset
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Performance by Time Period */}
+      <div className="mt-8 bg-white rounded-xl p-6 shadow-lg border border-blue-100">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full flex items-center justify-center">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="font-bold text-xl text-blue-950">Performance by Time Period</h3>
+            <p className="text-sm text-blue-700">Discover when your brain performs at its peak</p>
+          </div>
+        </div>
+
+        {/* Time Period Performance Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {/* Early Morning (5AM - 10AM) */}
+          {(() => {
+            const periodData = getTimePeriodData('early-morning');
+            return (
+              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
+                  <span className="text-xs text-amber-600 font-semibold">EARLY MORNING</span>
+                </div>
+                <p className="text-lg font-bold text-amber-900">5:00 AM - 10:00 AM</p>
+                <div className="mt-3 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-amber-700">Words Found:</span>
+                    <span className="font-semibold text-amber-900">{periodData.wordsFound}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-amber-700">Games Played:</span>
+                    <span className="font-semibold text-amber-900">{periodData.gamesPlayed}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-amber-700">Avg. per Game:</span>
+                    <span className="font-semibold text-amber-900">{periodData.avgPerGame}</span>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="w-full bg-amber-200 rounded-full h-2">
+                    <div className="bg-amber-500 h-2 rounded-full" style={{ width: `${periodData.performance}%` }}></div>
+                  </div>
+                  <span className="text-xs text-amber-600 font-semibold">{periodData.performance}%</span>
+                </div>
+                <p className="text-xs text-amber-700 mt-2">{periodData.status}</p>
+              </div>
+            );
+          })()}
+
+          {/* Late Morning (10AM - 3PM) */}
+          {(() => {
+            const periodData = getTimePeriodData('late-morning');
+            return (
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
+                  <span className="text-xs text-blue-600 font-semibold">LATE MORNING</span>
+                </div>
+                <p className="text-lg font-bold text-blue-900">10:00 AM - 3:00 PM</p>
+                <div className="mt-3 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-blue-700">Words Found:</span>
+                    <span className="font-semibold text-blue-900">{periodData.wordsFound}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-blue-700">Games Played:</span>
+                    <span className="font-semibold text-blue-900">{periodData.gamesPlayed}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-blue-700">Avg. per Game:</span>
+                    <span className="font-semibold text-blue-900">{periodData.avgPerGame}</span>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="w-full bg-blue-200 rounded-full h-2">
+                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${periodData.performance}%` }}></div>
+                  </div>
+                  <span className="text-xs text-blue-600 font-semibold">{periodData.performance}%</span>
+                </div>
+                <p className="text-xs text-blue-700 mt-2">{periodData.status}</p>
+              </div>
+            );
+          })()}
+
+          {/* Afternoon (3PM - 8PM) */}
+          {(() => {
+            const periodData = getTimePeriodData('afternoon');
+            return (
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
+                  <span className="text-xs text-green-600 font-semibold">AFTERNOON</span>
+                </div>
+                <p className="text-lg font-bold text-green-900">3:00 PM - 8:00 PM</p>
+                <div className="mt-3 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-green-700">Words Found:</span>
+                    <span className="font-semibold text-green-900">{periodData.wordsFound}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-green-700">Games Played:</span>
+                    <span className="font-semibold text-green-900">{periodData.gamesPlayed}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-green-700">Avg. per Game:</span>
+                    <span className="font-semibold text-green-900">{periodData.avgPerGame}</span>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="w-full bg-green-200 rounded-full h-2">
+                    <div className="bg-green-500 h-2 rounded-full" style={{ width: `${periodData.performance}%` }}></div>
+                  </div>
+                  <span className="text-xs text-green-600 font-semibold">{periodData.performance}%</span>
+                </div>
+                <p className="text-xs text-green-700 mt-2">{periodData.status}</p>
+              </div>
+            );
+          })()}
+
+          {/* Evening (8PM - 12AM) */}
+          {(() => {
+            const periodData = getTimePeriodData('evening');
+            return (
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                  </div>
+                  <span className="text-xs text-purple-600 font-semibold">EVENING</span>
+                </div>
+                <p className="text-lg font-bold text-purple-900">8:00 PM - 12:00 AM</p>
+                <div className="mt-3 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-purple-700">Words Found:</span>
+                    <span className="font-semibold text-purple-900">{periodData.wordsFound}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-purple-700">Games Played:</span>
+                    <span className="font-semibold text-purple-900">{periodData.gamesPlayed}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-purple-700">Avg. per Game:</span>
+                    <span className="font-semibold text-purple-900">{periodData.avgPerGame || '-'}</span>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="w-full bg-purple-200 rounded-full h-2">
+                    <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${periodData.performance}%` }}></div>
+                  </div>
+                  <span className="text-xs text-purple-600 font-semibold">{periodData.performance}%</span>
+                </div>
+                <p className="text-xs text-purple-700 mt-2">{periodData.status}</p>
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* Performance Insights */}
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 border border-amber-200 mb-6">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-6 h-6 bg-amber-600 rounded-full flex items-center justify-center">
+              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+            <h4 className="font-semibold text-amber-900">Performance Insights</h4>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+              <span className="text-amber-800">
+                <strong>Peak Time:</strong> {(() => {
+                  const periods = ['early-morning', 'late-morning', 'afternoon', 'evening'];
+                  const periodNames = ['5:00 AM - 10:00 AM', '10:00 AM - 3:00 PM', '3:00 PM - 8:00 PM', '8:00 PM - 12:00 AM'];
+                  let maxWords = 0;
+                  let peakPeriod = 'No data';
+                  
+                  periods.forEach((period, index) => {
+                    const data = getTimePeriodData(period);
+                    if (data.wordsFound > maxWords) {
+                      maxWords = data.wordsFound;
+                      peakPeriod = periodNames[index];
+                    }
+                  });
+                  
+                  return `${peakPeriod} (${maxWords} words)`;
+                })()}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-amber-800">
+                <strong>Best Session:</strong> {(() => {
+                  const periods = ['early-morning', 'late-morning', 'afternoon', 'evening'];
+                  let maxAvg = 0;
+                  
+                  periods.forEach(period => {
+                    const data = getTimePeriodData(period);
+                    if (data.avgPerGame > maxAvg) {
+                      maxAvg = data.avgPerGame;
+                    }
+                  });
+                  
+                  return `${maxAvg} words per game average`;
+                })()}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span className="text-amber-800">
+                <strong>Recommendation:</strong> {(() => {
+                  const periods = ['early-morning', 'late-morning', 'afternoon', 'evening'];
+                  const periodNames = ['morning', 'late morning', 'afternoon', 'evening'];
+                  let maxWords = 0;
+                  let bestPeriod = 0;
+                  
+                  periods.forEach((period, index) => {
+                    const data = getTimePeriodData(period);
+                    if (data.wordsFound > maxWords) {
+                      maxWords = data.wordsFound;
+                      bestPeriod = index;
+                    }
+                  });
+                  
+                  return maxWords > 0 ? `Play more ${periodNames[bestPeriod]} games!` : 'Start playing to see insights!';
+                })()}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Time Period Analysis Chart */}
+        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center">
+              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <h4 className="font-semibold text-gray-900">Performance Trend</h4>
+          </div>
+          
+          {/* Simple Bar Chart */}
+          <div className="space-y-3">
+            {(() => {
+              const periods = [
+                { key: 'early-morning', label: '5AM-10AM', color: 'amber' },
+                { key: 'late-morning', label: '10AM-3PM', color: 'blue' },
+                { key: 'afternoon', label: '3PM-8PM', color: 'green' },
+                { key: 'evening', label: '8PM-12AM', color: 'purple' }
+              ];
+              
+              return periods.map(period => {
+                const data = getTimePeriodData(period.key);
+                const maxWords = Math.max(...periods.map(p => getTimePeriodData(p.key).wordsFound), 1);
+                const width = maxWords > 0 ? (data.wordsFound / maxWords) * 100 : 0;
+                
+                return (
+                  <div key={period.key} className="flex items-center gap-3">
+                    <div className="w-20 text-xs text-gray-600">{period.label}</div>
+                    <div className="flex-1 bg-gray-200 rounded-full h-4">
+                      <div 
+                        className={`bg-${period.color}-500 h-4 rounded-full flex items-center justify-end pr-2`} 
+                        style={{ width: `${width}%` }}
+                      >
+                        <span className="text-xs text-white font-semibold">{data.wordsFound}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+          </div>
+          
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-600">
+              <strong>Total Words Found:</strong> {(() => {
+                const periods = ['early-morning', 'late-morning', 'afternoon', 'evening'];
+                const total = periods.reduce((sum, period) => sum + getTimePeriodData(period).wordsFound, 0);
+                return `${total} across all time periods`;
+              })()}
+            </p>
           </div>
         </div>
       </div>
