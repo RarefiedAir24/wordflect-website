@@ -100,9 +100,12 @@ export default function Profile() {
       try {
         if (!apiService.isAuthenticated()) return;
         
+        console.log('History useEffect triggered:', { range, customDateRange });
+        
         // For custom range, we need to get all data and filter client-side
         // since the API doesn't support custom date ranges
         if (range === "custom" && customDateRange.start && customDateRange.end) {
+          console.log('Loading custom range data...');
           const res = await apiService.getUserHistory({ range: "all" });
           const allData = Array.isArray(res.days) ? res.days.map(d => ({
             date: new Date(d.date),
@@ -110,15 +113,31 @@ export default function Profile() {
             avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
           })) : [];
           
-          // Filter data by custom date range
-          const startDate = new Date(customDateRange.start);
-          const endDate = new Date(customDateRange.end);
-          const filteredData = allData.filter(d => 
-            d.date >= startDate && d.date <= endDate
-          );
+          console.log('All data loaded:', allData.length, 'entries');
           
-          setHistoryDays(filteredData);
+          // Filter data by custom date range
+          const startDate = new Date(customDateRange.start + 'T00:00:00');
+          const endDate = new Date(customDateRange.end + 'T23:59:59');
+          console.log('Filtering between:', startDate, 'and', endDate);
+          
+          const filteredData = allData.filter(d => {
+            const dataDate = new Date(d.date);
+            const isInRange = dataDate >= startDate && dataDate <= endDate;
+            console.log('Checking date:', dataDate, 'in range:', isInRange);
+            return isInRange;
+          });
+          
+          console.log('Filtered data:', filteredData.length, 'entries');
+          
+          // If no data found, fall back to aggregated data
+          if (filteredData.length === 0) {
+            console.log('No data found in custom range, falling back to aggregated data');
+            setHistoryDays(null); // This will trigger the fallback to aggregated data
+          } else {
+            setHistoryDays(filteredData);
+          }
         } else {
+          console.log('Loading standard range data:', range);
           const res = await apiService.getUserHistory({ range });
           const parsed = Array.isArray(res.days) ? res.days.map(d => ({
             date: new Date(d.date),
@@ -127,8 +146,8 @@ export default function Profile() {
           })) : [];
           setHistoryDays(parsed);
         }
-      } catch {
-        console.warn('Falling back to client aggregation for history');
+      } catch (error) {
+        console.warn('Falling back to client aggregation for history:', error);
         setHistoryDays(null);
       }
     };
@@ -544,8 +563,9 @@ export default function Profile() {
                   <button 
                     onClick={() => {
                       if (customDateRange.start && customDateRange.end) {
-                        // The useEffect will automatically trigger when customDateRange changes
+                        // Force a re-render by updating the range state
                         console.log('Custom range selected:', customDateRange);
+                        // The useEffect will trigger when customDateRange changes
                       }
                     }}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
@@ -1674,7 +1694,7 @@ function RadialProgress({ percent }: { percent: number }) {
 
 function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Date; value: number }[]; height?: number; color?: string }) {
   const chartHeight = height - 30; // Reserve space for labels
-  const leftMargin = 30; // Space for Y-axis labels
+  const leftMargin = 50; // Increased space for Y-axis labels
   const rightMargin = 20;
   const topMargin = 10;
   const bottomMargin = 20;
@@ -1745,11 +1765,11 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
           return (
             <g key={i}>
               <text 
-                x={leftMargin - 5} 
+                x={leftMargin - 10} 
                 y={y + 3} 
                 textAnchor="end" 
                 className="text-xs fill-gray-500"
-                fontSize="9"
+                fontSize="10"
               >
                 {value}
               </text>
