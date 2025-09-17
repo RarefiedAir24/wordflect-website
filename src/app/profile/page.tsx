@@ -51,9 +51,19 @@ export default function Profile() {
     const start = (() => {
       const d = new Date(now);
       if (range === '7d') { d.setDate(d.getDate() - 6); return d; }
-      if (range === '30d') { d.setDate(d.getDate() - 29); return d; }
-      if (range === '90d') { d.setDate(d.getDate() - 89); return d; }
+      if (range === '30d') { d.setDate(d.getDate() - 29); return d; } // 30 days including today
+      if (range === '90d') { d.setDate(d.getDate() - 89); return d; } // 90 days including today
       if (range === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
+      if (range === 'all') { 
+        // Find the earliest date from user's words
+        const earliestDate = entries.length > 0 
+          ? new Date(Math.min(...entries.map(e => e.date.getTime())))
+          : new Date(now);
+        return earliestDate;
+      }
+      if (range === 'custom' && customDateRange.start && customDateRange.end) {
+        return new Date(customDateRange.start + 'T00:00:00');
+      }
       return new Date(0);
     })();
 
@@ -69,9 +79,17 @@ export default function Profile() {
       rec.lenCount += 1;
     });
 
+    // Determine the end date based on range
+    const endDate = (() => {
+      if (range === 'custom' && customDateRange.end) {
+        return new Date(customDateRange.end + 'T23:59:59');
+      }
+      return now;
+    })();
+
     const days: { date: Date; value: number; avgLen?: number }[] = [];
     const cursor = new Date(start);
-    while (cursor <= now) {
+    while (cursor <= endDate) {
       const k = keyOf(cursor);
       const rec = dayCounts.get(k);
       days.push({ date: new Date(cursor), value: rec?.count || 0, avgLen: rec && rec.lenCount ? rec.avgLenSum / rec.lenCount : undefined });
@@ -166,12 +184,32 @@ export default function Profile() {
         } else {
           console.log('Loading standard range data:', range);
           const res = await apiService.getUserHistory({ range });
-          const parsed = Array.isArray(res.days) ? res.days.map(d => ({
+          const allData = Array.isArray(res.days) ? res.days.map(d => ({
             date: new Date(d.date),
             value: typeof d.value === 'number' ? d.value : 0,
             avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
           })) : [];
-          setHistoryDays(parsed);
+          
+          // Filter the backend data based on the selected range
+          const now = new Date();
+          const startDate = (() => {
+            const d = new Date(now);
+            if (range === '7d') { d.setDate(d.getDate() - 6); return d; }
+            if (range === '30d') { d.setDate(d.getDate() - 29); return d; }
+            if (range === '90d') { d.setDate(d.getDate() - 89); return d; }
+            if (range === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
+            if (range === 'all') { 
+              // For 'all', use the earliest date from the data
+              return allData.length > 0 
+                ? new Date(Math.min(...allData.map(d => d.date.getTime())))
+                : new Date(0);
+            }
+            return new Date(0);
+          })();
+          
+          const filteredData = allData.filter(d => d.date >= startDate && d.date <= now);
+          console.log('Backend data filtered:', filteredData.length, 'entries for range:', range);
+          setHistoryDays(filteredData);
         }
       } catch (error) {
         console.warn('Falling back to client aggregation for history:', error);
@@ -570,12 +608,13 @@ export default function Profile() {
               <div className="flex items-center gap-4">
                 <div>
                   <label className="block text-sm font-medium text-blue-700 mb-1">Start Date</label>
-                  <input 
-                    type="date" 
-                    value={customDateRange.start}
-                    onChange={(e) => setCustomDateRange(prev => ({ ...prev, start: e.target.value }))}
-                    className="px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
-                  />
+                    <input 
+                      type="date" 
+                      value={customDateRange.start}
+                      onChange={(e) => setCustomDateRange(prev => ({ ...prev, start: e.target.value }))}
+                      max={new Date().toISOString().split('T')[0]}
+                      className="px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+                    />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-blue-700 mb-1">End Date</label>
@@ -583,6 +622,7 @@ export default function Profile() {
                     type="date" 
                     value={customDateRange.end}
                     onChange={(e) => setCustomDateRange(prev => ({ ...prev, end: e.target.value }))}
+                    max={new Date().toISOString().split('T')[0]}
                     className="px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
                   />
                 </div>
@@ -590,7 +630,20 @@ export default function Profile() {
                   <button 
                     onClick={() => {
                       if (customDateRange.start && customDateRange.end) {
-                        // Force a re-render by updating the range state
+                        const startDate = new Date(customDateRange.start);
+                        const endDate = new Date(customDateRange.end);
+                        const today = new Date();
+                        
+                        // Validate dates
+                        if (startDate > endDate) {
+                          alert('Start date must be before end date');
+                          return;
+                        }
+                        if (endDate > today) {
+                          alert('End date cannot be in the future');
+                          return;
+                        }
+                        
                         console.log('Custom range selected:', customDateRange);
                         // The useEffect will trigger when customDateRange changes
                       }
