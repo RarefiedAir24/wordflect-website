@@ -140,7 +140,7 @@ export default function Profile() {
       totalWords,
       avgPerDay,
       daysCount: days.length,
-      filteredEntriesCount: filtered.length,
+      filteredEntriesCount: filteredEntriesCount,
       sampleDays: days.slice(0, 3).map(d => ({ date: d.date.toISOString(), value: d.value }))
     });
     
