@@ -95,6 +95,22 @@ export default function Profile() {
   // Backend history integration
   const [historyDays, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
   
+  // Calculate history metrics for the selected period
+  const historyMetrics = (() => {
+    if (!historyDays || historyDays.length === 0) {
+      return { totalWords: 0, avgPerDay: 0, avgLength: 0 };
+    }
+    
+    const totalWords = historyDays.reduce((sum, day) => sum + day.value, 0);
+    const avgPerDay = historyDays.length > 0 ? Math.round(totalWords / historyDays.length * 10) / 10 : 0;
+    const wordsWithLength = historyDays.filter(day => day.avgLen !== undefined);
+    const avgLength = wordsWithLength.length > 0 
+      ? Math.round(wordsWithLength.reduce((sum, day) => sum + (day.avgLen || 0), 0) / wordsWithLength.length * 10) / 10
+      : 0;
+    
+    return { totalWords, avgPerDay, avgLength };
+  })();
+  
   useEffect(() => {
     const load = async () => {
       try {
@@ -614,9 +630,9 @@ export default function Profile() {
           </div>
           <Sparkline data={(historyDays && historyDays.length ? historyDays : aggregated(profile).days)} height={96} color="#4f46e5" />
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-            <MiniStat title="Words (range)" value={(historyDays && historyDays.length ? historyDays.reduce((a,b)=>a+b.value,0) : aggregated(profile).totalWords).toLocaleString()} />
-            <MiniStat title="Avg/Day" value={(historyDays && historyDays.length ? Math.round(historyDays.reduce((a,b)=>a+b.value,0) / historyDays.length) : aggregated(profile).avgPerDay)} />
-            <MiniStat title="Avg Length" value={(historyDays && historyDays.length ? (()=>{ const sum = historyDays.reduce((a,b)=> a + (b.avgLen || 0), 0); const cnt = historyDays.filter(d=>d.avgLen!==undefined).length; return cnt? (sum/cnt).toFixed(1) : '0.0'; })() : (aggregated(profile).avgLenAll ? aggregated(profile).avgLenAll.toFixed(1) : '0.0'))} />
+            <MiniStat title="Words (found)" value={historyMetrics.totalWords.toLocaleString()} />
+            <MiniStat title="Avg/Day" value={historyMetrics.avgPerDay} />
+            <MiniStat title="Avg Length" value={historyMetrics.avgLength.toFixed(1)} />
           </div>
         </div>
 
@@ -1758,24 +1774,37 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
           );
         })}
         
-        {/* Y-axis labels */}
-        {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
-          const value = Math.round(max * ratio);
-          const y = chartHeight - (ratio * (chartHeight - topMargin - bottomMargin)) - bottomMargin;
-          return (
-            <g key={i}>
-              <text 
-                x={leftMargin - 10} 
-                y={y + 3} 
-                textAnchor="end" 
-                className="text-xs fill-gray-500"
-                fontSize="10"
-              >
-                {value}
-              </text>
-            </g>
-          );
-        })}
+        {/* Y-axis labels - Dynamic scaling based on actual data range */}
+        {(() => {
+          // Create dynamic Y-axis labels based on the actual data range
+          const step = Math.max(1, Math.ceil(max / 5)); // Divide max into ~5 steps
+          const labels = [];
+          for (let i = 0; i <= max; i += step) {
+            labels.push(i);
+          }
+          // Always include the max value if it's not already included
+          if (labels[labels.length - 1] !== max) {
+            labels.push(max);
+          }
+          
+          return labels.map((value, i) => {
+            const ratio = max > 0 ? value / max : 0;
+            const y = chartHeight - (ratio * (chartHeight - topMargin - bottomMargin)) - bottomMargin;
+            return (
+              <g key={i}>
+                <text 
+                  x={leftMargin - 10} 
+                  y={y + 3} 
+                  textAnchor="end" 
+                  className="text-xs fill-gray-500"
+                  fontSize="10"
+                >
+                  {value}
+                </text>
+              </g>
+            );
+          });
+        })()}
       </svg>
     </div>
   );
