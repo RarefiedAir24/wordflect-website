@@ -1740,11 +1740,11 @@ function Sparkline({ data, height = 160, color = '#4f46e5' }: { data: { date: Da
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
   
   const chartHeight = height - 80; // Much more space for labels
-  const leftMargin = 140; // Much more space for Y-axis labels to prevent stacking
+  const leftMargin = 100; // Balanced space for Y-axis labels
   const rightMargin = 50;
   const topMargin = 30;
   const bottomMargin = 50;
-  const width = Math.max(600, data.length * 15) + leftMargin + rightMargin; // Much wider for better spacing
+  const width = Math.min(800, Math.max(400, data.length * 8) + leftMargin + rightMargin); // Responsive width with max limit
   const max = Math.max(1, ...data.map(d => d.value));
   
   const points = data.map((d, i) => {
@@ -1775,13 +1775,14 @@ function Sparkline({ data, height = 160, color = '#4f46e5' }: { data: { date: Da
   };
   
   return (
-    <div className="w-full overflow-x-auto relative">
-      <svg 
-        width={width} 
-        height={height} 
-        className="block cursor-pointer"
-        onMouseLeave={handlePointLeave}
-      >
+    <div className="w-full bg-white rounded-lg p-4 border border-gray-200">
+      <div className="w-full overflow-x-auto">
+        <svg 
+          width={width} 
+          height={height} 
+          className="block cursor-pointer"
+          onMouseLeave={handlePointLeave}
+        >
         {/* Grid lines */}
         <defs>
           <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
@@ -1894,11 +1895,11 @@ function Sparkline({ data, height = 160, color = '#4f46e5' }: { data: { date: Da
                 />
                 {/* Label */}
                 <text 
-                  x={leftMargin - 20} 
+                  x={leftMargin - 15} 
                   y={y + 5} 
                   textAnchor="end" 
                   className="fill-gray-700 font-semibold"
-                  fontSize="13"
+                  fontSize="12"
                 >
                   {value}
                 </text>
@@ -1930,6 +1931,7 @@ function Sparkline({ data, height = 160, color = '#4f46e5' }: { data: { date: Da
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
