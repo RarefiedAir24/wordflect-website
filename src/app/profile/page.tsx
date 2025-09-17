@@ -90,6 +90,13 @@ export default function Profile() {
       earliestEntry: entries.length > 0 ? new Date(Math.min(...entries.map(e => e.date.getTime()))).toISOString() : 'none',
       latestEntry: entries.length > 0 ? new Date(Math.max(...entries.map(e => e.date.getTime()))).toISOString() : 'none'
     });
+    
+    // Debug: Show some actual word dates to understand the data
+    console.log('Sample word dates:', entries.slice(0, 10).map(e => ({
+      word: e.word,
+      date: e.date.toISOString(),
+      isInRange: e.date >= start && e.date <= endDate
+    })));
 
     const keyOf = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const dayCounts = new Map<string, { date: Date; count: number; avgLenSum: number; lenCount: number }>();
