@@ -11,10 +11,6 @@ export default function Profile() {
   const router = useRouter();
   const [range, setRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("30d");
   
-  // Debug range changes
-  React.useEffect(() => {
-    console.log('Range state changed to:', range);
-  }, [range]);
   const [customDateRange, setCustomDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
   const [expandedLetters, setExpandedLetters] = useState<Record<string, boolean>>({});
@@ -43,7 +39,6 @@ export default function Profile() {
 
   // Historical aggregation derived from words list
   const aggregated = React.useCallback((p: UserProfile) => {
-    console.log('Aggregated function called with range:', range);
     type WordEntry = { word: string; date: Date };
     const entries: WordEntry[] = p.allFoundWords
       .map((w) => {
@@ -81,42 +76,12 @@ export default function Profile() {
       return now;
     })();
     
-    console.log('Date filtering:', {
-      range,
-      startDate: start.toISOString(),
-      endDate: endDate.toISOString(),
-      totalEntries: entries.length,
-      sampleEntryDates: entries.slice(0, 5).map(e => e.date.toISOString()),
-      earliestEntry: entries.length > 0 ? new Date(Math.min(...entries.map(e => e.date.getTime()))).toISOString() : 'none',
-      latestEntry: entries.length > 0 ? new Date(Math.max(...entries.map(e => e.date.getTime()))).toISOString() : 'none'
-    });
-    
-    // Debug: Show some actual word dates to understand the data
-    console.log('Sample word dates:', entries.slice(0, 10).map(e => ({
-      word: e.word,
-      date: e.date.toISOString(),
-      isInRange: e.date >= start && e.date <= endDate
-    })));
-    
-    // Debug: Count how many words are actually in range
-    const wordsInRange = entries.filter(e => e.date >= start && e.date <= endDate);
-    const wordsOutOfRange = entries.filter(e => e.date < start || e.date > endDate);
-    console.log('Words in range:', wordsInRange.length);
-    console.log('Words out of range:', wordsOutOfRange.length);
-    if (wordsOutOfRange.length > 0) {
-      console.log('Sample out-of-range words:', wordsOutOfRange.slice(0, 3).map(e => ({
-        word: e.word,
-        date: e.date.toISOString()
-      })));
-    }
 
     const keyOf = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const dayCounts = new Map<string, { date: Date; count: number; avgLenSum: number; lenCount: number }>();
-    let filteredEntriesCount = 0;
     entries.forEach((e) => {
       // Filter entries to only include those within the date range
       if (e.date < start || e.date > endDate) return;
-      filteredEntriesCount++;
       const k = keyOf(e.date);
       if (!dayCounts.has(k)) dayCounts.set(k, { date: new Date(e.date.getFullYear(), e.date.getMonth(), e.date.getDate()), count: 0, avgLenSum: 0, lenCount: 0 });
       const rec = dayCounts.get(k)!;
@@ -125,13 +90,6 @@ export default function Profile() {
       rec.lenCount += 1;
     });
     
-    console.log('=== FILTERING RESULTS ===');
-    console.log('Range:', range);
-    console.log('Total entries:', entries.length);
-    console.log('Filtered entries:', filteredEntriesCount);
-    console.log('Start date:', start.toISOString());
-    console.log('End date:', endDate.toISOString());
-    console.log('========================');
 
     const days: { date: Date; value: number; avgLen?: number }[] = [];
     const cursor = new Date(start);
@@ -154,14 +112,6 @@ export default function Profile() {
 
     const filtered = entries.sort((a, b) => b.date.getTime() - a.date.getTime());
     
-    console.log('Aggregated function result:', {
-      range,
-      totalWords,
-      avgPerDay,
-      daysCount: days.length,
-      filteredEntriesCount: filteredEntriesCount,
-      sampleDays: days.slice(0, 3).map(d => ({ date: d.date.toISOString(), value: d.value }))
-    });
     
     return { days, max, totalWords, avgPerDay, uniqueWords, avgLenAll, filtered };
   }, [range, customDateRange]); // Add dependencies for the aggregated function
@@ -171,12 +121,6 @@ export default function Profile() {
   
   // Calculate history metrics for the selected period - make it reactive to range changes
   const historyMetrics = React.useMemo(() => {
-    console.log('History metrics calculation - checking data sources:', {
-      range,
-      historyDays: historyDays ? `${historyDays.length} entries` : 'null',
-      profile: profile ? 'available' : 'null'
-    });
-    
     // Always use the data that's being displayed in the chart
     // If historyDays exists (even if empty), use it; otherwise fall back to aggregated
     const chartData = historyDays !== null ? historyDays : (profile ? aggregated(profile).days : []);
@@ -189,34 +133,20 @@ export default function Profile() {
         ? Math.round(wordsWithLength.reduce((sum, day) => sum + (day.avgLen || 0), 0) / wordsWithLength.length * 10) / 10
         : 0;
       
-      console.log('History metrics calculated:', { 
-        range, 
-        totalWords, 
-        avgPerDay, 
-        avgLength, 
-        dataPoints: chartData.length,
-        dataSource: historyDays !== null ? 'backend' : 'aggregated',
-        sampleData: chartData.slice(0, 3).map(d => ({ date: d.date.toISOString(), value: d.value }))
-      });
-      
       return { totalWords, avgPerDay, avgLength };
     }
     
-    console.log('No chart data available, returning zeros');
     return { totalWords: 0, avgPerDay: 0, avgLength: 0 };
-  }, [historyDays, profile, range, aggregated]); // Add dependencies to make it reactive
+  }, [historyDays, profile, aggregated]); // Add dependencies to make it reactive
   
   useEffect(() => {
     const load = async () => {
       try {
         if (!apiService.isAuthenticated()) return;
         
-        console.log('History useEffect triggered:', { range, customDateRange });
-        
         // For custom range, we need to get all data and filter client-side
         // since the API doesn't support custom date ranges
         if (range === "custom" && customDateRange.start && customDateRange.end) {
-          console.log('Loading custom range data...');
           const res = await apiService.getUserHistory({ range: "all" });
           const allData = Array.isArray(res.days) ? res.days.map(d => ({
             date: new Date(d.date),
@@ -224,34 +154,24 @@ export default function Profile() {
             avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
           })) : [];
           
-          console.log('All data loaded:', allData.length, 'entries');
-          
           // Filter data by custom date range
           const startDate = new Date(customDateRange.start + 'T00:00:00');
           const endDate = new Date(customDateRange.end + 'T23:59:59');
-          console.log('Filtering between:', startDate, 'and', endDate);
           
           const filteredData = allData.filter(d => {
             const dataDate = new Date(d.date);
-            const isInRange = dataDate >= startDate && dataDate <= endDate;
-            console.log('Checking date:', dataDate, 'in range:', isInRange);
-            return isInRange;
+            return dataDate >= startDate && dataDate <= endDate;
           });
-          
-          console.log('Filtered data:', filteredData.length, 'entries');
           
           // If no data found, fall back to aggregated data
           if (filteredData.length === 0) {
-            console.log('No data found in custom range, falling back to aggregated data');
             setHistoryDays(null); // This will trigger the fallback to aggregated data
           } else {
             setHistoryDays(filteredData);
           }
         } else {
-          console.log('Loading data for range:', range);
           // Since 7D works correctly with aggregated data, use the same approach for all ranges
           // This ensures consistency and avoids backend API issues
-          console.log('Using aggregated data approach for range:', range);
           setHistoryDays(null); // This will trigger the aggregated function to be used
         }
       } catch (error) {
@@ -638,10 +558,7 @@ export default function Profile() {
             </div>
             <div className="flex items-center gap-2">
               {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
-                <button key={r} onClick={() => {
-                  console.log('Button clicked for range:', r);
-                  setRange(r);
-                }} className={`px-2 py-1 rounded text-sm border ${range===r? 'bg-blue-600 text-white border-blue-600':'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'}`}>
+                <button key={r} onClick={() => setRange(r)} className={`px-2 py-1 rounded text-sm border ${range===r? 'bg-blue-600 text-white border-blue-600':'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'}`}>
                   {r.toUpperCase()}
                 </button>
               ))}
@@ -1818,16 +1735,16 @@ function RadialProgress({ percent }: { percent: number }) {
   );
 }
 
-function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Date; value: number }[]; height?: number; color?: string }) {
+function Sparkline({ data, height = 160, color = '#4f46e5' }: { data: { date: Date; value: number }[]; height?: number; color?: string }) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
   
-  const chartHeight = height - 50; // Reserve even more space for labels
-  const leftMargin = 90; // Even more space for Y-axis labels to prevent stacking
-  const rightMargin = 30;
-  const topMargin = 20;
-  const bottomMargin = 30;
-  const width = Math.max(400, data.length * 10) + leftMargin + rightMargin; // Wider for better spacing
+  const chartHeight = height - 80; // Much more space for labels
+  const leftMargin = 140; // Much more space for Y-axis labels to prevent stacking
+  const rightMargin = 50;
+  const topMargin = 30;
+  const bottomMargin = 50;
+  const width = Math.max(600, data.length * 15) + leftMargin + rightMargin; // Much wider for better spacing
   const max = Math.max(1, ...data.map(d => d.value));
   
   const points = data.map((d, i) => {
@@ -1893,7 +1810,7 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
           points={pointsString} 
           fill="none" 
           stroke="url(#lineGradient)" 
-          strokeWidth="3" 
+          strokeWidth="4" 
           strokeLinejoin="round" 
           strokeLinecap="round"
           className="transition-all duration-200"
@@ -1906,7 +1823,7 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
             <circle 
               cx={point.x} 
               cy={point.y} 
-              r="8" 
+              r="12" 
               fill="transparent" 
               onMouseEnter={(e) => handlePointHover(i, e)}
               onMouseMove={(e) => handlePointHover(i, e)}
@@ -1916,16 +1833,16 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
             <circle 
               cx={point.x} 
               cy={point.y} 
-              r={hoveredPoint === i ? "5" : "3"} 
+              r={hoveredPoint === i ? "7" : "5"} 
               fill={hoveredPoint === i ? "#ffffff" : color}
               stroke={hoveredPoint === i ? color : "#ffffff"}
-              strokeWidth={hoveredPoint === i ? "3" : "2"}
-              className="transition-all duration-200 drop-shadow-sm"
+              strokeWidth={hoveredPoint === i ? "4" : "3"}
+              className="transition-all duration-200 drop-shadow-lg"
             />
           </g>
         ))}
         
-        {/* Date labels */}
+        {/* Date labels - Better spacing and larger font */}
         {dateLabels.map((d, i) => {
           const originalIndex = data.findIndex(item => item.date.getTime() === d.date.getTime());
           const x = (originalIndex / Math.max(1, data.length - 1)) * (width - leftMargin - rightMargin) + leftMargin;
@@ -1933,10 +1850,10 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
             <g key={i}>
               <text 
                 x={x} 
-                y={chartHeight + 18} 
+                y={chartHeight + 25} 
                 textAnchor="middle" 
-                className="text-xs fill-gray-600 font-medium"
-                fontSize="10"
+                className="fill-gray-700 font-semibold"
+                fontSize="12"
               >
                 {d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
               </text>
@@ -1944,10 +1861,10 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
           );
         })}
         
-        {/* Y-axis labels - Better spacing and distribution */}
+        {/* Y-axis labels - Much better spacing and distribution */}
         {(() => {
-          // Create better distributed Y-axis labels with more spacing
-          const numLabels = 4; // Reduced to 4 labels for better spacing
+          // Create better distributed Y-axis labels with much more spacing
+          const numLabels = 5; // 5 labels for better distribution
           const labels = [];
           
           // Create evenly distributed labels
@@ -1965,12 +1882,23 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
             const y = chartHeight - (ratio * (chartHeight - topMargin - bottomMargin)) - bottomMargin;
             return (
               <g key={i}>
+                {/* Grid line */}
+                <line 
+                  x1={leftMargin} 
+                  y1={y} 
+                  x2={width - rightMargin} 
+                  y2={y} 
+                  stroke="#e5e7eb" 
+                  strokeWidth="1" 
+                  strokeDasharray="2,2"
+                />
+                {/* Label */}
                 <text 
-                  x={leftMargin - 30} 
-                  y={y + 6} 
+                  x={leftMargin - 20} 
+                  y={y + 5} 
                   textAnchor="end" 
-                  className="text-xs fill-gray-600 font-medium"
-                  fontSize="11"
+                  className="fill-gray-700 font-semibold"
+                  fontSize="13"
                 >
                   {value}
                 </text>
@@ -1980,24 +1908,24 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
         })()}
       </svg>
       
-      {/* Interactive Tooltip */}
+      {/* Interactive Tooltip - Enhanced styling */}
       {hoveredPoint !== null && tooltipPosition && (
         <div 
-          className="absolute bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg pointer-events-none z-10"
+          className="absolute bg-gray-900 text-white text-sm rounded-xl px-4 py-3 shadow-2xl pointer-events-none z-10 border border-gray-700"
           style={{
-            left: tooltipPosition.x - 50,
-            top: tooltipPosition.y - 40,
+            left: tooltipPosition.x - 60,
+            top: tooltipPosition.y - 50,
             transform: 'translateX(-50%)'
           }}
         >
-          <div className="font-semibold">
+          <div className="font-bold text-base">
             {points[hoveredPoint].data.date.toLocaleDateString('en-US', { 
               month: 'short', 
               day: 'numeric',
               year: 'numeric'
             })}
           </div>
-          <div className="text-blue-300">
+          <div className="text-blue-300 font-semibold text-lg">
             {points[hoveredPoint].data.value} words found
           </div>
         </div>
