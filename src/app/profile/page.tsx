@@ -37,7 +37,7 @@ export default function Profile() {
   };
 
   // Historical aggregation derived from words list
-  const aggregated = (p: UserProfile) => {
+  const aggregated = React.useCallback((p: UserProfile) => {
     type WordEntry = { word: string; date: Date };
     const entries: WordEntry[] = p.allFoundWords
       .map((w) => {
@@ -108,15 +108,22 @@ export default function Profile() {
 
     const filtered = entries.sort((a, b) => b.date.getTime() - a.date.getTime());
     return { days, max, totalWords, avgPerDay, uniqueWords, avgLenAll, filtered };
-  };
+  }, [range, customDateRange]); // Add dependencies for the aggregated function
 
   // Backend history integration
   const [historyDays, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
   
   // Calculate history metrics for the selected period - make it reactive to range changes
   const historyMetrics = React.useMemo(() => {
+    console.log('History metrics calculation - checking data sources:', {
+      range,
+      historyDays: historyDays ? `${historyDays.length} entries` : 'null',
+      profile: profile ? 'available' : 'null'
+    });
+    
     // Always use the data that's being displayed in the chart
-    const chartData = historyDays && historyDays.length > 0 ? historyDays : (profile ? aggregated(profile).days : []);
+    // If historyDays exists (even if empty), use it; otherwise fall back to aggregated
+    const chartData = historyDays !== null ? historyDays : (profile ? aggregated(profile).days : []);
     
     if (chartData && chartData.length > 0) {
       const totalWords = chartData.reduce((sum, day) => sum + day.value, 0);
@@ -132,13 +139,14 @@ export default function Profile() {
         avgPerDay, 
         avgLength, 
         dataPoints: chartData.length,
-        dataSource: historyDays ? 'backend' : 'aggregated',
+        dataSource: historyDays !== null ? 'backend' : 'aggregated',
         sampleData: chartData.slice(0, 3).map(d => ({ date: d.date.toISOString(), value: d.value }))
       });
       
       return { totalWords, avgPerDay, avgLength };
     }
     
+    console.log('No chart data available, returning zeros');
     return { totalWords: 0, avgPerDay: 0, avgLength: 0 };
   }, [historyDays, profile, range, aggregated]); // Add dependencies to make it reactive
   
