@@ -115,26 +115,27 @@ export default function Profile() {
   
   // Calculate history metrics for the selected period
   const historyMetrics = (() => {
-    // If we have backend data, use it
-    if (historyDays && historyDays.length > 0) {
-      const totalWords = historyDays.reduce((sum, day) => sum + day.value, 0);
-      const avgPerDay = historyDays.length > 0 ? Math.round(totalWords / historyDays.length * 10) / 10 : 0;
-      const wordsWithLength = historyDays.filter(day => day.avgLen !== undefined);
+    // Always use the data that's being displayed in the chart
+    const chartData = historyDays && historyDays.length > 0 ? historyDays : (profile ? aggregated(profile).days : []);
+    
+    if (chartData && chartData.length > 0) {
+      const totalWords = chartData.reduce((sum, day) => sum + day.value, 0);
+      const avgPerDay = chartData.length > 0 ? Math.round(totalWords / chartData.length * 10) / 10 : 0;
+      const wordsWithLength = chartData.filter(day => day.avgLen !== undefined);
       const avgLength = wordsWithLength.length > 0 
         ? Math.round(wordsWithLength.reduce((sum, day) => sum + (day.avgLen || 0), 0) / wordsWithLength.length * 10) / 10
         : 0;
       
+      console.log('History metrics calculated:', { 
+        range, 
+        totalWords, 
+        avgPerDay, 
+        avgLength, 
+        dataPoints: chartData.length,
+        dataSource: historyDays ? 'backend' : 'aggregated'
+      });
+      
       return { totalWords, avgPerDay, avgLength };
-    }
-    
-    // Fallback to aggregated data with proper range filtering
-    if (profile) {
-      const agg = aggregated(profile);
-      return { 
-        totalWords: agg.totalWords, 
-        avgPerDay: agg.avgPerDay, 
-        avgLength: agg.avgLenAll || 0 
-      };
     }
     
     return { totalWords: 0, avgPerDay: 0, avgLength: 0 };
@@ -1777,7 +1778,7 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
   
   const chartHeight = height - 40; // Reserve more space for labels
-  const leftMargin = 60; // More space for Y-axis labels
+  const leftMargin = 80; // Even more space for Y-axis labels to prevent stacking
   const rightMargin = 30;
   const topMargin = 15;
   const bottomMargin = 25;
@@ -1898,18 +1899,21 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
           );
         })}
         
-        {/* Y-axis labels - Dynamic scaling based on actual data range */}
+        {/* Y-axis labels - Better spacing and distribution */}
         {(() => {
-          // Create dynamic Y-axis labels based on the actual data range
-          const step = Math.max(1, Math.ceil(max / 5)); // Divide max into ~5 steps
+          // Create better distributed Y-axis labels
+          const numLabels = 5; // Fixed number of labels for consistent spacing
           const labels = [];
-          for (let i = 0; i <= max; i += step) {
-            labels.push(i);
+          
+          // Create evenly distributed labels
+          for (let i = 0; i < numLabels; i++) {
+            const value = Math.round((max / (numLabels - 1)) * i);
+            labels.push(value);
           }
-          // Always include the max value if it's not already included
-          if (labels[labels.length - 1] !== max) {
-            labels.push(max);
-          }
+          
+          // Ensure we always have 0 and max
+          if (labels[0] !== 0) labels[0] = 0;
+          if (labels[labels.length - 1] !== max) labels[labels.length - 1] = max;
           
           return labels.map((value, i) => {
             const ratio = max > 0 ? value / max : 0;
@@ -1917,11 +1921,11 @@ function Sparkline({ data, height = 80, color = '#4f46e5' }: { data: { date: Dat
             return (
               <g key={i}>
                 <text 
-                  x={leftMargin - 15} 
-                  y={y + 4} 
+                  x={leftMargin - 25} 
+                  y={y + 5} 
                   textAnchor="end" 
                   className="text-xs fill-gray-600 font-medium"
-                  fontSize="11"
+                  fontSize="10"
                 >
                   {value}
                 </text>
