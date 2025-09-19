@@ -516,9 +516,13 @@ export default function Profile() {
             // Backend themeWordsFound is empty, use manual matching
             console.log(`${day}: Backend themeWordsFound is empty, using manual matching`);
             
+            // Use the backend's theme words for this specific day
+            const dayThemeWords = backendResponse?.theme?.words || [];
+            console.log(`${day}: Using theme words:`, dayThemeWords);
+            
             // Find words that match the theme words for this day
             const foundThemeWordsObjects = data.words.filter((word: { word?: string; date?: string }) => 
-              word.word && data.themeWords.includes(word.word.toUpperCase())
+              word.word && dayThemeWords.includes(word.word.toUpperCase())
             );
             foundThemeWords = foundThemeWordsObjects.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean) as string[];
             console.log(`${day}: Manual matching found:`, foundThemeWords);
