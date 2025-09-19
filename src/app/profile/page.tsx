@@ -228,7 +228,9 @@ export default function Profile() {
       }
 
       console.log('=== GENERATING TIME ANALYTICS FROM EXISTING DATA ===');
+      console.log('User:', profile.email, profile.username);
       console.log('Total words found:', profile.allFoundWords.length);
+      console.log('Sample words with dates:', profile.allFoundWords.slice(0, 5));
       
       // Group words by time periods based on when they were found
       const timePeriods: Record<string, { words: { word?: string; date?: string }[], games: number }> = {
@@ -238,16 +240,29 @@ export default function Profile() {
         'evening': { words: [], games: 0 }
       };
 
-      // Analyze words found in the last 30 days for time patterns
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      // Analyze words found in the last 7 days for time patterns (including today)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      sevenDaysAgo.setHours(0, 0, 0, 0); // Start of day
+
+      let wordsWithDates = 0;
+      let wordsToday = 0;
 
       profile.allFoundWords.forEach((wordEntry) => {
         // Handle both string and object formats
         const word = typeof wordEntry === 'string' ? { word: wordEntry, date: undefined } : wordEntry;
         if (word.date) {
+          wordsWithDates++;
           const foundDate = new Date(word.date);
-          if (foundDate >= thirtyDaysAgo) {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          
+          // Check if word was found today
+          if (foundDate.toDateString() === today.toDateString()) {
+            wordsToday++;
+          }
+          
+          if (foundDate >= sevenDaysAgo) {
             const hour = foundDate.getHours();
             
             if (hour >= 5 && hour < 10) {
@@ -262,6 +277,9 @@ export default function Profile() {
           }
         }
       });
+
+      console.log('Words with dates:', wordsWithDates);
+      console.log('Words found today:', wordsToday);
 
       // Generate analytics data
       const analytics = {
@@ -292,7 +310,11 @@ export default function Profile() {
       }
 
       console.log('=== GENERATING THEME ANALYTICS FROM EXISTING DATA ===');
+      console.log('User:', profile.email, profile.username);
       console.log('Total words found:', profile.allFoundWords.length);
+      console.log('Sample words with dates:', profile.allFoundWords.slice(0, 5));
+      console.log('Today is:', new Date().toDateString());
+      console.log('Today day of week:', new Date().getDay()); // 0 = Sunday, 1 = Monday, etc.
 
       // Define theme words for each day (these would normally come from the backend)
       const themeWords = {
@@ -316,19 +338,34 @@ export default function Profile() {
         sunday: { words: [], themeWords: themeWords.sunday }
       };
 
-      // Analyze words found in the last 30 days
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      // Analyze words found in the last 7 days (including today)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      sevenDaysAgo.setHours(0, 0, 0, 0); // Start of day
+
+      let themeWordsWithDates = 0;
+      let themeWordsToday = 0;
 
       profile.allFoundWords.forEach((wordEntry) => {
         // Handle both string and object formats
         const word = typeof wordEntry === 'string' ? { word: wordEntry, date: undefined } : wordEntry;
         if (word.date) {
+          themeWordsWithDates++;
           const foundDate = new Date(word.date);
-          if (foundDate >= thirtyDaysAgo) {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          
+          // Check if word was found today
+          if (foundDate.toDateString() === today.toDateString()) {
+            themeWordsToday++;
+          }
+          
+          if (foundDate >= sevenDaysAgo) {
             const dayOfWeek = foundDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
             const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
             const dayName = dayNames[dayOfWeek];
+            
+            console.log(`Word "${word.word}" found on ${foundDate.toDateString()} (${dayName})`);
             
             if (themeData[dayName as keyof typeof themeData]) {
               themeData[dayName as keyof typeof themeData].words.push(word);
@@ -337,12 +374,18 @@ export default function Profile() {
         }
       });
 
+      console.log('Theme words with dates:', themeWordsWithDates);
+      console.log('Theme words found today:', themeWordsToday);
+
       // Generate analytics data
       const analytics = {
         themes: Object.entries(themeData).map(([day, data]) => {
           const foundThemeWords = data.words.filter((word: { word?: string; date?: string }) => 
             word.word && data.themeWords.includes(word.word.toUpperCase())
           );
+          
+          console.log(`${day}: Found ${foundThemeWords.length} theme words out of ${data.words.length} total words`);
+          console.log(`${day}: Theme words found:`, foundThemeWords.map(w => w.word?.toUpperCase()));
           
           return {
             day,
