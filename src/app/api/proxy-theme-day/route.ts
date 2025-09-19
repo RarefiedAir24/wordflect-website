@@ -9,6 +9,10 @@ export async function GET(request: NextRequest) {
     const targetUrl = new URL(`${API_BASE_URL}/user/theme/day`);
     if (date) targetUrl.searchParams.set('date', date);
 
+    console.log('📤 Theme Day Proxy: Forwarding request to:', targetUrl.toString());
+    console.log('📤 Theme Day Proxy: Date parameter:', date);
+    console.log('📤 Theme Day Proxy: Headers:', Object.fromEntries(request.headers.entries()));
+
     const response = await fetch(targetUrl.toString(), {
       method: 'GET',
       headers: {
@@ -17,7 +21,11 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    console.log('📥 Theme Day Proxy: Response status:', response.status);
+    
     const data = await response.json();
+    console.log('📥 Theme Day Proxy: Response data:', JSON.stringify(data, null, 2));
+    
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
     console.error('Proxy theme day error:', error);

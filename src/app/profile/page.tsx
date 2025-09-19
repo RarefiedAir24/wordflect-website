@@ -425,6 +425,7 @@ export default function Profile() {
       console.log('Thursday theme words count:', themeWords.thursday.length);
 
       // Group words by day of week and count theme matches
+      // IMPORTANT: Use the correct theme words for each day
       const themeData: Record<string, { words: { word?: string; date?: string }[], themeWords: string[] }> = {
         monday: { words: [], themeWords: themeWords.monday },
         tuesday: { words: [], themeWords: themeWords.tuesday },
