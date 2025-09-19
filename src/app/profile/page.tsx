@@ -526,6 +526,14 @@ export default function Profile() {
               console.log(`${day}: "${targetWord}" exists in today's words:`, existsInToday);
             });
             
+            // CRITICAL DEBUG: Show exactly what's happening
+            console.log('🔍 CRITICAL DEBUG - Thursday Theme Analysis:');
+            console.log('🔍 Theme words being used:', data.themeWords);
+            console.log('🔍 Words found today:', data.words.map(w => w.word?.toUpperCase()));
+            console.log('🔍 GOOSE in theme words:', data.themeWords.includes('GOOSE'));
+            console.log('🔍 CRAB in theme words:', data.themeWords.includes('CRAB'));
+            console.log('🔍 SHEEP in theme words:', data.themeWords.includes('SHEEP'));
+            
             // Debug: Check for similar words that might be the ones you found
             const allWords = data.words.map(w => w.word?.toUpperCase()).filter(Boolean) as string[];
             console.log(`${day}: Looking for similar words:`);
