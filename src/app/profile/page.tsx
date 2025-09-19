@@ -1353,7 +1353,7 @@ export default function Profile() {
             </div>
                     <span className="text-xs text-gray-500 font-semibold">FRIDAY</span>
           </div>
-                  <p className="text-lg font-bold text-gray-500">Adjectives</p>
+                  <p className="text-lg font-bold text-gray-500">Colors</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
         </div>
               );
@@ -1369,7 +1369,7 @@ export default function Profile() {
             </div>
                   <span className="text-xs text-yellow-600 font-semibold">FRIDAY</span>
           </div>
-                <p className="text-lg font-bold text-yellow-900">Adjectives</p>
+                <p className="text-lg font-bold text-yellow-900">Colors</p>
                 <p className="text-xs text-yellow-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-yellow-200 rounded-full h-2">
