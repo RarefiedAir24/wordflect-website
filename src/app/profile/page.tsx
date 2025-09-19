@@ -139,7 +139,7 @@ export default function Profile() {
     
     return { totalWords: 0, avgPerDay: 0, avgLength: 0 };
   }, [historyDays, profile, aggregated]); // Add dependencies to make it reactive
-  
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -190,15 +190,15 @@ export default function Profile() {
         setRefreshing(true);
       }
       
-      if (!apiService.isAuthenticated()) {
-        router.push("/signin");
-        return;
-      }
+        if (!apiService.isAuthenticated()) {
+          router.push("/signin");
+          return;
+        }
 
-      const userProfile = await apiService.getUserProfile();
-      console.log('Profile data:', userProfile);
-      console.log('Profile image URL:', userProfile.profileImageUrl);
-      console.log('Selected frame:', userProfile.selectedFrame);
+        const userProfile = await apiService.getUserProfile();
+        console.log('Profile data:', userProfile);
+        console.log('Profile image URL:', userProfile.profileImageUrl);
+        console.log('Selected frame:', userProfile.selectedFrame);
       
       // Debug: Check for the specific words we're looking for
       console.log('=== REFRESH DEBUG ===');
@@ -246,20 +246,20 @@ export default function Profile() {
       
       console.log('=== END REFRESH DEBUG ===');
       
-      setProfile(userProfile);
-    } catch (error) {
-      console.error("Profile fetch error:", error);
-      setError(error instanceof Error ? error.message : "Failed to load profile");
-      if (error instanceof Error && error.message.includes("Authentication failed")) {
-        router.push("/signin");
-      }
-    } finally {
-      setLoading(false);
+        setProfile(userProfile);
+      } catch (error) {
+        console.error("Profile fetch error:", error);
+        setError(error instanceof Error ? error.message : "Failed to load profile");
+        if (error instanceof Error && error.message.includes("Authentication failed")) {
+          router.push("/signin");
+        }
+      } finally {
+        setLoading(false);
       if (showRefreshing) {
         setRefreshing(false);
       }
-    }
-  };
+      }
+    };
 
   useEffect(() => {
     fetchProfile();
@@ -415,8 +415,8 @@ export default function Profile() {
             themeWords[dayName as keyof typeof themeWords] = (themeDayResponse as any).words.map((word: string) => word.toUpperCase());
             console.log(`Updated ${dayName} theme words from backend:`, themeWords[dayName as keyof typeof themeWords]);
           }
-        }
-      } catch (error) {
+            }
+          } catch (error) {
         console.log('Could not fetch theme words from backend, using defaults:', error);
       }
 
@@ -704,7 +704,7 @@ export default function Profile() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             {/* Action Buttons */}
             <div className="flex justify-end gap-2 mb-4 md:mb-0">
-                <button
+          <button
                   onClick={async () => {
                     try {
                       console.log('🔍 DEBUG: Checking backend data directly...');
@@ -738,8 +738,8 @@ export default function Profile() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Debug Backend
-                </button>
-              <button
+          </button>
+            <button
                 onClick={() => fetchProfile(true)}
                 disabled={refreshing}
                 className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
@@ -760,44 +760,44 @@ export default function Profile() {
                     Refresh Data
                   </>
                 )}
-              </button>
-            </div>
+          </button>
+        </div>
             <div className="flex items-center gap-4 md:gap-6">
               <div className="relative">
-                {profile.profileImageUrl && profile.profileImageUrl.trim() !== '' ? (
-                  <Image
-                    src={profile.profileImageUrl}
-                    alt="Profile"
+            {profile.profileImageUrl && profile.profileImageUrl.trim() !== '' ? (
+              <Image
+                src={profile.profileImageUrl}
+                alt="Profile"
                     width={96}
                     height={96}
                     className="rounded-full border-4 border-white shadow-xl"
                     onError={() => {
-                      console.error('Profile image failed to load:', profile.profileImageUrl);
-                    }}
-                  />
-                ) : (
+                  console.error('Profile image failed to load:', profile.profileImageUrl);
+                }}
+              />
+            ) : (
                   <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center text-3xl font-bold text-gray-600">
-                    {profile.username.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                {profile.selectedFrame && (
+                {profile.username.charAt(0).toUpperCase()}
+              </div>
+            )}
+            {profile.selectedFrame && (
                   <div className="absolute -inset-10 pointer-events-none">
-                    <Image
-                      src={profile.selectedFrame.imageUrl}
-                      alt={profile.selectedFrame.name}
+                <Image
+                  src={profile.selectedFrame.imageUrl}
+                  alt={profile.selectedFrame.name}
                       width={160}
                       height={160}
                       className="w-40 h-40 object-contain"
                       onError={() => {
-                        console.error('Frame image failed to load:', profile.selectedFrame?.imageUrl);
-                      }}
-                    />
-                  </div>
-                )}
+                    console.error('Frame image failed to load:', profile.selectedFrame?.imageUrl);
+                  }}
+                />
               </div>
-              <div>
+            )}
+          </div>
+          <div>
                 <h1 className="text-3xl md:text-4xl font-extrabold text-blue-950">{profile.username}</h1>
-                <p className="text-blue-700">{profile.email}</p>
+            <p className="text-blue-700">{profile.email}</p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Level {profile.highestLevel}</span>
                   <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Win Rate {winRate(profile)}%</span>
