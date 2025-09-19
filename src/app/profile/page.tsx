@@ -213,13 +213,17 @@ export default function Profile() {
         return false;
       }).length);
       
-      // Check for specific words
+      // Check for specific words - handle both UTC and local timezone
+      const today = new Date();
+      const todayUTC = new Date(today.toISOString().split('T')[0] + 'T00:00:00.000Z');
+      const tomorrowUTC = new Date(todayUTC.getTime() + 24 * 60 * 60 * 1000);
+      
       const todayWords = userProfile.allFoundWords.filter(w => {
         const date = typeof w === 'string' ? undefined : w.date;
         if (date) {
           const foundDate = new Date(date);
-          const today = new Date();
-          return foundDate.toDateString() === today.toDateString();
+          // Check if the word was found today in UTC timezone
+          return foundDate >= todayUTC && foundDate < tomorrowUTC;
         }
         return false;
       });
@@ -308,8 +312,10 @@ export default function Profile() {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           
-          // Check if word was found today
-          if (foundDate.toDateString() === today.toDateString()) {
+          // Check if word was found today (UTC timezone)
+          const todayUTC = new Date(today.toISOString().split('T')[0] + 'T00:00:00.000Z');
+          const tomorrowUTC = new Date(todayUTC.getTime() + 24 * 60 * 60 * 1000);
+          if (foundDate >= todayUTC && foundDate < tomorrowUTC) {
             wordsToday++;
           }
           
@@ -444,8 +450,10 @@ export default function Profile() {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           
-          // Check if word was found today
-          if (foundDate.toDateString() === today.toDateString()) {
+          // Check if word was found today (UTC timezone)
+          const todayUTC = new Date(today.toISOString().split('T')[0] + 'T00:00:00.000Z');
+          const tomorrowUTC = new Date(todayUTC.getTime() + 24 * 60 * 60 * 1000);
+          if (foundDate >= todayUTC && foundDate < tomorrowUTC) {
             themeWordsToday++;
           }
           
