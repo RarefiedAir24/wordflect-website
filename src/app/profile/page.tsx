@@ -546,12 +546,12 @@ export default function Profile() {
       });
       
       // Get today's date and calculate the current week's theme schedule
-      const today = new Date();
-      const todayDayOfWeek = today.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
+      const currentDate = new Date();
+      const todayDayOfWeek = currentDate.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
       
       // Calculate the start of the current week (Sunday)
-      const startOfWeek = new Date(today);
-      startOfWeek.setUTCDate(today.getUTCDate() - todayDayOfWeek);
+      const startOfWeek = new Date(currentDate);
+      startOfWeek.setUTCDate(currentDate.getUTCDate() - todayDayOfWeek);
       const weekKey = startOfWeek.toISOString().split('T')[0]; // YYYY-MM-DD format
       
       console.log(`Generating theme analytics for week starting: ${weekKey}`);
@@ -648,11 +648,11 @@ export default function Profile() {
         if (word.date) {
           themeWordsWithDates++;
           const foundDate = new Date(word.date);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
+          const wordDate = new Date();
+          wordDate.setHours(0, 0, 0, 0);
           
           // Check if word was found today (UTC timezone)
-          const todayUTC = new Date(today.toISOString().split('T')[0] + 'T00:00:00.000Z');
+          const todayUTC = new Date(wordDate.toISOString().split('T')[0] + 'T00:00:00.000Z');
           const tomorrowUTC = new Date(todayUTC.getTime() + 24 * 60 * 60 * 1000);
           if (foundDate >= todayUTC && foundDate < tomorrowUTC) {
             themeWordsToday++;
@@ -1122,10 +1122,10 @@ export default function Profile() {
                 onClick={async () => {
                   try {
                     console.log('🔍 DEBUG THEME DAY: Testing Friday theme words...');
-                    const today = new Date();
-                    const todayString = today.getFullYear() + '-' +
-                      String(today.getMonth() + 1).padStart(2, '0') + '-' +
-                      String(today.getDate()).padStart(2, '0');
+                    const debugDate = new Date();
+                    const todayString = debugDate.getFullYear() + '-' +
+                      String(debugDate.getMonth() + 1).padStart(2, '0') + '-' +
+                      String(debugDate.getDate()).padStart(2, '0');
                     
                     // Use the API service to get theme day data directly
                     // Disabled backend API call to use hardcoded theme words
@@ -1408,7 +1408,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                       if (customDateRange.start && customDateRange.end) {
                         const startDate = new Date(customDateRange.start);
                         const endDate = new Date(customDateRange.end);
-                        const today = new Date();
+                        const currentDate = new Date();
                         
                         // Validate dates
                         if (startDate > endDate) {
