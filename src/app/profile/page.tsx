@@ -531,8 +531,8 @@ export default function Profile() {
           const backendResponse = (themeWords as any)[`${day}_response`];
           
           let foundThemeWords: string[] = [];
-          // Use backend theme words if available, otherwise fall back to hardcoded
-          const allThemeWords: string[] = backendResponse?.theme?.words || data.themeWords;
+          // Always use hardcoded theme words to match mobile app
+          const allThemeWords: string[] = data.themeWords;
           console.log(`${day}: Using theme words for modal:`, allThemeWords);
           console.log(`${day}: Backend theme words:`, backendResponse?.theme?.words);
           console.log(`${day}: Fallback theme words:`, data.themeWords);
@@ -545,8 +545,8 @@ export default function Profile() {
             // Backend themeWordsFound is empty, use manual matching
             console.log(`${day}: Backend themeWordsFound is empty, using manual matching`);
             
-            // Use the backend's theme words for this specific day
-            const dayThemeWords = backendResponse?.theme?.words || [];
+            // Use hardcoded theme words for this specific day
+            const dayThemeWords = data.themeWords;
             console.log(`${day}: Using theme words:`, dayThemeWords);
             
             // Calculate the date for this day of the current week
