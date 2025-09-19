@@ -382,8 +382,8 @@ export default function Profile() {
         monday: ['PIZZA', 'BURGER', 'SALAD', 'SOUP', 'CAKE', 'BREAD', 'RICE', 'PASTA', 'SANDWICH', 'COFFEE', 'TEA', 'JUICE', 'WATER', 'MILK', 'BEER', 'WINE', 'CHEESE', 'BUTTER', 'SUGAR', 'SALT'],
         tuesday: ['HOUSE', 'CAR', 'TREE', 'BOOK', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'PHONE', 'CLOCK', 'LAMP', 'BED', 'SOFA', 'DESK', 'MIRROR', 'PICTURE', 'FLOWER', 'GARDEN', 'STREET', 'BRIDGE'],
         wednesday: ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'BAKE', 'CLEAN', 'WASH', 'DRIVE', 'FLY', 'CLIMB', 'SKATE', 'SKI', 'RIDE'],
-        thursday: ['DOG', 'CAT', 'BIRD', 'FISH', 'LION', 'TIGER', 'BEAR', 'WOLF', 'FOX', 'RABBIT', 'MOUSE', 'SNAKE', 'FROG', 'SPIDER', 'BEE', 'DUCK', 'GOOSE', 'CRAB', 'HORSE', 'SHEEP'],
-        friday: ['BIG', 'SMALL', 'FAST', 'SLOW', 'HOT', 'COLD', 'NEW', 'OLD', 'GOOD', 'BAD', 'HAPPY', 'SAD', 'TALL', 'SHORT', 'WIDE', 'NARROW', 'THICK', 'THIN', 'HEAVY', 'LIGHT'],
+        thursday: ['DUCK', 'GOOSE', 'CRAB', 'HORSE', 'SHEEP', 'COW', 'PIG', 'CHICKEN', 'TURKEY', 'LAMB', 'GOAT', 'DEER', 'ELK', 'MOOSE', 'BUFFALO', 'CAMEL', 'LLAMA', 'ALPACA', 'YAK', 'BISON'],
+        friday: ['RED', 'BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PURPLE', 'PINK', 'BROWN', 'BLACK', 'WHITE', 'GRAY', 'GOLD', 'SILVER', 'CYAN', 'MAGENTA', 'LIME', 'NAVY', 'TEAL', 'MAROON', 'OLIVE'],
         saturday: ['TREE', 'FLOWER', 'GRASS', 'MOUNTAIN', 'RIVER', 'OCEAN', 'SUN', 'MOON', 'STAR', 'CLOUD', 'RAIN', 'SNOW', 'WIND', 'FIRE', 'EARTH', 'SKY', 'SEA', 'LAKE', 'FOREST', 'DESERT'],
         sunday: ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'GAME', 'MOVIE', 'MUSIC', 'VIDEO', 'CAMERA', 'TV', 'RADIO', 'SPEAKER', 'HEADPHONE', 'KEYBOARD', 'MOUSE', 'SCREEN', 'BATTERY', 'CHARGER']
       };
