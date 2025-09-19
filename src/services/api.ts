@@ -51,6 +51,7 @@ export interface UserProfile {
   currentStreakDays?: number; // current consecutive login days
   longestStreakDays?: number; // longest streak achieved
   lastLoginAt?: string; // ISO timestamp of last login
+  themeWordsFoundToday?: string[]; // theme words found today from mobile app
 }
 
 class ApiService {

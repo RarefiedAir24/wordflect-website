@@ -709,8 +709,13 @@ export default function Profile() {
           console.log(`${day}: Backend theme words:`, backendResponse?.theme?.words);
           console.log(`${day}: Fallback theme words:`, data.themeWords);
           
-          // Always use manual matching since backend API is disabled
-          console.log(`${day}: Using manual matching for found words`);
+          // Use theme words found today from backend if available
+          if (profile.themeWordsFoundToday && profile.themeWordsFoundToday.length > 0) {
+            console.log(`${day}: Using theme words found today from backend:`, profile.themeWordsFoundToday);
+            foundThemeWords = profile.themeWordsFoundToday;
+          } else {
+            // Fallback to manual matching
+            console.log(`${day}: Using manual matching for found words`);
           
           // Use hardcoded theme words for this specific day
           const dayThemeWords = data.themeWords;
@@ -771,8 +776,9 @@ export default function Profile() {
           });
           foundThemeWords = foundThemeWordsObjects.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean) as string[];
           console.log(`${day}: Manual matching found:`, foundThemeWords);
+          }
           
-          console.log(`${day}: Found ${foundThemeWords.length} theme words out of ${data.words.length} total words`);
+          console.log(`${day}: Found ${foundThemeWords.length} theme words out of ${data.words.length} total words`);                                       
           console.log(`${day}: Theme words found:`, foundThemeWords);
           
           return {
