@@ -225,7 +225,7 @@ export default function Profile() {
       if (!apiService.isAuthenticated()) return;
       
       try {
-        const analytics = await apiService.getDetailedStatistics();
+        const analytics = await apiService.getTimeAnalytics();
         console.log('Time analytics raw response:', analytics);
         console.log('Time analytics type:', typeof analytics);
         console.log('Time analytics keys:', analytics ? Object.keys(analytics) : 'null');
@@ -268,7 +268,12 @@ export default function Profile() {
 
   // Helper function to get time period data
   const getTimePeriodData = (period: string) => {
+    console.log('getTimePeriodData called for period:', period);
+    console.log('timeAnalytics:', timeAnalytics);
+    console.log('timeAnalytics.timePeriods:', timeAnalytics?.timePeriods);
+    
     if (!timeAnalytics || !timeAnalytics.timePeriods || !Array.isArray(timeAnalytics.timePeriods)) {
+      console.log('No time analytics data available');
       return {
         wordsFound: 0,
         gamesPlayed: 0,
@@ -312,7 +317,12 @@ export default function Profile() {
 
   // Helper function to get theme data
   const getThemeData = (day: string) => {
+    console.log('getThemeData called for day:', day);
+    console.log('themeAnalytics:', themeAnalytics);
+    console.log('themeAnalytics.themes:', themeAnalytics?.themes);
+    
     if (!themeAnalytics || !themeAnalytics.themes || !Array.isArray(themeAnalytics.themes)) {
+      console.log('No theme analytics data available');
       return {
         wordsFound: 0,
         totalWords: 20,

@@ -205,6 +205,27 @@ class ApiService {
     }
   }
 
+  async getTimeAnalytics(): Promise<unknown> {
+    try {
+      const response = await this.makeRequest(buildApiUrl(API_CONFIG.ENDPOINTS.USER_STATISTICS_DETAILED), {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok) {
+        if (response.status === 401) {
+          await this.signOut();
+          throw new Error('Authentication failed. Please sign in again.');
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch time analytics');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Get time analytics error:', error);
+      throw error;
+    }
+  }
+
   async getThemeAnalytics(): Promise<unknown> {
     try {
       const response = await this.makeRequest(buildApiUrl(API_CONFIG.ENDPOINTS.USER_THEME_ANALYTICS), {
