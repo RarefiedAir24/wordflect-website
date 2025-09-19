@@ -637,6 +637,60 @@ export default function Profile() {
     };
   };
 
+  const getThemePerformanceSummary = () => {
+    if (!themeAnalytics || !themeAnalytics.themes || !Array.isArray(themeAnalytics.themes)) {
+      return {
+        bestTheme: { name: 'No data', day: '', percentage: 0 },
+        mostConsistent: { name: 'No data', day: '', percentage: 0 },
+        totalThemeWords: 0
+      };
+    }
+
+    const themes = themeAnalytics.themes as Record<string, unknown>[];
+    const themeNames = {
+      monday: 'Food & Drinks',
+      tuesday: 'Common Nouns',
+      wednesday: 'Verbs',
+      thursday: 'Animals',
+      friday: 'Colors',
+      saturday: 'Nature',
+      sunday: 'Technology'
+    };
+
+    let bestTheme = { name: 'No data', day: '', percentage: 0 };
+    let mostConsistent = { name: 'No data', day: '', percentage: 0 };
+    let totalThemeWords = 0;
+
+    themes.forEach((theme: Record<string, unknown>) => {
+      const day = theme.day as string;
+      const wordsFound = (theme.wordsFound as number) || 0;
+      const totalWords = (theme.totalWords as number) || 0;
+      const completionPercent = totalWords > 0 ? Math.round((wordsFound / totalWords) * 100) : 0;
+      
+      totalThemeWords += wordsFound;
+
+      // Find best performing theme (highest completion percentage)
+      if (completionPercent > bestTheme.percentage) {
+        bestTheme = {
+          name: themeNames[day as keyof typeof themeNames] || day,
+          day: day.charAt(0).toUpperCase() + day.slice(1),
+          percentage: completionPercent
+        };
+      }
+
+      // Find most consistent theme (highest number of words found)
+      if (wordsFound > (mostConsistent.percentage || 0)) {
+        mostConsistent = {
+          name: themeNames[day as keyof typeof themeNames] || day,
+          day: day.charAt(0).toUpperCase() + day.slice(1),
+          percentage: wordsFound
+        };
+      }
+    });
+
+    return { bestTheme, mostConsistent, totalThemeWords };
+  };
+
   // Handle theme day click
   const handleThemeDayClick = async (day: string) => {
     setSelectedThemeDay(day);
@@ -1472,26 +1526,31 @@ export default function Profile() {
             </div>
             <h4 className="font-semibold text-violet-900">Theme Performance Summary</h4>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-              <span className="text-violet-800">
-                <strong>Best Theme:</strong> Animals (Friday) - 90%
-                </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-violet-800">
-                <strong>Most Consistent:</strong> Verbs (Wednesday) - 85%
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span className="text-violet-800">
-                <strong>Total Theme Words:</strong> 127 found
-              </span>
-            </div>
-          </div>
+          {(() => {
+            const summary = getThemePerformanceSummary();
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span className="text-violet-800">
+                    <strong>Best Theme:</strong> {summary.bestTheme.name} ({summary.bestTheme.day}) - {summary.bestTheme.percentage}%
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-violet-800">
+                    <strong>Most Consistent:</strong> {summary.mostConsistent.name} ({summary.mostConsistent.day}) - {summary.mostConsistent.percentage} words
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span className="text-violet-800">
+                    <strong>Total Theme Words:</strong> {summary.totalThemeWords} found
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Theme Search & Filter */}
