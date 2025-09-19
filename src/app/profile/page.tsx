@@ -295,10 +295,10 @@ export default function Profile() {
         'evening': { words: [], games: 0 }
       };
 
-      // Analyze words found in the last 7 days for time patterns (including today)
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      sevenDaysAgo.setHours(0, 0, 0, 0); // Start of day
+      // Analyze words found in the last 30 days for time patterns (including today)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      thirtyDaysAgo.setHours(0, 0, 0, 0); // Start of day
 
       let wordsWithDates = 0;
       let wordsToday = 0;
@@ -319,7 +319,7 @@ export default function Profile() {
             wordsToday++;
           }
           
-          if (foundDate >= sevenDaysAgo) {
+          if (foundDate >= thirtyDaysAgo) {
             const hour = foundDate.getHours();
             
             if (hour >= 5 && hour < 10) {
@@ -447,7 +447,8 @@ export default function Profile() {
             }
           }
         } catch (error) {
-          console.log(`Could not fetch theme words for day ${i}, using defaults:`, error);
+          console.log(`Could not fetch theme words for day ${i} (${dayNames[new Date().getDay() - i] || 'unknown'}), using defaults. Error:`, error);
+          // Continue with hardcoded theme words - this is expected if API is down
         }
       }
 
@@ -467,10 +468,10 @@ export default function Profile() {
         sunday: { words: [], themeWords: themeWords.sunday }
       };
 
-      // Analyze words found in the last 7 days (including today)
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      sevenDaysAgo.setHours(0, 0, 0, 0); // Start of day
+      // Analyze words found in the last 30 days (including today)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      thirtyDaysAgo.setHours(0, 0, 0, 0); // Start of day
 
       let themeWordsWithDates = 0;
       let themeWordsToday = 0;
@@ -491,7 +492,7 @@ export default function Profile() {
             themeWordsToday++;
           }
           
-          if (foundDate >= sevenDaysAgo) {
+          if (foundDate >= thirtyDaysAgo) {
             const dayOfWeek = foundDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
             const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
             const dayName = dayNames[dayOfWeek];
