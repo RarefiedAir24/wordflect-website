@@ -387,7 +387,7 @@ export default function Profile() {
         tuesday: ['HOUSE', 'CAR', 'TREE', 'BOOK', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'PHONE', 'CLOCK', 'LAMP', 'BED', 'SOFA', 'DESK', 'MIRROR', 'PICTURE', 'FLOWER', 'GARDEN', 'STREET', 'BRIDGE'],
         wednesday: ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'BAKE', 'CLEAN', 'WASH', 'DRIVE', 'FLY', 'CLIMB', 'SKATE', 'SKI', 'RIDE'],
         thursday: ['DUCK', 'GOOSE', 'CRAB', 'HORSE', 'SHEEP', 'COW', 'PIG', 'CHICKEN', 'TURKEY', 'LAMB', 'GOAT', 'DEER', 'ELK', 'MOOSE', 'BUFFALO', 'CAMEL', 'LLAMA', 'ALPACA', 'YAK', 'BISON'],
-        friday: ['RED', 'BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PURPLE', 'PINK', 'BROWN', 'BLACK', 'WHITE', 'GRAY', 'GOLD', 'SILVER', 'CYAN', 'MAGENTA', 'LIME', 'NAVY', 'TEAL', 'MAROON', 'OLIVE'],
+        friday: ['DOG', 'CAT', 'BIRD', 'FISH', 'BEAR', 'LION', 'TIGER', 'ELEPHANT', 'MONKEY', 'RABBIT', 'MOUSE', 'SNAKE', 'HORSE', 'COW', 'PIG', 'SHEEP', 'GOAT', 'CHICKEN', 'DUCK', 'SEAL'],
         saturday: ['TREE', 'FLOWER', 'GRASS', 'MOUNTAIN', 'RIVER', 'OCEAN', 'SUN', 'MOON', 'STAR', 'CLOUD', 'RAIN', 'SNOW', 'WIND', 'FIRE', 'EARTH', 'SKY', 'SEA', 'LAKE', 'FOREST', 'DESERT'],
         sunday: ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'GAME', 'MOVIE', 'MUSIC', 'VIDEO', 'CAMERA', 'TV', 'RADIO', 'SPEAKER', 'HEADPHONE', 'KEYBOARD', 'MOUSE', 'SCREEN', 'BATTERY', 'CHARGER']
       };
@@ -446,9 +446,21 @@ export default function Profile() {
               console.log(`Backend ${dayName} theme: ${backendThemeName}`);
               console.log(`Backend ${dayName} words:`, backendThemeWords);
               
-              // Use backend theme data as the source of truth (mobile app team has corrected the themes)
-              themeWords[dayName as keyof typeof themeWords] = backendThemeWords;
-              console.log(`✅ Using backend ${dayName} theme words: ${backendThemeName}`);
+              // Check if backend theme words match expected theme words
+              // If there's a mismatch (like missing SEAL), use hardcoded fallback
+              const expectedWords = themeWords[dayName as keyof typeof themeWords];
+              const hasMismatch = expectedWords.some(word => !backendThemeWords.includes(word));
+              
+              if (hasMismatch) {
+                console.log(`⚠️ Backend ${dayName} theme words mismatch detected. Using hardcoded fallback.`);
+                console.log(`Expected: ${expectedWords.join(', ')}`);
+                console.log(`Backend: ${backendThemeWords.join(', ')}`);
+                // Keep the hardcoded theme words instead of using backend
+              } else {
+                // Use backend theme data as the source of truth
+                themeWords[dayName as keyof typeof themeWords] = backendThemeWords;
+                console.log(`✅ Using backend ${dayName} theme words: ${backendThemeName}`);
+              }
               
               // Store the full response for this day to use in theme analytics
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
