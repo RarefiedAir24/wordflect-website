@@ -399,6 +399,20 @@ export default function Profile() {
       const today = new Date();
       const todayDayOfWeek = today.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
       
+      // Calculate the start of the current week (Sunday)
+      const startOfWeek = new Date(today);
+      startOfWeek.setUTCDate(today.getUTCDate() - todayDayOfWeek);
+      const weekKey = startOfWeek.toISOString().split('T')[0]; // YYYY-MM-DD format
+      
+      console.log(`Generating theme analytics for week starting: ${weekKey}`);
+      
+      // Check if we need to regenerate theme analytics for a new week
+      const lastWeekKey = localStorage.getItem('lastThemeAnalyticsWeek');
+      if (lastWeekKey !== weekKey) {
+        console.log(`New week detected! Previous week: ${lastWeekKey}, Current week: ${weekKey}`);
+        localStorage.setItem('lastThemeAnalyticsWeek', weekKey);
+      }
+      
       for (let i = 0; i < 7; i++) {
         try {
           // Calculate the date for each day of the current week
