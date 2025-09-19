@@ -303,7 +303,7 @@ export default function Profile() {
 
   // Generate theme analytics from existing data
   useEffect(() => {
-    const generateThemeAnalytics = () => {
+    const generateThemeAnalytics = async () => {
       if (!profile || !profile.allFoundWords || !Array.isArray(profile.allFoundWords)) {
         setThemeAnalytics(null);
         return;
@@ -316,19 +316,46 @@ export default function Profile() {
       console.log('Today is:', new Date().toDateString());
       console.log('Today day of week:', new Date().getDay()); // 0 = Sunday, 1 = Monday, etc.
 
-      // Updated theme words based on current weekly rotation
-      // Thursday = Animals (as confirmed by user)
-      const themeWords = {
+      // Try to get the actual theme words from the backend API
+      // eslint-disable-next-line prefer-const
+      let themeWords = {
         monday: ['PIZZA', 'BURGER', 'SALAD', 'SOUP', 'CAKE', 'BREAD', 'RICE', 'PASTA', 'SANDWICH', 'COFFEE', 'TEA', 'JUICE', 'WATER', 'MILK', 'BEER', 'WINE', 'CHEESE', 'BUTTER', 'SUGAR', 'SALT'],
         tuesday: ['HOUSE', 'CAR', 'TREE', 'BOOK', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'PHONE', 'CLOCK', 'LAMP', 'BED', 'SOFA', 'DESK', 'MIRROR', 'PICTURE', 'FLOWER', 'GARDEN', 'STREET', 'BRIDGE'],
         wednesday: ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'BAKE', 'CLEAN', 'WASH', 'DRIVE', 'FLY', 'CLIMB', 'SKATE', 'SKI', 'RIDE'],
-        thursday: ['DOG', 'CAT', 'BIRD', 'FISH', 'LION', 'TIGER', 'BEAR', 'WOLF', 'FOX', 'RABBIT', 'MOUSE', 'SNAKE', 'FROG', 'SPIDER', 'BEE', 'BUTTERFLY', 'ELEPHANT', 'GIRAFFE', 'MONKEY', 'PENGUIN', 'HORSE', 'COW', 'PIG', 'SHEEP', 'GOAT', 'CHICKEN', 'DUCK', 'GOOSE', 'TURKEY', 'DEER', 'CRAB', 'LOBSTER', 'SHRIMP', 'WHALE', 'DOLPHIN', 'SHARK', 'EAGLE', 'OWL', 'PARROT', 'PEACOCK'],
+        thursday: ['DOG', 'CAT', 'BIRD', 'FISH', 'LION', 'TIGER', 'BEAR', 'WOLF', 'FOX', 'RABBIT', 'MOUSE', 'SNAKE', 'FROG', 'SPIDER', 'BEE', 'BUTTERFLY', 'ELEPHANT', 'GIRAFFE', 'MONKEY', 'PENGUIN'],
         friday: ['BIG', 'SMALL', 'FAST', 'SLOW', 'HOT', 'COLD', 'NEW', 'OLD', 'GOOD', 'BAD', 'HAPPY', 'SAD', 'TALL', 'SHORT', 'WIDE', 'NARROW', 'THICK', 'THIN', 'HEAVY', 'LIGHT'],
         saturday: ['TREE', 'FLOWER', 'GRASS', 'MOUNTAIN', 'RIVER', 'OCEAN', 'SUN', 'MOON', 'STAR', 'CLOUD', 'RAIN', 'SNOW', 'WIND', 'FIRE', 'EARTH', 'SKY', 'SEA', 'LAKE', 'FOREST', 'DESERT'],
         sunday: ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'GAME', 'MOVIE', 'MUSIC', 'VIDEO', 'CAMERA', 'TV', 'RADIO', 'SPEAKER', 'HEADPHONE', 'KEYBOARD', 'MOUSE', 'SCREEN', 'BATTERY', 'CHARGER']
       };
 
-      console.log('Using comprehensive theme words:', themeWords);
+      // Try to get today's theme words from the backend
+      try {
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+        console.log('Fetching theme words for today:', today);
+        
+        const themeDayResponse = await apiService.getThemeDayStatistics(today);
+        console.log('Backend theme day response:', themeDayResponse);
+        
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (themeDayResponse && (themeDayResponse as any).words) {
+          // Get the day of week for today
+          const dayOfWeek = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+          const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+          const dayName = dayNames[dayOfWeek];
+          
+          // Update the theme words for today's day
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if (Array.isArray((themeDayResponse as any).words)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            themeWords[dayName as keyof typeof themeWords] = (themeDayResponse as any).words.map((word: string) => word.toUpperCase());
+            console.log(`Updated ${dayName} theme words from backend:`, themeWords[dayName as keyof typeof themeWords]);
+          }
+        }
+      } catch (error) {
+        console.log('Could not fetch theme words from backend, using defaults:', error);
+      }
+
+      console.log('Final theme words being used:', themeWords);
 
       // Group words by day of week and count theme matches
       const themeData: Record<string, { words: { word?: string; date?: string }[], themeWords: string[] }> = {
