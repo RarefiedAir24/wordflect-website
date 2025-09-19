@@ -219,53 +219,146 @@ export default function Profile() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [router]);
 
-  // Fetch time analytics
+  // Generate time analytics from existing data
   useEffect(() => {
-    const fetchTimeAnalytics = async () => {
-      if (!apiService.isAuthenticated()) return;
-      
-      try {
-        const analytics = await apiService.getTimeAnalytics();
-        console.log('=== TIME ANALYTICS DEBUG ===');
-        console.log('Raw response:', analytics);
-        console.log('Type:', typeof analytics);
-        console.log('Keys:', analytics ? Object.keys(analytics) : 'null');
-        console.log('Full JSON:', JSON.stringify(analytics, null, 2));
-        console.log('============================');
-        setTimeAnalytics(analytics as Record<string, unknown> | null);
-          } catch (error) {
-        console.error("Time analytics fetch error:", error);
+    const generateTimeAnalytics = () => {
+      if (!profile || !profile.allFoundWords || !Array.isArray(profile.allFoundWords)) {
         setTimeAnalytics(null);
+        return;
       }
+
+      console.log('=== GENERATING TIME ANALYTICS FROM EXISTING DATA ===');
+      console.log('Total words found:', profile.allFoundWords.length);
+      
+      // Group words by time periods based on when they were found
+      const timePeriods: Record<string, { words: { word?: string; date?: string }[], games: number }> = {
+        'early-morning': { words: [], games: 0 },
+        'late-morning': { words: [], games: 0 },
+        'afternoon': { words: [], games: 0 },
+        'evening': { words: [], games: 0 }
+      };
+
+      // Analyze words found in the last 30 days for time patterns
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      profile.allFoundWords.forEach((wordEntry) => {
+        // Handle both string and object formats
+        const word = typeof wordEntry === 'string' ? { word: wordEntry, date: undefined } : wordEntry;
+        if (word.date) {
+          const foundDate = new Date(word.date);
+          if (foundDate >= thirtyDaysAgo) {
+            const hour = foundDate.getHours();
+            
+            if (hour >= 5 && hour < 10) {
+              timePeriods['early-morning'].words.push(word);
+            } else if (hour >= 10 && hour < 15) {
+              timePeriods['late-morning'].words.push(word);
+            } else if (hour >= 15 && hour < 20) {
+              timePeriods['afternoon'].words.push(word);
+            } else if (hour >= 20 || hour < 5) {
+              timePeriods['evening'].words.push(word);
+            }
+          }
+        }
+      });
+
+      // Generate analytics data
+      const analytics = {
+        timePeriods: Object.entries(timePeriods).map(([period, data]) => ({
+          period,
+          wordsFound: data.words.length,
+          gamesPlayed: Math.ceil(data.words.length / 15), // Estimate games based on words
+          avgPerGame: data.words.length > 0 ? Math.round(data.words.length / Math.max(1, Math.ceil(data.words.length / 15))) : 0,
+          performance: Math.min(100, Math.round((data.words.length / 50) * 100)) // Performance score
+        }))
+      };
+
+      console.log('Generated time analytics:', analytics);
+      setTimeAnalytics(analytics);
     };
 
     if (profile) {
-      fetchTimeAnalytics();
+      generateTimeAnalytics();
     }
   }, [profile]);
 
-  // Fetch theme analytics
+  // Generate theme analytics from existing data
   useEffect(() => {
-    const fetchThemeAnalytics = async () => {
-      if (!apiService.isAuthenticated()) return;
-      
-      try {
-        const analytics = await apiService.getThemeAnalytics();
-        console.log('=== THEME ANALYTICS DEBUG ===');
-        console.log('Raw response:', analytics);
-        console.log('Type:', typeof analytics);
-        console.log('Keys:', analytics ? Object.keys(analytics) : 'null');
-        console.log('Full JSON:', JSON.stringify(analytics, null, 2));
-        console.log('==============================');
-        setThemeAnalytics(analytics as Record<string, unknown> | null);
-      } catch (error) {
-        console.error("Theme analytics fetch error:", error);
+    const generateThemeAnalytics = () => {
+      if (!profile || !profile.allFoundWords || !Array.isArray(profile.allFoundWords)) {
         setThemeAnalytics(null);
+        return;
       }
+
+      console.log('=== GENERATING THEME ANALYTICS FROM EXISTING DATA ===');
+      console.log('Total words found:', profile.allFoundWords.length);
+
+      // Define theme words for each day (these would normally come from the backend)
+      const themeWords = {
+        monday: ['PIZZA', 'BURGER', 'SALAD', 'SOUP', 'CAKE', 'BREAD', 'RICE', 'PASTA', 'SANDWICH', 'COFFEE', 'TEA', 'JUICE', 'WATER', 'MILK', 'BEER', 'WINE', 'CHEESE', 'BUTTER', 'SUGAR', 'SALT'],
+        tuesday: ['HOUSE', 'CAR', 'TREE', 'BOOK', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'PHONE', 'CLOCK', 'LAMP', 'BED', 'SOFA', 'DESK', 'MIRROR', 'PICTURE', 'FLOWER', 'GARDEN', 'STREET', 'BRIDGE'],
+        wednesday: ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'BAKE', 'CLEAN', 'WASH', 'DRIVE', 'FLY', 'CLIMB', 'SKATE', 'SKI', 'RIDE'],
+        thursday: ['BIG', 'SMALL', 'FAST', 'SLOW', 'HOT', 'COLD', 'NEW', 'OLD', 'GOOD', 'BAD', 'HAPPY', 'SAD', 'TALL', 'SHORT', 'WIDE', 'NARROW', 'THICK', 'THIN', 'HEAVY', 'LIGHT'],
+        friday: ['DOG', 'CAT', 'BIRD', 'FISH', 'LION', 'TIGER', 'BEAR', 'WOLF', 'FOX', 'RABBIT', 'MOUSE', 'SNAKE', 'FROG', 'SPIDER', 'BEE', 'BUTTERFLY', 'ELEPHANT', 'GIRAFFE', 'MONKEY', 'PENGUIN'],
+        saturday: ['TREE', 'FLOWER', 'GRASS', 'MOUNTAIN', 'RIVER', 'OCEAN', 'SUN', 'MOON', 'STAR', 'CLOUD', 'RAIN', 'SNOW', 'WIND', 'FIRE', 'EARTH', 'SKY', 'SEA', 'LAKE', 'FOREST', 'DESERT'],
+        sunday: ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'GAME', 'MOVIE', 'MUSIC', 'VIDEO', 'CAMERA', 'TV', 'RADIO', 'SPEAKER', 'HEADPHONE', 'KEYBOARD', 'MOUSE', 'SCREEN', 'BATTERY', 'CHARGER']
+      };
+
+      // Group words by day of week and count theme matches
+      const themeData: Record<string, { words: { word?: string; date?: string }[], themeWords: string[] }> = {
+        monday: { words: [], themeWords: themeWords.monday },
+        tuesday: { words: [], themeWords: themeWords.tuesday },
+        wednesday: { words: [], themeWords: themeWords.wednesday },
+        thursday: { words: [], themeWords: themeWords.thursday },
+        friday: { words: [], themeWords: themeWords.friday },
+        saturday: { words: [], themeWords: themeWords.saturday },
+        sunday: { words: [], themeWords: themeWords.sunday }
+      };
+
+      // Analyze words found in the last 30 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      profile.allFoundWords.forEach((wordEntry) => {
+        // Handle both string and object formats
+        const word = typeof wordEntry === 'string' ? { word: wordEntry, date: undefined } : wordEntry;
+        if (word.date) {
+          const foundDate = new Date(word.date);
+          if (foundDate >= thirtyDaysAgo) {
+            const dayOfWeek = foundDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const dayName = dayNames[dayOfWeek];
+            
+            if (themeData[dayName as keyof typeof themeData]) {
+              themeData[dayName as keyof typeof themeData].words.push(word);
+            }
+          }
+        }
+      });
+
+      // Generate analytics data
+      const analytics = {
+        themes: Object.entries(themeData).map(([day, data]) => {
+          const foundThemeWords = data.words.filter((word: { word?: string; date?: string }) => 
+            word.word && data.themeWords.includes(word.word.toUpperCase())
+          );
+          
+          return {
+            day,
+            wordsFound: foundThemeWords.length,
+            totalWords: data.themeWords.length,
+            words: foundThemeWords.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean).slice(0, 20) // Limit to 20 words
+          };
+        })
+      };
+
+      console.log('Generated theme analytics:', analytics);
+      setThemeAnalytics(analytics);
     };
 
     if (profile) {
-      fetchThemeAnalytics();
+      generateThemeAnalytics();
     }
   }, [profile]);
 
