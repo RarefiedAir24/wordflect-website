@@ -392,14 +392,20 @@ export default function Profile() {
         sunday: ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'GAME', 'MOVIE', 'MUSIC', 'VIDEO', 'CAMERA', 'TV', 'RADIO', 'SPEAKER', 'HEADPHONE', 'KEYBOARD', 'MOUSE', 'SCREEN', 'BATTERY', 'CHARGER']
       };
 
-      // Try to get theme words from the backend for the last 7 days
+      // Get theme words from the backend for the current week's theme schedule
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      
+      // Get today's date and calculate the current week's theme schedule
+      const today = new Date();
+      const todayDayOfWeek = today.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
       
       for (let i = 0; i < 7; i++) {
         try {
-          // Use UTC date to avoid timezone issues
+          // Calculate the date for each day of the current week
           const date = new Date();
-          date.setUTCDate(date.getUTCDate() - i); // Go back i days in UTC
+          const daysFromToday = i - todayDayOfWeek; // Adjust to get the correct day of the week
+          date.setUTCDate(date.getUTCDate() + daysFromToday);
+          
           const dateString = date.getUTCFullYear() + '-' + 
             String(date.getUTCMonth() + 1).padStart(2, '0') + '-' + 
             String(date.getUTCDate()).padStart(2, '0'); // YYYY-MM-DD format in UTC
