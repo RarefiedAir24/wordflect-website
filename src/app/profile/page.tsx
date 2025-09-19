@@ -1408,14 +1408,14 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                       if (customDateRange.start && customDateRange.end) {
                         const startDate = new Date(customDateRange.start);
                         const endDate = new Date(customDateRange.end);
-                        const validationDate = new Date();
                         
                         // Validate dates
                         if (startDate > endDate) {
                           alert('Start date must be before end date');
                           return;
                         }
-                        if (endDate > today) {
+                        const now = new Date();
+                        if (endDate > now) {
                           alert('End date cannot be in the future');
                           return;
                         }
