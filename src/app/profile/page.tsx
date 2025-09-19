@@ -199,6 +199,49 @@ export default function Profile() {
       console.log('Profile data:', userProfile);
       console.log('Profile image URL:', userProfile.profileImageUrl);
       console.log('Selected frame:', userProfile.selectedFrame);
+      
+      // Debug: Check for the specific words we're looking for
+      console.log('=== REFRESH DEBUG ===');
+      console.log('Total words found:', userProfile.allFoundWords.length);
+      console.log('Words found today:', userProfile.allFoundWords.filter(w => {
+        const date = typeof w === 'string' ? undefined : w.date;
+        if (date) {
+          const foundDate = new Date(date);
+          const today = new Date();
+          return foundDate.toDateString() === today.toDateString();
+        }
+        return false;
+      }).length);
+      
+      // Check for specific words
+      const todayWords = userProfile.allFoundWords.filter(w => {
+        const date = typeof w === 'string' ? undefined : w.date;
+        if (date) {
+          const foundDate = new Date(date);
+          const today = new Date();
+          return foundDate.toDateString() === today.toDateString();
+        }
+        return false;
+      });
+      
+      console.log('Today\'s words:', todayWords.map(w => {
+        const word = typeof w === 'string' ? w : w.word;
+        const date = typeof w === 'string' ? undefined : w.date;
+        return { word, date };
+      }));
+      
+      // Check for the specific words we're looking for
+      const targetWords = ['DUCK', 'GOOSE', 'CRAB', 'HORSE', 'SHEEP'];
+      targetWords.forEach(targetWord => {
+        const found = userProfile.allFoundWords.some(w => {
+          const word = typeof w === 'string' ? w : w.word;
+          return word && word.toUpperCase() === targetWord;
+        });
+        console.log(`"${targetWord}" found in all words:`, found);
+      });
+      
+      console.log('=== END REFRESH DEBUG ===');
+      
       setProfile(userProfile);
     } catch (error) {
       console.error("Profile fetch error:", error);
