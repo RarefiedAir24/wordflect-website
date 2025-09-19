@@ -896,7 +896,7 @@ Is SEAL found: ${debugData.isSealFound ? '✅' : '❌'}
 
 Theme Words: ${debugData.allWords.join(', ')}
 
-Direct API Theme Words: ${(themeDayData as any)?.theme?.words?.join(', ') || 'N/A'}`;
+Direct API Theme Words: ${(themeDayData as { theme?: { words?: string[] } })?.theme?.words?.join(', ') || 'N/A'}`;
                       alert(message);
                     }
                   } catch (error) {
