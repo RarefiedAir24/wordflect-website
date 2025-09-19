@@ -540,9 +540,13 @@ export default function Profile() {
             const dayThemeWords = backendResponse?.theme?.words || [];
             console.log(`${day}: Using theme words:`, dayThemeWords);
             
-            // Find words that match the theme words for this day
+            // Find words that match the theme words for this day AND were found on this specific date
+            console.log(`${day}: Checking ${data.words.length} words for date ${dateString}`);
+            console.log(`${day}: Sample words:`, data.words.slice(0, 3).map(w => ({ word: w.word, date: w.date })));
+            
             const foundThemeWordsObjects = data.words.filter((word: { word?: string; date?: string }) => 
-              word.word && dayThemeWords.includes(word.word.toUpperCase())
+              word.word && dayThemeWords.includes(word.word.toUpperCase()) && 
+              word.date && new Date(word.date).toDateString() === new Date(dateString).toDateString()
             );
             foundThemeWords = foundThemeWordsObjects.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean) as string[];
             console.log(`${day}: Manual matching found:`, foundThemeWords);
