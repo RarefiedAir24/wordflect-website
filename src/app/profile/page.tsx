@@ -682,32 +682,41 @@ export default function Profile() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             {/* Action Buttons */}
             <div className="flex justify-end gap-2 mb-4 md:mb-0">
-              <button
-                onClick={async () => {
-                  try {
-                    console.log('🔍 DEBUG: Checking backend data directly...');
-                    const response = await fetch('/api/debug-profile', {
-                      method: 'GET',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                <button
+                  onClick={async () => {
+                    try {
+                      console.log('🔍 DEBUG: Checking backend data directly...');
+                      const response = await fetch('/api/debug-profile', {
+                        method: 'GET',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                      });
+                      const data = await response.json();
+                      console.log('🔍 DEBUG: Backend data result:', data);
+                      
+                      // Show specific info about target words
+                      if (data.backendData && data.backendData.targetWordsCheck) {
+                        const summary = data.backendData.targetWordsCheck.map((w: { word: string; found: boolean }) => 
+                          `${w.word}: ${w.found ? '✅' : '❌'}`
+                        ).join(', ');
+                        alert(`Backend Check Results:\n${summary}\n\nFull data logged to console.`);
+                      } else {
+                        alert('Backend debug data logged to console. Check browser console for details.');
                       }
-                    });
-                    const data = await response.json();
-                    console.log('🔍 DEBUG: Backend data result:', data);
-                    alert('Backend debug data logged to console. Check browser console for details.');
-                  } catch (error) {
-                    console.error('🔍 DEBUG: Error:', error);
-                    alert('Debug failed. Check console for details.');
-                  }
-                }}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Debug Backend
-              </button>
+                    } catch (error) {
+                      console.error('🔍 DEBUG: Error:', error);
+                      alert('Debug failed. Check console for details.');
+                    }
+                  }}
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Debug Backend
+                </button>
               <button
                 onClick={() => fetchProfile(true)}
                 disabled={refreshing}
