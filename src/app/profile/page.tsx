@@ -508,17 +508,20 @@ export default function Profile() {
           let foundThemeWords: string[] = [];
           const allThemeWords: string[] = data.themeWords;
           
-          if (backendResponse && backendResponse.themeWordsFound) {
+          if (backendResponse && backendResponse.themeWordsFound && backendResponse.themeWordsFound.length > 0) {
             // Use the backend's themeWordsFound data (most accurate)
             foundThemeWords = backendResponse.themeWordsFound.map((word: string) => word.toUpperCase());
             console.log(`${day}: Using backend themeWordsFound:`, foundThemeWords);
           } else {
-            // Fallback to manual matching (less accurate)
+            // Backend themeWordsFound is empty, use manual matching
+            console.log(`${day}: Backend themeWordsFound is empty, using manual matching`);
+            
+            // Find words that match the theme words for this day
             const foundThemeWordsObjects = data.words.filter((word: { word?: string; date?: string }) => 
               word.word && data.themeWords.includes(word.word.toUpperCase())
             );
             foundThemeWords = foundThemeWordsObjects.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean) as string[];
-            console.log(`${day}: Using manual matching (fallback):`, foundThemeWords);
+            console.log(`${day}: Manual matching found:`, foundThemeWords);
           }
           
           console.log(`${day}: Found ${foundThemeWords.length} theme words out of ${data.words.length} total words`);
