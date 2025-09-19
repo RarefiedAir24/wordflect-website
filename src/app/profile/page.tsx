@@ -902,7 +902,7 @@ export default function Profile() {
 📅 Date: ${todayString}
 🎨 Theme: ${directThemeName}
 📊 Total Theme Words: ${directThemeWords.length}
-🔍 Words Found: ${(themeDayData as { themeWordsFound?: string[] })?.themeWordsFound?.length || 0}
+🔍 Words Found: 0 (using hardcoded theme words)
 🦭 Is SEAL included: ${isSealIncluded ? '✅ YES' : '❌ NO'}
 
 📝 All Theme Words:
