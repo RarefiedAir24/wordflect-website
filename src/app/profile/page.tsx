@@ -316,16 +316,19 @@ export default function Profile() {
       console.log('Today is:', new Date().toDateString());
       console.log('Today day of week:', new Date().getDay()); // 0 = Sunday, 1 = Monday, etc.
 
-      // Define theme words for each day (these would normally come from the backend)
+      // Updated theme words based on current weekly rotation
+      // Thursday = Animals (as confirmed by user)
       const themeWords = {
         monday: ['PIZZA', 'BURGER', 'SALAD', 'SOUP', 'CAKE', 'BREAD', 'RICE', 'PASTA', 'SANDWICH', 'COFFEE', 'TEA', 'JUICE', 'WATER', 'MILK', 'BEER', 'WINE', 'CHEESE', 'BUTTER', 'SUGAR', 'SALT'],
         tuesday: ['HOUSE', 'CAR', 'TREE', 'BOOK', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'PHONE', 'CLOCK', 'LAMP', 'BED', 'SOFA', 'DESK', 'MIRROR', 'PICTURE', 'FLOWER', 'GARDEN', 'STREET', 'BRIDGE'],
         wednesday: ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'BAKE', 'CLEAN', 'WASH', 'DRIVE', 'FLY', 'CLIMB', 'SKATE', 'SKI', 'RIDE'],
-        thursday: ['BIG', 'SMALL', 'FAST', 'SLOW', 'HOT', 'COLD', 'NEW', 'OLD', 'GOOD', 'BAD', 'HAPPY', 'SAD', 'TALL', 'SHORT', 'WIDE', 'NARROW', 'THICK', 'THIN', 'HEAVY', 'LIGHT'],
-        friday: ['DOG', 'CAT', 'BIRD', 'FISH', 'LION', 'TIGER', 'BEAR', 'WOLF', 'FOX', 'RABBIT', 'MOUSE', 'SNAKE', 'FROG', 'SPIDER', 'BEE', 'BUTTERFLY', 'ELEPHANT', 'GIRAFFE', 'MONKEY', 'PENGUIN'],
+        thursday: ['DOG', 'CAT', 'BIRD', 'FISH', 'LION', 'TIGER', 'BEAR', 'WOLF', 'FOX', 'RABBIT', 'MOUSE', 'SNAKE', 'FROG', 'SPIDER', 'BEE', 'BUTTERFLY', 'ELEPHANT', 'GIRAFFE', 'MONKEY', 'PENGUIN', 'HORSE', 'COW', 'PIG', 'SHEEP', 'GOAT', 'CHICKEN', 'DUCK', 'GOOSE', 'TURKEY', 'DEER'],
+        friday: ['BIG', 'SMALL', 'FAST', 'SLOW', 'HOT', 'COLD', 'NEW', 'OLD', 'GOOD', 'BAD', 'HAPPY', 'SAD', 'TALL', 'SHORT', 'WIDE', 'NARROW', 'THICK', 'THIN', 'HEAVY', 'LIGHT'],
         saturday: ['TREE', 'FLOWER', 'GRASS', 'MOUNTAIN', 'RIVER', 'OCEAN', 'SUN', 'MOON', 'STAR', 'CLOUD', 'RAIN', 'SNOW', 'WIND', 'FIRE', 'EARTH', 'SKY', 'SEA', 'LAKE', 'FOREST', 'DESERT'],
         sunday: ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'GAME', 'MOVIE', 'MUSIC', 'VIDEO', 'CAMERA', 'TV', 'RADIO', 'SPEAKER', 'HEADPHONE', 'KEYBOARD', 'MOUSE', 'SCREEN', 'BATTERY', 'CHARGER']
       };
+
+      console.log('Using comprehensive theme words:', themeWords);
 
       // Group words by day of week and count theme matches
       const themeData: Record<string, { words: { word?: string; date?: string }[], themeWords: string[] }> = {
@@ -386,6 +389,16 @@ export default function Profile() {
           
           console.log(`${day}: Found ${foundThemeWords.length} theme words out of ${data.words.length} total words`);
           console.log(`${day}: Theme words found:`, foundThemeWords.map(w => w.word?.toUpperCase()));
+          
+          // Show which words from today should match
+          if (day === 'thursday' && data.words.length > 0) {
+            console.log(`${day}: All words found today:`, data.words.map(w => w.word?.toUpperCase()));
+            console.log(`${day}: Available theme words:`, data.themeWords);
+            const potentialMatches = data.words.filter((word: { word?: string; date?: string }) => 
+              word.word && data.themeWords.includes(word.word.toUpperCase())
+            );
+            console.log(`${day}: Potential matches:`, potentialMatches.map(w => w.word?.toUpperCase()));
+          }
           
           return {
             day,
