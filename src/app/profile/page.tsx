@@ -411,10 +411,35 @@ export default function Profile() {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             if (Array.isArray((themeDayResponse as any).theme.words)) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              themeWords[dayName as keyof typeof themeWords] = (themeDayResponse as any).theme.words.map((word: string) => word.toUpperCase());
-              console.log(`Updated ${dayName} theme words from backend:`, themeWords[dayName as keyof typeof themeWords]);
+              const backendThemeWords = (themeDayResponse as any).theme.words.map((word: string) => word.toUpperCase());
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              console.log(`${dayName}'s theme: ${(themeDayResponse as any).theme.name}`);
+              const backendThemeName = (themeDayResponse as any).theme.name;
+              
+              console.log(`Backend ${dayName} theme: ${backendThemeName}`);
+              console.log(`Backend ${dayName} words:`, backendThemeWords);
+              
+              // Check if backend theme matches expected theme for this day
+              const expectedThemes = {
+                monday: 'Food & Drinks',
+                tuesday: 'Common Nouns', 
+                wednesday: 'Verbs',
+                thursday: 'Animals',
+                friday: 'Colors',
+                saturday: 'Nature',
+                sunday: 'Technology'
+              };
+              
+              const expectedTheme = expectedThemes[dayName as keyof typeof expectedThemes];
+              
+              if (backendThemeName === expectedTheme) {
+                // Backend theme is correct, use it
+                themeWords[dayName as keyof typeof themeWords] = backendThemeWords;
+                console.log(`✅ Using backend ${dayName} theme words (correct theme)`);
+              } else {
+                // Backend theme is wrong, keep the hardcoded correct theme words
+                console.log(`❌ Backend ${dayName} theme is "${backendThemeName}" but should be "${expectedTheme}" - using hardcoded theme words`);
+                // Keep the existing hardcoded theme words (they're correct)
+              }
               
               // Store the full response for this day to use in theme analytics
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
