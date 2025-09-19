@@ -662,41 +662,35 @@ export default function Profile() {
           console.log(`${day}: Backend theme words:`, backendResponse?.theme?.words);
           console.log(`${day}: Fallback theme words:`, data.themeWords);
           
-          if (backendResponse && backendResponse.themeWordsFound && backendResponse.themeWordsFound.length > 0) {
-            // Use the backend's themeWordsFound data (most accurate)
-            foundThemeWords = backendResponse.themeWordsFound.map((word: string) => word.toUpperCase());
-            console.log(`${day}: Using backend themeWordsFound:`, foundThemeWords);
-          } else {
-            // Backend themeWordsFound is empty, use manual matching
-            console.log(`${day}: Backend themeWordsFound is empty, using manual matching`);
-            
-            // Use hardcoded theme words for this specific day
-            const dayThemeWords = data.themeWords;
-            console.log(`${day}: Using theme words:`, dayThemeWords);
-            
-            // Calculate the date for this day of the current week
-            const today = new Date();
-            const todayDayOfWeek = today.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
-            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-            const dayIndex = dayNames.indexOf(day);
-            const daysFromToday = dayIndex - todayDayOfWeek;
-            const dayDate = new Date();
-            dayDate.setUTCDate(dayDate.getUTCDate() + daysFromToday);
-            const dayDateString = dayDate.getUTCFullYear() + '-' + 
-              String(dayDate.getUTCMonth() + 1).padStart(2, '0') + '-' + 
-              String(dayDate.getUTCDate()).padStart(2, '0');
-            
-            // Find words that match the theme words for this day AND were found on this specific date
-            console.log(`${day}: Checking ${data.words.length} words for date ${dayDateString}`);
-            console.log(`${day}: Sample words:`, data.words.slice(0, 3).map(w => ({ word: w.word, date: w.date })));
-            
-            const foundThemeWordsObjects = data.words.filter((word: { word?: string; date?: string }) => 
-              word.word && dayThemeWords.includes(word.word.toUpperCase()) && 
-              word.date && new Date(word.date).toDateString() === new Date(dayDateString).toDateString()
-            );
-            foundThemeWords = foundThemeWordsObjects.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean) as string[];
-            console.log(`${day}: Manual matching found:`, foundThemeWords);
-          }
+          // Always use manual matching since backend API is disabled
+          console.log(`${day}: Using manual matching for found words`);
+          
+          // Use hardcoded theme words for this specific day
+          const dayThemeWords = data.themeWords;
+          console.log(`${day}: Using theme words:`, dayThemeWords);
+          
+          // Calculate the date for this day of the current week
+          const today = new Date();
+          const todayDayOfWeek = today.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
+          const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+          const dayIndex = dayNames.indexOf(day);
+          const daysFromToday = dayIndex - todayDayOfWeek;
+          const dayDate = new Date();
+          dayDate.setUTCDate(dayDate.getUTCDate() + daysFromToday);
+          const dayDateString = dayDate.getUTCFullYear() + '-' + 
+            String(dayDate.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+            String(dayDate.getUTCDate()).padStart(2, '0');
+          
+          // Find words that match the theme words for this day AND were found on this specific date
+          console.log(`${day}: Checking ${data.words.length} words for date ${dayDateString}`);
+          console.log(`${day}: Sample words:`, data.words.slice(0, 3).map(w => ({ word: w.word, date: w.date })));
+          
+          const foundThemeWordsObjects = data.words.filter((word: { word?: string; date?: string }) => 
+            word.word && dayThemeWords.includes(word.word.toUpperCase()) && 
+            word.date && new Date(word.date).toDateString() === new Date(dayDateString).toDateString()
+          );
+          foundThemeWords = foundThemeWordsObjects.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean) as string[];
+          console.log(`${day}: Manual matching found:`, foundThemeWords);
           
           console.log(`${day}: Found ${foundThemeWords.length} theme words out of ${data.words.length} total words`);
           console.log(`${day}: Theme words found:`, foundThemeWords);
