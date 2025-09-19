@@ -696,14 +696,14 @@ export default function Profile() {
             const wordText = word.word;
             const wordDate = word.date;
             const isThemeWord = wordText && dayThemeWords.includes(wordText.toUpperCase());
-            const isCorrectDate = wordDate && new Date(wordDate).toDateString() === new Date(dayDateString).toDateString();
             
             // Debug: Log SEAL specifically
             if (day === 'friday' && wordText && wordText.toUpperCase() === 'SEAL') {
-              console.log(`🔍 SEAL DEBUG: Found SEAL word:`, { wordText, wordDate, isThemeWord, isCorrectDate, dayDateString });
+              console.log(`🔍 SEAL DEBUG: Found SEAL word:`, { wordText, wordDate, isThemeWord, dayDateString });
             }
             
-            return isThemeWord && isCorrectDate;
+            // Return true if it's a theme word (regardless of date for now)
+            return isThemeWord;
           });
           foundThemeWords = foundThemeWordsObjects.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean) as string[];
           console.log(`${day}: Manual matching found:`, foundThemeWords);
