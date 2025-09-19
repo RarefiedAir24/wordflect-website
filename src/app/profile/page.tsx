@@ -871,6 +871,9 @@ export default function Profile() {
                     // Use the API service to get theme day data directly
                     const themeDayData = await apiService.getThemeDayStatistics(todayString);
                     console.log('🔍 DEBUG THEME DAY: Direct API response:', themeDayData);
+                    console.log('🔍 DEBUG THEME DAY: Theme name:', (themeDayData as { theme?: { name?: string } })?.theme?.name);
+                    console.log('🔍 DEBUG THEME DAY: Theme words:', (themeDayData as { theme?: { words?: string[] } })?.theme?.words);
+                    console.log('🔍 DEBUG THEME DAY: Is SEAL included?', (themeDayData as { theme?: { words?: string[] } })?.theme?.words?.includes('SEAL'));
                     
                     // Also test the debug endpoint with proper auth
                     const debugResponse = await fetch(`/api/debug-theme-day?date=${todayString}`, {
@@ -883,22 +886,25 @@ export default function Profile() {
                     const debugData = await debugResponse.json();
                     console.log('🔍 DEBUG THEME DAY: Debug endpoint response:', debugData);
                     
-                    if (debugData.error) {
-                      alert(`Theme Day Debug Error: ${debugData.error}\nDetails: ${debugData.details}`);
-                    } else {
-                      const message = `Theme Day Debug Results:
-Date: ${debugData.date}
-Theme: ${debugData.themeName}
-Total Theme Words: ${debugData.themeWordsCount}
-Words Found: ${debugData.themeWordsFoundCount}
-Is SEAL included: ${debugData.isSealIncluded ? '✅' : '❌'}
-Is SEAL found: ${debugData.isSealFound ? '✅' : '❌'}
+                    // Show results from direct API call (which is working)
+                    const directThemeWords = (themeDayData as { theme?: { words?: string[] } })?.theme?.words || [];
+                    const directThemeName = (themeDayData as { theme?: { name?: string } })?.theme?.name || 'Unknown';
+                    const isSealIncluded = directThemeWords.includes('SEAL');
+                    
+                    const message = `🎯 THEME DAY DEBUG RESULTS (Direct API):
 
-Theme Words: ${debugData.allWords.join(', ')}
+📅 Date: ${todayString}
+🎨 Theme: ${directThemeName}
+📊 Total Theme Words: ${directThemeWords.length}
+🔍 Words Found: ${(themeDayData as { themeWordsFound?: string[] })?.themeWordsFound?.length || 0}
+🦭 Is SEAL included: ${isSealIncluded ? '✅ YES' : '❌ NO'}
 
-Direct API Theme Words: ${(themeDayData as { theme?: { words?: string[] } })?.theme?.words?.join(', ') || 'N/A'}`;
-                      alert(message);
-                    }
+📝 All Theme Words:
+${directThemeWords.join(', ')}
+
+${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
+                    
+                    alert(message);
                   } catch (error) {
                     console.error('🔍 DEBUG THEME DAY: Error:', error);
                     alert('Theme Day Debug failed. Check console for details.');
