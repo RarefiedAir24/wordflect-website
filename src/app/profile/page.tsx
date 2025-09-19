@@ -396,13 +396,13 @@ export default function Profile() {
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
       
       // Calculate which set to use based on week number (matching mobile app logic)
-      const now = new Date();
-      const startOfYear = new Date(now.getFullYear(), 0, 1);
-      const weekNumber = Math.floor((now.getTime() - startOfYear.getTime()) / (7 * 24 * 60 * 60 * 1000));
+      const currentDate = new Date();
+      const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
+      const weekNumber = Math.floor((currentDate.getTime() - startOfYear.getTime()) / (7 * 24 * 60 * 60 * 1000));
       const setIndex = weekNumber % 4; // 4 sets per theme
       
       console.log('=== THEME ROTATION DEBUG ===');
-      console.log('Current date:', now.toDateString());
+      console.log('Current date:', currentDate.toDateString());
       console.log('Week number:', weekNumber);
       console.log('Set index (0-3):', setIndex);
       
