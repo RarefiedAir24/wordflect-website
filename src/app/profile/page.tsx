@@ -370,11 +370,15 @@ export default function Profile() {
       console.log('User:', profile.email, profile.username);
       console.log('Total words found:', profile.allFoundWords.length);
       console.log('Sample words with dates:', profile.allFoundWords.slice(0, 5));
-      console.log('Today is:', new Date().toDateString());
-      console.log('Today day of week:', new Date().getDay()); // 0 = Sunday, 1 = Monday, etc.
+      const now = new Date();
+      console.log('Today is:', now.toDateString());
+      console.log('Today day of week (local):', now.getDay()); // 0 = Sunday, 1 = Monday, etc.
+      console.log('Today day of week (UTC):', now.getUTCDay()); // 0 = Sunday, 1 = Monday, etc.
       console.log('Current timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
-      console.log('Current time:', new Date().toISOString());
-      console.log('Local time:', new Date().toString());
+      console.log('Current time (local):', now.toString());
+      console.log('Current time (UTC):', now.toISOString());
+      console.log('Local date string:', now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0'));
+      console.log('UTC date string:', now.getUTCFullYear() + '-' + String(now.getUTCMonth() + 1).padStart(2, '0') + '-' + String(now.getUTCDate()).padStart(2, '0'));
 
       // Try to get the actual theme words from the backend API
       // eslint-disable-next-line prefer-const
@@ -393,16 +397,17 @@ export default function Profile() {
       
       for (let i = 0; i < 7; i++) {
         try {
+          // Use UTC date to avoid timezone issues
           const date = new Date();
-          date.setDate(date.getDate() - i); // Go back i days
-          const dateString = date.getFullYear() + '-' + 
-            String(date.getMonth() + 1).padStart(2, '0') + '-' + 
-            String(date.getDate()).padStart(2, '0'); // YYYY-MM-DD format
+          date.setUTCDate(date.getUTCDate() - i); // Go back i days in UTC
+          const dateString = date.getUTCFullYear() + '-' + 
+            String(date.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+            String(date.getUTCDate()).padStart(2, '0'); // YYYY-MM-DD format in UTC
           
-          const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+          const dayOfWeek = date.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
           const dayName = dayNames[dayOfWeek];
           
-          console.log(`Fetching theme words for ${dayName} (${dateString})`);
+          console.log(`Fetching theme words for ${dayName} (${dateString}) - UTC date`);
           
           const themeDayResponse = await apiService.getThemeDayStatistics(dateString);
           
