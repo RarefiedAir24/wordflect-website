@@ -444,6 +444,16 @@ export default function Profile() {
               );
               console.log(`${day}: Looking for "${expectedWord}":`, found ? `FOUND (${found.word})` : 'NOT FOUND');
             });
+            
+            // Debug: Show all words found today to see what we're working with
+            console.log(`${day}: All words found today:`, data.words.map(w => w.word?.toUpperCase()));
+            console.log(`${day}: Available theme words:`, data.themeWords);
+            
+            // Debug: Check if the words exist in the theme list
+            expectedThemeWords.forEach(expectedWord => {
+              const inThemeList = data.themeWords.includes(expectedWord);
+              console.log(`${day}: "${expectedWord}" in theme list:`, inThemeList);
+            });
           }
           
           return {
