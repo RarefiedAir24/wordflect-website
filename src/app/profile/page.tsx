@@ -985,7 +985,7 @@ export default function Profile() {
             <p className="text-sm text-blue-700">Track your performance across daily theme challenges</p>
             </div>
           </div>
-        
+
 
         {/* Theme Performance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -998,9 +998,9 @@ export default function Profile() {
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <span className="text-white text-sm">🍕</span>
-                    </div>
+            </div>
                     <span className="text-xs text-gray-500 font-semibold">MONDAY</span>
-                  </div>
+          </div>
                   <p className="text-lg font-bold text-gray-500">Food & Drinks</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
@@ -1038,9 +1038,9 @@ export default function Profile() {
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <span className="text-white text-sm">🏠</span>
-                    </div>
+            </div>
                     <span className="text-xs text-gray-500 font-semibold">TUESDAY</span>
-                  </div>
+          </div>
                   <p className="text-lg font-bold text-gray-500">Common Nouns</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
@@ -1078,9 +1078,9 @@ export default function Profile() {
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <span className="text-white text-sm">🏃</span>
-                    </div>
+            </div>
                     <span className="text-xs text-gray-500 font-semibold">WEDNESDAY</span>
-                  </div>
+          </div>
                   <p className="text-lg font-bold text-gray-500">Verbs</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
@@ -1109,7 +1109,7 @@ export default function Profile() {
             );
           })()}
 
-          {/* Thursday - Adjectives */}
+          {/* Thursday - Animals */}
           {(() => {
             const themeData = getThemeData('thursday');
             if (!themeData) {
@@ -1118,10 +1118,10 @@ export default function Profile() {
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <span className="text-white text-sm">📝</span>
-                    </div>
+            </div>
                     <span className="text-xs text-gray-500 font-semibold">THURSDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">Adjectives</p>
+                  <p className="text-lg font-bold text-gray-500">Animals</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -1137,7 +1137,7 @@ export default function Profile() {
             </div>
                   <span className="text-xs text-purple-600 font-semibold">THURSDAY</span>
                 </div>
-                <p className="text-lg font-bold text-purple-900">Adjectives</p>
+                <p className="text-lg font-bold text-purple-900">Animals</p>
                 <p className="text-xs text-purple-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-purple-200 rounded-full h-2">
@@ -1152,7 +1152,7 @@ export default function Profile() {
 
         {/* Additional Theme Days */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          {/* Friday - Animals */}
+          {/* Friday - Adjectives */}
           {(() => {
             const themeData = getThemeData('friday');
             if (!themeData) {
@@ -1161,12 +1161,12 @@ export default function Profile() {
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <span className="text-white text-sm">🐕</span>
-                    </div>
+            </div>
                     <span className="text-xs text-gray-500 font-semibold">FRIDAY</span>
-                  </div>
-                  <p className="text-lg font-bold text-gray-500">Animals</p>
+          </div>
+                  <p className="text-lg font-bold text-gray-500">Adjectives</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
-                </div>
+        </div>
               );
             }
             return (
@@ -1180,7 +1180,7 @@ export default function Profile() {
             </div>
                   <span className="text-xs text-yellow-600 font-semibold">FRIDAY</span>
           </div>
-                <p className="text-lg font-bold text-yellow-900">Animals</p>
+                <p className="text-lg font-bold text-yellow-900">Adjectives</p>
                 <p className="text-xs text-yellow-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-yellow-200 rounded-full h-2">
@@ -1338,8 +1338,8 @@ export default function Profile() {
                 <option value="food" className="text-gray-900">Food & Drinks (Monday)</option>
                 <option value="nouns" className="text-gray-900">Common Nouns (Tuesday)</option>
                 <option value="verbs" className="text-gray-900">Verbs (Wednesday)</option>
-                <option value="adjectives" className="text-gray-900">Adjectives (Thursday)</option>
-                <option value="animals" className="text-gray-900">Animals (Friday)</option>
+                <option value="animals" className="text-gray-900">Animals (Thursday)</option>
+                <option value="adjectives" className="text-gray-900">Adjectives (Friday)</option>
                 <option value="nature" className="text-gray-900">Nature (Saturday)</option>
                 <option value="technology" className="text-gray-900">Technology (Sunday)</option>
               </select>
