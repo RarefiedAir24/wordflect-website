@@ -693,11 +693,12 @@ export default function Profile() {
           console.log(`${day}: Theme words for this day:`, dayThemeWords);
           console.log(`${day}: Sample words:`, data.words.slice(0, 5).map(w => ({ word: w.word, date: w.date })));
           
-          // Debug: Show ALL words found today for Friday
-          if (day === 'friday') {
-            console.log(`🔍 FRIDAY DEBUG: All words found today (${dayDateString}):`, data.words.map(w => ({ word: w.word, date: w.date })));
-            console.log(`🔍 FRIDAY DEBUG: Looking for words with date: ${dayDateString}`);
-          }
+           // Debug: Show ALL words found today for Friday
+           if (day === 'friday') {
+             console.log(`🔍 FRIDAY DEBUG: All words found today (${dayDateString}):`, data.words.map(w => ({ word: w.word, date: w.date })));
+             console.log(`🔍 FRIDAY DEBUG: Looking for words with date: ${dayDateString}`);
+             console.log(`🔍 FRIDAY DEBUG: Today's words:`, data.words.map(w => w.word).join(', '));
+           }
           
           // Debug: Check if SEAL is in the theme words
           if (day === 'friday') {
