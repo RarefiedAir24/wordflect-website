@@ -421,6 +421,8 @@ export default function Profile() {
       }
 
       console.log('Final theme words being used:', themeWords);
+      console.log('Thursday theme words specifically:', themeWords.thursday);
+      console.log('Thursday theme words count:', themeWords.thursday.length);
 
       // Group words by day of week and count theme matches
       const themeData: Record<string, { words: { word?: string; date?: string }[], themeWords: string[] }> = {
@@ -512,6 +514,10 @@ export default function Profile() {
             // Debug: Show all words found today to see what we're working with
             console.log(`${day}: All words found today:`, data.words.map(w => w.word?.toUpperCase()));
             console.log(`${day}: Available theme words:`, data.themeWords);
+            console.log(`${day}: Available theme words count:`, data.themeWords.length);
+            console.log(`${day}: Theme words include GOOSE?:`, data.themeWords.includes('GOOSE'));
+            console.log(`${day}: Theme words include CRAB?:`, data.themeWords.includes('CRAB'));
+            console.log(`${day}: Theme words include SHEEP?:`, data.themeWords.includes('SHEEP'));
             
             // Debug: Check for similar words that might be the ones you found
             const allWords = data.words.map(w => w.word?.toUpperCase()).filter(Boolean) as string[];
