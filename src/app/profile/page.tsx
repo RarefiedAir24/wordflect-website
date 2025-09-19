@@ -334,9 +334,11 @@ export default function Profile() {
       // Try to get today's theme words from the backend
       try {
         const today = new Date();
-        const todayString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+        const todayString = today.getFullYear() + '-' + 
+          String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+          String(today.getDate()).padStart(2, '0'); // YYYY-MM-DD format in local timezone
         console.log('Today date object:', today);
-        console.log('Today string for API:', todayString);
+        console.log('Today string for API (local):', todayString);
         console.log('Today day of week:', today.getDay()); // Should be 4 for Thursday
         
         const themeDayResponse = await apiService.getThemeDayStatistics(todayString);
