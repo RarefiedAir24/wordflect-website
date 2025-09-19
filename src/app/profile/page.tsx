@@ -322,7 +322,7 @@ export default function Profile() {
         monday: ['PIZZA', 'BURGER', 'SALAD', 'SOUP', 'CAKE', 'BREAD', 'RICE', 'PASTA', 'SANDWICH', 'COFFEE', 'TEA', 'JUICE', 'WATER', 'MILK', 'BEER', 'WINE', 'CHEESE', 'BUTTER', 'SUGAR', 'SALT'],
         tuesday: ['HOUSE', 'CAR', 'TREE', 'BOOK', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'PHONE', 'CLOCK', 'LAMP', 'BED', 'SOFA', 'DESK', 'MIRROR', 'PICTURE', 'FLOWER', 'GARDEN', 'STREET', 'BRIDGE'],
         wednesday: ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'BAKE', 'CLEAN', 'WASH', 'DRIVE', 'FLY', 'CLIMB', 'SKATE', 'SKI', 'RIDE'],
-        thursday: ['DOG', 'CAT', 'BIRD', 'FISH', 'LION', 'TIGER', 'BEAR', 'WOLF', 'FOX', 'RABBIT', 'MOUSE', 'SNAKE', 'FROG', 'SPIDER', 'BEE', 'BUTTERFLY', 'ELEPHANT', 'GIRAFFE', 'MONKEY', 'PENGUIN'],
+        thursday: ['DOG', 'CAT', 'BIRD', 'FISH', 'LION', 'TIGER', 'BEAR', 'WOLF', 'FOX', 'RABBIT', 'MOUSE', 'SNAKE', 'FROG', 'SPIDER', 'BEE', 'BUTTERFLY', 'ELEPHANT', 'GIRAFFE', 'MONKEY', 'PENGUIN', 'DUCK', 'GOOSE', 'CRAB', 'HORSE', 'SHEEP'],
         friday: ['BIG', 'SMALL', 'FAST', 'SLOW', 'HOT', 'COLD', 'NEW', 'OLD', 'GOOD', 'BAD', 'HAPPY', 'SAD', 'TALL', 'SHORT', 'WIDE', 'NARROW', 'THICK', 'THIN', 'HEAVY', 'LIGHT'],
         saturday: ['TREE', 'FLOWER', 'GRASS', 'MOUNTAIN', 'RIVER', 'OCEAN', 'SUN', 'MOON', 'STAR', 'CLOUD', 'RAIN', 'SNOW', 'WIND', 'FIRE', 'EARTH', 'SKY', 'SEA', 'LAKE', 'FOREST', 'DESERT'],
         sunday: ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'GAME', 'MOVIE', 'MUSIC', 'VIDEO', 'CAMERA', 'TV', 'RADIO', 'SPEAKER', 'HEADPHONE', 'KEYBOARD', 'MOUSE', 'SCREEN', 'BATTERY', 'CHARGER']
@@ -330,10 +330,13 @@ export default function Profile() {
 
       // Try to get today's theme words from the backend
       try {
-        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-        console.log('Fetching theme words for today:', today);
+        const today = new Date();
+        const todayString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+        console.log('Today date object:', today);
+        console.log('Today string for API:', todayString);
+        console.log('Today day of week:', today.getDay()); // Should be 4 for Thursday
         
-        const themeDayResponse = await apiService.getThemeDayStatistics(today);
+        const themeDayResponse = await apiService.getThemeDayStatistics(todayString);
         console.log('Backend theme day response:', themeDayResponse);
         
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -428,11 +431,19 @@ export default function Profile() {
             
             // Check specifically for the 5 theme words you found in mobile app
             const expectedThemeWords = ['DUCK', 'GOOSE', 'CRAB', 'HORSE', 'SHEEP'];
-            const foundExpectedWords = data.words.filter((word: { word?: string; date?: string }) => 
+            const foundExpectedWords = data.words.filter((word: { word?: string; date?: string }) =>
               word.word && expectedThemeWords.includes(word.word.toUpperCase())
             );
             console.log(`${day}: Expected theme words found:`, foundExpectedWords.map(w => w.word?.toUpperCase()));
-            console.log(`${day}: Should show 5/20 theme words: DUCK, GOOSE, CRAB, HORSE, SHEEP`);
+            console.log(`${day}: Should show 5/25 theme words: DUCK, GOOSE, CRAB, HORSE, SHEEP`);
+            
+            // Debug: Check each expected word individually
+            expectedThemeWords.forEach(expectedWord => {
+              const found = data.words.find((word: { word?: string; date?: string }) => 
+                word.word && word.word.toUpperCase() === expectedWord
+              );
+              console.log(`${day}: Looking for "${expectedWord}":`, found ? `FOUND (${found.word})` : 'NOT FOUND');
+            });
           }
           
           return {
