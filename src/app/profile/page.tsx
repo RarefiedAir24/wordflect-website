@@ -388,38 +388,38 @@ export default function Profile() {
         sunday: ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'GAME', 'MOVIE', 'MUSIC', 'VIDEO', 'CAMERA', 'TV', 'RADIO', 'SPEAKER', 'HEADPHONE', 'KEYBOARD', 'MOUSE', 'SCREEN', 'BATTERY', 'CHARGER']
       };
 
-      // Try to get today's theme words from the backend
-      try {
-        const today = new Date();
-        const todayString = today.getFullYear() + '-' + 
-          String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-          String(today.getDate()).padStart(2, '0'); // YYYY-MM-DD format in local timezone
-        console.log('Today date object:', today);
-        console.log('Today string for API (local):', todayString);
-        console.log('Today day of week:', today.getDay()); // Should be 4 for Thursday
-        
-        const themeDayResponse = await apiService.getThemeDayStatistics(todayString);
-        console.log('Backend theme day response:', themeDayResponse);
-        
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (themeDayResponse && (themeDayResponse as any).theme && (themeDayResponse as any).theme.words) {
-          // Get the day of week for today
-          const dayOfWeek = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
-          const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      // Try to get theme words from the backend for the last 7 days
+      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      
+      for (let i = 0; i < 7; i++) {
+        try {
+          const date = new Date();
+          date.setDate(date.getDate() - i); // Go back i days
+          const dateString = date.getFullYear() + '-' + 
+            String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+            String(date.getDate()).padStart(2, '0'); // YYYY-MM-DD format
+          
+          const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
           const dayName = dayNames[dayOfWeek];
           
-          // Update the theme words for today's day
+          console.log(`Fetching theme words for ${dayName} (${dateString})`);
+          
+          const themeDayResponse = await apiService.getThemeDayStatistics(dateString);
+          
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          if (Array.isArray((themeDayResponse as any).theme.words)) {
+          if (themeDayResponse && (themeDayResponse as any).theme && (themeDayResponse as any).theme.words) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            themeWords[dayName as keyof typeof themeWords] = (themeDayResponse as any).theme.words.map((word: string) => word.toUpperCase());
-            console.log(`Updated ${dayName} theme words from backend:`, themeWords[dayName as keyof typeof themeWords]);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            console.log(`Today's theme: ${(themeDayResponse as any).theme.name}`);
-          }
+            if (Array.isArray((themeDayResponse as any).theme.words)) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              themeWords[dayName as keyof typeof themeWords] = (themeDayResponse as any).theme.words.map((word: string) => word.toUpperCase());
+              console.log(`Updated ${dayName} theme words from backend:`, themeWords[dayName as keyof typeof themeWords]);
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              console.log(`${dayName}'s theme: ${(themeDayResponse as any).theme.name}`);
             }
-          } catch (error) {
-        console.log('Could not fetch theme words from backend, using defaults:', error);
+          }
+        } catch (error) {
+          console.log(`Could not fetch theme words for day ${i}, using defaults:`, error);
+        }
       }
 
       console.log('Final theme words being used:', themeWords);
