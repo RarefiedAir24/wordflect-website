@@ -397,6 +397,26 @@ export default function Profile() {
       console.log('🎯 TODAY DEBUG: Date string:', todayString);
       console.log('🎯 TODAY DEBUG: Words found today:', todayWords.length);
       console.log('🎯 TODAY DEBUG: Today\'s words:', todayWords.map(w => typeof w === 'string' ? w : w.word).join(', '));
+      
+      // Debug: Check if SEAL is in today's words
+      const sealFound = todayWords.find(w => {
+        const word = typeof w === 'string' ? w : w.word;
+        return word && word.toUpperCase() === 'SEAL';
+      });
+      console.log('🎯 SEAL DEBUG: Is SEAL in today\'s words?', !!sealFound);
+      if (sealFound) {
+        console.log('🎯 SEAL DEBUG: SEAL found object:', sealFound);
+      }
+      
+      // Debug: Show all words with dates to see the latest entries
+      const wordsWithDates = profile.allFoundWords.filter(w => {
+        const date = typeof w === 'string' ? undefined : w.date;
+        return date;
+      }).slice(-10); // Last 10 words with dates
+      console.log('🎯 LATEST WORDS DEBUG: Last 10 words with dates:', wordsWithDates.map(w => ({
+        word: typeof w === 'string' ? w : w.word,
+        date: typeof w === 'string' ? undefined : w.date
+      })));
       const now = new Date();
       console.log('Today is:', now.toDateString());
       console.log('Today day of week (local):', now.getDay()); // 0 = Sunday, 1 = Monday, etc.
