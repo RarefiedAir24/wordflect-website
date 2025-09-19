@@ -697,8 +697,8 @@ export default function Profile() {
           console.log(`${day}: Using theme words:`, dayThemeWords);
           
           // Calculate the date for this day of the current week
-          const today = new Date();
-          const todayDayOfWeek = today.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
+          const currentDate = new Date();
+          const todayDayOfWeek = currentDate.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
           const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
           const dayIndex = dayNames.indexOf(day);
           const daysFromToday = dayIndex - todayDayOfWeek;
