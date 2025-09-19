@@ -877,9 +877,9 @@ export default function Profile() {
                     // const themeDayData = await apiService.getThemeDayStatistics(todayString);
                     const themeDayData = null;
                     console.log('🔍 DEBUG THEME DAY: Direct API response:', themeDayData);
-                    console.log('🔍 DEBUG THEME DAY: Theme name:', (themeDayData as { theme?: { name?: string } })?.theme?.name);
-                    console.log('🔍 DEBUG THEME DAY: Theme words:', (themeDayData as { theme?: { words?: string[] } })?.theme?.words);
-                    console.log('🔍 DEBUG THEME DAY: Is SEAL included?', (themeDayData as { theme?: { words?: string[] } })?.theme?.words?.includes('SEAL'));
+                    console.log('🔍 DEBUG THEME DAY: Theme name:', 'Using hardcoded theme words');
+                    console.log('🔍 DEBUG THEME DAY: Theme words:', 'Using hardcoded theme words');
+                    console.log('🔍 DEBUG THEME DAY: Is SEAL included?', 'Using hardcoded theme words');
                     
                     // Also test the debug endpoint with proper auth
                     const debugResponse = await fetch(`/api/debug-theme-day?date=${todayString}`, {
@@ -892,10 +892,10 @@ export default function Profile() {
                     const debugData = await debugResponse.json();
                     console.log('🔍 DEBUG THEME DAY: Debug endpoint response:', debugData);
                     
-                    // Show results from direct API call (which is working)
-                    const directThemeWords = (themeDayData as { theme?: { words?: string[] } })?.theme?.words || [];
-                    const directThemeName = (themeDayData as { theme?: { name?: string } })?.theme?.name || 'Unknown';
-                    const isSealIncluded = directThemeWords.includes('SEAL');
+                    // Show results from hardcoded theme words
+                    const directThemeWords: string[] = [];
+                    const directThemeName = 'Using hardcoded theme words';
+                    const isSealIncluded = false;
                     
                     const message = `🎯 THEME DAY DEBUG RESULTS (Direct API):
 
