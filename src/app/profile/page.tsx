@@ -529,7 +529,11 @@ export default function Profile() {
           const backendResponse = (themeWords as any)[`${day}_response`];
           
           let foundThemeWords: string[] = [];
-          const allThemeWords: string[] = data.themeWords;
+          // Use backend theme words if available, otherwise fall back to hardcoded
+          const allThemeWords: string[] = backendResponse?.theme?.words || data.themeWords;
+          console.log(`${day}: Using theme words for modal:`, allThemeWords);
+          console.log(`${day}: Backend theme words:`, backendResponse?.theme?.words);
+          console.log(`${day}: Fallback theme words:`, data.themeWords);
           
           if (backendResponse && backendResponse.themeWordsFound && backendResponse.themeWordsFound.length > 0) {
             // Use the backend's themeWordsFound data (most accurate)
