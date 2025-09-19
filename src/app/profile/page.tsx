@@ -456,12 +456,15 @@ export default function Profile() {
             }
           }
         } catch (error) {
-          console.log(`Could not fetch theme words for day ${i} (${dayNames[new Date().getDay() - i] || 'unknown'}), using defaults. Error:`, error);
+          console.log(`❌ Could not fetch theme words for day ${i} (${dayNames[new Date().getDay() - i] || 'unknown'}), using defaults. Error:`, error);
+          console.log(`❌ This means ${dayNames[new Date().getDay() - i] || 'unknown'} will use hardcoded theme words instead of backend data`);
           // Continue with hardcoded theme words - this is expected if API is down
         }
       }
 
       console.log('Final theme words being used:', themeWords);
+      console.log('Friday theme words specifically:', themeWords.friday);
+      console.log('Friday theme words count:', themeWords.friday.length);
       console.log('Thursday theme words specifically:', themeWords.thursday);
       console.log('Thursday theme words count:', themeWords.thursday.length);
 
