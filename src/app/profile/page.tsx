@@ -235,16 +235,7 @@ export default function Profile() {
         setTimeAnalytics(analytics as Record<string, unknown> | null);
           } catch (error) {
         console.error("Time analytics fetch error:", error);
-        console.log("Time analytics API failed, using fallback data");
-        // Set fallback data structure for Time & Usage Analytics
-        setTimeAnalytics({
-          timePeriods: [
-            { period: 'early-morning', wordsFound: 15, gamesPlayed: 3 },
-            { period: 'morning', wordsFound: 25, gamesPlayed: 4 },
-            { period: 'afternoon', wordsFound: 18, gamesPlayed: 2 },
-            { period: 'evening', wordsFound: 12, gamesPlayed: 2 }
-          ]
-        });
+        setTimeAnalytics(null);
       }
     };
 
@@ -269,19 +260,7 @@ export default function Profile() {
         setThemeAnalytics(analytics as Record<string, unknown> | null);
       } catch (error) {
         console.error("Theme analytics fetch error:", error);
-        console.log("Theme analytics API failed, using fallback data");
-        // Set fallback data structure for Theme Analytics
-        setThemeAnalytics({
-          themes: [
-            { day: 'monday', wordsFound: 8, totalWords: 20, words: ['PIZZA', 'BURGER', 'SALAD', 'SOUP', 'CAKE', 'BREAD', 'RICE', 'PASTA'] },
-            { day: 'tuesday', wordsFound: 12, totalWords: 20, words: ['HOUSE', 'CAR', 'TREE', 'BOOK', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'PHONE', 'CLOCK', 'LAMP', 'BED'] },
-            { day: 'wednesday', wordsFound: 6, totalWords: 20, words: ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING'] },
-            { day: 'thursday', wordsFound: 10, totalWords: 20, words: ['BIG', 'SMALL', 'FAST', 'SLOW', 'HOT', 'COLD', 'NEW', 'OLD', 'GOOD', 'BAD'] },
-            { day: 'friday', wordsFound: 7, totalWords: 20, words: ['DOG', 'CAT', 'BIRD', 'FISH', 'LION', 'TIGER', 'BEAR'] },
-            { day: 'saturday', wordsFound: 9, totalWords: 20, words: ['TREE', 'FLOWER', 'GRASS', 'MOUNTAIN', 'RIVER', 'OCEAN', 'SUN', 'MOON', 'STAR'] },
-            { day: 'sunday', wordsFound: 5, totalWords: 20, words: ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE'] }
-          ]
-        });
+        setThemeAnalytics(null);
       }
     };
 
@@ -302,15 +281,8 @@ export default function Profile() {
     console.log('timeAnalytics.timePeriods:', timeAnalytics?.timePeriods);
     
     if (!timeAnalytics || !timeAnalytics.timePeriods || !Array.isArray(timeAnalytics.timePeriods)) {
-      console.log('No time analytics data available, using fallback data');
-      // Return some sample data to test the UI
-      return {
-        wordsFound: Math.floor(Math.random() * 50) + 10,
-        gamesPlayed: Math.floor(Math.random() * 10) + 1,
-        avgPerGame: Math.floor(Math.random() * 20) + 5,
-        performance: Math.floor(Math.random() * 100),
-        status: 'Sample data - API not returning expected structure'
-      };
+      console.log('No time analytics data available');
+      return null;
     }
 
     const periodData = timeAnalytics.timePeriods.find((p: Record<string, unknown>) => p.period === period);
@@ -352,14 +324,8 @@ export default function Profile() {
     console.log('themeAnalytics.themes:', themeAnalytics?.themes);
     
     if (!themeAnalytics || !themeAnalytics.themes || !Array.isArray(themeAnalytics.themes)) {
-      console.log('No theme analytics data available, using fallback data');
-      // Return some sample data to test the UI
-      return {
-        wordsFound: Math.floor(Math.random() * 15) + 1,
-        totalWords: 20,
-        completionPercent: Math.floor(Math.random() * 100),
-        words: ['SAMPLE', 'WORDS', 'FOR', 'TESTING']
-      };
+      console.log('No theme analytics data available');
+      return null;
     }
 
     const themeData = themeAnalytics.themes.find((t: Record<string, unknown>) => t.day === day);
@@ -863,23 +829,26 @@ export default function Profile() {
             </div>
           </div>
         
-        {/* API Status Notice */}
-        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-sm text-amber-800">
-              <strong>Note:</strong> Theme Analytics API is currently unavailable (403 Forbidden). Showing sample data for demonstration.
-            </p>
-          </div>
-        </div>
 
         {/* Theme Performance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {/* Monday - Food & Drinks */}
           {(() => {
             const themeData = getThemeData('monday');
+            if (!themeData) {
+              return (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">🍕</span>
+                    </div>
+                    <span className="text-xs text-gray-500 font-semibold">MONDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-500">Food & Drinks</p>
+                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                </div>
+              );
+            }
             return (
               <div 
                 className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-4 border border-orange-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
@@ -906,6 +875,20 @@ export default function Profile() {
           {/* Tuesday - Common Nouns */}
           {(() => {
             const themeData = getThemeData('tuesday');
+            if (!themeData) {
+              return (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">🏠</span>
+                    </div>
+                    <span className="text-xs text-gray-500 font-semibold">TUESDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-500">Common Nouns</p>
+                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                </div>
+              );
+            }
             return (
               <div 
                 className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
@@ -932,6 +915,20 @@ export default function Profile() {
           {/* Wednesday - Verbs */}
           {(() => {
             const themeData = getThemeData('wednesday');
+            if (!themeData) {
+              return (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">🏃</span>
+                    </div>
+                    <span className="text-xs text-gray-500 font-semibold">WEDNESDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-500">Verbs</p>
+                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                </div>
+              );
+            }
             return (
               <div 
                 className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
@@ -958,6 +955,20 @@ export default function Profile() {
           {/* Thursday - Adjectives */}
           {(() => {
             const themeData = getThemeData('thursday');
+            if (!themeData) {
+              return (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">📝</span>
+                    </div>
+                    <span className="text-xs text-gray-500 font-semibold">THURSDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-500">Adjectives</p>
+                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                </div>
+              );
+            }
             return (
               <div 
                 className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
@@ -987,6 +998,20 @@ export default function Profile() {
           {/* Friday - Animals */}
           {(() => {
             const themeData = getThemeData('friday');
+            if (!themeData) {
+              return (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">🐕</span>
+                    </div>
+                    <span className="text-xs text-gray-500 font-semibold">FRIDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-500">Animals</p>
+                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                </div>
+              );
+            }
             return (
               <div 
                 className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
@@ -1013,6 +1038,20 @@ export default function Profile() {
           {/* Saturday - Nature */}
           {(() => {
             const themeData = getThemeData('saturday');
+            if (!themeData) {
+              return (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">🌳</span>
+                    </div>
+                    <span className="text-xs text-gray-500 font-semibold">SATURDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-500">Nature</p>
+                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                </div>
+              );
+            }
             return (
               <div 
                 className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-4 border border-teal-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
@@ -1039,6 +1078,20 @@ export default function Profile() {
           {/* Sunday - Technology */}
           {(() => {
             const themeData = getThemeData('sunday');
+            if (!themeData) {
+              return (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm">📱</span>
+                    </div>
+                    <span className="text-xs text-gray-500 font-semibold">SUNDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-500">Technology</p>
+                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                </div>
+              );
+            }
             return (
               <div 
                 className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
@@ -1166,23 +1219,28 @@ export default function Profile() {
           </div>
         </div>
         
-        {/* API Status Notice */}
-        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-sm text-amber-800">
-              <strong>Note:</strong> Analytics API is currently unavailable (403 Forbidden). Showing sample data for demonstration.
-            </p>
-          </div>
-        </div>
 
         {/* Time Period Performance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {/* Early Morning (5AM - 10AM) */}
           {(() => {
             const periodData = getTimePeriodData('early-morning');
+            if (!periodData) {
+              return (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                    </div>
+                    <span className="text-xs text-gray-500 font-semibold">EARLY MORNING</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-500">5:00 AM - 10:00 AM</p>
+                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                </div>
+              );
+            }
             return (
               <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-200">
                 <div className="flex items-center justify-between mb-3">
@@ -1222,6 +1280,22 @@ export default function Profile() {
           {/* Late Morning (10AM - 3PM) */}
           {(() => {
             const periodData = getTimePeriodData('late-morning');
+            if (!periodData) {
+              return (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                    </div>
+                    <span className="text-xs text-gray-500 font-semibold">LATE MORNING</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-500">10:00 AM - 3:00 PM</p>
+                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                </div>
+              );
+            }
             return (
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
                 <div className="flex items-center justify-between mb-3">
@@ -1261,6 +1335,22 @@ export default function Profile() {
           {/* Afternoon (3PM - 8PM) */}
           {(() => {
             const periodData = getTimePeriodData('afternoon');
+            if (!periodData) {
+              return (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                    </div>
+                    <span className="text-xs text-gray-500 font-semibold">AFTERNOON</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-500">3:00 PM - 8:00 PM</p>
+                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                </div>
+              );
+            }
             return (
               <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
                 <div className="flex items-center justify-between mb-3">
@@ -1300,6 +1390,22 @@ export default function Profile() {
           {/* Evening (8PM - 12AM) */}
           {(() => {
             const periodData = getTimePeriodData('evening');
+            if (!periodData) {
+              return (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                      </svg>
+                    </div>
+                    <span className="text-xs text-gray-500 font-semibold">EVENING</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-500">8:00 PM - 12:00 AM</p>
+                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                </div>
+              );
+            }
             return (
               <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
                 <div className="flex items-center justify-between mb-3">
@@ -1359,7 +1465,7 @@ export default function Profile() {
                   
                   periods.forEach((period, index) => {
                     const data = getTimePeriodData(period);
-                    if (data.wordsFound > maxWords) {
+                    if (data && data.wordsFound > maxWords) {
                       maxWords = data.wordsFound;
                       peakPeriod = periodNames[index];
                     }
@@ -1378,7 +1484,7 @@ export default function Profile() {
                   
                   periods.forEach(period => {
                     const data = getTimePeriodData(period);
-                    if (data.avgPerGame > maxAvg) {
+                    if (data && data.avgPerGame > maxAvg) {
                       maxAvg = data.avgPerGame;
                     }
                   });
@@ -1398,7 +1504,7 @@ export default function Profile() {
                   
                   periods.forEach((period, index) => {
                     const data = getTimePeriodData(period);
-                    if (data.wordsFound > maxWords) {
+                    if (data && data.wordsFound > maxWords) {
                       maxWords = data.wordsFound;
                       bestPeriod = index;
                     }
@@ -1434,7 +1540,11 @@ export default function Profile() {
               
               return periods.map(period => {
                 const data = getTimePeriodData(period.key);
-                const maxWords = Math.max(...periods.map(p => getTimePeriodData(p.key).wordsFound), 1);
+                if (!data) return null;
+                const maxWords = Math.max(...periods.map(p => {
+                  const pData = getTimePeriodData(p.key);
+                  return pData ? pData.wordsFound : 0;
+                }), 1);
                 const width = maxWords > 0 ? (data.wordsFound / maxWords) * 100 : 0;
                 
                 return (
@@ -1458,7 +1568,10 @@ export default function Profile() {
             <p className="text-sm text-gray-600">
               <strong>Total Words Found:</strong> {(() => {
                 const periods = ['early-morning', 'late-morning', 'afternoon', 'evening'];
-                const total = periods.reduce((sum, period) => sum + getTimePeriodData(period).wordsFound, 0);
+                const total = periods.reduce((sum, period) => {
+                  const data = getTimePeriodData(period);
+                  return sum + (data ? data.wordsFound : 0);
+                }, 0);
                 return `${total} across all time periods`;
               })()}
             </p>
@@ -1697,6 +1810,7 @@ export default function Profile() {
                 <p className="text-sm text-gray-600 mt-1">
                   {(() => {
                     const themeData = getThemeData(selectedThemeDay);
+                    if (!themeData) return 'No data available';
                     return `${themeData.wordsFound}/${themeData.totalWords} words found`;
                   })()}
                 </p>
@@ -1714,7 +1828,7 @@ export default function Profile() {
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               {(() => {
                 const themeData = getThemeData(selectedThemeDay);
-                if (themeData.words.length === 0) {
+                if (!themeData || themeData.words.length === 0) {
                   return (
                     <div className="text-center py-8">
                       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
