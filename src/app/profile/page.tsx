@@ -446,21 +446,11 @@ export default function Profile() {
               console.log(`Backend ${dayName} theme: ${backendThemeName}`);
               console.log(`Backend ${dayName} words:`, backendThemeWords);
               
-              // Check if backend theme words match expected theme words
-              // If there's a mismatch (like missing SEAL), use hardcoded fallback
-              const expectedWords = themeWords[dayName as keyof typeof themeWords];
-              const hasMismatch = expectedWords.some(word => !backendThemeWords.includes(word));
-              
-              if (hasMismatch) {
-                console.log(`⚠️ Backend ${dayName} theme words mismatch detected. Using hardcoded fallback.`);
-                console.log(`Expected: ${expectedWords.join(', ')}`);
-                console.log(`Backend: ${backendThemeWords.join(', ')}`);
-                // Keep the hardcoded theme words instead of using backend
-              } else {
-                // Use backend theme data as the source of truth
-                themeWords[dayName as keyof typeof themeWords] = backendThemeWords;
-                console.log(`✅ Using backend ${dayName} theme words: ${backendThemeName}`);
-              }
+              // Always use hardcoded theme words to match mobile app
+              console.log(`⚠️ Using hardcoded ${dayName} theme words to match mobile app.`);
+              console.log(`Hardcoded: ${themeWords[dayName as keyof typeof themeWords].join(', ')}`);
+              console.log(`Backend: ${backendThemeWords.join(', ')}`);
+              // Keep the hardcoded theme words instead of using backend
               
               // Store the full response for this day to use in theme analytics
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
