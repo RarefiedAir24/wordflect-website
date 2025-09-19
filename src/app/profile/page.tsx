@@ -564,7 +564,9 @@ export default function Profile() {
             day,
             wordsFound: foundThemeWords.length,
             totalWords: data.themeWords.length,
-            words: foundThemeWords.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean).slice(0, 20) // Limit to 20 words
+            words: foundThemeWords.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean).slice(0, 20), // Limit to 20 words
+            allThemeWords: data.themeWords, // All theme words for this day
+            foundWords: foundThemeWords.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean) // Only found words
           };
         })
       };
@@ -2197,7 +2199,7 @@ export default function Profile() {
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               {(() => {
                 const themeData = getThemeData(selectedThemeDay);
-                if (!themeData || themeData.words.length === 0) {
+                if (!themeData) {
                   return (
                     <div className="text-center py-8">
                       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -2205,22 +2207,74 @@ export default function Profile() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">No theme words found yet</h3>
-                      <p className="text-gray-600">Play games on {selectedThemeDay} to discover theme words!</p>
-    </div>
-  );
-} 
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">No theme data available</h3>
+                      <p className="text-gray-600">Theme analytics are being generated...</p>
+                    </div>
+                  );
+                }
+
+                // Get all theme words for this day from the themeAnalytics
+                const themes = themeAnalytics?.themes as Record<string, unknown>[] | undefined;
+                const dayThemeWords = themes?.find((t: Record<string, unknown>) => t.day === selectedThemeDay);
+                const allThemeWords = dayThemeWords?.allThemeWords as string[] || [];
+                const foundWords = dayThemeWords?.foundWords as string[] || [];
+
+                if (allThemeWords.length === 0) {
+                  return (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">No theme words available</h3>
+                      <p className="text-gray-600">Theme words for {selectedThemeDay} are being loaded...</p>
+                    </div>
+                  );
+                }
                 
                 return (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                    {themeData.words.map((word: string, index: number) => (
-                      <div
-                        key={index}
-                        className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 text-center hover:shadow-md transition-shadow"
-                      >
-                        <span className="font-semibold text-blue-900 text-sm">{word}</span>
+                  <div className="space-y-4">
+                    {/* Progress Counter */}
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-gray-900">
+                        {foundWords.length}/{allThemeWords.length}
                       </div>
-                    ))}
+                      <div className="text-sm text-gray-600">words found</div>
+                    </div>
+
+                    {/* Theme Words Grid */}
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                      {allThemeWords.map((word: string, index: number) => {
+                        const isFound = foundWords.includes(word.toUpperCase());
+                        return (
+                          <div
+                            key={index}
+                            className={`
+                              rounded-xl p-3 text-center transition-all duration-200 border-2
+                              ${isFound 
+                                ? 'bg-gradient-to-br from-green-100 to-emerald-100 border-green-300 shadow-md' 
+                                : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 hover:shadow-sm'
+                              }
+                            `}
+                          >
+                            <span className={`
+                              font-semibold text-sm uppercase
+                              ${isFound ? 'text-green-800' : 'text-gray-600'}
+                            `}>
+                              {word}
+                            </span>
+                            {isFound && (
+                              <div className="mt-1">
+                                <svg className="w-4 h-4 text-green-600 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 );
               })()}
