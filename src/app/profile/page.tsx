@@ -315,6 +315,9 @@ export default function Profile() {
       console.log('Sample words with dates:', profile.allFoundWords.slice(0, 5));
       console.log('Today is:', new Date().toDateString());
       console.log('Today day of week:', new Date().getDay()); // 0 = Sunday, 1 = Monday, etc.
+      console.log('Current timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
+      console.log('Current time:', new Date().toISOString());
+      console.log('Local time:', new Date().toString());
 
       // Try to get the actual theme words from the backend API
       // eslint-disable-next-line prefer-const
@@ -448,6 +451,22 @@ export default function Profile() {
             // Debug: Show all words found today to see what we're working with
             console.log(`${day}: All words found today:`, data.words.map(w => w.word?.toUpperCase()));
             console.log(`${day}: Available theme words:`, data.themeWords);
+            
+            // Debug: Check for similar words that might be the ones you found
+            const allWords = data.words.map(w => w.word?.toUpperCase()).filter(Boolean) as string[];
+            console.log(`${day}: Looking for similar words:`);
+            console.log(`${day}: Words containing 'GOOSE':`, allWords.filter(w => w.includes('GOOSE')));
+            console.log(`${day}: Words containing 'CRAB':`, allWords.filter(w => w.includes('CRAB')));
+            console.log(`${day}: Words containing 'SHEEP':`, allWords.filter(w => w.includes('SHEEP')));
+            console.log(`${day}: Words containing 'DUCK':`, allWords.filter(w => w.includes('DUCK')));
+            console.log(`${day}: Words containing 'HORSE':`, allWords.filter(w => w.includes('HORSE')));
+            
+            // Debug: Check exact date being used
+            console.log(`${day}: Date range being used:`, {
+              sevenDaysAgo: sevenDaysAgo.toISOString(),
+              today: new Date().toISOString(),
+              currentDate: new Date().toDateString()
+            });
             
             // Debug: Check if the words exist in the theme list
             expectedThemeWords.forEach(expectedWord => {
