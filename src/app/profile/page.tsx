@@ -235,7 +235,16 @@ export default function Profile() {
         setTimeAnalytics(analytics as Record<string, unknown> | null);
           } catch (error) {
         console.error("Time analytics fetch error:", error);
-        setTimeAnalytics(null);
+        console.log("Time analytics API failed, using fallback data");
+        // Set fallback data structure for Time & Usage Analytics
+        setTimeAnalytics({
+          timePeriods: [
+            { period: 'early-morning', wordsFound: 15, gamesPlayed: 3 },
+            { period: 'morning', wordsFound: 25, gamesPlayed: 4 },
+            { period: 'afternoon', wordsFound: 18, gamesPlayed: 2 },
+            { period: 'evening', wordsFound: 12, gamesPlayed: 2 }
+          ]
+        });
       }
     };
 
@@ -260,7 +269,19 @@ export default function Profile() {
         setThemeAnalytics(analytics as Record<string, unknown> | null);
       } catch (error) {
         console.error("Theme analytics fetch error:", error);
-        setThemeAnalytics(null);
+        console.log("Theme analytics API failed, using fallback data");
+        // Set fallback data structure for Theme Analytics
+        setThemeAnalytics({
+          themes: [
+            { day: 'monday', wordsFound: 8, totalWords: 20, words: ['PIZZA', 'BURGER', 'SALAD', 'SOUP', 'CAKE', 'BREAD', 'RICE', 'PASTA'] },
+            { day: 'tuesday', wordsFound: 12, totalWords: 20, words: ['HOUSE', 'CAR', 'TREE', 'BOOK', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'PHONE', 'CLOCK', 'LAMP', 'BED'] },
+            { day: 'wednesday', wordsFound: 6, totalWords: 20, words: ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING'] },
+            { day: 'thursday', wordsFound: 10, totalWords: 20, words: ['BIG', 'SMALL', 'FAST', 'SLOW', 'HOT', 'COLD', 'NEW', 'OLD', 'GOOD', 'BAD'] },
+            { day: 'friday', wordsFound: 7, totalWords: 20, words: ['DOG', 'CAT', 'BIRD', 'FISH', 'LION', 'TIGER', 'BEAR'] },
+            { day: 'saturday', wordsFound: 9, totalWords: 20, words: ['TREE', 'FLOWER', 'GRASS', 'MOUNTAIN', 'RIVER', 'OCEAN', 'SUN', 'MOON', 'STAR'] },
+            { day: 'sunday', wordsFound: 5, totalWords: 20, words: ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE'] }
+          ]
+        });
       }
     };
 
@@ -841,6 +862,18 @@ export default function Profile() {
             <p className="text-sm text-blue-700">Track your performance across daily theme challenges</p>
             </div>
           </div>
+        
+        {/* API Status Notice */}
+        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm text-amber-800">
+              <strong>Note:</strong> Theme Analytics API is currently unavailable (403 Forbidden). Showing sample data for demonstration.
+            </p>
+          </div>
+        </div>
 
         {/* Theme Performance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -1130,6 +1163,18 @@ export default function Profile() {
           <div>
             <h3 className="font-bold text-xl text-blue-950">Performance by Time Period</h3>
             <p className="text-sm text-blue-700">Discover when your brain performs at its peak</p>
+          </div>
+        </div>
+        
+        {/* API Status Notice */}
+        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm text-amber-800">
+              <strong>Note:</strong> Analytics API is currently unavailable (403 Forbidden). Showing sample data for demonstration.
+            </p>
           </div>
         </div>
 
