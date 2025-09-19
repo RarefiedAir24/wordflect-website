@@ -683,12 +683,28 @@ export default function Profile() {
           
           // Find words that match the theme words for this day AND were found on this specific date
           console.log(`${day}: Checking ${data.words.length} words for date ${dayDateString}`);
-          console.log(`${day}: Sample words:`, data.words.slice(0, 3).map(w => ({ word: w.word, date: w.date })));
+          console.log(`${day}: Theme words for this day:`, dayThemeWords);
+          console.log(`${day}: Sample words:`, data.words.slice(0, 5).map(w => ({ word: w.word, date: w.date })));
           
-          const foundThemeWordsObjects = data.words.filter((word: { word?: string; date?: string }) => 
-            word.word && dayThemeWords.includes(word.word.toUpperCase()) && 
-            word.date && new Date(word.date).toDateString() === new Date(dayDateString).toDateString()
-          );
+          // Debug: Check if SEAL is in the theme words
+          if (day === 'friday') {
+            console.log(`🔍 FRIDAY DEBUG: Is SEAL in theme words?`, dayThemeWords.includes('SEAL'));
+            console.log(`🔍 FRIDAY DEBUG: All Friday theme words:`, dayThemeWords);
+          }
+          
+          const foundThemeWordsObjects = data.words.filter((word: { word?: string; date?: string }) => {
+            const wordText = word.word;
+            const wordDate = word.date;
+            const isThemeWord = wordText && dayThemeWords.includes(wordText.toUpperCase());
+            const isCorrectDate = wordDate && new Date(wordDate).toDateString() === new Date(dayDateString).toDateString();
+            
+            // Debug: Log SEAL specifically
+            if (day === 'friday' && wordText && wordText.toUpperCase() === 'SEAL') {
+              console.log(`🔍 SEAL DEBUG: Found SEAL word:`, { wordText, wordDate, isThemeWord, isCorrectDate, dayDateString });
+            }
+            
+            return isThemeWord && isCorrectDate;
+          });
           foundThemeWords = foundThemeWordsObjects.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean) as string[];
           console.log(`${day}: Manual matching found:`, foundThemeWords);
           
