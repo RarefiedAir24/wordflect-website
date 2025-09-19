@@ -676,7 +676,7 @@ export default function Profile() {
   };
 
   const getThemePerformanceSummary = () => {
-    if (!themeAnalytics || !themeAnalytics.themes || !Array.isArray(themeAnalytics.themes)) {
+    if (!profile || !profile.allFoundWords || profile.allFoundWords.length === 0) {
       return {
         bestTheme: { name: 'No data', day: '', percentage: 0 },
         mostConsistent: { name: 'No data', day: '', percentage: 0 },
@@ -684,35 +684,70 @@ export default function Profile() {
       };
     }
 
-    const themes = themeAnalytics.themes as Record<string, unknown>[];
+    // Define theme words for each day of the week
+    const themeWords = {
+      monday: ['PIZZA', 'BURGER', 'SALAD', 'COFFEE', 'JUICE', 'BREAD', 'CHEESE', 'APPLE', 'BANANA', 'GRAPE', 'ORANGE', 'LEMON', 'PASTA', 'RICE', 'SOUP', 'CAKE', 'COOKIE', 'CANDY', 'CHOCOLATE', 'SANDWICH'],
+      tuesday: ['HOUSE', 'CAR', 'TREE', 'BOOK', 'PHONE', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'CLOCK', 'MONEY', 'MUSIC', 'FAMILY', 'FRIEND', 'SCHOOL', 'WORK', 'GAME', 'MOVIE', 'STORY', 'DREAM'],
+      wednesday: ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'CLEAN', 'LEARN', 'TEACH', 'HELP', 'LOVE', 'THINK', 'DREAM', 'CREATE', 'BUILD'],
+      thursday: ['BIG', 'SMALL', 'FAST', 'SLOW', 'HOT', 'COLD', 'NEW', 'OLD', 'GOOD', 'BAD', 'HAPPY', 'SAD', 'BEAUTIFUL', 'STRONG', 'SMART', 'FUNNY', 'QUIET', 'LOUD', 'BRIGHT', 'DARK'],
+      friday: ['DOG', 'CAT', 'BIRD', 'FISH', 'BEAR', 'LION', 'TIGER', 'ELEPHANT', 'MONKEY', 'RABBIT', 'MOUSE', 'SNAKE', 'HORSE', 'COW', 'PIG', 'SHEEP', 'GOAT', 'CHICKEN', 'DUCK', 'OWL'],
+      saturday: ['TREE', 'FLOWER', 'GRASS', 'LEAF', 'ROCK', 'WATER', 'FIRE', 'EARTH', 'WIND', 'RAIN', 'SNOW', 'SUN', 'MOON', 'STAR', 'OCEAN', 'MOUNTAIN', 'FOREST', 'DESERT', 'RIVER', 'LAKE'],
+      sunday: ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'VIDEO', 'AUDIO', 'CAMERA', 'SCREEN', 'KEYBOARD', 'MOUSE', 'TABLET', 'LAPTOP', 'WIFI', 'BLUETOOTH', 'BATTERY', 'CHARGER', 'HEADPHONES', 'SPEAKER']
+    };
 
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const themeStats: Record<string, { wordsFound: number; totalWords: number; completionPercent: number }> = {};
+
+    // Initialize stats for each day
+    dayNames.forEach(day => {
+      themeStats[day] = { wordsFound: 0, totalWords: themeWords[day as keyof typeof themeWords].length, completionPercent: 0 };
+    });
+
+    // Count theme words found by day of the week
+    profile.allFoundWords.forEach(wordObj => {
+      const word = typeof wordObj === 'string' ? wordObj : wordObj.word;
+      if (!word) return;
+
+      const wordUpper = word.toUpperCase();
+      const foundDate = typeof wordObj === 'string' ? new Date() : new Date(wordObj.date || new Date());
+      const dayOfWeek = foundDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const dayName = dayNames[dayOfWeek];
+
+      // Check if this word is a theme word for this day
+      if (themeWords[dayName as keyof typeof themeWords].includes(wordUpper)) {
+        themeStats[dayName].wordsFound++;
+      }
+    });
+
+    // Calculate completion percentages
+    Object.keys(themeStats).forEach(day => {
+      const stats = themeStats[day];
+      stats.completionPercent = stats.totalWords > 0 ? Math.round((stats.wordsFound / stats.totalWords) * 100) : 0;
+    });
+
+    // Find best theme (highest completion percentage)
     let bestTheme = { name: 'No data', day: '', percentage: 0 };
     let mostConsistent = { name: 'No data', day: '', percentage: 0 };
     let totalThemeWords = 0;
 
-    themes.forEach((theme: Record<string, unknown>) => {
-      const day = theme.day as string;
-      const wordsFound = (theme.wordsFound as number) || 0;
-      const totalWords = (theme.totalWords as number) || 0;
-      const completionPercent = totalWords > 0 ? Math.round((wordsFound / totalWords) * 100) : 0;
-      
-      totalThemeWords += wordsFound;
+    Object.entries(themeStats).forEach(([day, stats]) => {
+      totalThemeWords += stats.wordsFound;
 
-      // Find best performing theme (highest completion percentage)
-      if (completionPercent > bestTheme.percentage) {
+      // Find best theme (highest completion percentage)
+      if (stats.completionPercent > bestTheme.percentage) {
         bestTheme = {
           name: getThemeName(day),
           day: day.charAt(0).toUpperCase() + day.slice(1),
-          percentage: completionPercent
+          percentage: stats.completionPercent
         };
       }
 
       // Find most consistent theme (highest number of words found)
-      if (wordsFound > (mostConsistent.percentage || 0)) {
+      if (stats.wordsFound > mostConsistent.percentage) {
         mostConsistent = {
           name: getThemeName(day),
           day: day.charAt(0).toUpperCase() + day.slice(1),
-          percentage: wordsFound
+          percentage: stats.wordsFound
         };
       }
     });
