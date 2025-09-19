@@ -546,12 +546,12 @@ export default function Profile() {
       });
       
       // Get today's date and calculate the current week's theme schedule
-      const currentDate = new Date();
-      const todayDayOfWeek = currentDate.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
+      const weekDate = new Date();
+      const todayDayOfWeek = weekDate.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
       
       // Calculate the start of the current week (Sunday)
-      const startOfWeek = new Date(currentDate);
-      startOfWeek.setUTCDate(currentDate.getUTCDate() - todayDayOfWeek);
+      const startOfWeek = new Date(weekDate);
+      startOfWeek.setUTCDate(weekDate.getUTCDate() - todayDayOfWeek);
       const weekKey = startOfWeek.toISOString().split('T')[0]; // YYYY-MM-DD format
       
       console.log(`Generating theme analytics for week starting: ${weekKey}`);
@@ -702,11 +702,11 @@ export default function Profile() {
           const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
           const dayIndex = dayNames.indexOf(day);
           const daysFromToday = dayIndex - todayDayOfWeek;
-          const dayDate = new Date();
-          dayDate.setUTCDate(dayDate.getUTCDate() + daysFromToday);
-          const dayDateString = dayDate.getUTCFullYear() + '-' + 
-            String(dayDate.getUTCMonth() + 1).padStart(2, '0') + '-' + 
-            String(dayDate.getUTCDate()).padStart(2, '0');
+          const targetDate = new Date();
+          targetDate.setUTCDate(targetDate.getUTCDate() + daysFromToday);
+          const dayDateString = targetDate.getUTCFullYear() + '-' + 
+            String(targetDate.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+            String(targetDate.getUTCDate()).padStart(2, '0');
           
           // Find words that match the theme words for this day AND were found on this specific date
           console.log(`${day}: Checking ${data.words.length} words for date ${dayDateString}`);
@@ -1408,7 +1408,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                       if (customDateRange.start && customDateRange.end) {
                         const startDate = new Date(customDateRange.start);
                         const endDate = new Date(customDateRange.end);
-                        const currentDate = new Date();
+                        const validationDate = new Date();
                         
                         // Validate dates
                         if (startDate > endDate) {
