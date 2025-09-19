@@ -415,6 +415,10 @@ export default function Profile() {
               console.log(`Updated ${dayName} theme words from backend:`, themeWords[dayName as keyof typeof themeWords]);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               console.log(`${dayName}'s theme: ${(themeDayResponse as any).theme.name}`);
+              
+              // Store the full response for this day to use in theme analytics
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (themeWords as any)[`${dayName}_response`] = themeDayResponse;
             }
           }
         } catch (error) {
@@ -482,91 +486,36 @@ export default function Profile() {
       // Generate analytics data
       const analytics = {
         themes: Object.entries(themeData).map(([day, data]) => {
-          const foundThemeWords = data.words.filter((word: { word?: string; date?: string }) => 
-            word.word && data.themeWords.includes(word.word.toUpperCase())
-          );
+          // Get the backend response for this day to use the actual themeWordsFound data
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const backendResponse = (themeWords as any)[`${day}_response`];
           
-          console.log(`${day}: Found ${foundThemeWords.length} theme words out of ${data.words.length} total words`);
-          console.log(`${day}: Theme words found:`, foundThemeWords.map(w => w.word?.toUpperCase()));
+          let foundThemeWords: string[] = [];
+          const allThemeWords: string[] = data.themeWords;
           
-          // Show which words from today should match
-          if (day === 'thursday' && data.words.length > 0) {
-            console.log(`${day}: All words found today:`, data.words.map(w => w.word?.toUpperCase()));
-            console.log(`${day}: Available theme words:`, data.themeWords);
-            const potentialMatches = data.words.filter((word: { word?: string; date?: string }) => 
+          if (backendResponse && backendResponse.themeWordsFound) {
+            // Use the backend's themeWordsFound data (most accurate)
+            foundThemeWords = backendResponse.themeWordsFound.map((word: string) => word.toUpperCase());
+            console.log(`${day}: Using backend themeWordsFound:`, foundThemeWords);
+          } else {
+            // Fallback to manual matching (less accurate)
+            const foundThemeWordsObjects = data.words.filter((word: { word?: string; date?: string }) => 
               word.word && data.themeWords.includes(word.word.toUpperCase())
             );
-            console.log(`${day}: Potential matches:`, potentialMatches.map(w => w.word?.toUpperCase()));
-            
-            // Check specifically for the 5 theme words you found in mobile app
-            const expectedThemeWords = ['DUCK', 'GOOSE', 'CRAB', 'HORSE', 'SHEEP'];
-            const foundExpectedWords = data.words.filter((word: { word?: string; date?: string }) =>
-              word.word && expectedThemeWords.includes(word.word.toUpperCase())
-            );
-            console.log(`${day}: Expected theme words found:`, foundExpectedWords.map(w => w.word?.toUpperCase()));
-            console.log(`${day}: Should show 5/20 theme words: DUCK, GOOSE, CRAB, HORSE, SHEEP`);
-            
-            // Debug: Check each expected word individually
-            expectedThemeWords.forEach(expectedWord => {
-              const found = data.words.find((word: { word?: string; date?: string }) => 
-                word.word && word.word.toUpperCase() === expectedWord
-              );
-              console.log(`${day}: Looking for "${expectedWord}":`, found ? `FOUND (${found.word})` : 'NOT FOUND');
-            });
-            
-            // Debug: Show all words found today to see what we're working with
-            console.log(`${day}: All words found today:`, data.words.map(w => w.word?.toUpperCase()));
-            console.log(`${day}: Available theme words:`, data.themeWords);
-            console.log(`${day}: Available theme words count:`, data.themeWords.length);
-            console.log(`${day}: Theme words include GOOSE?:`, data.themeWords.includes('GOOSE'));
-            console.log(`${day}: Theme words include CRAB?:`, data.themeWords.includes('CRAB'));
-            console.log(`${day}: Theme words include SHEEP?:`, data.themeWords.includes('SHEEP'));
-            
-            // Quick test: Check if the target words exist in today's words
-            const targetWords = ['DUCK', 'GOOSE', 'CRAB', 'HORSE', 'SHEEP'];
-            targetWords.forEach(targetWord => {
-              const existsInToday = data.words.some(w => w.word?.toUpperCase() === targetWord);
-              console.log(`${day}: "${targetWord}" exists in today's words:`, existsInToday);
-            });
-            
-            // CRITICAL DEBUG: Show exactly what's happening
-            console.log('🔍 CRITICAL DEBUG - Thursday Theme Analysis:');
-            console.log('🔍 Theme words being used:', data.themeWords);
-            console.log('🔍 Words found today:', data.words.map(w => w.word?.toUpperCase()));
-            console.log('🔍 GOOSE in theme words:', data.themeWords.includes('GOOSE'));
-            console.log('🔍 CRAB in theme words:', data.themeWords.includes('CRAB'));
-            console.log('🔍 SHEEP in theme words:', data.themeWords.includes('SHEEP'));
-            
-            // Debug: Check for similar words that might be the ones you found
-            const allWords = data.words.map(w => w.word?.toUpperCase()).filter(Boolean) as string[];
-            console.log(`${day}: Looking for similar words:`);
-            console.log(`${day}: Words containing 'GOOSE':`, allWords.filter(w => w.includes('GOOSE')));
-            console.log(`${day}: Words containing 'CRAB':`, allWords.filter(w => w.includes('CRAB')));
-            console.log(`${day}: Words containing 'SHEEP':`, allWords.filter(w => w.includes('SHEEP')));
-            console.log(`${day}: Words containing 'DUCK':`, allWords.filter(w => w.includes('DUCK')));
-            console.log(`${day}: Words containing 'HORSE':`, allWords.filter(w => w.includes('HORSE')));
-            
-            // Debug: Check exact date being used
-            console.log(`${day}: Date range being used:`, {
-              sevenDaysAgo: sevenDaysAgo.toISOString(),
-              today: new Date().toISOString(),
-              currentDate: new Date().toDateString()
-            });
-            
-            // Debug: Check if the words exist in the theme list
-            expectedThemeWords.forEach(expectedWord => {
-              const inThemeList = data.themeWords.includes(expectedWord);
-              console.log(`${day}: "${expectedWord}" in theme list:`, inThemeList);
-            });
+            foundThemeWords = foundThemeWordsObjects.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean) as string[];
+            console.log(`${day}: Using manual matching (fallback):`, foundThemeWords);
           }
+          
+          console.log(`${day}: Found ${foundThemeWords.length} theme words out of ${data.words.length} total words`);
+          console.log(`${day}: Theme words found:`, foundThemeWords);
           
           return {
             day,
             wordsFound: foundThemeWords.length,
-            totalWords: data.themeWords.length,
-            words: foundThemeWords.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean).slice(0, 20), // Limit to 20 words
-            allThemeWords: data.themeWords, // All theme words for this day
-            foundWords: foundThemeWords.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean) // Only found words
+            totalWords: allThemeWords.length,
+            words: foundThemeWords.slice(0, 20), // Limit to 20 words
+            allThemeWords: allThemeWords, // All theme words for this day
+            foundWords: foundThemeWords // Only found words
           };
         })
       };
