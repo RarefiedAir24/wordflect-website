@@ -322,7 +322,7 @@ export default function Profile() {
         monday: ['PIZZA', 'BURGER', 'SALAD', 'SOUP', 'CAKE', 'BREAD', 'RICE', 'PASTA', 'SANDWICH', 'COFFEE', 'TEA', 'JUICE', 'WATER', 'MILK', 'BEER', 'WINE', 'CHEESE', 'BUTTER', 'SUGAR', 'SALT'],
         tuesday: ['HOUSE', 'CAR', 'TREE', 'BOOK', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'PHONE', 'CLOCK', 'LAMP', 'BED', 'SOFA', 'DESK', 'MIRROR', 'PICTURE', 'FLOWER', 'GARDEN', 'STREET', 'BRIDGE'],
         wednesday: ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'BAKE', 'CLEAN', 'WASH', 'DRIVE', 'FLY', 'CLIMB', 'SKATE', 'SKI', 'RIDE'],
-        thursday: ['DOG', 'CAT', 'BIRD', 'FISH', 'LION', 'TIGER', 'BEAR', 'WOLF', 'FOX', 'RABBIT', 'MOUSE', 'SNAKE', 'FROG', 'SPIDER', 'BEE', 'BUTTERFLY', 'ELEPHANT', 'GIRAFFE', 'MONKEY', 'PENGUIN', 'HORSE', 'COW', 'PIG', 'SHEEP', 'GOAT', 'CHICKEN', 'DUCK', 'GOOSE', 'TURKEY', 'DEER'],
+        thursday: ['DOG', 'CAT', 'BIRD', 'FISH', 'LION', 'TIGER', 'BEAR', 'WOLF', 'FOX', 'RABBIT', 'MOUSE', 'SNAKE', 'FROG', 'SPIDER', 'BEE', 'BUTTERFLY', 'ELEPHANT', 'GIRAFFE', 'MONKEY', 'PENGUIN', 'HORSE', 'COW', 'PIG', 'SHEEP', 'GOAT', 'CHICKEN', 'DUCK', 'GOOSE', 'TURKEY', 'DEER', 'CRAB', 'LOBSTER', 'SHRIMP', 'WHALE', 'DOLPHIN', 'SHARK', 'EAGLE', 'OWL', 'PARROT', 'PEACOCK'],
         friday: ['BIG', 'SMALL', 'FAST', 'SLOW', 'HOT', 'COLD', 'NEW', 'OLD', 'GOOD', 'BAD', 'HAPPY', 'SAD', 'TALL', 'SHORT', 'WIDE', 'NARROW', 'THICK', 'THIN', 'HEAVY', 'LIGHT'],
         saturday: ['TREE', 'FLOWER', 'GRASS', 'MOUNTAIN', 'RIVER', 'OCEAN', 'SUN', 'MOON', 'STAR', 'CLOUD', 'RAIN', 'SNOW', 'WIND', 'FIRE', 'EARTH', 'SKY', 'SEA', 'LAKE', 'FOREST', 'DESERT'],
         sunday: ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'GAME', 'MOVIE', 'MUSIC', 'VIDEO', 'CAMERA', 'TV', 'RADIO', 'SPEAKER', 'HEADPHONE', 'KEYBOARD', 'MOUSE', 'SCREEN', 'BATTERY', 'CHARGER']
@@ -398,6 +398,14 @@ export default function Profile() {
               word.word && data.themeWords.includes(word.word.toUpperCase())
             );
             console.log(`${day}: Potential matches:`, potentialMatches.map(w => w.word?.toUpperCase()));
+            
+            // Check specifically for the 5 theme words you found in mobile app
+            const expectedThemeWords = ['DUCK', 'GOOSE', 'CRAB', 'HORSE', 'SHEEP'];
+            const foundExpectedWords = data.words.filter((word: { word?: string; date?: string }) => 
+              word.word && expectedThemeWords.includes(word.word.toUpperCase())
+            );
+            console.log(`${day}: Expected theme words found:`, foundExpectedWords.map(w => w.word?.toUpperCase()));
+            console.log(`${day}: Should show 5/20 theme words: DUCK, GOOSE, CRAB, HORSE, SHEEP`);
           }
           
           return {
