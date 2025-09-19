@@ -22,6 +22,11 @@ export async function GET(request: NextRequest) {
       }
     }
     
+    // Also try to extract from Authorization header if it's in Bearer format
+    if (!finalAuthHeader && authHeader && authHeader.startsWith('Bearer ')) {
+      finalAuthHeader = authHeader;
+    }
+    
     if (!finalAuthHeader) {
       return NextResponse.json({ 
         error: 'No authentication found. Please sign in first.',

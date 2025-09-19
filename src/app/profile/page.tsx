@@ -868,23 +868,35 @@ export default function Profile() {
                       String(today.getMonth() + 1).padStart(2, '0') + '-' +
                       String(today.getDate()).padStart(2, '0');
                     
-                    const response = await fetch(`/api/debug-theme-day?date=${todayString}`);
-                    const data = await response.json();
+                    // Use the API service to get theme day data directly
+                    const themeDayData = await apiService.getThemeDayStatistics(todayString);
+                    console.log('🔍 DEBUG THEME DAY: Direct API response:', themeDayData);
                     
-                    console.log('🔍 DEBUG THEME DAY: Response:', data);
+                    // Also test the debug endpoint with proper auth
+                    const debugResponse = await fetch(`/api/debug-theme-day?date=${todayString}`, {
+                      method: 'GET',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                      }
+                    });
+                    const debugData = await debugResponse.json();
+                    console.log('🔍 DEBUG THEME DAY: Debug endpoint response:', debugData);
                     
-                    if (data.error) {
-                      alert(`Theme Day Debug Error: ${data.error}\nDetails: ${data.details}`);
+                    if (debugData.error) {
+                      alert(`Theme Day Debug Error: ${debugData.error}\nDetails: ${debugData.details}`);
                     } else {
                       const message = `Theme Day Debug Results:
-Date: ${data.date}
-Theme: ${data.themeName}
-Total Theme Words: ${data.themeWordsCount}
-Words Found: ${data.themeWordsFoundCount}
-Is SEAL included: ${data.isSealIncluded ? '✅' : '❌'}
-Is SEAL found: ${data.isSealFound ? '✅' : '❌'}
+Date: ${debugData.date}
+Theme: ${debugData.themeName}
+Total Theme Words: ${debugData.themeWordsCount}
+Words Found: ${debugData.themeWordsFoundCount}
+Is SEAL included: ${debugData.isSealIncluded ? '✅' : '❌'}
+Is SEAL found: ${debugData.isSealFound ? '✅' : '❌'}
 
-Theme Words: ${data.allWords.join(', ')}`;
+Theme Words: ${debugData.allWords.join(', ')}
+
+Direct API Theme Words: ${(themeDayData as any)?.theme?.words?.join(', ') || 'N/A'}`;
                       alert(message);
                     }
                   } catch (error) {
