@@ -402,7 +402,7 @@ export default function Profile() {
         console.log('Backend theme day response:', themeDayResponse);
         
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (themeDayResponse && (themeDayResponse as any).words) {
+        if (themeDayResponse && (themeDayResponse as any).theme && (themeDayResponse as any).theme.words) {
           // Get the day of week for today
           const dayOfWeek = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
           const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -410,10 +410,12 @@ export default function Profile() {
           
           // Update the theme words for today's day
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          if (Array.isArray((themeDayResponse as any).words)) {
+          if (Array.isArray((themeDayResponse as any).theme.words)) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            themeWords[dayName as keyof typeof themeWords] = (themeDayResponse as any).words.map((word: string) => word.toUpperCase());
+            themeWords[dayName as keyof typeof themeWords] = (themeDayResponse as any).theme.words.map((word: string) => word.toUpperCase());
             console.log(`Updated ${dayName} theme words from backend:`, themeWords[dayName as keyof typeof themeWords]);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            console.log(`Today's theme: ${(themeDayResponse as any).theme.name}`);
           }
             }
           } catch (error) {
