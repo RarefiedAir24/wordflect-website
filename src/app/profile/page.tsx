@@ -418,28 +418,9 @@ export default function Profile() {
               console.log(`Backend ${dayName} theme: ${backendThemeName}`);
               console.log(`Backend ${dayName} words:`, backendThemeWords);
               
-              // Check if backend theme matches expected theme for this day
-              const expectedThemes = {
-                monday: 'Food & Drinks',
-                tuesday: 'Common Nouns', 
-                wednesday: 'Verbs',
-                thursday: 'Animals',
-                friday: 'Colors',
-                saturday: 'Nature',
-                sunday: 'Technology'
-              };
-              
-              const expectedTheme = expectedThemes[dayName as keyof typeof expectedThemes];
-              
-              if (backendThemeName === expectedTheme) {
-                // Backend theme is correct, use it
-                themeWords[dayName as keyof typeof themeWords] = backendThemeWords;
-                console.log(`✅ Using backend ${dayName} theme words (correct theme)`);
-              } else {
-                // Backend theme is wrong, keep the hardcoded correct theme words
-                console.log(`❌ Backend ${dayName} theme is "${backendThemeName}" but should be "${expectedTheme}" - using hardcoded theme words`);
-                // Keep the existing hardcoded theme words (they're correct)
-              }
+              // Use backend theme data as the source of truth (mobile app team has corrected the themes)
+              themeWords[dayName as keyof typeof themeWords] = backendThemeWords;
+              console.log(`✅ Using backend ${dayName} theme words: ${backendThemeName}`);
               
               // Store the full response for this day to use in theme analytics
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -637,6 +618,28 @@ export default function Profile() {
     };
   };
 
+  const getThemeName = (day: string) => {
+    // Try to get theme name from the stored backend response
+    if (themeAnalytics && (themeAnalytics as any)[`${day}_response`]) {
+      const backendResponse = (themeAnalytics as any)[`${day}_response`];
+      if (backendResponse && backendResponse.theme && backendResponse.theme.name) {
+        return backendResponse.theme.name;
+      }
+    }
+    
+    // Fallback to hardcoded names if backend data not available
+    const fallbackNames = {
+      monday: 'Food & Drinks',
+      tuesday: 'Common Nouns',
+      wednesday: 'Verbs',
+      thursday: 'Animals',
+      friday: 'Colors',
+      saturday: 'Nature',
+      sunday: 'Technology'
+    };
+    return fallbackNames[day as keyof typeof fallbackNames] || day;
+  };
+
   const getThemePerformanceSummary = () => {
     if (!themeAnalytics || !themeAnalytics.themes || !Array.isArray(themeAnalytics.themes)) {
       return {
@@ -647,15 +650,6 @@ export default function Profile() {
     }
 
     const themes = themeAnalytics.themes as Record<string, unknown>[];
-    const themeNames = {
-      monday: 'Food & Drinks',
-      tuesday: 'Common Nouns',
-      wednesday: 'Verbs',
-      thursday: 'Animals',
-      friday: 'Colors',
-      saturday: 'Nature',
-      sunday: 'Technology'
-    };
 
     let bestTheme = { name: 'No data', day: '', percentage: 0 };
     let mostConsistent = { name: 'No data', day: '', percentage: 0 };
@@ -672,7 +666,7 @@ export default function Profile() {
       // Find best performing theme (highest completion percentage)
       if (completionPercent > bestTheme.percentage) {
         bestTheme = {
-          name: themeNames[day as keyof typeof themeNames] || day,
+          name: getThemeName(day),
           day: day.charAt(0).toUpperCase() + day.slice(1),
           percentage: completionPercent
         };
@@ -681,7 +675,7 @@ export default function Profile() {
       // Find most consistent theme (highest number of words found)
       if (wordsFound > (mostConsistent.percentage || 0)) {
         mostConsistent = {
-          name: themeNames[day as keyof typeof themeNames] || day,
+          name: getThemeName(day),
           day: day.charAt(0).toUpperCase() + day.slice(1),
           percentage: wordsFound
         };
@@ -1244,7 +1238,7 @@ export default function Profile() {
             </div>
                     <span className="text-xs text-gray-500 font-semibold">MONDAY</span>
           </div>
-                  <p className="text-lg font-bold text-gray-500">Food & Drinks</p>
+                  <p className="text-lg font-bold text-gray-500">{getThemeName('monday')}</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -1260,7 +1254,7 @@ export default function Profile() {
             </div>
                   <span className="text-xs text-orange-600 font-semibold">MONDAY</span>
           </div>
-                <p className="text-lg font-bold text-orange-900">Food & Drinks</p>
+                <p className="text-lg font-bold text-orange-900">{getThemeName('monday')}</p>
                 <p className="text-xs text-orange-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-orange-200 rounded-full h-2">
@@ -1284,7 +1278,7 @@ export default function Profile() {
             </div>
                     <span className="text-xs text-gray-500 font-semibold">TUESDAY</span>
           </div>
-                  <p className="text-lg font-bold text-gray-500">Common Nouns</p>
+                  <p className="text-lg font-bold text-gray-500">{getThemeName('tuesday')}</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -1300,7 +1294,7 @@ export default function Profile() {
             </div>
                   <span className="text-xs text-blue-600 font-semibold">TUESDAY</span>
           </div>
-                <p className="text-lg font-bold text-blue-900">Common Nouns</p>
+                <p className="text-lg font-bold text-blue-900">{getThemeName('tuesday')}</p>
                 <p className="text-xs text-blue-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-blue-200 rounded-full h-2">
@@ -1324,7 +1318,7 @@ export default function Profile() {
             </div>
                     <span className="text-xs text-gray-500 font-semibold">WEDNESDAY</span>
           </div>
-                  <p className="text-lg font-bold text-gray-500">Verbs</p>
+                  <p className="text-lg font-bold text-gray-500">{getThemeName('wednesday')}</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -1340,7 +1334,7 @@ export default function Profile() {
             </div>
                   <span className="text-xs text-green-600 font-semibold">WEDNESDAY</span>
           </div>
-                <p className="text-lg font-bold text-green-900">Verbs</p>
+                <p className="text-lg font-bold text-green-900">{getThemeName('wednesday')}</p>
                 <p className="text-xs text-green-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-green-200 rounded-full h-2">
@@ -1364,7 +1358,7 @@ export default function Profile() {
             </div>
                     <span className="text-xs text-gray-500 font-semibold">THURSDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">Animals</p>
+                  <p className="text-lg font-bold text-gray-500">{getThemeName('thursday')}</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -1380,7 +1374,7 @@ export default function Profile() {
             </div>
                   <span className="text-xs text-purple-600 font-semibold">THURSDAY</span>
                 </div>
-                <p className="text-lg font-bold text-purple-900">Animals</p>
+                <p className="text-lg font-bold text-purple-900">{getThemeName('thursday')}</p>
                 <p className="text-xs text-purple-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-purple-200 rounded-full h-2">
@@ -1407,7 +1401,7 @@ export default function Profile() {
             </div>
                     <span className="text-xs text-gray-500 font-semibold">FRIDAY</span>
           </div>
-                  <p className="text-lg font-bold text-gray-500">Colors</p>
+                  <p className="text-lg font-bold text-gray-500">{getThemeName('friday')}</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
         </div>
               );
@@ -1423,7 +1417,7 @@ export default function Profile() {
             </div>
                   <span className="text-xs text-yellow-600 font-semibold">FRIDAY</span>
           </div>
-                <p className="text-lg font-bold text-yellow-900">Colors</p>
+                <p className="text-lg font-bold text-yellow-900">{getThemeName('friday')}</p>
                 <p className="text-xs text-yellow-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-yellow-200 rounded-full h-2">
@@ -1447,7 +1441,7 @@ export default function Profile() {
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">SATURDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">Nature</p>
+                  <p className="text-lg font-bold text-gray-500">{getThemeName('saturday')}</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -1463,7 +1457,7 @@ export default function Profile() {
                   </div>
                   <span className="text-xs text-teal-600 font-semibold">SATURDAY</span>
                 </div>
-                <p className="text-lg font-bold text-teal-900">Nature</p>
+                <p className="text-lg font-bold text-teal-900">{getThemeName('saturday')}</p>
                 <p className="text-xs text-teal-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-teal-200 rounded-full h-2">
@@ -1487,7 +1481,7 @@ export default function Profile() {
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">SUNDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">Technology</p>
+                  <p className="text-lg font-bold text-gray-500">{getThemeName('sunday')}</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -1503,7 +1497,7 @@ export default function Profile() {
                   </div>
                   <span className="text-xs text-gray-600 font-semibold">SUNDAY</span>
                 </div>
-                <p className="text-lg font-bold text-gray-900">Technology</p>
+                <p className="text-lg font-bold text-gray-900">{getThemeName('sunday')}</p>
                 <p className="text-xs text-gray-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-gray-200 rounded-full h-2">
