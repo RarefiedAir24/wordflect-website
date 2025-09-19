@@ -10,11 +10,34 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
     console.log('🔍 DEBUG: Auth header present:', !!authHeader);
     
+    // If no auth header, try to get it from cookies (like the web app does)
+    let finalAuthHeader = authHeader;
+    if (!finalAuthHeader) {
+      const cookies = request.headers.get('cookie');
+      console.log('🔍 DEBUG: Cookies present:', !!cookies);
+      
+      // Look for JWT token in cookies
+      if (cookies) {
+        const jwtMatch = cookies.match(/jwt=([^;]+)/);
+        if (jwtMatch) {
+          finalAuthHeader = `Bearer ${jwtMatch[1]}`;
+          console.log('🔍 DEBUG: Found JWT in cookies');
+        }
+      }
+    }
+    
+    if (!finalAuthHeader) {
+      return NextResponse.json({ 
+        error: 'No authentication found. Please sign in first.',
+        details: 'This endpoint requires authentication. Please sign in to the web app first, then visit this URL.'
+      }, { status: 401 });
+    }
+    
     const response = await fetch(`${API_BASE_URL}/user/profile`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        ...(authHeader && { 'Authorization': authHeader })
+        'Authorization': finalAuthHeader
       }
     });
 
