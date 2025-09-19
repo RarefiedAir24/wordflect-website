@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { apiService, UserProfile } from "@/services/api";
@@ -184,7 +184,7 @@ export default function Profile() {
   }, [range, customDateRange]);
 
 
-  const fetchProfile = async (showRefreshing = false) => {
+  const fetchProfile = useCallback(async (showRefreshing = false) => {
     try {
       if (showRefreshing) {
         setRefreshing(true);
@@ -259,7 +259,7 @@ export default function Profile() {
         setRefreshing(false);
       }
       }
-    };
+    }, [router]);
 
   useEffect(() => {
     fetchProfile();
@@ -272,7 +272,7 @@ export default function Profile() {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [router]);
+  }, [router, fetchProfile]);
 
   // Generate time analytics from existing data
   useEffect(() => {
@@ -620,10 +620,10 @@ export default function Profile() {
 
   const getThemeName = (day: string) => {
     // Try to get theme name from the stored backend response
-    if (themeAnalytics && (themeAnalytics as any)[`${day}_response`]) {
-      const backendResponse = (themeAnalytics as any)[`${day}_response`];
-      if (backendResponse && backendResponse.theme && backendResponse.theme.name) {
-        return backendResponse.theme.name;
+    if (themeAnalytics && (themeAnalytics as Record<string, unknown>)[`${day}_response`]) {
+      const backendResponse = (themeAnalytics as Record<string, unknown>)[`${day}_response`] as Record<string, unknown>;
+      if (backendResponse && backendResponse.theme && (backendResponse.theme as Record<string, unknown>).name) {
+        return (backendResponse.theme as Record<string, unknown>).name as string;
       }
     }
     
