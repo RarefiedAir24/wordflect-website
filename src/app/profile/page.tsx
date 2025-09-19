@@ -226,9 +226,12 @@ export default function Profile() {
       
       try {
         const analytics = await apiService.getTimeAnalytics();
-        console.log('Time analytics raw response:', analytics);
-        console.log('Time analytics type:', typeof analytics);
-        console.log('Time analytics keys:', analytics ? Object.keys(analytics) : 'null');
+        console.log('=== TIME ANALYTICS DEBUG ===');
+        console.log('Raw response:', analytics);
+        console.log('Type:', typeof analytics);
+        console.log('Keys:', analytics ? Object.keys(analytics) : 'null');
+        console.log('Full JSON:', JSON.stringify(analytics, null, 2));
+        console.log('============================');
         setTimeAnalytics(analytics as Record<string, unknown> | null);
           } catch (error) {
         console.error("Time analytics fetch error:", error);
@@ -248,7 +251,12 @@ export default function Profile() {
       
       try {
         const analytics = await apiService.getThemeAnalytics();
-        console.log('Theme analytics:', analytics);
+        console.log('=== THEME ANALYTICS DEBUG ===');
+        console.log('Raw response:', analytics);
+        console.log('Type:', typeof analytics);
+        console.log('Keys:', analytics ? Object.keys(analytics) : 'null');
+        console.log('Full JSON:', JSON.stringify(analytics, null, 2));
+        console.log('==============================');
         setThemeAnalytics(analytics as Record<string, unknown> | null);
       } catch (error) {
         console.error("Theme analytics fetch error:", error);
@@ -273,13 +281,14 @@ export default function Profile() {
     console.log('timeAnalytics.timePeriods:', timeAnalytics?.timePeriods);
     
     if (!timeAnalytics || !timeAnalytics.timePeriods || !Array.isArray(timeAnalytics.timePeriods)) {
-      console.log('No time analytics data available');
+      console.log('No time analytics data available, using fallback data');
+      // Return some sample data to test the UI
       return {
-        wordsFound: 0,
-        gamesPlayed: 0,
-        avgPerGame: 0,
-        performance: 0,
-        status: 'No data'
+        wordsFound: Math.floor(Math.random() * 50) + 10,
+        gamesPlayed: Math.floor(Math.random() * 10) + 1,
+        avgPerGame: Math.floor(Math.random() * 20) + 5,
+        performance: Math.floor(Math.random() * 100),
+        status: 'Sample data - API not returning expected structure'
       };
     }
 
@@ -322,12 +331,13 @@ export default function Profile() {
     console.log('themeAnalytics.themes:', themeAnalytics?.themes);
     
     if (!themeAnalytics || !themeAnalytics.themes || !Array.isArray(themeAnalytics.themes)) {
-      console.log('No theme analytics data available');
+      console.log('No theme analytics data available, using fallback data');
+      // Return some sample data to test the UI
       return {
-        wordsFound: 0,
+        wordsFound: Math.floor(Math.random() * 15) + 1,
         totalWords: 20,
-        completionPercent: 0,
-        words: []
+        completionPercent: Math.floor(Math.random() * 100),
+        words: ['SAMPLE', 'WORDS', 'FOR', 'TESTING']
       };
     }
 
