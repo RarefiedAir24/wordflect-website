@@ -1296,7 +1296,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 }
               } catch (error) {
                 console.error('Debug error:', error);
-                alert('Debug error: ' + error.message);
+                alert('Debug error: ' + (error instanceof Error ? error.message : String(error)));
               }
             }}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition shadow"
