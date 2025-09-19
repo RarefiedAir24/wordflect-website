@@ -208,7 +208,14 @@ export default function Profile() {
         if (date) {
           const foundDate = new Date(date);
           const today = new Date();
-          return foundDate.toDateString() === today.toDateString();
+          // Use UTC date comparison to match theme word logic
+          const foundDateString = foundDate.getUTCFullYear() + '-' + 
+            String(foundDate.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+            String(foundDate.getUTCDate()).padStart(2, '0');
+          const todayString = today.getUTCFullYear() + '-' + 
+            String(today.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+            String(today.getUTCDate()).padStart(2, '0');
+          return foundDateString === todayString;
         }
         return false;
       }).length);
@@ -702,7 +709,17 @@ export default function Profile() {
             const wordText = word.word;
             const wordDate = word.date;
             const isThemeWord = wordText && dayThemeWords.includes(wordText.toUpperCase());
-            const isCorrectDate = wordDate && new Date(wordDate).toDateString() === new Date(dayDateString).toDateString();
+            const isCorrectDate = wordDate && (() => {
+              const wordDateObj = new Date(wordDate);
+              const targetDateObj = new Date(dayDateString);
+              const wordDateString = wordDateObj.getUTCFullYear() + '-' + 
+                String(wordDateObj.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+                String(wordDateObj.getUTCDate()).padStart(2, '0');
+              const targetDateString = targetDateObj.getUTCFullYear() + '-' + 
+                String(targetDateObj.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+                String(targetDateObj.getUTCDate()).padStart(2, '0');
+              return wordDateString === targetDateString;
+            })();
             
             // Debug: Log SEAL specifically
             if (day === 'friday' && wordText && wordText.toUpperCase() === 'SEAL') {
@@ -1103,7 +1120,7 @@ export default function Profile() {
                       method: 'GET',
                       headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                       }
                     });
                     const debugData = await debugResponse.json();
