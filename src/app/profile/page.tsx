@@ -429,7 +429,9 @@ export default function Profile() {
           
           console.log(`Fetching theme words for ${dayName} (${dateString}) - UTC date`);
           
-          const themeDayResponse = await apiService.getThemeDayStatistics(dateString);
+          // Disabled backend API call to use hardcoded theme words
+          // const themeDayResponse = await apiService.getThemeDayStatistics(dateString);
+          const themeDayResponse = null;
           
           // Debug: Log the full response structure
           console.log(`Full API response for ${dayName}:`, JSON.stringify(themeDayResponse, null, 2));
@@ -871,7 +873,9 @@ export default function Profile() {
                       String(today.getDate()).padStart(2, '0');
                     
                     // Use the API service to get theme day data directly
-                    const themeDayData = await apiService.getThemeDayStatistics(todayString);
+                    // Disabled backend API call to use hardcoded theme words
+                    // const themeDayData = await apiService.getThemeDayStatistics(todayString);
+                    const themeDayData = null;
                     console.log('🔍 DEBUG THEME DAY: Direct API response:', themeDayData);
                     console.log('🔍 DEBUG THEME DAY: Theme name:', (themeDayData as { theme?: { name?: string } })?.theme?.name);
                     console.log('🔍 DEBUG THEME DAY: Theme words:', (themeDayData as { theme?: { words?: string[] } })?.theme?.words);
