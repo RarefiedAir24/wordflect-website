@@ -519,6 +519,13 @@ export default function Profile() {
             console.log(`${day}: Theme words include CRAB?:`, data.themeWords.includes('CRAB'));
             console.log(`${day}: Theme words include SHEEP?:`, data.themeWords.includes('SHEEP'));
             
+            // Quick test: Check if the target words exist in today's words
+            const targetWords = ['DUCK', 'GOOSE', 'CRAB', 'HORSE', 'SHEEP'];
+            targetWords.forEach(targetWord => {
+              const existsInToday = data.words.some(w => w.word?.toUpperCase() === targetWord);
+              console.log(`${day}: "${targetWord}" exists in today's words:`, existsInToday);
+            });
+            
             // Debug: Check for similar words that might be the ones you found
             const allWords = data.words.map(w => w.word?.toUpperCase()).filter(Boolean) as string[];
             console.log(`${day}: Looking for similar words:`);
