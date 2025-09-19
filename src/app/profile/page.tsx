@@ -540,13 +540,25 @@ export default function Profile() {
             const dayThemeWords = backendResponse?.theme?.words || [];
             console.log(`${day}: Using theme words:`, dayThemeWords);
             
+            // Calculate the date for this day of the current week
+            const today = new Date();
+            const todayDayOfWeek = today.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
+            const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const dayIndex = dayNames.indexOf(day);
+            const daysFromToday = dayIndex - todayDayOfWeek;
+            const dayDate = new Date();
+            dayDate.setUTCDate(dayDate.getUTCDate() + daysFromToday);
+            const dayDateString = dayDate.getUTCFullYear() + '-' + 
+              String(dayDate.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+              String(dayDate.getUTCDate()).padStart(2, '0');
+            
             // Find words that match the theme words for this day AND were found on this specific date
-            console.log(`${day}: Checking ${data.words.length} words for date ${data.date}`);
+            console.log(`${day}: Checking ${data.words.length} words for date ${dayDateString}`);
             console.log(`${day}: Sample words:`, data.words.slice(0, 3).map(w => ({ word: w.word, date: w.date })));
             
             const foundThemeWordsObjects = data.words.filter((word: { word?: string; date?: string }) => 
               word.word && dayThemeWords.includes(word.word.toUpperCase()) && 
-              word.date && new Date(word.date).toDateString() === new Date(data.date).toDateString()
+              word.date && new Date(word.date).toDateString() === new Date(dayDateString).toDateString()
             );
             foundThemeWords = foundThemeWordsObjects.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean) as string[];
             console.log(`${day}: Manual matching found:`, foundThemeWords);
