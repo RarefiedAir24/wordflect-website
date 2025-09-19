@@ -647,8 +647,8 @@ export default function Profile() {
       monday: 'Food & Drinks',
       tuesday: 'Common Nouns',
       wednesday: 'Verbs',
-      thursday: 'Animals',
-      friday: 'Colors',
+      thursday: 'Adjectives',
+      friday: 'Animals',
       saturday: 'Nature',
       sunday: 'Technology'
     };
