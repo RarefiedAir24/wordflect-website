@@ -830,11 +830,6 @@ export default function Profile() {
 
     // Define theme words for each day of the week
     // Use the same rotation logic as mobile app for consistent theme words
-    const now = new Date();
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-    const weekNumber = Math.floor((now.getTime() - startOfYear.getTime()) / (7 * 24 * 60 * 60 * 1000));
-    const setIndex = weekNumber % 4; // 4 sets per theme
-    
     const getThemeWordsForDay = (dayOfWeek: string, setIndex: number) => {
       const THEME_WORD_SETS = {
         monday: {
@@ -905,6 +900,12 @@ export default function Profile() {
       const themeData = THEME_WORD_SETS[dayOfWeek as keyof typeof THEME_WORD_SETS] || THEME_WORD_SETS.monday;
       return themeData.sets[setIndex] || themeData.sets[0];
     };
+    
+    // Get the setIndex from the earlier calculation
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const weekNumber = Math.floor((now.getTime() - startOfYear.getTime()) / (7 * 24 * 60 * 60 * 1000));
+    const setIndex = weekNumber % 4; // 4 sets per theme
     
     const themeWords = {
       monday: getThemeWordsForDay('monday', setIndex),
