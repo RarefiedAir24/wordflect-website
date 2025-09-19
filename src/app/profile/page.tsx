@@ -411,6 +411,9 @@ export default function Profile() {
           
           const themeDayResponse = await apiService.getThemeDayStatistics(dateString);
           
+          // Debug: Log the full response structure
+          console.log(`Full API response for ${dayName}:`, JSON.stringify(themeDayResponse, null, 2));
+          
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           if (themeDayResponse && (themeDayResponse as any).theme && (themeDayResponse as any).theme.words) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
