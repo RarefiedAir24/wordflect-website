@@ -377,6 +377,26 @@ export default function Profile() {
       console.log('User:', profile.email, profile.username);
       console.log('Total words found:', profile.allFoundWords.length);
       console.log('Sample words with dates:', profile.allFoundWords.slice(0, 5));
+      
+      // Debug: Show today's words specifically
+      const today = new Date();
+      const todayString = today.getUTCFullYear() + '-' + 
+        String(today.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+        String(today.getUTCDate()).padStart(2, '0');
+      const todayWords = profile.allFoundWords.filter(w => {
+        const date = typeof w === 'string' ? undefined : w.date;
+        if (date) {
+          const foundDate = new Date(date);
+          const foundDateString = foundDate.getUTCFullYear() + '-' + 
+            String(foundDate.getUTCMonth() + 1).padStart(2, '0') + '-' + 
+            String(foundDate.getUTCDate()).padStart(2, '0');
+          return foundDateString === todayString;
+        }
+        return false;
+      });
+      console.log('🎯 TODAY DEBUG: Date string:', todayString);
+      console.log('🎯 TODAY DEBUG: Words found today:', todayWords.length);
+      console.log('🎯 TODAY DEBUG: Today\'s words:', todayWords.map(w => typeof w === 'string' ? w : w.word).join(', '));
       const now = new Date();
       console.log('Today is:', now.toDateString());
       console.log('Today day of week (local):', now.getDay()); // 0 = Sunday, 1 = Monday, etc.
