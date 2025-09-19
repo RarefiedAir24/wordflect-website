@@ -392,8 +392,131 @@ export default function Profile() {
         sunday: ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'GAME', 'MOVIE', 'MUSIC', 'VIDEO', 'CAMERA', 'TV', 'RADIO', 'SPEAKER', 'HEADPHONE', 'KEYBOARD', 'MOUSE', 'SCREEN', 'BATTERY', 'CHARGER']
       };
 
-      // Get theme words from the backend for the current week's theme schedule
+      // Get theme words using the same rotation logic as mobile app
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      
+      // Calculate which set to use based on week number (matching mobile app logic)
+      const now = new Date();
+      const startOfYear = new Date(now.getFullYear(), 0, 1);
+      const weekNumber = Math.floor((now.getTime() - startOfYear.getTime()) / (7 * 24 * 60 * 60 * 1000));
+      const setIndex = weekNumber % 4; // 4 sets per theme
+      
+      console.log('=== THEME ROTATION DEBUG ===');
+      console.log('Current date:', now.toDateString());
+      console.log('Week number:', weekNumber);
+      console.log('Set index (0-3):', setIndex);
+      
+      // Function to get the correct theme words for a given day and set
+      const getThemeWordsForDay = (dayOfWeek: string, setIndex: number) => {
+        const THEME_WORD_SETS = {
+          monday: {
+            name: 'Food & Drinks',
+            sets: [
+              // Set 0 - 20 words
+              ['PIZZA', 'BURGER', 'SALAD', 'COFFEE', 'JUICE', 'BREAD', 'CHEESE', 'APPLE', 'BANANA', 'GRAPE', 'ORANGE', 'LEMON', 'PASTA', 'RICE', 'SOUP', 'CAKE', 'COOKIE', 'CANDY', 'CHOCOLATE', 'SANDWICH'],
+              // Set 1 - 20 words
+              ['TACO', 'SUSHI', 'STEAK', 'CHICKEN', 'PORK', 'LAMB', 'SHRIMP', 'TUNA', 'MANGO', 'KIWI', 'AVOCADO', 'ORANGE', 'TOMATO', 'CARROT', 'ONION', 'POTATO', 'CORN', 'BEANS', 'VANILLA', 'MINT'],
+              // Set 2 - 20 words
+              ['CARAMEL', 'MAPLE', 'HONEY', 'GARLIC', 'JAM', 'JELLY', 'SYRUP', 'GRAPE', 'LEMON', 'LIME', 'CHERRY', 'BERRY', 'PEACH', 'PLUM', 'PEAR', 'DATE', 'MILK', 'WATER', 'TEA', 'HOTDOG'],
+              // Set 3 - 20 words
+              ['PEPPER', 'SALT', 'SUGAR', 'FLOUR', 'EGG', 'BUTTER', 'OIL', 'VINEGAR', 'MUSTARD', 'KETCHUP', 'MAYO', 'RELIEF', 'SPICE', 'HERB', 'NUT', 'SEED', 'BEAN', 'LENTIL', 'QUINOA', 'OAT']
+            ]
+          },
+          tuesday: {
+            name: 'Common Nouns',
+            sets: [
+              // Set 0 - 20 words
+              ['HOUSE', 'CAR', 'TREE', 'BOOK', 'PHONE', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'CLOCK', 'MONEY', 'MUSIC', 'FAMILY', 'FRIEND', 'SCHOOL', 'WORK', 'GAME', 'MOVIE', 'STORY', 'DREAM'],
+              // Set 1 - 20 words
+              ['BED', 'SOFA', 'DESK', 'LAMP', 'MIRROR', 'PICTURE', 'CLOCK', 'CALENDAR', 'PEN', 'PAPER', 'BAG', 'BOX', 'BOTTLE', 'CUP', 'PLATE', 'BOWL', 'SPOON', 'FORK', 'KNIFE', 'GLASS'],
+              // Set 2 - 20 words
+              ['SHIRT', 'PANTS', 'SHOES', 'HAT', 'COAT', 'DRESS', 'SKIRT', 'JACKET', 'SWEATER', 'SOCKS', 'GLOVES', 'SCARF', 'BELT', 'WATCH', 'RING', 'NECKLACE', 'BRACELET', 'EARRINGS', 'SUNGLASSES', 'UMBRELLA'],
+              // Set 3 - 20 words
+              ['TOY', 'DOLL', 'BALL', 'PUZZLE', 'BLOCK', 'CRAYON', 'MARKER', 'PAINT', 'BRUSH', 'CANVAS', 'CLAY', 'SCISSORS', 'GLUE', 'TAPE', 'STAPLER', 'CLIP', 'RUBBER', 'ERASER', 'RULER', 'PENCIL']
+            ]
+          },
+          wednesday: {
+            name: 'Verbs',
+            sets: [
+              // Set 0 - 20 words
+              ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'CLEAN', 'LEARN', 'TEACH', 'HELP', 'LOVE', 'THINK', 'DREAM', 'CREATE', 'BUILD'],
+              // Set 1 - 20 words
+              ['PLAY', 'WORK', 'STUDY', 'SLEEP', 'EAT', 'DRINK', 'TALK', 'LISTEN', 'WATCH', 'LOOK', 'SEE', 'HEAR', 'FEEL', 'TOUCH', 'HOLD', 'CARRY', 'PUSH', 'PULL', 'LIFT', 'DROP'],
+              // Set 2 - 20 words
+              ['OPEN', 'CLOSE', 'START', 'STOP', 'BEGIN', 'END', 'FINISH', 'COMPLETE', 'CONTINUE', 'PAUSE', 'WAIT', 'HURRY', 'RUSH', 'SLOW', 'SPEED', 'ACCELERATE', 'BRAKE', 'TURN', 'STRAIGHT', 'CURVE'],
+              // Set 3 - 20 words
+              ['CLIMB', 'DESCEND', 'ASCEND', 'RISE', 'FALL', 'SINK', 'FLOAT', 'FLY', 'SOAR', 'GLIDE', 'SLIDE', 'SKIP', 'HOP', 'LEAP', 'BOUNCE', 'ROLL', 'SPIN', 'TWIST', 'BEND', 'STRETCH']
+            ]
+          },
+          thursday: {
+            name: 'Adjectives',
+            sets: [
+              // Set 0 - 20 words
+              ['BIG', 'SMALL', 'FAST', 'SLOW', 'HOT', 'COLD', 'NEW', 'OLD', 'GOOD', 'BAD', 'HAPPY', 'SAD', 'BEAUTIFUL', 'STRONG', 'SMART', 'FUNNY', 'QUIET', 'LOUD', 'BRIGHT', 'DARK'],
+              // Set 1 - 20 words
+              ['TALL', 'SHORT', 'WIDE', 'NARROW', 'THICK', 'THIN', 'HEAVY', 'LIGHT', 'HARD', 'SOFT', 'SMOOTH', 'ROUGH', 'SHARP', 'DULL', 'CLEAN', 'DIRTY', 'WET', 'DRY', 'FULL', 'EMPTY'],
+              // Set 2 - 20 words
+              ['RICH', 'POOR', 'YOUNG', 'ELDERLY', 'HEALTHY', 'SICK', 'SAFE', 'DANGEROUS', 'EASY', 'DIFFICULT', 'SIMPLE', 'COMPLEX', 'CLEAR', 'FOGGY', 'SUNNY', 'CLOUDY', 'WINDY', 'CALM', 'STORMY', 'PEACEFUL'],
+              // Set 3 - 20 words
+              ['FRIENDLY', 'SHY', 'WISE', 'HONEST', 'FAIR', 'BRAVE', 'SOFT', 'HARD', 'WARM', 'COOL', 'DRY', 'WET', 'HEAVY', 'LIGHT', 'THICK', 'THIN', 'WIDE', 'NARROW', 'DEEP', 'SHALLOW']
+            ]
+          },
+          friday: {
+            name: 'Animals',
+            sets: [
+              // Set 0 - 20 words
+              ['DOG', 'CAT', 'BIRD', 'FISH', 'BEAR', 'LION', 'TIGER', 'ELEPHANT', 'MONKEY', 'RABBIT', 'MOUSE', 'SNAKE', 'HORSE', 'COW', 'PIG', 'SHEEP', 'GOAT', 'CHICKEN', 'DUCK', 'OWL'],
+              // Set 1 - 20 words
+              ['EAGLE', 'WOLF', 'FOX', 'DEER', 'SEAL', 'WHALE', 'SHARK', 'CRAB', 'SNAIL', 'SPIDER', 'HAMSTER', 'TURTLE', 'LIZARD', 'GECKO', 'IGUANA', 'NEWT', 'TOAD', 'LADYBUG', 'DRAGONFLY', 'BUTTERFLY'],
+              // Set 2 - 20 words
+              ['PANDA', 'KOALA', 'MUSSEL', 'SCALLOP', 'TUNA', 'SALMON', 'TROUT', 'BASS', 'PIKE', 'PERCH', 'CARP', 'GOLDFISH', 'DOLPHIN', 'OTTER', 'BEAVER', 'RACCOON', 'SKUNK', 'POSSUM', 'BAT', 'SQUIRREL'],
+              // Set 3 - 20 words
+              ['CAT', 'DOG', 'LION', 'TIGER', 'EAGLE', 'BEAR', 'WOLF', 'FOX', 'DEER', 'RABBIT', 'COW', 'PIG', 'CHICKEN', 'DUCK', 'GOOSE', 'TURKEY', 'SEAL', 'WHALE', 'SHARK', 'CRAB']
+            ]
+          },
+          saturday: {
+            name: 'Nature',
+            sets: [
+              // Set 0 - 20 words
+              ['TREE', 'FLOWER', 'GRASS', 'LEAF', 'ROCK', 'WATER', 'FIRE', 'EARTH', 'WIND', 'RAIN', 'SNOW', 'SUN', 'MOON', 'STAR', 'OCEAN', 'MOUNTAIN', 'FOREST', 'DESERT', 'RIVER', 'LAKE'],
+              // Set 1 - 20 words
+              ['PLANT', 'BUSH', 'VINE', 'ROOT', 'STEM', 'BRANCH', 'BARK', 'SEED', 'FRUIT', 'BERRY', 'NUT', 'MUSHROOM', 'MOSS', 'FERN', 'CACTUS', 'PINE', 'OAK', 'MAPLE', 'BIRCH', 'WILLOW'],
+              // Set 2 - 20 words
+              ['ROSE', 'TULIP', 'DAISY', 'SUNFLOWER', 'LILY', 'ORCHID', 'VIOLET', 'DAFFODIL', 'CARNATION', 'PEONY', 'CHRYSANTHEMUM', 'MARIGOLD', 'PETUNIA', 'GERANIUM', 'HIBISCUS', 'JASMINE', 'LAVENDER', 'SAGE', 'THYME', 'BASIL'],
+              // Set 3 - 20 words
+              ['GARDEN', 'PARK', 'MEADOW', 'FIELD', 'VALLEY', 'HILL', 'CLIFF', 'BEACH', 'SHORE', 'ISLAND', 'PENINSULA', 'BAY', 'HARBOR', 'COVE', 'WATERFALL', 'STREAM', 'BROOK', 'POND', 'SWAMP', 'MARSH']
+            ]
+          },
+          sunday: {
+            name: 'Technology',
+            sets: [
+              // Set 0 - 20 words
+              ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'VIDEO', 'AUDIO', 'CAMERA', 'SCREEN', 'KEYBOARD', 'MOUSE', 'TABLET', 'LAPTOP', 'WIFI', 'BLUETOOTH', 'BATTERY', 'CHARGER', 'HEADPHONES', 'SPEAKER'],
+              // Set 1 - 20 words
+              ['SMARTPHONE', 'TABLET', 'LAPTOP', 'DESKTOP', 'MONITOR', 'PRINTER', 'SCANNER', 'ROUTER', 'MODEM', 'SERVER', 'CLOUD', 'DATABASE', 'SOFTWARE', 'HARDWARE', 'PROCESSOR', 'MEMORY', 'STORAGE', 'NETWORK', 'BROADBAND', 'FIBER'],
+              // Set 2 - 20 words
+              ['ALGORITHM', 'PROGRAM', 'CODE', 'SCRIPT', 'FUNCTION', 'VARIABLE', 'ARRAY', 'OBJECT', 'CLASS', 'METHOD', 'INTERFACE', 'API', 'SDK', 'FRAMEWORK', 'LIBRARY', 'PLUGIN', 'EXTENSION', 'WIDGET', 'GADGET', 'DEVICE'],
+              // Set 3 - 20 words
+              ['ARTIFICIAL', 'INTELLIGENCE', 'MACHINE', 'LEARNING', 'NEURAL', 'NETWORK', 'DEEP', 'LEARNING', 'ALGORITHM', 'DATA', 'ANALYTICS', 'BIG', 'DATA', 'BLOCKCHAIN', 'CRYPTOCURRENCY', 'BITCOIN', 'ETHEREUM', 'SMART', 'CONTRACT', 'DECENTRALIZED']
+            ]
+          }
+        };
+        
+        const themeData = THEME_WORD_SETS[dayOfWeek as keyof typeof THEME_WORD_SETS] || THEME_WORD_SETS.monday;
+        const selectedSet = themeData.sets[setIndex] || themeData.sets[0];
+        
+        return {
+          name: themeData.name,
+          words: selectedSet
+        };
+      };
+      
+      // Update themeWords with the correct rotated sets
+      dayNames.forEach(day => {
+        const themeData = getThemeWordsForDay(day, setIndex);
+        themeWords[day as keyof typeof themeWords] = themeData.words;
+        console.log(`${day} (Set ${setIndex}): ${themeData.name} - ${themeData.words.slice(0, 5).join(', ')}...`);
+      });
       
       // Get today's date and calculate the current week's theme schedule
       const today = new Date();
@@ -712,14 +835,91 @@ export default function Profile() {
     }
 
     // Define theme words for each day of the week
+    // Use the same rotation logic as mobile app for consistent theme words
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const weekNumber = Math.floor((now.getTime() - startOfYear.getTime()) / (7 * 24 * 60 * 60 * 1000));
+    const setIndex = weekNumber % 4; // 4 sets per theme
+    
+    const getThemeWordsForDay = (dayOfWeek: string, setIndex: number) => {
+      const THEME_WORD_SETS = {
+        monday: {
+          name: 'Food & Drinks',
+          sets: [
+            ['PIZZA', 'BURGER', 'SALAD', 'COFFEE', 'JUICE', 'BREAD', 'CHEESE', 'APPLE', 'BANANA', 'GRAPE', 'ORANGE', 'LEMON', 'PASTA', 'RICE', 'SOUP', 'CAKE', 'COOKIE', 'CANDY', 'CHOCOLATE', 'SANDWICH'],
+            ['TACO', 'SUSHI', 'STEAK', 'CHICKEN', 'PORK', 'LAMB', 'SHRIMP', 'TUNA', 'MANGO', 'KIWI', 'AVOCADO', 'ORANGE', 'TOMATO', 'CARROT', 'ONION', 'POTATO', 'CORN', 'BEANS', 'VANILLA', 'MINT'],
+            ['CARAMEL', 'MAPLE', 'HONEY', 'GARLIC', 'JAM', 'JELLY', 'SYRUP', 'GRAPE', 'LEMON', 'LIME', 'CHERRY', 'BERRY', 'PEACH', 'PLUM', 'PEAR', 'DATE', 'MILK', 'WATER', 'TEA', 'HOTDOG'],
+            ['PEPPER', 'SALT', 'SUGAR', 'FLOUR', 'EGG', 'BUTTER', 'OIL', 'VINEGAR', 'MUSTARD', 'KETCHUP', 'MAYO', 'RELIEF', 'SPICE', 'HERB', 'NUT', 'SEED', 'BEAN', 'LENTIL', 'QUINOA', 'OAT']
+          ]
+        },
+        tuesday: {
+          name: 'Common Nouns',
+          sets: [
+            ['HOUSE', 'CAR', 'TREE', 'BOOK', 'PHONE', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'CLOCK', 'MONEY', 'MUSIC', 'FAMILY', 'FRIEND', 'SCHOOL', 'WORK', 'GAME', 'MOVIE', 'STORY', 'DREAM'],
+            ['BED', 'SOFA', 'DESK', 'LAMP', 'MIRROR', 'PICTURE', 'CLOCK', 'CALENDAR', 'PEN', 'PAPER', 'BAG', 'BOX', 'BOTTLE', 'CUP', 'PLATE', 'BOWL', 'SPOON', 'FORK', 'KNIFE', 'GLASS'],
+            ['SHIRT', 'PANTS', 'SHOES', 'HAT', 'COAT', 'DRESS', 'SKIRT', 'JACKET', 'SWEATER', 'SOCKS', 'GLOVES', 'SCARF', 'BELT', 'WATCH', 'RING', 'NECKLACE', 'BRACELET', 'EARRINGS', 'SUNGLASSES', 'UMBRELLA'],
+            ['TOY', 'DOLL', 'BALL', 'PUZZLE', 'BLOCK', 'CRAYON', 'MARKER', 'PAINT', 'BRUSH', 'CANVAS', 'CLAY', 'SCISSORS', 'GLUE', 'TAPE', 'STAPLER', 'CLIP', 'RUBBER', 'ERASER', 'RULER', 'PENCIL']
+          ]
+        },
+        wednesday: {
+          name: 'Verbs',
+          sets: [
+            ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'CLEAN', 'LEARN', 'TEACH', 'HELP', 'LOVE', 'THINK', 'DREAM', 'CREATE', 'BUILD'],
+            ['PLAY', 'WORK', 'STUDY', 'SLEEP', 'EAT', 'DRINK', 'TALK', 'LISTEN', 'WATCH', 'LOOK', 'SEE', 'HEAR', 'FEEL', 'TOUCH', 'HOLD', 'CARRY', 'PUSH', 'PULL', 'LIFT', 'DROP'],
+            ['OPEN', 'CLOSE', 'START', 'STOP', 'BEGIN', 'END', 'FINISH', 'COMPLETE', 'CONTINUE', 'PAUSE', 'WAIT', 'HURRY', 'RUSH', 'SLOW', 'SPEED', 'ACCELERATE', 'BRAKE', 'TURN', 'STRAIGHT', 'CURVE'],
+            ['CLIMB', 'DESCEND', 'ASCEND', 'RISE', 'FALL', 'SINK', 'FLOAT', 'FLY', 'SOAR', 'GLIDE', 'SLIDE', 'SKIP', 'HOP', 'LEAP', 'BOUNCE', 'ROLL', 'SPIN', 'TWIST', 'BEND', 'STRETCH']
+          ]
+        },
+        thursday: {
+          name: 'Adjectives',
+          sets: [
+            ['BIG', 'SMALL', 'FAST', 'SLOW', 'HOT', 'COLD', 'NEW', 'OLD', 'GOOD', 'BAD', 'HAPPY', 'SAD', 'BEAUTIFUL', 'STRONG', 'SMART', 'FUNNY', 'QUIET', 'LOUD', 'BRIGHT', 'DARK'],
+            ['TALL', 'SHORT', 'WIDE', 'NARROW', 'THICK', 'THIN', 'HEAVY', 'LIGHT', 'HARD', 'SOFT', 'SMOOTH', 'ROUGH', 'SHARP', 'DULL', 'CLEAN', 'DIRTY', 'WET', 'DRY', 'FULL', 'EMPTY'],
+            ['RICH', 'POOR', 'YOUNG', 'ELDERLY', 'HEALTHY', 'SICK', 'SAFE', 'DANGEROUS', 'EASY', 'DIFFICULT', 'SIMPLE', 'COMPLEX', 'CLEAR', 'FOGGY', 'SUNNY', 'CLOUDY', 'WINDY', 'CALM', 'STORMY', 'PEACEFUL'],
+            ['FRIENDLY', 'SHY', 'WISE', 'HONEST', 'FAIR', 'BRAVE', 'SOFT', 'HARD', 'WARM', 'COOL', 'DRY', 'WET', 'HEAVY', 'LIGHT', 'THICK', 'THIN', 'WIDE', 'NARROW', 'DEEP', 'SHALLOW']
+          ]
+        },
+        friday: {
+          name: 'Animals',
+          sets: [
+            ['DOG', 'CAT', 'BIRD', 'FISH', 'BEAR', 'LION', 'TIGER', 'ELEPHANT', 'MONKEY', 'RABBIT', 'MOUSE', 'SNAKE', 'HORSE', 'COW', 'PIG', 'SHEEP', 'GOAT', 'CHICKEN', 'DUCK', 'OWL'],
+            ['EAGLE', 'WOLF', 'FOX', 'DEER', 'SEAL', 'WHALE', 'SHARK', 'CRAB', 'SNAIL', 'SPIDER', 'HAMSTER', 'TURTLE', 'LIZARD', 'GECKO', 'IGUANA', 'NEWT', 'TOAD', 'LADYBUG', 'DRAGONFLY', 'BUTTERFLY'],
+            ['PANDA', 'KOALA', 'MUSSEL', 'SCALLOP', 'TUNA', 'SALMON', 'TROUT', 'BASS', 'PIKE', 'PERCH', 'CARP', 'GOLDFISH', 'DOLPHIN', 'OTTER', 'BEAVER', 'RACCOON', 'SKUNK', 'POSSUM', 'BAT', 'SQUIRREL'],
+            ['CAT', 'DOG', 'LION', 'TIGER', 'EAGLE', 'BEAR', 'WOLF', 'FOX', 'DEER', 'RABBIT', 'COW', 'PIG', 'CHICKEN', 'DUCK', 'GOOSE', 'TURKEY', 'SEAL', 'WHALE', 'SHARK', 'CRAB']
+          ]
+        },
+        saturday: {
+          name: 'Nature',
+          sets: [
+            ['TREE', 'FLOWER', 'GRASS', 'LEAF', 'ROCK', 'WATER', 'FIRE', 'EARTH', 'WIND', 'RAIN', 'SNOW', 'SUN', 'MOON', 'STAR', 'OCEAN', 'MOUNTAIN', 'FOREST', 'DESERT', 'RIVER', 'LAKE'],
+            ['PLANT', 'BUSH', 'VINE', 'ROOT', 'STEM', 'BRANCH', 'BARK', 'SEED', 'FRUIT', 'BERRY', 'NUT', 'MUSHROOM', 'MOSS', 'FERN', 'CACTUS', 'PINE', 'OAK', 'MAPLE', 'BIRCH', 'WILLOW'],
+            ['ROSE', 'TULIP', 'DAISY', 'SUNFLOWER', 'LILY', 'ORCHID', 'VIOLET', 'DAFFODIL', 'CARNATION', 'PEONY', 'CHRYSANTHEMUM', 'MARIGOLD', 'PETUNIA', 'GERANIUM', 'HIBISCUS', 'JASMINE', 'LAVENDER', 'SAGE', 'THYME', 'BASIL'],
+            ['GARDEN', 'PARK', 'MEADOW', 'FIELD', 'VALLEY', 'HILL', 'CLIFF', 'BEACH', 'SHORE', 'ISLAND', 'PENINSULA', 'BAY', 'HARBOR', 'COVE', 'WATERFALL', 'STREAM', 'BROOK', 'POND', 'SWAMP', 'MARSH']
+          ]
+        },
+        sunday: {
+          name: 'Technology',
+          sets: [
+            ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'VIDEO', 'AUDIO', 'CAMERA', 'SCREEN', 'KEYBOARD', 'MOUSE', 'TABLET', 'LAPTOP', 'WIFI', 'BLUETOOTH', 'BATTERY', 'CHARGER', 'HEADPHONES', 'SPEAKER'],
+            ['SMARTPHONE', 'TABLET', 'LAPTOP', 'DESKTOP', 'MONITOR', 'PRINTER', 'SCANNER', 'ROUTER', 'MODEM', 'SERVER', 'CLOUD', 'DATABASE', 'SOFTWARE', 'HARDWARE', 'PROCESSOR', 'MEMORY', 'STORAGE', 'NETWORK', 'BROADBAND', 'FIBER'],
+            ['ALGORITHM', 'PROGRAM', 'CODE', 'SCRIPT', 'FUNCTION', 'VARIABLE', 'ARRAY', 'OBJECT', 'CLASS', 'METHOD', 'INTERFACE', 'API', 'SDK', 'FRAMEWORK', 'LIBRARY', 'PLUGIN', 'EXTENSION', 'WIDGET', 'GADGET', 'DEVICE'],
+            ['ARTIFICIAL', 'INTELLIGENCE', 'MACHINE', 'LEARNING', 'NEURAL', 'NETWORK', 'DEEP', 'LEARNING', 'ALGORITHM', 'DATA', 'ANALYTICS', 'BIG', 'DATA', 'BLOCKCHAIN', 'CRYPTOCURRENCY', 'BITCOIN', 'ETHEREUM', 'SMART', 'CONTRACT', 'DECENTRALIZED']
+          ]
+        }
+      };
+      
+      const themeData = THEME_WORD_SETS[dayOfWeek as keyof typeof THEME_WORD_SETS] || THEME_WORD_SETS.monday;
+      return themeData.sets[setIndex] || themeData.sets[0];
+    };
+    
     const themeWords = {
-      monday: ['PIZZA', 'BURGER', 'SALAD', 'COFFEE', 'JUICE', 'BREAD', 'CHEESE', 'APPLE', 'BANANA', 'GRAPE', 'ORANGE', 'LEMON', 'PASTA', 'RICE', 'SOUP', 'CAKE', 'COOKIE', 'CANDY', 'CHOCOLATE', 'SANDWICH'],
-      tuesday: ['HOUSE', 'CAR', 'TREE', 'BOOK', 'PHONE', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'CLOCK', 'MONEY', 'MUSIC', 'FAMILY', 'FRIEND', 'SCHOOL', 'WORK', 'GAME', 'MOVIE', 'STORY', 'DREAM'],
-      wednesday: ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'CLEAN', 'LEARN', 'TEACH', 'HELP', 'LOVE', 'THINK', 'DREAM', 'CREATE', 'BUILD'],
-      thursday: ['BIG', 'SMALL', 'FAST', 'SLOW', 'HOT', 'COLD', 'NEW', 'OLD', 'GOOD', 'BAD', 'HAPPY', 'SAD', 'BEAUTIFUL', 'STRONG', 'SMART', 'FUNNY', 'QUIET', 'LOUD', 'BRIGHT', 'DARK'],
-      friday: ['EAGLE', 'WOLF', 'FOX', 'DEER', 'SEAL', 'WHALE', 'SHARK', 'CRAB', 'SNAIL', 'SPIDER', 'HAMSTER', 'TURTLE', 'LIZARD', 'GECKO', 'IGUANA', 'NEWT', 'TOAD', 'LADYBUG', 'DRAGONFLY', 'BUTTERFLY'],
-      saturday: ['TREE', 'FLOWER', 'GRASS', 'LEAF', 'ROCK', 'WATER', 'FIRE', 'EARTH', 'WIND', 'RAIN', 'SNOW', 'SUN', 'MOON', 'STAR', 'OCEAN', 'MOUNTAIN', 'FOREST', 'DESERT', 'RIVER', 'LAKE'],
-      sunday: ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'VIDEO', 'AUDIO', 'CAMERA', 'SCREEN', 'KEYBOARD', 'MOUSE', 'TABLET', 'LAPTOP', 'WIFI', 'BLUETOOTH', 'BATTERY', 'CHARGER', 'HEADPHONES', 'SPEAKER']
+      monday: getThemeWordsForDay('monday', setIndex),
+      tuesday: getThemeWordsForDay('tuesday', setIndex),
+      wednesday: getThemeWordsForDay('wednesday', setIndex),
+      thursday: getThemeWordsForDay('thursday', setIndex),
+      friday: getThemeWordsForDay('friday', setIndex),
+      saturday: getThemeWordsForDay('saturday', setIndex),
+      sunday: getThemeWordsForDay('sunday', setIndex)
     };
 
     const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
