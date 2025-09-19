@@ -860,6 +860,46 @@ export default function Profile() {
                   Debug Backend
           </button>
             <button
+                onClick={async () => {
+                  try {
+                    console.log('🔍 DEBUG THEME DAY: Testing Friday theme words...');
+                    const today = new Date();
+                    const todayString = today.getFullYear() + '-' +
+                      String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                      String(today.getDate()).padStart(2, '0');
+                    
+                    const response = await fetch(`/api/debug-theme-day?date=${todayString}`);
+                    const data = await response.json();
+                    
+                    console.log('🔍 DEBUG THEME DAY: Response:', data);
+                    
+                    if (data.error) {
+                      alert(`Theme Day Debug Error: ${data.error}\nDetails: ${data.details}`);
+                    } else {
+                      const message = `Theme Day Debug Results:
+Date: ${data.date}
+Theme: ${data.themeName}
+Total Theme Words: ${data.themeWordsCount}
+Words Found: ${data.themeWordsFoundCount}
+Is SEAL included: ${data.isSealIncluded ? '✅' : '❌'}
+Is SEAL found: ${data.isSealFound ? '✅' : '❌'}
+
+Theme Words: ${data.allWords.join(', ')}`;
+                      alert(message);
+                    }
+                  } catch (error) {
+                    console.error('🔍 DEBUG THEME DAY: Error:', error);
+                    alert('Theme Day Debug failed. Check console for details.');
+                  }
+                }}
+                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Debug Theme Day
+          </button>
+            <button
                 onClick={() => fetchProfile(true)}
                 disabled={refreshing}
                 className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
