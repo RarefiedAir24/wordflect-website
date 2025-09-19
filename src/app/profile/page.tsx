@@ -686,6 +686,12 @@ export default function Profile() {
           console.log(`${day}: Theme words for this day:`, dayThemeWords);
           console.log(`${day}: Sample words:`, data.words.slice(0, 5).map(w => ({ word: w.word, date: w.date })));
           
+          // Debug: Show ALL words found today for Friday
+          if (day === 'friday') {
+            console.log(`🔍 FRIDAY DEBUG: All words found today (${dayDateString}):`, data.words.map(w => ({ word: w.word, date: w.date })));
+            console.log(`🔍 FRIDAY DEBUG: Looking for words with date: ${dayDateString}`);
+          }
+          
           // Debug: Check if SEAL is in the theme words
           if (day === 'friday') {
             console.log(`🔍 FRIDAY DEBUG: Is SEAL in theme words?`, dayThemeWords.includes('SEAL'));
@@ -696,14 +702,14 @@ export default function Profile() {
             const wordText = word.word;
             const wordDate = word.date;
             const isThemeWord = wordText && dayThemeWords.includes(wordText.toUpperCase());
+            const isCorrectDate = wordDate && new Date(wordDate).toDateString() === new Date(dayDateString).toDateString();
             
             // Debug: Log SEAL specifically
             if (day === 'friday' && wordText && wordText.toUpperCase() === 'SEAL') {
-              console.log(`🔍 SEAL DEBUG: Found SEAL word:`, { wordText, wordDate, isThemeWord, dayDateString });
+              console.log(`🔍 SEAL DEBUG: Found SEAL word:`, { wordText, wordDate, isThemeWord, isCorrectDate, dayDateString });
             }
             
-            // Return true if it's a theme word (regardless of date for now)
-            return isThemeWord;
+            return isThemeWord && isCorrectDate;
           });
           foundThemeWords = foundThemeWordsObjects.map((word: { word?: string; date?: string }) => word.word?.toUpperCase()).filter(Boolean) as string[];
           console.log(`${day}: Manual matching found:`, foundThemeWords);
