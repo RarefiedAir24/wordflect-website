@@ -1269,11 +1269,39 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
           <button
             onClick={() => {
               setLoading(true);
-              apiService.getUserProfile().then(setProfile).catch(console.error).finally(() => setLoading(false));
+              apiService.getUserProfile().then(setProfile).catch(console.error).finally(() => setLoading(false));                                          
             }}
-                className="bg-emerald-500 text-white px-4 py-2 rounded hover:bg-emerald-600 transition shadow"
+                className="bg-emerald-500 text-white px-4 py-2 rounded hover:bg-emerald-600 transition shadow"                                             
           >
             Refresh
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                const token = localStorage.getItem('token');
+                if (token) {
+                  // Decode JWT token to get user ID
+                  const payload = JSON.parse(atob(token.split('.')[1]));
+                  console.log('🔍 DEBUG: JWT payload:', payload);
+                  console.log('🔍 DEBUG: User ID:', payload.userId);
+                  
+                  // Test the debug endpoint
+                  const response = await fetch(`https://fo0rh1w8m9.execute-api.us-east-2.amazonaws.com/prod/debug/user-words?userId=${payload.userId}`);
+                  const data = await response.json();
+                  console.log('🔍 DEBUG: Backend response:', data);
+                  
+                  alert(`User ID: ${payload.userId}\nBackend Response: ${JSON.stringify(data, null, 2)}`);
+                } else {
+                  alert('No token found');
+                }
+              } catch (error) {
+                console.error('Debug error:', error);
+                alert('Debug error: ' + error.message);
+              }
+            }}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition shadow"
+          >
+            Debug User ID
           </button>
           <a href="/dashboard">
                 <button className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded hover:scale-105 transition font-bold shadow">
