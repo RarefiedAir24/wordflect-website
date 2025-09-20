@@ -522,16 +522,16 @@ export default function Profile() {
             ]
           },
           saturday: {
-            name: 'Nature',
+            name: 'Colors',
             sets: [
               // Set 0 - 20 words
-              ['TREE', 'FLOWER', 'GRASS', 'LEAF', 'ROCK', 'WATER', 'FIRE', 'EARTH', 'WIND', 'RAIN', 'SNOW', 'SUN', 'MOON', 'STAR', 'OCEAN', 'MOUNTAIN', 'FOREST', 'DESERT', 'RIVER', 'LAKE'],
+              ['RED', 'BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PURPLE', 'PINK', 'BLACK', 'WHITE', 'BROWN', 'GRAY', 'SILVER', 'GOLD', 'BRONZE', 'COPPER', 'ROSE', 'LIME', 'CYAN', 'MAGENTA', 'VIOLET'],                                                   
               // Set 1 - 20 words
-              ['PLANT', 'BUSH', 'VINE', 'ROOT', 'STEM', 'BRANCH', 'BARK', 'SEED', 'FRUIT', 'BERRY', 'NUT', 'MUSHROOM', 'MOSS', 'FERN', 'CACTUS', 'PINE', 'OAK', 'MAPLE', 'BIRCH', 'WILLOW'],
+              ['CRIMSON', 'SCARLET', 'BURGUNDY', 'MAROON', 'RUST', 'CORAL', 'SALMON', 'PEACH', 'APRICOT', 'TANGERINE', 'AMBER', 'CHARTREUSE', 'OLIVE', 'FOREST', 'EMERALD', 'TURQUOISE', 'TEAL', 'NAVY', 'ROYAL', 'INDIGO'],                                                    
               // Set 2 - 20 words
-              ['ROSE', 'TULIP', 'DAISY', 'SUNFLOWER', 'LILY', 'ORCHID', 'VIOLET', 'DAFFODIL', 'CARNATION', 'PEONY', 'CHRYSANTHEMUM', 'MARIGOLD', 'PETUNIA', 'GERANIUM', 'HIBISCUS', 'JASMINE', 'LAVENDER', 'SAGE', 'THYME', 'BASIL'],
+              ['LAVENDER', 'LILAC', 'MAUVE', 'BEIGE', 'TAN', 'KHAKI', 'CREAM', 'IVORY', 'PEARL', 'PLATINUM', 'CHARCOAL', 'SLATE', 'STEEL', 'GUNMETAL', 'BRONZE', 'BRASS', 'COPPER', 'RUST', 'PATINA', 'VERDIGRIS'],           
               // Set 3 - 20 words
-              ['GARDEN', 'PARK', 'MEADOW', 'FIELD', 'VALLEY', 'HILL', 'CLIFF', 'BEACH', 'SHORE', 'ISLAND', 'PENINSULA', 'BAY', 'HARBOR', 'COVE', 'WATERFALL', 'STREAM', 'BROOK', 'POND', 'SWAMP', 'MARSH']
+              ['AQUA', 'AZURE', 'CERULEAN', 'COBALT', 'ULTRAMARINE', 'PRUSSIAN', 'SAPPHIRE', 'PERIWINKLE', 'CORNFLOWER', 'SKY', 'POWDER', 'BABY', 'ROBIN', 'EGG', 'MINT', 'SEAFOAM', 'JADE', 'MOSS', 'SAGE', 'HUNTER']                                      
             ]
           },
           sunday: {
@@ -964,12 +964,12 @@ export default function Profile() {
           ]
         },
         saturday: {
-          name: 'Nature',
+          name: 'Colors',
           sets: [
-            ['TREE', 'FLOWER', 'GRASS', 'LEAF', 'ROCK', 'WATER', 'FIRE', 'EARTH', 'WIND', 'RAIN', 'SNOW', 'SUN', 'MOON', 'STAR', 'OCEAN', 'MOUNTAIN', 'FOREST', 'DESERT', 'RIVER', 'LAKE'],
-            ['PLANT', 'BUSH', 'VINE', 'ROOT', 'STEM', 'BRANCH', 'BARK', 'SEED', 'FRUIT', 'BERRY', 'NUT', 'MUSHROOM', 'MOSS', 'FERN', 'CACTUS', 'PINE', 'OAK', 'MAPLE', 'BIRCH', 'WILLOW'],
-            ['ROSE', 'TULIP', 'DAISY', 'SUNFLOWER', 'LILY', 'ORCHID', 'VIOLET', 'DAFFODIL', 'CARNATION', 'PEONY', 'CHRYSANTHEMUM', 'MARIGOLD', 'PETUNIA', 'GERANIUM', 'HIBISCUS', 'JASMINE', 'LAVENDER', 'SAGE', 'THYME', 'BASIL'],
-            ['GARDEN', 'PARK', 'MEADOW', 'FIELD', 'VALLEY', 'HILL', 'CLIFF', 'BEACH', 'SHORE', 'ISLAND', 'PENINSULA', 'BAY', 'HARBOR', 'COVE', 'WATERFALL', 'STREAM', 'BROOK', 'POND', 'SWAMP', 'MARSH']
+            ['RED', 'BLUE', 'GREEN', 'YELLOW', 'ORANGE', 'PURPLE', 'PINK', 'BLACK', 'WHITE', 'BROWN', 'GRAY', 'SILVER', 'GOLD', 'BRONZE', 'COPPER', 'ROSE', 'LIME', 'CYAN', 'MAGENTA', 'VIOLET'],                                                     
+            ['CRIMSON', 'SCARLET', 'BURGUNDY', 'MAROON', 'RUST', 'CORAL', 'SALMON', 'PEACH', 'APRICOT', 'TANGERINE', 'AMBER', 'CHARTREUSE', 'OLIVE', 'FOREST', 'EMERALD', 'TURQUOISE', 'TEAL', 'NAVY', 'ROYAL', 'INDIGO'],                                                      
+            ['LAVENDER', 'LILAC', 'MAUVE', 'BEIGE', 'TAN', 'KHAKI', 'CREAM', 'IVORY', 'PEARL', 'PLATINUM', 'CHARCOAL', 'SLATE', 'STEEL', 'GUNMETAL', 'BRONZE', 'BRASS', 'COPPER', 'RUST', 'PATINA', 'VERDIGRIS'],             
+            ['AQUA', 'AZURE', 'CERULEAN', 'COBALT', 'ULTRAMARINE', 'PRUSSIAN', 'SAPPHIRE', 'PERIWINKLE', 'CORNFLOWER', 'SKY', 'POWDER', 'BABY', 'ROBIN', 'EGG', 'MINT', 'SEAFOAM', 'JADE', 'MOSS', 'SAGE', 'HUNTER']                                        
           ]
         },
         sunday: {
