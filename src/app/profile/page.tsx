@@ -483,7 +483,7 @@ export default function Profile() {
             ]
           },
           wednesday: {
-            name: 'Verbs',
+            name: 'Nature',
             sets: [
               // Set 0 - 20 words
               ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'CLEAN', 'LEARN', 'TEACH', 'HELP', 'LOVE', 'THINK', 'DREAM', 'CREATE', 'BUILD'],
@@ -535,7 +535,7 @@ export default function Profile() {
             ]
           },
           sunday: {
-            name: 'Technology',
+            name: 'Actions',
             sets: [
               // Set 0 - 20 words
               ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'VIDEO', 'AUDIO', 'CAMERA', 'SCREEN', 'KEYBOARD', 'MOUSE', 'TABLET', 'LAPTOP', 'WIFI', 'BLUETOOTH', 'BATTERY', 'CHARGER', 'HEADPHONES', 'SPEAKER'],
@@ -937,7 +937,7 @@ export default function Profile() {
           ]
         },
         wednesday: {
-          name: 'Verbs',
+          name: 'Nature',
           sets: [
             ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'CLEAN', 'LEARN', 'TEACH', 'HELP', 'LOVE', 'THINK', 'DREAM', 'CREATE', 'BUILD'],
             ['PLAY', 'WORK', 'STUDY', 'SLEEP', 'EAT', 'DRINK', 'TALK', 'LISTEN', 'WATCH', 'LOOK', 'SEE', 'HEAR', 'FEEL', 'TOUCH', 'HOLD', 'CARRY', 'PUSH', 'PULL', 'LIFT', 'DROP'],
@@ -973,7 +973,7 @@ export default function Profile() {
           ]
         },
         sunday: {
-          name: 'Technology',
+          name: 'Actions',
           sets: [
             ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'VIDEO', 'AUDIO', 'CAMERA', 'SCREEN', 'KEYBOARD', 'MOUSE', 'TABLET', 'LAPTOP', 'WIFI', 'BLUETOOTH', 'BATTERY', 'CHARGER', 'HEADPHONES', 'SPEAKER'],
             ['SMARTPHONE', 'TABLET', 'LAPTOP', 'DESKTOP', 'MONITOR', 'PRINTER', 'SCANNER', 'ROUTER', 'MODEM', 'SERVER', 'CLOUD', 'DATABASE', 'SOFTWARE', 'HARDWARE', 'PROCESSOR', 'MEMORY', 'STORAGE', 'NETWORK', 'BROADBAND', 'FIBER'],
