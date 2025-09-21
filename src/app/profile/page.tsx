@@ -896,11 +896,11 @@ export default function Profile() {
     const fallbackNames = {
       monday: 'Food & Drinks',
       tuesday: 'Common Nouns',
-      wednesday: 'Verbs',
-      thursday: 'Adjectives',
-      friday: 'Animals',
-      saturday: 'Nature',
-      sunday: 'Technology'
+      wednesday: 'Nature',
+      thursday: 'Verbs',
+      friday: 'Adjectives',
+      saturday: 'Colors',
+      sunday: 'Animals'
     };
     return fallbackNames[day as keyof typeof fallbackNames] || day;
   };
@@ -1772,7 +1772,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             );
           })()}
 
-          {/* Wednesday - Verbs */}
+          {/* Wednesday - Nature */}
           {(() => {
             const themeData = getThemeData('wednesday');
             if (!themeData) {
@@ -1895,7 +1895,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             );
           })()}
 
-          {/* Saturday - Nature */}
+          {/* Saturday - Colors */}
           {(() => {
             const themeData = getThemeData('saturday');
             if (!themeData) {
@@ -1935,7 +1935,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             );
           })()}
 
-          {/* Sunday - Technology */}
+          {/* Sunday - Animals */}
           {(() => {
             const themeData = getThemeData('sunday');
             if (!themeData) {
@@ -2045,11 +2045,11 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 <option value="" className="text-gray-900">All Themes</option>
                 <option value="food" className="text-gray-900">Food & Drinks (Monday)</option>
                 <option value="nouns" className="text-gray-900">Common Nouns (Tuesday)</option>
-                <option value="verbs" className="text-gray-900">Verbs (Wednesday)</option>
-                <option value="animals" className="text-gray-900">Animals (Thursday)</option>
+                <option value="nature" className="text-gray-900">Nature (Wednesday)</option>
+                <option value="verbs" className="text-gray-900">Verbs (Thursday)</option>
                 <option value="adjectives" className="text-gray-900">Adjectives (Friday)</option>
-                <option value="nature" className="text-gray-900">Nature (Saturday)</option>
-                <option value="technology" className="text-gray-900">Technology (Sunday)</option>
+                <option value="colors" className="text-gray-900">Colors (Saturday)</option>
+                <option value="animals" className="text-gray-900">Animals (Sunday)</option>
               </select>
             </div>
           </div>
