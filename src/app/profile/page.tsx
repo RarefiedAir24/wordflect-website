@@ -451,36 +451,48 @@ export default function Profile() {
   const getThemeData = (day: string) => {
     console.log('getThemeData called for day:', day);
     console.log('themeAnalytics:', themeAnalytics);
-    console.log('themeAnalytics.themes:', themeAnalytics?.themes);
     
-    if (!themeAnalytics || !themeAnalytics.themes || !Array.isArray(themeAnalytics.themes)) {
+    if (!themeAnalytics) {
       console.log('No theme analytics data available');
       return null;
     }
 
-    const themeData = themeAnalytics.themes.find((t: Record<string, unknown>) => t.day === day);
-    if (themeData) {
-      const wordsFound = (themeData.wordsFound as number) || 0;
-      const totalWords = (themeData.totalWords as number) || 20;
-      const words = (themeData.words as string[]) || [];
+    // Map day names to theme names
+    const dayToThemeMap = {
+      monday: 'Food & Drinks',
+      tuesday: 'Common Nouns',
+      wednesday: 'Nature',
+      thursday: 'Verbs',
+      friday: 'Adjectives',
+      saturday: 'Colors',
+      sunday: 'Animals'
+    };
+
+    const themeName = dayToThemeMap[day as keyof typeof dayToThemeMap];
+    if (!themeName) {
+      console.log('Unknown day:', day);
+      return null;
+    }
+
+    // Check if we have theme analytics data
+    if (themeAnalytics.themeAnalytics && themeAnalytics.themeAnalytics[themeName]) {
+      const themeData = themeAnalytics.themeAnalytics[themeName] as Record<string, unknown>;
+      const wordsFound = (themeData.totalWordsFound as number) || 0;
+      const totalWords = (themeData.totalPossibleWords as number) || 20;
+      const foundWords = (themeData.wordsFound as Array<{word: string, date: string}>) || [];
       const completionPercent = totalWords > 0 ? Math.round((wordsFound / totalWords) * 100) : 0;
 
       return {
         wordsFound,
         totalWords,
         completionPercent,
-        words,
-        foundWords: (themeData.foundWords as string[]) || []
+        words: [], // We don't have the full word list in this response
+        foundWords: foundWords.map(w => w.word)
       };
     }
 
-    return {
-      wordsFound: 0,
-      totalWords: 20,
-      completionPercent: 0,
-      words: [],
-      foundWords: []
-    };
+    console.log('No theme data found for:', themeName);
+    return null;
   };
 
   const getThemeName = (day: string) => {
