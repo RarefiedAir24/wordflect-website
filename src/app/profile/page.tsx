@@ -490,7 +490,7 @@ export default function Profile() {
         words: [], // We don't have the full word list in this response
         foundWords: foundWords.map(w => w.word)
       };
-    } else if (themeAnalytics.backendResponse && themeAnalytics.backendResponse.success) {
+    } else if (themeAnalytics.backendResponse && (themeAnalytics.backendResponse as Record<string, unknown>).success) {
       // New structure: backendResponse with stats and theme data
       const backendResponse = themeAnalytics.backendResponse as Record<string, unknown>;
       const stats = backendResponse.stats as Record<string, unknown> | undefined;
