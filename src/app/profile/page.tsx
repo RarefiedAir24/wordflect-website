@@ -829,7 +829,7 @@ export default function Profile() {
     };
 
     if (profile) {
-      generateThemeAnalytics();
+      fetchThemeAnalytics();
     }
   }, [profile]);
 
@@ -903,7 +903,8 @@ export default function Profile() {
         wordsFound,
         totalWords,
         completionPercent,
-        words
+        words,
+        foundWords: (themeData.foundWords as string[]) || []
       };
     }
 
@@ -911,7 +912,8 @@ export default function Profile() {
       wordsFound: 0,
       totalWords: 20,
       completionPercent: 0,
-      words: []
+      words: [],
+      foundWords: []
     };
   };
 
