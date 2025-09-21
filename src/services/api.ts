@@ -234,7 +234,7 @@ class ApiService {
         headers: this.getAuthHeaders(),
       });
       if (!response.ok) {
-        if (response.status === 401) {
+        if (response.status === 401 || response.status === 403) {
           await this.signOut();
           throw new Error('Authentication failed. Please sign in again.');
         }
@@ -257,7 +257,7 @@ class ApiService {
         headers: this.getAuthHeaders(),
       });
       if (!response.ok) {
-        if (response.status === 401) {
+        if (response.status === 401 || response.status === 403) {
           await this.signOut();
           throw new Error('Authentication failed. Please sign in again.');
         }
