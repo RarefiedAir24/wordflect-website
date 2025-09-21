@@ -690,6 +690,29 @@ export default function Profile() {
   const handleThemeDayClick = async (day: string) => {
     setSelectedThemeDay(day);
     setIsThemeModalOpen(true);
+    
+    // Fetch theme words for this day from the backend
+    try {
+      console.log('🎯 Fetching theme words for day:', day);
+      const todayString = new Date().toISOString().split('T')[0];
+      const themeDayData = await apiService.getThemeDayStatistics(todayString);
+      console.log('✅ Theme day data from backend:', themeDayData);
+      
+      // Store the theme words in the themeAnalytics state
+      if (themeDayData && (themeDayData as Record<string, unknown>).words) {
+        const words = (themeDayData as Record<string, unknown>).words as string[];
+        const themeName = (themeDayData as Record<string, unknown>).name as string;
+        
+        // Update themeAnalytics with the theme words for this day
+        setThemeAnalytics(prev => ({
+          ...prev,
+          [`${day}_themeWords`]: words,
+          [`${day}_themeName`]: themeName
+        }));
+      }
+    } catch (error) {
+      console.error('❌ Error fetching theme day data:', error);
+    }
   };
 
   if (loading) {
@@ -2330,11 +2353,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   );
                 }
 
-                // Get all theme words for this day from the themeAnalytics
-                const themes = themeAnalytics?.themes as Record<string, unknown>[] | undefined;
-                const dayThemeWords = themes?.find((t: Record<string, unknown>) => t.day === selectedThemeDay);
-                const allThemeWords = dayThemeWords?.allThemeWords as string[] || [];
-                const foundWords = dayThemeWords?.foundWords as string[] || [];
+                // Get theme words for this day from the fetched data
+                const allThemeWords = (themeAnalytics?.[`${selectedThemeDay}_themeWords`] as string[]) || [];
+                const foundWords = (themeData.foundWords as string[]) || [];
 
                 if (allThemeWords.length === 0) {
                   return (
