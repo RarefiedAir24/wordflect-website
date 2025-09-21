@@ -379,10 +379,16 @@ export default function Profile() {
         const response = await apiService.getThemeAnalytics();
         console.log('✅ Backend theme analytics response:', response);
         
+        // Handle different response structures
         if (response && (response as Record<string, unknown>).analytics) {
+          // Old structure: response.analytics
           const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
-          console.log('📊 Theme analytics data:', analytics);
+          console.log('📊 Theme analytics data (old structure):', analytics);
           setThemeAnalytics(analytics);
+        } else if (response && typeof response === 'object') {
+          // New structure: response is the analytics data directly
+          console.log('📊 Theme analytics data (new structure):', response);
+          setThemeAnalytics(response as Record<string, unknown>);
         } else {
           console.warn('⚠️ No analytics data in backend response');
           setThemeAnalytics(null);
