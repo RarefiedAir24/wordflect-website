@@ -474,8 +474,9 @@ export default function Profile() {
       return null;
     }
 
-    // Check if we have theme analytics data
+    // Check if we have theme analytics data - handle both old and new response structures
     if (themeAnalytics.themeAnalytics && (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName]) {
+      // Old structure: themeAnalytics.themeAnalytics[themeName]
       const themeData = (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName] as Record<string, unknown>;
       const wordsFound = (themeData.totalWordsFound as number) || 0;
       const totalWords = (themeData.totalPossibleWords as number) || 20;
@@ -488,6 +489,21 @@ export default function Profile() {
         completionPercent,
         words: [], // We don't have the full word list in this response
         foundWords: foundWords.map(w => w.word)
+      };
+    } else if (themeAnalytics.backendResponse && themeAnalytics.backendResponse.success) {
+      // New structure: backendResponse with stats and theme data
+      const backendResponse = themeAnalytics.backendResponse as any;
+      const wordsFound = backendResponse.stats?.totalThemeWordsFound || 0;
+      const totalWords = backendResponse.theme?.totalWords || backendResponse.themeWordsCount || 20;
+      const foundWords = backendResponse.themeWordsFound || [];
+      const completionPercent = totalWords > 0 ? Math.round((wordsFound / totalWords) * 100) : 0;
+
+      return {
+        wordsFound,
+        totalWords,
+        completionPercent,
+        words: backendResponse.themeWords || [],
+        foundWords: foundWords
       };
     }
 
