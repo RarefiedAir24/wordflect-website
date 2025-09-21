@@ -470,10 +470,10 @@ export default function Profile() {
       monday: 'Food & Drinks',
       tuesday: 'Common Nouns',
       wednesday: 'Nature',
-      thursday: 'Verbs',
-      friday: 'Adjectives',
+      thursday: 'Adjectives',
+      friday: 'Animals',
       saturday: 'Colors',
-      sunday: 'Animals'
+      sunday: 'Actions'
     };
 
     const themeName = dayToThemeMap[day as keyof typeof dayToThemeMap];
@@ -520,10 +520,10 @@ export default function Profile() {
       monday: 'Food & Drinks',
       tuesday: 'Common Nouns',
       wednesday: 'Nature',
-      thursday: 'Verbs',
-      friday: 'Adjectives',
+      thursday: 'Adjectives',
+      friday: 'Animals',
       saturday: 'Colors',
-      sunday: 'Animals'
+      sunday: 'Actions'
     };
     return fallbackNames[day as keyof typeof fallbackNames] || day;
   };
