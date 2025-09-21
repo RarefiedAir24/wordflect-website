@@ -474,6 +474,30 @@ export default function Profile() {
       return null;
     }
 
+    // Check for day-specific response (from debug output structure)
+    const dayResponseKey = `${day}_response`;
+    if (themeAnalytics[dayResponseKey as keyof typeof themeAnalytics]) {
+      const dayResponse = themeAnalytics[dayResponseKey as keyof typeof themeAnalytics] as Record<string, unknown>;
+      console.log(`Found ${dayResponseKey}:`, dayResponse);
+      
+      if (dayResponse.success) {
+        const stats = dayResponse.stats as Record<string, unknown> | undefined;
+        const theme = dayResponse.theme as Record<string, unknown> | undefined;
+        const wordsFound = (stats?.totalThemeWordsFound as number) || 0;
+        const totalWords = (theme?.totalWords as number) || (dayResponse.themeWordsCount as number) || 20;
+        const foundWords = (dayResponse.themeWordsFound as string[]) || [];
+        const completionPercent = totalWords > 0 ? Math.round((wordsFound / totalWords) * 100) : 0;
+
+        return {
+          wordsFound,
+          totalWords,
+          completionPercent,
+          words: (dayResponse.themeWords as string[]) || [],
+          foundWords: foundWords
+        };
+      }
+    }
+
     // Check if we have theme analytics data - handle both old and new response structures
     if (themeAnalytics.themeAnalytics && (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName]) {
       // Old structure: themeAnalytics.themeAnalytics[themeName]
