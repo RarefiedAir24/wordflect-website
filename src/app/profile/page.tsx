@@ -379,16 +379,12 @@ export default function Profile() {
         const response = await apiService.getThemeAnalytics();
         console.log('✅ Backend theme analytics response:', response);
         
-        // Handle different response structures
+        // Handle backend response structure
         if (response && (response as Record<string, unknown>).analytics) {
-          // Old structure: response.analytics
+          // Backend structure: response.analytics contains themeAnalytics, dailyThemeStats, etc.
           const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
-          console.log('📊 Theme analytics data (old structure):', analytics);
+          console.log('📊 Theme analytics data from backend:', analytics);
           setThemeAnalytics(analytics);
-        } else if (response && typeof response === 'object') {
-          // New structure: response is the analytics data directly
-          console.log('📊 Theme analytics data (new structure):', response);
-          setThemeAnalytics(response as Record<string, unknown>);
         } else {
           console.warn('⚠️ No analytics data in backend response');
           setThemeAnalytics(null);
@@ -480,34 +476,12 @@ export default function Profile() {
       return null;
     }
 
-    // Check for day-specific response (from debug output structure)
-    const dayResponseKey = `${day}_response`;
-    if (themeAnalytics[dayResponseKey as keyof typeof themeAnalytics]) {
-      const dayResponse = themeAnalytics[dayResponseKey as keyof typeof themeAnalytics] as Record<string, unknown>;
-      console.log(`Found ${dayResponseKey}:`, dayResponse);
-      
-      if (dayResponse.success) {
-        const stats = dayResponse.stats as Record<string, unknown> | undefined;
-        const theme = dayResponse.theme as Record<string, unknown> | undefined;
-        const wordsFound = (stats?.totalThemeWordsFound as number) || 0;
-        const totalWords = (theme?.totalWords as number) || (dayResponse.themeWordsCount as number) || 20;
-        const foundWords = (dayResponse.themeWordsFound as string[]) || [];
-        const completionPercent = totalWords > 0 ? Math.round((wordsFound / totalWords) * 100) : 0;
-
-        return {
-          wordsFound,
-          totalWords,
-          completionPercent,
-          words: (dayResponse.themeWords as string[]) || [],
-          foundWords: foundWords
-        };
-      }
-    }
-
-    // Check if we have theme analytics data - handle both old and new response structures
+    // Check if we have theme analytics data from backend
     if (themeAnalytics.themeAnalytics && (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName]) {
-      // Old structure: themeAnalytics.themeAnalytics[themeName]
+      // Backend structure: themeAnalytics.themeAnalytics[themeName]
       const themeData = (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName] as Record<string, unknown>;
+      console.log(`Found theme data for ${themeName}:`, themeData);
+      
       const wordsFound = (themeData.totalWordsFound as number) || 0;
       const totalWords = (themeData.totalPossibleWords as number) || 20;
       const foundWords = (themeData.wordsFound as Array<{word: string, date: string}>) || [];
@@ -519,23 +493,6 @@ export default function Profile() {
         completionPercent,
         words: [], // We don't have the full word list in this response
         foundWords: foundWords.map(w => w.word)
-      };
-    } else if (themeAnalytics.backendResponse && (themeAnalytics.backendResponse as Record<string, unknown>).success) {
-      // New structure: backendResponse with stats and theme data
-      const backendResponse = themeAnalytics.backendResponse as Record<string, unknown>;
-      const stats = backendResponse.stats as Record<string, unknown> | undefined;
-      const theme = backendResponse.theme as Record<string, unknown> | undefined;
-      const wordsFound = (stats?.totalThemeWordsFound as number) || 0;
-      const totalWords = (theme?.totalWords as number) || (backendResponse.themeWordsCount as number) || 20;
-      const foundWords = (backendResponse.themeWordsFound as string[]) || [];
-      const completionPercent = totalWords > 0 ? Math.round((wordsFound / totalWords) * 100) : 0;
-
-      return {
-        wordsFound,
-        totalWords,
-        completionPercent,
-        words: (backendResponse.themeWords as string[]) || [],
-        foundWords: foundWords
       };
     }
 
