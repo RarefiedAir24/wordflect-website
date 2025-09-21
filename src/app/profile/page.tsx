@@ -393,6 +393,20 @@ export default function Profile() {
         setThemeAnalytics(null);
       }
     };
+
+    if (profile) {
+      fetchThemeAnalytics();
+    }
+  }, [profile]);
+
+  // Generate theme analytics from existing data
+  useEffect(() => {
+    const generateThemeAnalytics = async () => {
+      if (!profile || !profile.allFoundWords || !Array.isArray(profile.allFoundWords)) {
+        setThemeAnalytics(null);
+        return;
+      }
+
       console.log('User:', profile.email, profile.username);
       console.log('Total words found:', profile.allFoundWords.length);
       console.log('Sample words with dates:', profile.allFoundWords.slice(0, 5));
@@ -816,7 +830,7 @@ export default function Profile() {
     };
 
     if (profile) {
-      fetchThemeAnalytics();
+      generateThemeAnalytics();
     }
   }, [profile]);
 
