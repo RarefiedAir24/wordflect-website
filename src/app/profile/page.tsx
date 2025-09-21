@@ -369,11 +369,15 @@ export default function Profile() {
   useEffect(() => {
     const fetchThemeAnalytics = async () => {
       if (!profile) {
+        console.log('❌ No profile available for theme analytics');
         setThemeAnalytics(null);
         return;
       }
 
       console.log('🎯 Fetching theme analytics from backend API...');
+      console.log('🔐 User profile:', profile);
+      console.log('🔐 Is authenticated:', apiService.isAuthenticated());
+      console.log('🔐 Token expired:', apiService.isTokenExpired());
       
       try {
         const response = await apiService.getThemeAnalytics();
@@ -387,10 +391,12 @@ export default function Profile() {
           setThemeAnalytics(analytics);
         } else {
           console.warn('⚠️ No analytics data in backend response');
+          console.log('📊 Full response structure:', response);
           setThemeAnalytics(null);
         }
       } catch (error) {
         console.error('❌ Error fetching theme analytics from backend:', error);
+        console.error('❌ Error details:', error.message);
         setThemeAnalytics(null);
       }
     };
