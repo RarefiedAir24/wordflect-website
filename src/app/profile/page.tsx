@@ -396,7 +396,7 @@ export default function Profile() {
         }
       } catch (error) {
         console.error('❌ Error fetching theme analytics from backend:', error);
-        console.error('❌ Error details:', error.message);
+        console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
         setThemeAnalytics(null);
       }
     };
