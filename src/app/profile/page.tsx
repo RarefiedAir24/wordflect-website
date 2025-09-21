@@ -712,6 +712,16 @@ export default function Profile() {
       }
     } catch (error) {
       console.error('❌ Error fetching theme day data:', error);
+      
+      // If authentication failed, show a message to the user
+      if (error instanceof Error && error.message.includes('Authentication failed')) {
+        console.log('🔐 Authentication failed - user may need to sign in again');
+        // The API service should have already called signOut() and redirected
+        return;
+      }
+      
+      // For other errors, show a fallback message
+      console.log('⚠️ Using fallback theme words due to API error');
     }
   };
 
@@ -2365,8 +2375,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">No theme words available</h3>
-                      <p className="text-gray-600">Theme words for {selectedThemeDay} are being loaded...</p>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">Theme words loading...</h3>
+                      <p className="text-gray-600 mb-4">Fetching theme words for {selectedThemeDay} from the server...</p>
+                      <p className="text-sm text-gray-500">If this persists, please check your internet connection or try refreshing the page.</p>
                     </div>
                   );
                 }
