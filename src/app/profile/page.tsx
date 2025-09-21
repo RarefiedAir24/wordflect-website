@@ -492,17 +492,19 @@ export default function Profile() {
       };
     } else if (themeAnalytics.backendResponse && themeAnalytics.backendResponse.success) {
       // New structure: backendResponse with stats and theme data
-      const backendResponse = themeAnalytics.backendResponse as any;
-      const wordsFound = backendResponse.stats?.totalThemeWordsFound || 0;
-      const totalWords = backendResponse.theme?.totalWords || backendResponse.themeWordsCount || 20;
-      const foundWords = backendResponse.themeWordsFound || [];
+      const backendResponse = themeAnalytics.backendResponse as Record<string, unknown>;
+      const stats = backendResponse.stats as Record<string, unknown> | undefined;
+      const theme = backendResponse.theme as Record<string, unknown> | undefined;
+      const wordsFound = (stats?.totalThemeWordsFound as number) || 0;
+      const totalWords = (theme?.totalWords as number) || (backendResponse.themeWordsCount as number) || 20;
+      const foundWords = (backendResponse.themeWordsFound as string[]) || [];
       const completionPercent = totalWords > 0 ? Math.round((wordsFound / totalWords) * 100) : 0;
 
       return {
         wordsFound,
         totalWords,
         completionPercent,
-        words: backendResponse.themeWords || [],
+        words: (backendResponse.themeWords as string[]) || [],
         foundWords: foundWords
       };
     }
