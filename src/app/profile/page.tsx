@@ -475,8 +475,8 @@ export default function Profile() {
     }
 
     // Check if we have theme analytics data
-    if (themeAnalytics.themeAnalytics && themeAnalytics.themeAnalytics[themeName]) {
-      const themeData = themeAnalytics.themeAnalytics[themeName] as Record<string, unknown>;
+    if (themeAnalytics.themeAnalytics && (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName]) {
+      const themeData = (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName] as Record<string, unknown>;
       const wordsFound = (themeData.totalWordsFound as number) || 0;
       const totalWords = (themeData.totalPossibleWords as number) || 20;
       const foundWords = (themeData.wordsFound as Array<{word: string, date: string}>) || [];
