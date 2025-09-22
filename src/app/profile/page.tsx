@@ -502,6 +502,10 @@ export default function Profile() {
       selectedDate.setDate(today.getDate() + daysUntilSelectedDay);
       const selectedDateString = selectedDate.toISOString().split('T')[0];
       
+      console.log(`🎯 DEBUG: Today is ${today.toISOString().split('T')[0]} (day ${dayOfWeek})`);
+      console.log(`🎯 DEBUG: Selected day is ${day} (index ${selectedDayIndex})`);
+      console.log(`🎯 DEBUG: Days until selected day: ${daysUntilSelectedDay}`);
+      console.log(`🎯 DEBUG: Calculated selected date: ${selectedDateString}`);
       console.log(`Looking for words found on ${selectedDateString} (${day})`);
       
       // Filter words found on the specific day
@@ -514,6 +518,8 @@ export default function Profile() {
         return false;
       });
       
+      console.log(`🎯 DEBUG: Total user found words: ${userFoundWords.length}`);
+      console.log(`🎯 DEBUG: Sample user words with dates:`, userFoundWords.slice(0, 5).map(w => typeof w === 'string' ? w : `${w.word} (${w.date})`));
       console.log(`Words found on ${selectedDateString}:`, wordsFoundOnSelectedDay.map(w => typeof w === 'string' ? w : w.word));
       
       // Check which theme words were found on the specific day
