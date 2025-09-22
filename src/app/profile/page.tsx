@@ -507,16 +507,44 @@ export default function Profile() {
     if (themeWords.length > 0) {
       console.log(`Found theme words for ${day}:`, themeWords);
       
-      // Check user's profile for found words that match this theme
+      // Check user's profile for found words that match this theme AND were found on the specific day
       const userFoundWords = profile?.allFoundWords || [];
+      
+      // Calculate the date for the selected day
+      const today = new Date();
+      const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      const selectedDayIndex = dayNames.indexOf(day);
+      
+      // Calculate the date for the selected day (this week)
+      const daysUntilSelectedDay = selectedDayIndex - dayOfWeek;
+      const selectedDate = new Date(today);
+      selectedDate.setDate(today.getDate() + daysUntilSelectedDay);
+      const selectedDateString = selectedDate.toISOString().split('T')[0];
+      
+      console.log(`Looking for words found on ${selectedDateString} (${day})`);
+      
+      // Filter words found on the specific day
+      const wordsFoundOnSelectedDay = userFoundWords.filter(userWord => {
+        if (typeof userWord === 'string') return false; // Skip old format without dates
+        if (userWord.date) {
+          const wordDate = new Date(userWord.date).toISOString().split('T')[0];
+          return wordDate === selectedDateString;
+        }
+        return false;
+      });
+      
+      console.log(`Words found on ${selectedDateString}:`, wordsFoundOnSelectedDay.map(w => w.word));
+      
+      // Check which theme words were found on the specific day
       const foundThemeWords = themeWords.filter(themeWord => 
-        userFoundWords.some(userWord => {
-          const word = typeof userWord === 'string' ? userWord : userWord.word;
+        wordsFoundOnSelectedDay.some(userWord => {
+          const word = userWord.word;
           return word && word.toUpperCase() === themeWord.toUpperCase();
         })
       );
       
-      console.log(`Found ${foundThemeWords.length} theme words in user's profile:`, foundThemeWords);
+      console.log(`Found ${foundThemeWords.length} theme words on ${day}:`, foundThemeWords);
       
       return {
         wordsFound: foundThemeWords.length,
