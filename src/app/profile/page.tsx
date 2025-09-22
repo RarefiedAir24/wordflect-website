@@ -719,9 +719,13 @@ export default function Profile() {
       console.log('✅ Theme day data from backend:', themeDayData);
       
       // Store the theme words in the themeAnalytics state
-      if (themeDayData && (themeDayData as Record<string, unknown>).words) {
-        const words = (themeDayData as Record<string, unknown>).words as string[];
-        const themeName = (themeDayData as Record<string, unknown>).name as string;
+      if (themeDayData && (themeDayData as Record<string, unknown>).theme) {
+        const theme = (themeDayData as Record<string, unknown>).theme as Record<string, unknown>;
+        const words = theme.words as string[];
+        const themeName = theme.name as string;
+        
+        console.log('🎯 Extracted theme words:', words);
+        console.log('🎯 Extracted theme name:', themeName);
         
         // Update themeAnalytics with the theme words for this day
         setThemeAnalytics(prev => ({
@@ -729,6 +733,10 @@ export default function Profile() {
           [`${day}_themeWords`]: words,
           [`${day}_themeName`]: themeName
         }));
+        
+        console.log('🎯 Updated themeAnalytics state for', day);
+      } else {
+        console.log('❌ No theme data found in response:', themeDayData);
       }
     } catch (error) {
       console.error('❌ Error fetching theme day data:', error);
