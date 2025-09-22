@@ -482,27 +482,7 @@ export default function Profile() {
       return null;
     }
 
-    // Check if we have theme analytics data from backend
-    if (themeAnalytics.themeAnalytics && (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName]) {
-      // Backend structure: themeAnalytics.themeAnalytics[themeName]
-      const themeData = (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName] as Record<string, unknown>;
-      console.log(`Found theme data for ${themeName}:`, themeData);
-      
-      const wordsFound = (themeData.totalWordsFound as number) || 0;
-      const totalWords = (themeData.totalPossibleWords as number) || 20;
-      const foundWords = (themeData.wordsFound as Array<{word: string, date: string}>) || [];
-      const completionPercent = totalWords > 0 ? Math.round((wordsFound / totalWords) * 100) : 0;
-
-      return {
-        wordsFound,
-        totalWords,
-        completionPercent,
-        words: [], // We don't have the full word list in this response
-        foundWords: foundWords.map(w => w.word)
-      };
-    }
-
-    // Check if we have theme words data from the theme day API
+    // Check if we have theme words data from the theme day API (prioritize this over old analytics)
     const themeWords = (themeAnalytics[`${day}_themeWords`] as string[]) || [];
     if (themeWords.length > 0) {
       console.log(`Found theme words for ${day}:`, themeWords);
@@ -555,6 +535,26 @@ export default function Profile() {
         completionPercent: themeWords.length > 0 ? Math.round((foundThemeWords.length / themeWords.length) * 100) : 0,
         words: themeWords,
         foundWords: foundThemeWords
+      };
+    }
+
+    // Fallback to old theme analytics data if new theme words are not available
+    if (themeAnalytics.themeAnalytics && (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName]) {
+      // Backend structure: themeAnalytics.themeAnalytics[themeName]
+      const themeData = (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName] as Record<string, unknown>;
+      console.log(`Found fallback theme data for ${themeName}:`, themeData);
+      
+      const wordsFound = (themeData.totalWordsFound as number) || 0;
+      const totalWords = (themeData.totalPossibleWords as number) || 20;
+      const foundWords = (themeData.wordsFound as Array<{word: string, date: string}>) || [];
+      const completionPercent = totalWords > 0 ? Math.round((wordsFound / totalWords) * 100) : 0;
+
+      return {
+        wordsFound,
+        totalWords,
+        completionPercent,
+        words: [], // We don't have the full word list in this response
+        foundWords: foundWords.map(w => w.word)
       };
     }
 
