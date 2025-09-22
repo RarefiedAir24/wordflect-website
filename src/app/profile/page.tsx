@@ -534,12 +534,12 @@ export default function Profile() {
         return false;
       });
       
-      console.log(`Words found on ${selectedDateString}:`, wordsFoundOnSelectedDay.map(w => w.word));
+      console.log(`Words found on ${selectedDateString}:`, wordsFoundOnSelectedDay.map(w => typeof w === 'string' ? w : w.word));
       
       // Check which theme words were found on the specific day
       const foundThemeWords = themeWords.filter(themeWord => 
         wordsFoundOnSelectedDay.some(userWord => {
-          const word = userWord.word;
+          const word = typeof userWord === 'string' ? userWord : userWord.word;
           return word && word.toUpperCase() === themeWord.toUpperCase();
         })
       );
