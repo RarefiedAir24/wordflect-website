@@ -691,11 +691,31 @@ export default function Profile() {
     setSelectedThemeDay(day);
     setIsThemeModalOpen(true);
     
+    // Compute the ISO date (YYYY-MM-DD) for the selected weekday in the current week
+    const computeIsoDateForWeekday = (weekday: string): string => {
+      const weekdayIndexMap: Record<string, number> = {
+        monday: 1,
+        tuesday: 2,
+        wednesday: 3,
+        thursday: 4,
+        friday: 5,
+        saturday: 6,
+        sunday: 0,
+      };
+      const today = new Date();
+      const todayIdx = today.getDay(); // 0=Sun..6=Sat
+      const targetIdx = weekdayIndexMap[weekday.toLowerCase()] ?? todayIdx;
+      const diff = targetIdx - todayIdx;
+      const target = new Date(today);
+      target.setDate(today.getDate() + diff);
+      return target.toISOString().split('T')[0];
+    };
+
     // Fetch theme words for this day from the backend
     try {
       console.log('🎯 Fetching theme words for day:', day);
-      const todayString = new Date().toISOString().split('T')[0];
-      const themeDayData = await apiService.getThemeDayStatistics(todayString);
+      const selectedDayIso = computeIsoDateForWeekday(day);
+      const themeDayData = await apiService.getThemeDayStatistics(selectedDayIso);
       console.log('✅ Theme day data from backend:', themeDayData);
       
       // Store the theme words in the themeAnalytics state
