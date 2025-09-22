@@ -13,16 +13,24 @@ export async function GET(request: NextRequest) {
       targetUrl += `?date=${encodeURIComponent(date)}`;
     }
 
+    // Extract Authorization header explicitly
+    const authHeader = request.headers.get('authorization');
+
     console.log('📤 Theme Day Proxy: Forwarding request to:', targetUrl);
     console.log('📤 Theme Day Proxy: Date parameter:', date);
-    console.log('📤 Theme Day Proxy: Auth header present:', !!request.headers.get('authorization'));
+    console.log('📤 Theme Day Proxy: Auth header present:', !!authHeader);
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    };
+    if (authHeader) headers['Authorization'] = authHeader;
 
     const response = await fetch(targetUrl, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...Object.fromEntries(request.headers.entries())
-      }
+      headers
     });
 
     console.log('📥 Theme Day Proxy: Response status:', response.status);
@@ -35,18 +43,18 @@ export async function GET(request: NextRequest) {
         error: 'Backend request failed', 
         status: response.status, 
         details: errorText 
-      }, { status: response.status });
+      }, { status: response.status, headers: { 'Cache-Control': 'no-store' } });
     }
     
     const data = await response.json();
     console.log('📥 Theme Day Proxy: Success response data:', JSON.stringify(data, null, 2));
     
-    return NextResponse.json(data, { status: response.status });
+    return NextResponse.json(data, { status: response.status, headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     console.error('📥 Theme Day Proxy: Fetch error:', error);
     return NextResponse.json({ 
       error: 'Proxy request failed', 
       details: error instanceof Error ? error.message : 'Unknown error' 
-    }, { status: 500 });
+    }, { status: 500, headers: { 'Cache-Control': 'no-store' } });
   }
 }
