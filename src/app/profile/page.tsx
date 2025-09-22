@@ -507,13 +507,23 @@ export default function Profile() {
     if (themeWords.length > 0) {
       console.log(`Found theme words for ${day}:`, themeWords);
       
-      // For now, return basic data since we don't have analytics for this theme yet
+      // Check user's profile for found words that match this theme
+      const userFoundWords = profile?.allFoundWords || [];
+      const foundThemeWords = themeWords.filter(themeWord => 
+        userFoundWords.some(userWord => {
+          const word = typeof userWord === 'string' ? userWord : userWord.word;
+          return word && word.toUpperCase() === themeWord.toUpperCase();
+        })
+      );
+      
+      console.log(`Found ${foundThemeWords.length} theme words in user's profile:`, foundThemeWords);
+      
       return {
-        wordsFound: 0, // We don't have analytics data yet
+        wordsFound: foundThemeWords.length,
         totalWords: themeWords.length,
-        completionPercent: 0,
+        completionPercent: themeWords.length > 0 ? Math.round((foundThemeWords.length / themeWords.length) * 100) : 0,
         words: themeWords,
-        foundWords: [] // We don't have found words data yet
+        foundWords: foundThemeWords
       };
     }
 
