@@ -1373,15 +1373,18 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             const themeData = getThemeData('monday');
             if (!themeData) {
               return (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                <div 
+                  className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                  onClick={() => handleThemeDayClick('monday')}
+                >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <span className="text-white text-sm">🍕</span>
-            </div>
+                    </div>
                     <span className="text-xs text-gray-500 font-semibold">MONDAY</span>
-          </div>
-                  <p className="text-lg font-bold text-gray-500">{getThemeName('monday')}</p>
-                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                  </div>
+                  <p className="text-lg font-bold text-gray-700">{getThemeName('monday')}</p>
+                  <div className="mt-3 text-center text-gray-500 text-sm">No data available (tap to load)</div>
                 </div>
               );
             }
@@ -1393,9 +1396,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 <div className="flex items-center justify-between mb-2">
                   <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">🍕</span>
-            </div>
+                  </div>
                   <span className="text-xs text-orange-600 font-semibold">MONDAY</span>
-          </div>
+                </div>
                 <p className="text-lg font-bold text-orange-900">{getThemeName('monday')}</p>
                 <p className="text-xs text-orange-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
