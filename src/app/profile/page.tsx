@@ -689,7 +689,9 @@ export default function Profile() {
   // Handle theme day click
   const handleThemeDayClick = async (day: string) => {
     setSelectedThemeDay(day);
-    setIsThemeModalOpen(true);
+    
+    // Don't open modal immediately - wait for theme words to be fetched
+    // setIsThemeModalOpen(true);
     
     // Compute the ISO date (YYYY-MM-DD) for the selected weekday in the current week
     const computeIsoDateForWeekday = (weekday: string): string => {
@@ -735,8 +737,13 @@ export default function Profile() {
         }));
         
         console.log('🎯 Updated themeAnalytics state for', day);
+        
+        // Now open the modal after theme words are stored
+        setIsThemeModalOpen(true);
       } else {
         console.log('❌ No theme data found in response:', themeDayData);
+        // Still open modal even if no theme data
+        setIsThemeModalOpen(true);
       }
     } catch (error) {
       console.error('❌ Error fetching theme day data:', error);
@@ -750,6 +757,8 @@ export default function Profile() {
       
       // For other errors, show a fallback message
       console.log('⚠️ Using fallback theme words due to API error');
+      // Still open modal even if there's an error
+      setIsThemeModalOpen(true);
     }
   };
 
