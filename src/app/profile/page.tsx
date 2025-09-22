@@ -751,77 +751,60 @@ export default function Profile() {
 
   // Handle theme day click
   const handleThemeDayClick = async (day: string) => {
+    console.log(`🎯 Fetching theme details for day: ${day}`);
     setSelectedThemeDay(day);
+    setIsThemeModalOpen(true);
     
-    // Don't open modal immediately - wait for theme words to be fetched
-    // setIsThemeModalOpen(true);
-    
-    // Compute the ISO date (YYYY-MM-DD) for the selected weekday in the current week
-    const computeIsoDateForWeekday = (weekday: string): string => {
-      const weekdayIndexMap: Record<string, number> = {
-        monday: 1,
-        tuesday: 2,
-        wednesday: 3,
-        thursday: 4,
-        friday: 5,
-        saturday: 6,
-        sunday: 0,
-      };
-      const today = new Date();
-      const todayIdx = today.getDay(); // 0=Sun..6=Sat
-      const targetIdx = weekdayIndexMap[weekday.toLowerCase()] ?? todayIdx;
-      const diff = targetIdx - todayIdx;
-      const target = new Date(today);
-      target.setDate(today.getDate() + diff);
-      return target.toISOString().split('T')[0];
-    };
-
-    // Fetch theme words for this day from the backend
     try {
-      console.log('🎯 Fetching theme words for day:', day);
-      const selectedDayIso = computeIsoDateForWeekday(day);
-      const themeDayData = await apiService.getThemeDayStatistics(selectedDayIso);
-      console.log('✅ Theme day data from backend:', themeDayData);
+      // Calculate the date for the selected day
+      const today = new Date();
+      const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      const selectedDayIndex = dayNames.indexOf(day);
       
-      // Store the theme words in the themeAnalytics state
-      if (themeDayData && (themeDayData as Record<string, unknown>).theme) {
-        const theme = (themeDayData as Record<string, unknown>).theme as Record<string, unknown>;
-        const words = theme.words as string[];
-        const themeName = theme.name as string;
-        
-        console.log('🎯 Extracted theme words:', words);
-        console.log('🎯 Extracted theme name:', themeName);
-        
-        // Update themeAnalytics with the theme words for this day
+      // Calculate the date for the selected day (this week)
+      const daysUntilSelectedDay = selectedDayIndex - dayOfWeek;
+      const selectedDate = new Date(today);
+      selectedDate.setDate(today.getDate() + daysUntilSelectedDay);
+      const selectedDateString = selectedDate.toISOString().split('T')[0];
+      
+      // Fetch complete theme details for this specific day and date
+      const response = await fetch(`/api/theme-day-details?day=${day}&date=${selectedDateString}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Theme day details from backend:', data);
+      
+      if (data.success) {
+        // Store the complete theme data
         setThemeAnalytics(prev => ({
           ...prev,
-          [`${day}_themeWords`]: words,
-          [`${day}_themeName`]: themeName
+          [`${day}_themeDetails`]: data
         }));
         
-        console.log('🎯 Updated themeAnalytics state for', day);
-        
-        // Now open the modal after theme words are stored
-        setIsThemeModalOpen(true);
+        console.log(`🎯 Updated themeAnalytics with complete details for ${day}`);
       } else {
-        console.log('❌ No theme data found in response:', themeDayData);
-        // Still open modal even if no theme data
-        setIsThemeModalOpen(true);
+        console.log('❌ No theme data in response');
       }
     } catch (error) {
-      console.error('❌ Error fetching theme day data:', error);
+      console.error('❌ Error fetching theme day details:', error);
       
       // If authentication failed, show a message to the user
       if (error instanceof Error && error.message.includes('Authentication failed')) {
         console.log('🔐 Authentication failed - user may need to sign in again');
-        // The API service should have already called signOut() and redirected
         return;
       }
       
       // For other errors, show a fallback message
       console.log('⚠️ Using fallback theme words due to API error');
-      // Still open modal even if there's an error
-      setIsThemeModalOpen(true);
     }
   };
 
@@ -2466,22 +2449,10 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   );
                 }
 
-                // Get theme words for this day from the fetched data
-                const allThemeWords = (themeAnalytics?.[`${selectedThemeDay}_themeWords`] as string[]) || [];
+                // Get complete theme details from the new API
+                const themeDetails = (themeAnalytics?.[`${selectedThemeDay}_themeDetails`] as any) || null;
                 
-                // Use the new day-specific counting logic instead of the old themeData
-                const daySpecificThemeData = getThemeData(selectedThemeDay);
-                const foundWords = (daySpecificThemeData?.foundWords as string[]) || [];
-                
-                console.log('🎯 Modal debug - selectedThemeDay:', selectedThemeDay);
-                console.log('🎯 Modal debug - themeAnalytics keys:', Object.keys(themeAnalytics || {}));
-                console.log('🎯 Modal debug - looking for key:', `${selectedThemeDay}_themeWords`);
-                console.log('🎯 Modal debug - allThemeWords:', allThemeWords);
-                console.log('🎯 Modal debug - allThemeWords.length:', allThemeWords.length);
-                console.log('🎯 Modal debug - daySpecificThemeData:', daySpecificThemeData);
-                console.log('🎯 Modal debug - foundWords:', foundWords);
-
-                if (allThemeWords.length === 0) {
+                if (!themeDetails || !themeDetails.success) {
                   return (
                     <div className="text-center py-8">
                       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -2489,12 +2460,21 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">Theme words loading...</h3>
-                      <p className="text-gray-600 mb-4">Fetching theme words for {selectedThemeDay} from the server...</p>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">Theme details loading...</h3>
+                      <p className="text-gray-600 mb-4">Fetching theme details for {selectedThemeDay} from the server...</p>
                       <p className="text-sm text-gray-500">If this persists, please check your internet connection or try refreshing the page.</p>
                     </div>
                   );
                 }
+                
+                const allThemeWords = themeDetails.theme.words || [];
+                const foundWords = themeDetails.progress.foundWords || [];
+                
+                console.log('🎯 Modal debug - selectedThemeDay:', selectedThemeDay);
+                console.log('🎯 Modal debug - themeDetails:', themeDetails);
+                console.log('🎯 Modal debug - allThemeWords:', allThemeWords);
+                console.log('🎯 Modal debug - foundWords:', foundWords);
+
                 
                 return (
                   <div className="space-y-4">
