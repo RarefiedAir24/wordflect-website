@@ -2450,7 +2450,21 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 }
 
                 // Get complete theme details from the new API
-                const themeDetails = (themeAnalytics?.[`${selectedThemeDay}_themeDetails`] as any) || null;
+                const themeDetails = (themeAnalytics?.[`${selectedThemeDay}_themeDetails`] as {
+                  success: boolean;
+                  day: string;
+                  date: string;
+                  theme: {
+                    name: string;
+                    words: string[];
+                    totalWords: number;
+                  };
+                  progress: {
+                    wordsFound: number;
+                    foundWords: string[];
+                    completionPercent: number;
+                  };
+                }) || null;
                 
                 if (!themeDetails || !themeDetails.success) {
                   return (
