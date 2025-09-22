@@ -517,6 +517,8 @@ export default function Profile() {
       );
       
       console.log(`Found ${foundThemeWords.length} theme words in user's profile:`, foundThemeWords);
+      console.log(`All user found words:`, userFoundWords.map(w => typeof w === 'string' ? w : w.word));
+      console.log(`Theme words for ${day}:`, themeWords);
       
       return {
         wordsFound: foundThemeWords.length,
