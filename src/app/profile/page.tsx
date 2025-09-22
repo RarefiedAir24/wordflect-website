@@ -502,6 +502,21 @@ export default function Profile() {
       };
     }
 
+    // Check if we have theme words data from the theme day API
+    const themeWords = (themeAnalytics[`${day}_themeWords`] as string[]) || [];
+    if (themeWords.length > 0) {
+      console.log(`Found theme words for ${day}:`, themeWords);
+      
+      // For now, return basic data since we don't have analytics for this theme yet
+      return {
+        wordsFound: 0, // We don't have analytics data yet
+        totalWords: themeWords.length,
+        completionPercent: 0,
+        words: themeWords,
+        foundWords: [] // We don't have found words data yet
+      };
+    }
+
     console.log('No theme data found for:', themeName);
     return null;
   };
