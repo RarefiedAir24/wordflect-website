@@ -2461,13 +2461,18 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
 
                 // Get theme words for this day from the fetched data
                 const allThemeWords = (themeAnalytics?.[`${selectedThemeDay}_themeWords`] as string[]) || [];
-                const foundWords = (themeData.foundWords as string[]) || [];
+                
+                // Use the new day-specific counting logic instead of the old themeData
+                const daySpecificThemeData = getThemeData(selectedThemeDay);
+                const foundWords = (daySpecificThemeData?.foundWords as string[]) || [];
                 
                 console.log('🎯 Modal debug - selectedThemeDay:', selectedThemeDay);
                 console.log('🎯 Modal debug - themeAnalytics keys:', Object.keys(themeAnalytics || {}));
                 console.log('🎯 Modal debug - looking for key:', `${selectedThemeDay}_themeWords`);
                 console.log('🎯 Modal debug - allThemeWords:', allThemeWords);
                 console.log('🎯 Modal debug - allThemeWords.length:', allThemeWords.length);
+                console.log('🎯 Modal debug - daySpecificThemeData:', daySpecificThemeData);
+                console.log('🎯 Modal debug - foundWords:', foundWords);
 
                 if (allThemeWords.length === 0) {
                   return (
@@ -2491,7 +2496,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                       <div className="text-2xl font-bold text-gray-900">
                         {foundWords.length}/{allThemeWords.length}
                       </div>
-                      <div className="text-sm text-gray-600">words found</div>
+                      <div className="text-sm text-gray-600">words found on {selectedThemeDay}</div>
                     </div>
 
                     {/* Theme Words Grid */}
