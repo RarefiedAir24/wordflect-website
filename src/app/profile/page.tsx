@@ -485,6 +485,7 @@ export default function Profile() {
     // Check if we have theme words data from the theme day API (prioritize this over old analytics)
     const themeWords = (themeAnalytics[`${day}_themeWords`] as string[]) || [];
     if (themeWords.length > 0) {
+      console.log(`🎯 Using NEW theme words data for ${day}`);
       console.log(`Found theme words for ${day}:`, themeWords);
       
       // Check user's profile for found words that match this theme AND were found on the specific day
@@ -548,7 +549,7 @@ export default function Profile() {
     if (themeAnalytics.themeAnalytics && (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName]) {
       // Backend structure: themeAnalytics.themeAnalytics[themeName]
       const themeData = (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName] as Record<string, unknown>;
-      console.log(`Found fallback theme data for ${themeName}:`, themeData);
+      console.log(`🎯 Using OLD analytics data for ${themeName}:`, themeData);
       
       const wordsFound = (themeData.totalWordsFound as number) || 0;
       const totalWords = (themeData.totalPossibleWords as number) || 20;
