@@ -545,6 +545,9 @@ export default function Profile() {
       );
       
       console.log(`Found ${foundThemeWords.length} theme words on ${day}:`, foundThemeWords);
+      console.log(`🎯 DEBUG: themeWords:`, themeWords);
+      console.log(`🎯 DEBUG: wordsFoundOnSelectedDay:`, wordsFoundOnSelectedDay);
+      console.log(`🎯 DEBUG: foundThemeWords:`, foundThemeWords);
       
       return {
         wordsFound: foundThemeWords.length,
