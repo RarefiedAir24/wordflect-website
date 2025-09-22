@@ -2397,6 +2397,12 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 // Get theme words for this day from the fetched data
                 const allThemeWords = (themeAnalytics?.[`${selectedThemeDay}_themeWords`] as string[]) || [];
                 const foundWords = (themeData.foundWords as string[]) || [];
+                
+                console.log('🎯 Modal debug - selectedThemeDay:', selectedThemeDay);
+                console.log('🎯 Modal debug - themeAnalytics keys:', Object.keys(themeAnalytics || {}));
+                console.log('🎯 Modal debug - looking for key:', `${selectedThemeDay}_themeWords`);
+                console.log('🎯 Modal debug - allThemeWords:', allThemeWords);
+                console.log('🎯 Modal debug - allThemeWords.length:', allThemeWords.length);
 
                 if (allThemeWords.length === 0) {
                   return (
