@@ -2475,6 +2475,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   );
                 }
 
+                console.log('🎯 MODAL CONTENT RENDERING - Starting modal content rendering logic');
                 // Get complete theme details from the new API
                 const themeDetails = (themeAnalytics?.[`${selectedThemeDay}_themeDetails`] as {
                   success: boolean;
