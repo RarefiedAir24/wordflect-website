@@ -2493,6 +2493,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 console.log('🎯 Modal debug - themeDetails.progress:', themeDetails?.progress);
                 
                 if (!themeDetails || !themeDetails.success) {
+                  console.log('🎯 Modal content - No themeDetails or success=false, showing loading state');
                   return (
                     <div className="text-center py-8">
                       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -2506,6 +2507,8 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     </div>
                   );
                 }
+                
+                console.log('🎯 Modal content - themeDetails found, proceeding to render content');
                 
                 const allThemeWords = themeDetails.theme.words || [];
                 const foundWords = themeDetails.progress.foundWords || [];
