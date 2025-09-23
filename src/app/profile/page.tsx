@@ -2466,6 +2466,10 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   };
                 }) || null;
                 
+                console.log('🎯 Modal debug - themeAnalytics keys:', Object.keys(themeAnalytics || {}));
+                console.log('🎯 Modal debug - looking for key:', `${selectedThemeDay}_themeDetails`);
+                console.log('🎯 Modal debug - themeDetails found:', themeDetails);
+                
                 if (!themeDetails || !themeDetails.success) {
                   return (
                     <div className="text-center py-8">
