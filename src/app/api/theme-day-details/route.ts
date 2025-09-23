@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const API_BASE_URL = 'https://fo0rh1w8m9.execute-api.us-east-2.amazonaws.com/prod';
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -19,13 +21,18 @@ export async function GET(request: NextRequest) {
     const token = authHeader.substring(7);
 
     // Call the backend API
-    const backendUrl = `${process.env.BACKEND_URL}/theme-day-details?day=${day}&date=${date}`;
+    const backendUrl = `${API_BASE_URL}/theme-day-details?day=${day}&date=${date}`;
+    console.log('🎯 Frontend API: Calling backend URL:', backendUrl);
+    console.log('🎯 Frontend API: Token length:', token.length);
+    
     const response = await fetch(backendUrl, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     });
+    
+    console.log('🎯 Frontend API: Backend response status:', response.status);
 
     if (!response.ok) {
       if (response.status === 401) {
