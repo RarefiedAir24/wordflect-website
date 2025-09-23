@@ -2416,6 +2416,15 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
         console.log('🎯 MODAL RENDERING - themeAnalytics keys:', Object.keys(themeAnalytics || {}));
         console.log('🎯 MODAL RENDERING - looking for key:', `${selectedThemeDay}_themeDetails`);
         console.log('🎯 MODAL RENDERING - stored data:', themeAnalytics?.[`${selectedThemeDay}_themeDetails`]);
+        
+        // Force re-render when data becomes available
+        const themeDetails = themeAnalytics?.[`${selectedThemeDay}_themeDetails`];
+        if (!themeDetails) {
+          console.log('🎯 MODAL RENDERING - No data yet, showing loading...');
+        } else {
+          console.log('🎯 MODAL RENDERING - Data available, showing modal content!');
+        }
+        
         return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
