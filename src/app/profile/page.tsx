@@ -2519,6 +2519,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 console.log('🎯 Modal debug - foundWords:', foundWords);
                 console.log('🎯 Modal debug - allThemeWords.length:', allThemeWords.length);
                 console.log('🎯 Modal debug - foundWords.length:', foundWords.length);
+                console.log('🎯 Modal debug - About to render theme words grid with', allThemeWords.length, 'words');
 
                 
                 return (
