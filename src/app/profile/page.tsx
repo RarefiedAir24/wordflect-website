@@ -2501,6 +2501,8 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 
                 if (!themeDetails || !themeDetails.success) {
                   console.log('🎯 Modal content - No themeDetails or success=false, showing loading state');
+                  console.log('🎯 Modal content - themeDetails:', themeDetails);
+                  console.log('🎯 Modal content - themeDetails?.success:', themeDetails?.success);
                   return (
                     <div className="text-center py-8">
                       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
