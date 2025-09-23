@@ -2503,6 +2503,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 console.log('🎯 Modal content - themeDetails exists:', !!themeDetails);
                 console.log('🎯 Modal content - themeDetails.success:', themeDetails?.success);
                 
+                console.log('🎯 Modal content - Checking condition: !themeDetails =', !themeDetails, ', !themeDetails.success =', !themeDetails?.success);
+                console.log('🎯 Modal content - Will show loading?', (!themeDetails || !themeDetails.success));
+                
                 if (!themeDetails || !themeDetails.success) {
                   console.log('🎯 Modal content - No themeDetails or success=false, showing loading state');
                   console.log('🎯 Modal content - themeDetails:', themeDetails);
