@@ -2488,6 +2488,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 console.log('🎯 Modal debug - themeAnalytics keys:', Object.keys(themeAnalytics || {}));
                 console.log('🎯 Modal debug - looking for key:', `${selectedThemeDay}_themeDetails`);
                 console.log('🎯 Modal debug - themeDetails found:', themeDetails);
+                console.log('🎯 Modal debug - themeDetails.success:', themeDetails?.success);
+                console.log('🎯 Modal debug - themeDetails.theme:', themeDetails?.theme);
+                console.log('🎯 Modal debug - themeDetails.progress:', themeDetails?.progress);
                 
                 if (!themeDetails || !themeDetails.success) {
                   return (
