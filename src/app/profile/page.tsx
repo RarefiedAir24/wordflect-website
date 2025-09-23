@@ -754,6 +754,7 @@ export default function Profile() {
     console.log(`🎯 Fetching theme details for day: ${day}`);
     setSelectedThemeDay(day);
     setIsThemeModalOpen(true);
+    console.log(`🎯 Modal opened for day: ${day}`);
     
     try {
       // Calculate the date for the selected day
@@ -785,12 +786,16 @@ export default function Profile() {
       
       if (data.success) {
         // Store the complete theme data
-        setThemeAnalytics(prev => ({
-          ...prev,
-          [`${day}_themeDetails`]: data
-        }));
-        
-        console.log(`🎯 Updated themeAnalytics with complete details for ${day}`);
+        setThemeAnalytics(prev => {
+          const updated = {
+            ...prev,
+            [`${day}_themeDetails`]: data
+          };
+          console.log(`🎯 Updated themeAnalytics with complete details for ${day}`);
+          console.log(`🎯 New themeAnalytics keys:`, Object.keys(updated));
+          console.log(`🎯 Stored data for ${day}:`, data);
+          return updated;
+        });
       } else {
         console.log('❌ No theme data in response');
       }
