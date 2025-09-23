@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const token = authHeader.substring(7);
 
     // Call the backend API
-    const backendUrl = `${process.env.BACKEND_URL}/api/theme-day-details?day=${day}&date=${date}`;
+    const backendUrl = `${process.env.BACKEND_URL}/theme-day-details?day=${day}&date=${date}`;
     const response = await fetch(backendUrl, {
       headers: {
         'Authorization': `Bearer ${token}`,
