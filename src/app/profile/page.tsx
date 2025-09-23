@@ -758,16 +758,23 @@ export default function Profile() {
     
     try {
       // Calculate the date for the selected day
+      // Use local date to avoid timezone issues
       const today = new Date();
-      const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const localDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const dayOfWeek = localDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
       const selectedDayIndex = dayNames.indexOf(day);
       
       // Calculate the date for the selected day (this week)
       const daysUntilSelectedDay = selectedDayIndex - dayOfWeek;
-      const selectedDate = new Date(today);
-      selectedDate.setDate(today.getDate() + daysUntilSelectedDay);
+      const selectedDate = new Date(localDate);
+      selectedDate.setDate(localDate.getDate() + daysUntilSelectedDay);
       const selectedDateString = selectedDate.toISOString().split('T')[0];
+      
+      console.log(`🎯 DEBUG: Today is ${localDate.toISOString().split('T')[0]} (day ${dayOfWeek})`);
+      console.log(`🎯 DEBUG: Selected day is ${day} (index ${selectedDayIndex})`);
+      console.log(`🎯 DEBUG: Days until selected day: ${daysUntilSelectedDay}`);
+      console.log(`🎯 DEBUG: Calculated selected date: ${selectedDateString}`);
       
       // Fetch complete theme details for this specific day and date
       const response = await fetch(`/api/theme-day-details?day=${day}&date=${selectedDateString}`, {
