@@ -2517,6 +2517,8 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 console.log('🎯 Modal debug - themeDetails:', themeDetails);
                 console.log('🎯 Modal debug - allThemeWords:', allThemeWords);
                 console.log('🎯 Modal debug - foundWords:', foundWords);
+                console.log('🎯 Modal debug - allThemeWords.length:', allThemeWords.length);
+                console.log('🎯 Modal debug - foundWords.length:', foundWords.length);
 
                 
                 return (
