@@ -552,6 +552,28 @@ export default function Profile() {
       return null;
     }
 
+    // Prefer detailed backend response if already fetched for this day
+    const details = (themeAnalytics as Record<string, unknown>)[`${day}_themeDetails`] as ThemeDayResponse | undefined;
+    if (details && details.theme && Array.isArray(details.theme.words)) {
+      const totalWords = details.theme.words.length;
+      // Derive found count from allThemeWords (with found flags) or stats/progress fallbacks
+      let found = 0;
+      if (Array.isArray(details.allThemeWords)) {
+        found = details.allThemeWords.filter(w => !!w.found).length;
+      } else if (typeof details.stats?.totalThemeWordsFound === 'number') {
+        found = details.stats.totalThemeWordsFound;
+      } else if (Array.isArray(details.progress?.foundWords)) {
+        found = details.progress!.foundWords!.length;
+      }
+      return {
+        wordsFound: found,
+        totalWords,
+        completionPercent: totalWords > 0 ? Math.round((found / totalWords) * 100) : 0,
+        words: details.theme.words,
+        foundWords: [] as string[]
+      };
+    }
+
     // Check if we have theme words data from the theme day API (prioritize this over old analytics)
     const themeWords = (themeAnalytics[`${day}_themeWords`] as string[]) || [];
     if (themeWords.length > 0) {
