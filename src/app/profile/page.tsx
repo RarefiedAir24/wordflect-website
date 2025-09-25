@@ -1538,7 +1538,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     <span className="text-xs text-gray-500 font-semibold">MONDAY</span>
                   </div>
                   <p className="text-lg font-bold text-gray-700">{getThemeName('monday')}</p>
-                  <div className="mt-3 text-center text-gray-500 text-sm">No data available (tap to load)</div>
+                  <div className="mt-3 text-center text-gray-600 text-sm font-medium">
+                    {(() => { const p = getProgressFor('monday'); return p ? `${p.found}/${p.total} theme words` : 'No data available (tap to load)'; })()}
+                  </div>
                 </div>
               );
             }
