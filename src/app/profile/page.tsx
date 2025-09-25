@@ -2524,22 +2524,8 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               {(() => {
                 console.log('🎯 MODAL CONTENT RENDERING - Starting modal content rendering logic');
-                // Get complete theme details from the new API
-                const themeDetails = (themeAnalytics?.[`${selectedThemeDay}_themeDetails`] as {
-                  success: boolean;
-                  day: string;
-                  date: string;
-                  theme: {
-                    name: string;
-                    words: string[];
-                    totalWords: number;
-                  };
-                  progress: {
-                    wordsFound: number;
-                    foundWords: string[];
-                    completionPercent: number;
-                  };
-                }) || null;
+                // Get complete theme details (support multiple backend shapes)
+                const themeDetails = (themeAnalytics?.[`${selectedThemeDay}_themeDetails`] as Record<string, unknown>) || null;
                 
                 console.log('🎯 Modal debug - themeAnalytics keys:', Object.keys(themeAnalytics || {}));
                 console.log('🎯 Modal debug - looking for key:', `${selectedThemeDay}_themeDetails`);
@@ -2555,7 +2541,8 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 console.log('🎯 Modal content - Checking condition: !themeDetails =', !themeDetails, ', !themeDetails.success =', !themeDetails?.success);
                 console.log('🎯 Modal content - Will show loading?', (!themeDetails || !themeDetails.success));
                 
-                if (!themeDetails || !themeDetails.success) {
+                const tdSuccess = (themeDetails && typeof themeDetails === 'object' && 'success' in themeDetails) ? (themeDetails as any).success === true : true;
+                if (!themeDetails || !tdSuccess) {
                   console.log('🎯 Modal content - No themeDetails or success=false, showing loading state');
                   console.log('🎯 Modal content - themeDetails:', themeDetails);
                   console.log('🎯 Modal content - themeDetails?.success:', themeDetails?.success);
@@ -2575,8 +2562,27 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 
                 console.log('🎯 Modal content - themeDetails found, proceeding to render content');
                 
-                const allThemeWords = themeDetails.theme.words || [];
-                const foundWords = themeDetails.progress.foundWords || [];
+                // Derive words and found lists robustly
+                const themeObj = (themeDetails as any)?.theme || {};
+                let allThemeWords: string[] = Array.isArray(themeObj?.words) ? themeObj.words : [];
+                const statsObj = (themeDetails as any)?.stats || {};
+                const allThemeWordsDetailed = (themeDetails as any)?.allThemeWords;
+                if (Array.isArray(allThemeWordsDetailed)) {
+                  allThemeWords = allThemeWordsDetailed.map((w: any) => (typeof w?.word === 'string' ? w.word : String(w)));
+                }
+                let foundWords: string[] = [];
+                if (Array.isArray(allThemeWordsDetailed)) {
+                  foundWords = allThemeWordsDetailed.filter((w: any) => !!w?.found).map((w: any) => w.word);
+                } else if (Array.isArray((themeDetails as any)?.themeWordsFound)) {
+                  foundWords = (themeDetails as any).themeWordsFound.map((w: any) => (typeof w === 'string' ? w : w.word));
+                } else if (Array.isArray((themeDetails as any)?.progress?.foundWords)) {
+                  foundWords = (themeDetails as any).progress.foundWords;
+                } else if (Array.isArray(statsObj?.wordsFound)) {
+                  foundWords = statsObj.wordsFound.map((w: any) => (typeof w === 'string' ? w : w.word));
+                }
+                const foundSet = new Set(foundWords.map(w => String(w).toUpperCase()));
+                const normalizedAll = allThemeWords.map(w => String(w).toUpperCase());
+                const displayFoundCount = normalizedAll.filter(w => foundSet.has(w)).length;
                 
                 console.log('🎯 Modal debug - selectedThemeDay:', selectedThemeDay);
                 console.log('🎯 Modal debug - themeDetails:', themeDetails);
@@ -2592,16 +2598,14 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   <div className="space-y-4">
                     {/* Progress Counter */}
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-gray-900">
-                        {foundWords.length}/{allThemeWords.length}
-                      </div>
+                      <div className="text-2xl font-bold text-gray-900">{displayFoundCount}/{normalizedAll.length}</div>
                       <div className="text-sm text-gray-600">words found on {selectedThemeDay}</div>
                     </div>
 
                     {/* Theme Words Grid */}
                     <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                      {allThemeWords.map((word: string, index: number) => {
-                        const isFound = foundWords.includes(word.toUpperCase());
+                      {normalizedAll.map((word: string, index: number) => {
+                        const isFound = foundSet.has(word.toUpperCase());
                         return (
                           <div
                             key={index}
