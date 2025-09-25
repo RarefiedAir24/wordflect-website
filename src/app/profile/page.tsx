@@ -1083,10 +1083,17 @@ export default function Profile() {
             try {
               console.log('🔍 DEBUG SIGNIN: Testing sign-in process...');
               
+              // Prompt for password
+              const password = prompt('Enter your password for testing:');
+              if (!password) {
+                alert('Password required for testing');
+                return;
+              }
+              
               // Test sign-in with your credentials
               const testCredentials = {
                 email: 'supergeek@me.com',
-                password: 'your_password_here' // You'll need to enter this
+                password: password
               };
               
               console.log('🔍 DEBUG SIGNIN: Attempting sign-in with:', testCredentials.email);
