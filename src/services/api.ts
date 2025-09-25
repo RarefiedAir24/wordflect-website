@@ -208,12 +208,12 @@ class ApiService {
 
   async getTimeAnalytics(): Promise<unknown> {
     try {
-      const response = await this.makeRequest(buildApiUrl(API_CONFIG.ENDPOINTS.USER_STATISTICS_DETAILED), {
+      const response = await this.makeRequest(buildApiUrl(API_CONFIG.ENDPOINTS.USER_TIME_ANALYTICS), {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
       if (!response.ok) {
-        if (response.status === 401) {
+        if (response.status === 401 || response.status === 403) {
           await this.signOut();
           throw new Error('Authentication failed. Please sign in again.');
         }

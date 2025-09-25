@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,6 +31,14 @@ Sent from Wordflect website contact form
     `;
 
     // Send email using Resend
+    if (!resend) {
+      console.log('Resend not configured, skipping email send');
+      return NextResponse.json(
+        { message: 'Contact form received (email not configured)' },
+        { status: 200 }
+      );
+    }
+
     const { data, error } = await resend.emails.send({
       from: 'Wordflect Support <noreply@wordflect.com>',
       to: ['support@wordflect.com'],

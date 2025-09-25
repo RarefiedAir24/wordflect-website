@@ -300,85 +300,34 @@ export default function Profile() {
 
   // Generate time analytics from existing data
   useEffect(() => {
-    const generateTimeAnalytics = () => {
-      if (!profile || !profile.allFoundWords || !Array.isArray(profile.allFoundWords)) {
+    const fetchTimeAnalytics = async () => {
+      if (!profile) {
+        console.log('❌ No profile available for time analytics');
         setTimeAnalytics(null);
         return;
       }
 
-      console.log('=== GENERATING TIME ANALYTICS FROM EXISTING DATA ===');
-      console.log('User:', profile.email, profile.username);
-      console.log('Total words found:', profile.allFoundWords.length);
-      console.log('Sample words with dates:', profile.allFoundWords.slice(0, 5));
-      
-      // Group words by time periods based on when they were found
-      const timePeriods: Record<string, { words: { word?: string; date?: string }[], games: number }> = {
-        'early-morning': { words: [], games: 0 },
-        'late-morning': { words: [], games: 0 },
-        'afternoon': { words: [], games: 0 },
-        'evening': { words: [], games: 0 }
-      };
-
-      // Analyze words found in the last 30 days for time patterns (including today)
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      thirtyDaysAgo.setHours(0, 0, 0, 0); // Start of day
-
-      let wordsWithDates = 0;
-      let wordsToday = 0;
-
-      profile.allFoundWords.forEach((wordEntry) => {
-        // Handle both string and object formats
-        const word = typeof wordEntry === 'string' ? { word: wordEntry, date: undefined } : wordEntry;
-        if (word.date) {
-          wordsWithDates++;
-          const foundDate = new Date(word.date);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          
-          // Check if word was found today (UTC timezone)
-          const todayUTC = new Date(today.toISOString().split('T')[0] + 'T00:00:00.000Z');
-          const tomorrowUTC = new Date(todayUTC.getTime() + 24 * 60 * 60 * 1000);
-          if (foundDate >= todayUTC && foundDate < tomorrowUTC) {
-            wordsToday++;
-          }
-          
-          if (foundDate >= thirtyDaysAgo) {
-            const hour = foundDate.getHours();
-            
-            if (hour >= 5 && hour < 10) {
-              timePeriods['early-morning'].words.push(word);
-            } else if (hour >= 10 && hour < 15) {
-              timePeriods['late-morning'].words.push(word);
-            } else if (hour >= 15 && hour < 20) {
-              timePeriods['afternoon'].words.push(word);
-            } else if (hour >= 20 || hour < 5) {
-              timePeriods['evening'].words.push(word);
-            }
-          }
+      try {
+        console.log('🎯 Fetching time analytics from backend API...');
+        const response = await apiService.getTimeAnalytics();
+        console.log('✅ Backend time analytics response:', response);
+        
+        if (response && (response as Record<string, unknown>).analytics) {
+          const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
+          console.log('📊 Time analytics data from backend:', analytics);
+          setTimeAnalytics(analytics);
+        } else {
+          console.warn('⚠️ No analytics data in backend response');
+          setTimeAnalytics(null);
         }
-      });
-
-      console.log('Words with dates:', wordsWithDates);
-      console.log('Words found today:', wordsToday);
-
-      // Generate analytics data
-      const analytics = {
-        timePeriods: Object.entries(timePeriods).map(([period, data]) => ({
-          period,
-          wordsFound: data.words.length,
-          gamesPlayed: Math.ceil(data.words.length / 15), // Estimate games based on words
-          avgPerGame: data.words.length > 0 ? Math.round(data.words.length / Math.max(1, Math.ceil(data.words.length / 15))) : 0,
-          performance: Math.min(100, Math.round((data.words.length / 50) * 100)) // Performance score
-        }))
-      };
-
-      console.log('Generated time analytics:', analytics);
-      setTimeAnalytics(analytics);
+      } catch (error) {
+        console.error('❌ Error fetching time analytics from backend:', error);
+        setTimeAnalytics(null);
+      }
     };
 
     if (profile) {
-      generateTimeAnalytics();
+      fetchTimeAnalytics();
     }
   }, [profile]);
 
@@ -497,15 +446,17 @@ export default function Profile() {
     console.log('timeAnalytics:', timeAnalytics);
     console.log('timeAnalytics.timePeriods:', timeAnalytics?.timePeriods);
     
-    if (!timeAnalytics || !timeAnalytics.timePeriods || !Array.isArray(timeAnalytics.timePeriods)) {
+    if (!timeAnalytics || !timeAnalytics.timePeriods) {
       console.log('No time analytics data available');
       return null;
     }
 
-    const periodData = timeAnalytics.timePeriods.find((p: Record<string, unknown>) => p.period === period);
+    // Backend returns timePeriods as an object with period keys, not an array
+    const periodData = (timeAnalytics.timePeriods as Record<string, unknown>)[period];
     if (periodData) {
-      const wordsFound = (periodData.wordsFound as number) || 0;
-      const gamesPlayed = (periodData.gamesPlayed as number) || 0;
+      const data = periodData as Record<string, unknown>;
+      const wordsFound = (data.wordCount as number) || 0;
+      const gamesPlayed = (data.gamesPlayed as number) || 0;
       const avgPerGame = gamesPlayed > 0 ? Math.round(wordsFound / gamesPlayed) : 0;
       const performance = Math.min(100, Math.round((wordsFound / 100) * 100)); // Scale to 100 max
       
@@ -2343,10 +2294,11 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
           <div className="space-y-3">
             {(() => {
               const periods = [
-                { key: 'early-morning', label: '5AM-10AM', color: 'amber' },
-                { key: 'late-morning', label: '10AM-3PM', color: 'blue' },
-                { key: 'afternoon', label: '3PM-8PM', color: 'green' },
-                { key: 'evening', label: '8PM-12AM', color: 'purple' }
+                { key: 'late-night', label: '12AM-4AM', color: 'indigo' },
+                { key: 'early-morning', label: '5AM-9AM', color: 'amber' },
+                { key: 'late-morning', label: '10AM-12PM', color: 'blue' },
+                { key: 'afternoon', label: '1PM-5PM', color: 'green' },
+                { key: 'evening', label: '6PM-11PM', color: 'purple' }
               ];
               
               return periods.map(period => {
@@ -2378,7 +2330,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
           <div className="mt-4 text-center">
             <p className="text-sm text-gray-600">
               <strong>Total Words Found:</strong> {(() => {
-                const periods = ['early-morning', 'late-morning', 'afternoon', 'evening'];
+                const periods = ['late-night', 'early-morning', 'late-morning', 'afternoon', 'evening'];
                 const total = periods.reduce((sum, period) => {
                   const data = getTimePeriodData(period);
                   return sum + (data ? data.wordsFound : 0);
