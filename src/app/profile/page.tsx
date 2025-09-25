@@ -402,22 +402,33 @@ export default function Profile() {
           sunday.setDate(today.getDate() - dayIdx);
           const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
 
+          type ThemeDayResponse = {
+            success?: boolean;
+            date?: string;
+            theme?: { name: string; words: string[]; dailyGoal: number; totalWords?: number };
+            stats?: { totalThemeWordsFound?: number; completionRate?: number; isCompleted?: boolean };
+            allThemeWords?: { word: string; length: number; found: boolean }[];
+            themeWordsFound?: { word: string; length: number; found: boolean }[];
+            remainingThemeWords?: { word: string; length: number; found: boolean }[];
+            timestamp?: string;
+          };
+
           const weekFetches = Array.from({ length: 7 }).map(async (_, i) => {
             const dateObj = new Date(sunday);
             dateObj.setDate(sunday.getDate() + i);
             const dateStr = dateObj.toISOString().split('T')[0];
             const dayName = dayNames[i];
             try {
-              const dayRes = await apiService.getThemeDayStatistics(dateStr) as Record<string, any>;
+              const dayRes = await apiService.getThemeDayStatistics(dateStr) as ThemeDayResponse;
               // Store raw response and 20 words for UI consumption
-              (analytics as any)[`${dayName}_response`] = dayRes;
-              const words = dayRes?.theme?.words || [];
-              (analytics as any)[`${dayName}_themeWords`] = Array.isArray(words) ? words : [];
+              (analytics as Record<string, unknown>)[`${dayName}_response`] = dayRes as unknown as Record<string, unknown>;
+              const words = Array.isArray(dayRes?.theme?.words) ? dayRes.theme!.words : [];
+              (analytics as Record<string, unknown>)[`${dayName}_themeWords`] = words as unknown as Record<string, unknown>;
               return { dayName, ok: true };
             } catch (e) {
               console.warn(`Theme day fetch failed for ${dayName} ${dateStr}:`, e);
-              (analytics as any)[`${dayName}_response`] = null;
-              (analytics as any)[`${dayName}_themeWords`] = [];
+              (analytics as Record<string, unknown>)[`${dayName}_response`] = null as unknown as Record<string, unknown>;
+              (analytics as Record<string, unknown>)[`${dayName}_themeWords`] = [] as unknown as Record<string, unknown>;
               return { dayName, ok: false };
             }
           });
