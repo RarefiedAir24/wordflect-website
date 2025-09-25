@@ -661,6 +661,26 @@ export default function Profile() {
     return fallbackNames[day as keyof typeof fallbackNames] || day;
   };
 
+  type ThemeDayProgress = { found: number; total: number };
+  const getProgressFor = (day: string): ThemeDayProgress | undefined => {
+    const ta = themeAnalytics as Record<string, unknown> | null;
+    if (!ta) return undefined;
+    const key = `${day}_progress`;
+    const value = ta[key];
+    if (
+      value &&
+      typeof value === 'object' &&
+      'found' in (value as Record<string, unknown>) &&
+      'total' in (value as Record<string, unknown>)
+    ) {
+      const v = value as { found?: unknown; total?: unknown };
+      const found = typeof v.found === 'number' ? v.found : 0;
+      const total = typeof v.total === 'number' ? v.total : 20;
+      return { found, total };
+    }
+    return undefined;
+  };
+
   const getThemePerformanceSummary = () => {
     if (!profile || !profile.allFoundWords || profile.allFoundWords.length === 0) {
       return {
@@ -1561,9 +1581,10 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('tuesday')}</p>
                   <div className="mt-3 text-center text-gray-600 text-sm font-medium">
-                    {((themeAnalytics as Record<string, any>)?.['tuesday_progress'] as { found: number; total: number } | undefined)?.found !== undefined
-                      ? `${(themeAnalytics as Record<string, any>)['tuesday_progress'].found}/${(themeAnalytics as Record<string, any>)['tuesday_progress'].total} theme words`
-                      : 'No data available'}
+                    {(() => {
+                      const p = getProgressFor('tuesday');
+                      return p ? `${p.found}/${p.total} theme words` : 'No data available';
+                    })()}
                   </div>
                 </div>
               );
@@ -1607,9 +1628,10 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('wednesday')}</p>
                   <div className="mt-3 text-center text-gray-600 text-sm font-medium">
-                    {((themeAnalytics as Record<string, any>)?.['wednesday_progress'] as { found: number; total: number } | undefined)?.found !== undefined
-                      ? `${(themeAnalytics as Record<string, any>)['wednesday_progress'].found}/${(themeAnalytics as Record<string, any>)['wednesday_progress'].total} theme words`
-                      : 'No data available'}
+                    {(() => {
+                      const p = getProgressFor('wednesday');
+                      return p ? `${p.found}/${p.total} theme words` : 'No data available';
+                    })()}
                   </div>
                 </div>
               );
@@ -1653,9 +1675,10 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('thursday')}</p>
                   <div className="mt-3 text-center text-gray-600 text-sm font-medium">
-                    {((themeAnalytics as Record<string, any>)?.['thursday_progress'] as { found: number; total: number } | undefined)?.found !== undefined
-                      ? `${(themeAnalytics as Record<string, any>)['thursday_progress'].found}/${(themeAnalytics as Record<string, any>)['thursday_progress'].total} theme words`
-                      : 'No data available'}
+                    {(() => {
+                      const p = getProgressFor('thursday');
+                      return p ? `${p.found}/${p.total} theme words` : 'No data available';
+                    })()}
                   </div>
                 </div>
               );
