@@ -441,6 +441,7 @@ export default function Profile() {
             const dayName = dayNames[i];
             try {
               const dayRes = await apiService.getThemeDayStatistics(dateStr) as ThemeDayResponse;
+              console.log(`🎯 ${dayName} (${dateStr}) backend response:`, dayRes);
               // Store raw response under keys consumed by UI
               (analytics as Record<string, unknown>)[`${dayName}_response`] = dayRes as unknown as Record<string, unknown>;
               (analytics as Record<string, unknown>)[`${dayName}_themeDetails`] = dayRes as unknown as Record<string, unknown>;
@@ -451,6 +452,7 @@ export default function Profile() {
                 ? (dayRes!.allThemeWords!.filter(w => !!w.found).length)
                 : (typeof dayRes?.stats?.totalThemeWordsFound === 'number' ? dayRes!.stats!.totalThemeWordsFound! : 0);
               const total = Array.isArray(words) && words.length ? words.length : 20;
+              console.log(`🎯 ${dayName} progress calculation:`, { found, total, allThemeWords: dayRes?.allThemeWords, stats: dayRes?.stats });
               (analytics as Record<string, unknown>)[`${dayName}_progress`] = { found, total } as unknown as Record<string, unknown>;
               return { dayName, ok: true };
             } catch (e) {
