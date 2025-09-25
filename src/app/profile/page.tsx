@@ -1725,9 +1725,10 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
           </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('friday')}</p>
                   <div className="mt-3 text-center text-gray-600 text-sm font-medium">
-                    {((themeAnalytics as Record<string, any>)?.['friday_progress'] as { found: number; total: number } | undefined)?.found !== undefined
-                      ? `${(themeAnalytics as Record<string, any>)['friday_progress'].found}/${(themeAnalytics as Record<string, any>)['friday_progress'].total} theme words`
-                      : 'No data available'}
+                    {(() => {
+                      const p = getProgressFor('friday');
+                      return p ? `${p.found}/${p.total} theme words` : 'No data available';
+                    })()}
                   </div>
         </div>
               );
@@ -1771,9 +1772,10 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('saturday')}</p>
                   <div className="mt-3 text-center text-gray-600 text-sm font-medium">
-                    {((themeAnalytics as Record<string, any>)?.['saturday_progress'] as { found: number; total: number } | undefined)?.found !== undefined
-                      ? `${(themeAnalytics as Record<string, any>)['saturday_progress'].found}/${(themeAnalytics as Record<string, any>)['saturday_progress'].total} theme words`
-                      : 'No data available'}
+                    {(() => {
+                      const p = getProgressFor('saturday');
+                      return p ? `${p.found}/${p.total} theme words` : 'No data available';
+                    })()}
                   </div>
                 </div>
               );
@@ -1817,9 +1819,10 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('sunday')}</p>
                   <div className="mt-3 text-center text-gray-600 text-sm font-medium">
-                    {((themeAnalytics as Record<string, any>)?.['sunday_progress'] as { found: number; total: number } | undefined)?.found !== undefined
-                      ? `${(themeAnalytics as Record<string, any>)['sunday_progress'].found}/${(themeAnalytics as Record<string, any>)['sunday_progress'].total} theme words`
-                      : 'No data available'}
+                    {(() => {
+                      const p = getProgressFor('sunday');
+                      return p ? `${p.found}/${p.total} theme words` : 'No data available';
+                    })()}
                   </div>
                 </div>
               );
