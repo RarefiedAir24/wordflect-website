@@ -384,16 +384,49 @@ export default function Profile() {
         console.log('✅ Backend theme analytics response:', response);
         
         // Handle backend response structure
+        let analytics: Record<string, unknown> | null = null;
         if (response && (response as Record<string, unknown>).analytics) {
-          // Backend structure: response.analytics contains themeAnalytics, dailyThemeStats, etc.
-          const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
+          analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
           console.log('📊 Theme analytics data from backend:', analytics);
-          setThemeAnalytics(analytics);
         } else {
           console.warn('⚠️ No analytics data in backend response');
           console.log('📊 Full response structure:', response);
-          setThemeAnalytics(null);
+          analytics = {} as Record<string, unknown>;
         }
+
+        // Augment with current week's 7 days so all cards are clickable
+        try {
+          const today = new Date();
+          const dayIdx = today.getDay(); // 0=Sun..6=Sat
+          const sunday = new Date(today);
+          sunday.setDate(today.getDate() - dayIdx);
+          const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+
+          const weekFetches = Array.from({ length: 7 }).map(async (_, i) => {
+            const dateObj = new Date(sunday);
+            dateObj.setDate(sunday.getDate() + i);
+            const dateStr = dateObj.toISOString().split('T')[0];
+            const dayName = dayNames[i];
+            try {
+              const dayRes = await apiService.getThemeDayStatistics(dateStr) as Record<string, any>;
+              // Store raw response and 20 words for UI consumption
+              (analytics as any)[`${dayName}_response`] = dayRes;
+              const words = dayRes?.theme?.words || [];
+              (analytics as any)[`${dayName}_themeWords`] = Array.isArray(words) ? words : [];
+              return { dayName, ok: true };
+            } catch (e) {
+              console.warn(`Theme day fetch failed for ${dayName} ${dateStr}:`, e);
+              (analytics as any)[`${dayName}_response`] = null;
+              (analytics as any)[`${dayName}_themeWords`] = [];
+              return { dayName, ok: false };
+            }
+          });
+          await Promise.all(weekFetches);
+        } catch (e) {
+          console.warn('Week augmentation failed:', e);
+        }
+
+        setThemeAnalytics(analytics);
       } catch (error) {
         console.error('❌ Error fetching theme analytics from backend:', error);
         console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
