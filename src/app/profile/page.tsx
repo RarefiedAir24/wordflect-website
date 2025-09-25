@@ -391,88 +391,89 @@ export default function Profile() {
         return;
       }
 
-      console.log('🎯 Fetching theme analytics from backend API...');
-      console.log('🔐 User profile:', profile);
-      console.log('🔐 Is authenticated:', apiService.isAuthenticated());
-      console.log('🔐 Token expired:', apiService.isTokenExpired());
-      
-      // Always start with an object so week augmentation runs even if the main endpoint fails
-      let analytics: Record<string, unknown> = {} as Record<string, unknown>;
       try {
-        const response = await apiService.getThemeAnalytics();
-        console.log('✅ Backend theme analytics response:', response);
+        console.log('🎯 Fetching theme analytics from backend API...');
+        console.log('🔐 User profile:', profile);
+        console.log('🔐 Is authenticated:', apiService.isAuthenticated());
+        console.log('🔐 Token expired:', apiService.isTokenExpired());
         
-        // Handle backend response structure
-        if (response && (response as Record<string, unknown>).analytics) {
-          analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
-          console.log('📊 Theme analytics data from backend:', analytics);
-        } else {
-          console.warn('⚠️ No analytics data in backend response');
-          console.log('📊 Full response structure:', response);
-        }
-      } catch (innerError) {
-        console.warn('⚠️ Theme analytics main endpoint failed, proceeding with week augmentation only:', innerError);
-      }
-
-      // Augment with current week's 7 days so all cards are clickable
-      try {
-        const today = new Date();
-        const dayIdx = today.getDay(); // 0=Sun..6=Sat
-        const sunday = new Date(today);
-        sunday.setDate(today.getDate() - dayIdx);
-        const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-
-        type ThemeDayResponse = {
-          success?: boolean;
-          date?: string;
-          theme?: { name: string; words: string[]; dailyGoal: number; totalWords?: number };
-          stats?: { totalThemeWordsFound?: number; completionRate?: number; isCompleted?: boolean };
-          allThemeWords?: { word: string; length: number; found: boolean }[];
-          themeWordsFound?: { word: string; length: number; found: boolean }[];
-          remainingThemeWords?: { word: string; length: number; found: boolean }[];
-          timestamp?: string;
-        };
-
-        const weekFetches = Array.from({ length: 7 }).map(async (_, i) => {
-          const dateObj = new Date(sunday);
-          dateObj.setDate(sunday.getDate() + i);
-          const dateStr = dateObj.toISOString().split('T')[0];
-          const dayName = dayNames[i];
-          try {
-            const dayRes = await apiService.getThemeDayStatistics(dateStr) as ThemeDayResponse;
-            // Store raw response under keys consumed by UI
-            (analytics as Record<string, unknown>)[`${dayName}_response`] = dayRes as unknown as Record<string, unknown>;
-            (analytics as Record<string, unknown>)[`${dayName}_themeDetails`] = dayRes as unknown as Record<string, unknown>;
-            const words = Array.isArray(dayRes?.theme?.words) ? dayRes.theme!.words : [];
-            (analytics as Record<string, unknown>)[`${dayName}_themeWords`] = words as unknown as Record<string, unknown>;
-            // Store simple progress for card display
-            const found = Array.isArray(dayRes?.allThemeWords)
-              ? (dayRes!.allThemeWords!.filter(w => !!w.found).length)
-              : (typeof dayRes?.stats?.totalThemeWordsFound === 'number' ? dayRes!.stats!.totalThemeWordsFound! : 0);
-            const total = Array.isArray(words) && words.length ? words.length : 20;
-            (analytics as Record<string, unknown>)[`${dayName}_progress`] = { found, total } as unknown as Record<string, unknown>;
-            return { dayName, ok: true };
-          } catch (e) {
-            console.warn(`Theme day fetch failed for ${dayName} ${dateStr}:`, e);
-            (analytics as Record<string, unknown>)[`${dayName}_response`] = null as unknown as Record<string, unknown>;
-            (analytics as Record<string, unknown>)[`${dayName}_themeDetails`] = null as unknown as Record<string, unknown>;
-            (analytics as Record<string, unknown>)[`${dayName}_themeWords`] = [] as unknown as Record<string, unknown>;
-            (analytics as Record<string, unknown>)[`${dayName}_progress`] = { found: 0, total: 20 } as unknown as Record<string, unknown>;
-            return { dayName, ok: false };
+        // Always start with an object so week augmentation runs even if the main endpoint fails
+        let analytics: Record<string, unknown> = {} as Record<string, unknown>;
+        try {
+          const response = await apiService.getThemeAnalytics();
+          console.log('✅ Backend theme analytics response:', response);
+          
+          // Handle backend response structure
+          if (response && (response as Record<string, unknown>).analytics) {
+            analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
+            console.log('📊 Theme analytics data from backend:', analytics);
+          } else {
+            console.warn('⚠️ No analytics data in backend response');
+            console.log('📊 Full response structure:', response);
           }
-        });
-        await Promise.all(weekFetches);
-      } catch (e) {
-        console.warn('Week augmentation failed:', e);
-      }
+        } catch (innerError) {
+          console.warn('⚠️ Theme analytics main endpoint failed, proceeding with week augmentation only:', innerError);
+        }
 
-      setThemeAnalytics(analytics);
-    } catch (error) {
-      console.error('❌ Error fetching theme analytics from backend:', error);
-      console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
-      // Ensure state becomes a non-null object to allow UI to render augmented week data
-      setThemeAnalytics({} as Record<string, unknown>);
-    }
+        // Augment with current week's 7 days so all cards are clickable
+        try {
+          const today = new Date();
+          const dayIdx = today.getDay(); // 0=Sun..6=Sat
+          const sunday = new Date(today);
+          sunday.setDate(today.getDate() - dayIdx);
+          const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+
+          type ThemeDayResponse = {
+            success?: boolean;
+            date?: string;
+            theme?: { name: string; words: string[]; dailyGoal: number; totalWords?: number };
+            stats?: { totalThemeWordsFound?: number; completionRate?: number; isCompleted?: boolean };
+            allThemeWords?: { word: string; length: number; found: boolean }[];
+            themeWordsFound?: { word: string; length: number; found: boolean }[];
+            remainingThemeWords?: { word: string; length: number; found: boolean }[];
+            timestamp?: string;
+          };
+
+          const weekFetches = Array.from({ length: 7 }).map(async (_, i) => {
+            const dateObj = new Date(sunday);
+            dateObj.setDate(sunday.getDate() + i);
+            const dateStr = dateObj.toISOString().split('T')[0];
+            const dayName = dayNames[i];
+            try {
+              const dayRes = await apiService.getThemeDayStatistics(dateStr) as ThemeDayResponse;
+              // Store raw response under keys consumed by UI
+              (analytics as Record<string, unknown>)[`${dayName}_response`] = dayRes as unknown as Record<string, unknown>;
+              (analytics as Record<string, unknown>)[`${dayName}_themeDetails`] = dayRes as unknown as Record<string, unknown>;
+              const words = Array.isArray(dayRes?.theme?.words) ? dayRes.theme!.words : [];
+              (analytics as Record<string, unknown>)[`${dayName}_themeWords`] = words as unknown as Record<string, unknown>;
+              // Store simple progress for card display
+              const found = Array.isArray(dayRes?.allThemeWords)
+                ? (dayRes!.allThemeWords!.filter(w => !!w.found).length)
+                : (typeof dayRes?.stats?.totalThemeWordsFound === 'number' ? dayRes!.stats!.totalThemeWordsFound! : 0);
+              const total = Array.isArray(words) && words.length ? words.length : 20;
+              (analytics as Record<string, unknown>)[`${dayName}_progress`] = { found, total } as unknown as Record<string, unknown>;
+              return { dayName, ok: true };
+            } catch (e) {
+              console.warn(`Theme day fetch failed for ${dayName} ${dateStr}:`, e);
+              (analytics as Record<string, unknown>)[`${dayName}_response`] = null as unknown as Record<string, unknown>;
+              (analytics as Record<string, unknown>)[`${dayName}_themeDetails`] = null as unknown as Record<string, unknown>;
+              (analytics as Record<string, unknown>)[`${dayName}_themeWords`] = [] as unknown as Record<string, unknown>;
+              (analytics as Record<string, unknown>)[`${dayName}_progress`] = { found: 0, total: 20 } as unknown as Record<string, unknown>;
+              return { dayName, ok: false };
+            }
+          });
+          await Promise.all(weekFetches);
+        } catch (e) {
+          console.warn('Week augmentation failed:', e);
+        }
+
+        setThemeAnalytics(analytics);
+      } catch (error) {
+        console.error('❌ Error fetching theme analytics from backend:', error);
+        console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
+        // Ensure state becomes a non-null object to allow UI to render augmented week data
+        setThemeAnalytics({} as Record<string, unknown>);
+      }
     };
 
     if (profile) {
