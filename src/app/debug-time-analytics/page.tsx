@@ -1,9 +1,36 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { apiService } from "@/services/api";
 
+interface TimeAnalyticsResponse {
+  success?: boolean;
+  analytics?: {
+    timePeriods?: Record<string, {
+      label: string;
+      wordCount: number;
+      gamesPlayed: number;
+      totalPlayTime: number;
+      sessions: Array<{
+        startTime: string;
+        duration: number;
+        gamesPlayed: number;
+      }>;
+      uniqueWordCount: number;
+      averageSessionTime: number;
+      totalPlayTimeFormatted: string;
+      averageSessionTimeFormatted: string;
+    }>;
+    summary?: {
+      peakPeriod: string;
+      totalWordsAcrossPeriods: number;
+      totalGamesAcrossPeriods: number;
+    };
+  };
+  timestamp?: string;
+}
+
 export default function DebugTimeAnalytics() {
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<TimeAnalyticsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +46,7 @@ export default function DebugTimeAnalytics() {
       
       const response = await apiService.getTimeAnalytics();
       console.log('✅ API Response:', response);
-      setResult(response);
+      setResult(response as TimeAnalyticsResponse);
     } catch (err) {
       console.error('❌ API Error:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -51,7 +78,7 @@ export default function DebugTimeAnalytics() {
 
       const data = await response.json();
       console.log('✅ Direct endpoint response:', data);
-      setResult(data);
+      setResult(data as TimeAnalyticsResponse);
     } catch (err) {
       console.error('❌ Direct endpoint error:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -101,11 +128,11 @@ export default function DebugTimeAnalytics() {
         <div className="mt-8 bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-bold mb-4">Instructions:</h2>
           <ol className="list-decimal list-inside space-y-2 text-sm">
-            <li>Make sure you're logged in to the main profile page first</li>
-            <li>Click "Test API Service Call" to test the apiService.getTimeAnalytics() method</li>
-            <li>Click "Test Direct Endpoint" to test the proxy route directly</li>
+            <li>Make sure you&apos;re logged in to the main profile page first</li>
+            <li>Click &quot;Test API Service Call&quot; to test the apiService.getTimeAnalytics() method</li>
+            <li>Click &quot;Test Direct Endpoint&quot; to test the proxy route directly</li>
             <li>Check the browser console for detailed logs</li>
-            <li>Compare the responses to see if there's a difference</li>
+            <li>Compare the responses to see if there&apos;s a difference</li>
           </ol>
         </div>
       </div>
