@@ -300,6 +300,8 @@ export default function Profile() {
 
   // Generate time analytics from existing data
   useEffect(() => {
+    console.log('🔄 Time analytics useEffect triggered, profile:', !!profile);
+    
     const fetchTimeAnalytics = async () => {
       if (!profile) {
         console.log('❌ No profile available for time analytics');
@@ -307,8 +309,13 @@ export default function Profile() {
         return;
       }
 
+      console.log('🎯 Starting time analytics fetch for profile:', profile.id);
+
       try {
         console.log('🎯 Fetching time analytics from backend API...');
+        console.log('🔐 Is authenticated:', apiService.isAuthenticated());
+        console.log('🔐 Token expired:', apiService.isTokenExpired());
+        
         const response = await apiService.getTimeAnalytics();
         console.log('✅ Backend time analytics response:', response);
         
@@ -325,16 +332,27 @@ export default function Profile() {
           setTimeAnalytics(analytics);
         } else {
           console.warn('⚠️ No analytics data in backend response');
+          console.log('⚠️ Full response structure:', response);
           setTimeAnalytics(null);
         }
       } catch (error) {
         console.error('❌ Error fetching time analytics from backend:', error);
+        console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
+        
+        // Don't sign out the user for time analytics failures - just show no data
+        if (error instanceof Error && error.message.includes('Authentication failed')) {
+          console.log('🔐 Time analytics auth failed - user may need to refresh token, but keeping them signed in');
+        }
+        
         setTimeAnalytics(null);
       }
     };
 
     if (profile) {
+      console.log('🎯 Profile available, calling fetchTimeAnalytics');
       fetchTimeAnalytics();
+    } else {
+      console.log('❌ No profile, skipping time analytics fetch');
     }
   }, [profile]);
 
@@ -956,40 +974,108 @@ export default function Profile() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             {/* Action Buttons */}
             <div className="flex justify-end gap-2 mb-4 md:mb-0">
-          <button
-                  onClick={async () => {
-                    try {
-                      console.log('🔍 DEBUG: Checking backend data directly...');
-                      const response = await fetch('/api/debug-profile', {
-                        method: 'GET',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          'Authorization': `Bearer ${localStorage.getItem('token')}`
-                        }
-                      });
-                      const data = await response.json();
-                      console.log('🔍 DEBUG: Backend data result:', data);
-                      
-                      // Show specific info about target words
-                      if (data.backendData && data.backendData.targetWordsCheck) {
-                        const summary = data.backendData.targetWordsCheck.map((w: { word: string; found: boolean }) => 
-                          `${w.word}: ${w.found ? '✅' : '❌'}`
-                        ).join(', ');
-                        alert(`Backend Check Results:\n${summary}\n\nFull data logged to console.`);
-                      } else {
-                        alert('Backend debug data logged to console. Check browser console for details.');
+            <button
+                onClick={async () => {
+                  try {
+                    console.log('🔍 DEBUG: Checking backend data directly...');
+                    const response = await fetch('/api/debug-profile', {
+                      method: 'GET',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                       }
-                    } catch (error) {
-                      console.error('🔍 DEBUG: Error:', error);
-                      alert('Debug failed. Check console for details.');
+                    });
+                    const data = await response.json();
+                    console.log('🔍 DEBUG: Backend data result:', data);
+                    
+                    // Show specific info about target words
+                    if (data.backendData && data.backendData.targetWordsCheck) {
+                      const summary = data.backendData.targetWordsCheck.map((w: { word: string; found: boolean }) => 
+                        `${w.word}: ${w.found ? '✅' : '❌'}`
+                      ).join(', ');
+                      alert(`Backend Check Results:\n${summary}\n\nFull data logged to console.`);
+                    } else {
+                      alert('Backend debug data logged to console. Check browser console for details.');
                     }
-                  }}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
-                >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Debug Backend
+                  } catch (error) {
+                    console.error('🔍 DEBUG: Error:', error);
+                    alert('Debug failed. Check console for details.');
+                  }
+                }}
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Debug Backend
+          </button>
+            <button
+                onClick={async () => {
+                  try {
+                    console.log('🔍 DEBUG TIME ANALYTICS: Testing time analytics API...');
+                    console.log('🔍 Is authenticated:', apiService.isAuthenticated());
+                    console.log('🔍 Token expired:', apiService.isTokenExpired());
+                    console.log('🔍 Token from localStorage:', localStorage.getItem('token')?.substring(0, 20) + '...');
+                    
+                    // Debug localStorage contents
+                    console.log('🔍 All localStorage keys:', Object.keys(localStorage));
+                    console.log('🔍 localStorage contents:', {
+                      token: localStorage.getItem('token'),
+                      user: localStorage.getItem('user'),
+                      '@AuthData:user': localStorage.getItem('@AuthData:user')
+                    });
+                    
+                    const response = await apiService.getTimeAnalytics();
+                    console.log('✅ Time analytics response:', response);
+                    alert('Time analytics API call successful! Check console for details.');
+                  } catch (error) {
+                    console.error('❌ Time analytics error:', error);
+                    alert('Time analytics API call failed: ' + (error instanceof Error ? error.message : String(error)));
+                  }
+                }}
+                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Test Time Analytics
+          </button>
+            <button
+                onClick={async () => {
+                  try {
+                    console.log('🔍 DEBUG AUTH: Testing authentication state...');
+                    console.log('🔍 Is authenticated:', apiService.isAuthenticated());
+                    console.log('🔍 Token expired:', apiService.isTokenExpired());
+                    console.log('🔍 Token from localStorage:', localStorage.getItem('token')?.substring(0, 20) + '...');
+                    
+                    // Debug localStorage contents
+                    console.log('🔍 All localStorage keys:', Object.keys(localStorage));
+                    console.log('🔍 localStorage contents:', {
+                      token: localStorage.getItem('token'),
+                      user: localStorage.getItem('user'),
+                      '@AuthData:user': localStorage.getItem('@AuthData:user')
+                    });
+                    
+                    // Test if we can get user profile
+                    try {
+                      const profile = await apiService.getUserProfile();
+                      console.log('✅ Profile fetch successful:', profile);
+                      alert('Authentication working! Profile fetched successfully. Check console for details.');
+                    } catch (profileError) {
+                      console.error('❌ Profile fetch failed:', profileError);
+                      alert('Authentication failed! Profile fetch error: ' + (profileError instanceof Error ? profileError.message : String(profileError)));
+                    }
+                  } catch (error) {
+                    console.error('❌ Auth debug error:', error);
+                    alert('Auth debug failed: ' + (error instanceof Error ? error.message : String(error)));
+                  }
+                }}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Test Authentication
           </button>
             <button
                 onClick={async () => {

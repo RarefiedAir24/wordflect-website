@@ -295,6 +295,10 @@ class ApiService {
 
   async signIn(credentials: SignInRequest): Promise<SignInResponse> {
     try {
+      console.log('🔐 API SERVICE: Starting sign-in request...');
+      console.log('🔐 API SERVICE: Endpoint:', buildApiUrl(API_CONFIG.ENDPOINTS.SIGNIN));
+      console.log('🔐 API SERVICE: Credentials:', { email: credentials.email, passwordLength: credentials.password.length });
+      
       const response = await this.makeRequest(buildApiUrl(API_CONFIG.ENDPOINTS.SIGNIN), {
         method: 'POST',
         headers: {
@@ -303,22 +307,42 @@ class ApiService {
         body: JSON.stringify(credentials)
       });
 
+      console.log('🔐 API SERVICE: Response status:', response.status);
+      console.log('🔐 API SERVICE: Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('🔐 API SERVICE: Sign-in failed with status:', response.status, errorData);
         throw new Error(errorData.message || 'Sign in failed');
       }
 
       const data: SignInResponse = await response.json();
+      console.log('🔐 API SERVICE: Sign-in successful, received data:', {
+        hasToken: !!data.token,
+        tokenLength: data.token?.length,
+        hasUser: !!data.user,
+        userId: data.user?.id
+      });
       
       // Store token in localStorage
       if (typeof window !== 'undefined') {
+        console.log('🔐 API SERVICE: Storing token and user in localStorage...');
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Verify storage
+        const storedToken = localStorage.getItem('token');
+        const storedUser = localStorage.getItem('user');
+        console.log('🔐 API SERVICE: Verification - Token stored:', !!storedToken);
+        console.log('🔐 API SERVICE: Verification - User stored:', !!storedUser);
+        console.log('🔐 API SERVICE: Verification - Token matches:', storedToken === data.token);
+      } else {
+        console.warn('🔐 API SERVICE: Window is undefined, cannot store in localStorage');
       }
 
       return data;
     } catch (error) {
-      console.error('Sign in error:', error);
+      console.error('🔐 API SERVICE: Sign in error:', error);
       throw error;
     }
   }

@@ -16,10 +16,34 @@ export default function SignIn() {
     e.preventDefault();
     setError("");
     setIsLoading(true);
+    
+    console.log('🔐 SIGN-IN DEBUG: Starting sign-in process...');
+    console.log('🔐 SIGN-IN DEBUG: Email:', email);
+    console.log('🔐 SIGN-IN DEBUG: Password length:', password.length);
+    
     try {
-      await apiService.signIn({ email, password });
+      console.log('🔐 SIGN-IN DEBUG: Calling apiService.signIn...');
+      const result = await apiService.signIn({ email, password });
+      console.log('🔐 SIGN-IN DEBUG: Sign-in successful, result:', result);
+      
+      // Check if token was stored
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      console.log('🔐 SIGN-IN DEBUG: Token stored:', !!storedToken);
+      console.log('🔐 SIGN-IN DEBUG: User stored:', !!storedUser);
+      console.log('🔐 SIGN-IN DEBUG: Token length:', storedToken?.length);
+      console.log('🔐 SIGN-IN DEBUG: All localStorage keys:', Object.keys(localStorage));
+      
+      if (!storedToken) {
+        console.error('🔐 SIGN-IN DEBUG: ERROR - Token was not stored in localStorage!');
+        setError('Sign-in successful but token not stored. Please try again.');
+        return;
+      }
+      
+      console.log('🔐 SIGN-IN DEBUG: Redirecting to profile...');
       router.push("/profile");
     } catch (error) {
+      console.error('🔐 SIGN-IN DEBUG: Sign-in failed:', error);
       setError(error instanceof Error ? error.message : "Sign in failed. Please try again.");
     } finally {
       setIsLoading(false);
