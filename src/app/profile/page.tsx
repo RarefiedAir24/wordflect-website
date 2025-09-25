@@ -442,12 +442,19 @@ export default function Profile() {
               (analytics as Record<string, unknown>)[`${dayName}_themeDetails`] = dayRes as unknown as Record<string, unknown>;
               const words = Array.isArray(dayRes?.theme?.words) ? dayRes.theme!.words : [];
               (analytics as Record<string, unknown>)[`${dayName}_themeWords`] = words as unknown as Record<string, unknown>;
+              // Store simple progress for card display
+              const found = Array.isArray(dayRes?.allThemeWords)
+                ? (dayRes!.allThemeWords!.filter(w => !!w.found).length)
+                : (typeof dayRes?.stats?.totalThemeWordsFound === 'number' ? dayRes!.stats!.totalThemeWordsFound! : 0);
+              const total = Array.isArray(words) && words.length ? words.length : 20;
+              (analytics as Record<string, unknown>)[`${dayName}_progress`] = { found, total } as unknown as Record<string, unknown>;
               return { dayName, ok: true };
             } catch (e) {
               console.warn(`Theme day fetch failed for ${dayName} ${dateStr}:`, e);
               (analytics as Record<string, unknown>)[`${dayName}_response`] = null as unknown as Record<string, unknown>;
               (analytics as Record<string, unknown>)[`${dayName}_themeDetails`] = null as unknown as Record<string, unknown>;
               (analytics as Record<string, unknown>)[`${dayName}_themeWords`] = [] as unknown as Record<string, unknown>;
+              (analytics as Record<string, unknown>)[`${dayName}_progress`] = { found: 0, total: 20 } as unknown as Record<string, unknown>;
               return { dayName, ok: false };
             }
           });
@@ -1553,7 +1560,11 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     <span className="text-xs text-gray-500 font-semibold">TUESDAY</span>
                   </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('tuesday')}</p>
-                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                  <div className="mt-3 text-center text-gray-600 text-sm font-medium">
+                    {((themeAnalytics as Record<string, any>)?.['tuesday_progress'] as { found: number; total: number } | undefined)?.found !== undefined
+                      ? `${(themeAnalytics as Record<string, any>)['tuesday_progress'].found}/${(themeAnalytics as Record<string, any>)['tuesday_progress'].total} theme words`
+                      : 'No data available'}
+                  </div>
                 </div>
               );
             }
@@ -1595,7 +1606,11 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     <span className="text-xs text-gray-500 font-semibold">WEDNESDAY</span>
                   </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('wednesday')}</p>
-                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                  <div className="mt-3 text-center text-gray-600 text-sm font-medium">
+                    {((themeAnalytics as Record<string, any>)?.['wednesday_progress'] as { found: number; total: number } | undefined)?.found !== undefined
+                      ? `${(themeAnalytics as Record<string, any>)['wednesday_progress'].found}/${(themeAnalytics as Record<string, any>)['wednesday_progress'].total} theme words`
+                      : 'No data available'}
+                  </div>
                 </div>
               );
             }
@@ -1637,7 +1652,11 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     <span className="text-xs text-gray-500 font-semibold">THURSDAY</span>
                   </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('thursday')}</p>
-                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                  <div className="mt-3 text-center text-gray-600 text-sm font-medium">
+                    {((themeAnalytics as Record<string, any>)?.['thursday_progress'] as { found: number; total: number } | undefined)?.found !== undefined
+                      ? `${(themeAnalytics as Record<string, any>)['thursday_progress'].found}/${(themeAnalytics as Record<string, any>)['thursday_progress'].total} theme words`
+                      : 'No data available'}
+                  </div>
                 </div>
               );
             }
@@ -1682,7 +1701,11 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     <span className="text-xs text-gray-500 font-semibold">FRIDAY</span>
           </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('friday')}</p>
-                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                  <div className="mt-3 text-center text-gray-600 text-sm font-medium">
+                    {((themeAnalytics as Record<string, any>)?.['friday_progress'] as { found: number; total: number } | undefined)?.found !== undefined
+                      ? `${(themeAnalytics as Record<string, any>)['friday_progress'].found}/${(themeAnalytics as Record<string, any>)['friday_progress'].total} theme words`
+                      : 'No data available'}
+                  </div>
         </div>
               );
             }
@@ -1724,7 +1747,11 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     <span className="text-xs text-gray-500 font-semibold">SATURDAY</span>
                   </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('saturday')}</p>
-                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                  <div className="mt-3 text-center text-gray-600 text-sm font-medium">
+                    {((themeAnalytics as Record<string, any>)?.['saturday_progress'] as { found: number; total: number } | undefined)?.found !== undefined
+                      ? `${(themeAnalytics as Record<string, any>)['saturday_progress'].found}/${(themeAnalytics as Record<string, any>)['saturday_progress'].total} theme words`
+                      : 'No data available'}
+                  </div>
                 </div>
               );
             }
@@ -1766,7 +1793,11 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     <span className="text-xs text-gray-500 font-semibold">SUNDAY</span>
                   </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('sunday')}</p>
-                  <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
+                  <div className="mt-3 text-center text-gray-600 text-sm font-medium">
+                    {((themeAnalytics as Record<string, any>)?.['sunday_progress'] as { found: number; total: number } | undefined)?.found !== undefined
+                      ? `${(themeAnalytics as Record<string, any>)['sunday_progress'].found}/${(themeAnalytics as Record<string, any>)['sunday_progress'].total} theme words`
+                      : 'No data available'}
+                  </div>
                 </div>
               );
             }
