@@ -396,20 +396,23 @@ export default function Profile() {
       console.log('🔐 Is authenticated:', apiService.isAuthenticated());
       console.log('🔐 Token expired:', apiService.isTokenExpired());
       
+      // Always start with an object so week augmentation runs even if the main endpoint fails
+      let analytics: Record<string, unknown> = {} as Record<string, unknown>;
       try {
         const response = await apiService.getThemeAnalytics();
         console.log('✅ Backend theme analytics response:', response);
         
         // Handle backend response structure
-        let analytics: Record<string, unknown> | null = null;
         if (response && (response as Record<string, unknown>).analytics) {
           analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
           console.log('📊 Theme analytics data from backend:', analytics);
         } else {
           console.warn('⚠️ No analytics data in backend response');
           console.log('📊 Full response structure:', response);
-          analytics = {} as Record<string, unknown>;
         }
+      } catch (innerError) {
+        console.warn('⚠️ Theme analytics main endpoint failed, proceeding with week augmentation only:', innerError);
+      }
 
         // Augment with current week's 7 days so all cards are clickable
         try {
@@ -467,7 +470,8 @@ export default function Profile() {
       } catch (error) {
         console.error('❌ Error fetching theme analytics from backend:', error);
         console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
-        setThemeAnalytics(null);
+        // Ensure state becomes a non-null object to allow UI to render augmented week data
+        setThemeAnalytics({} as Record<string, unknown>);
       }
     };
 
