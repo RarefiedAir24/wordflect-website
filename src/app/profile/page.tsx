@@ -4,6 +4,23 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { apiService, UserProfile } from "@/services/api";
 
+// Types for theme day responses from backend (used in modal rendering)
+type ThemeDayWord = { word: string; length?: number; found?: boolean };
+type ThemeDayTheme = { name: string; words: string[]; dailyGoal?: number; totalWords?: number };
+type ThemeDayStats = { totalThemeWordsFound?: number; completionRate?: number; isCompleted?: boolean; wordsFound?: Array<string | { word: string }> };
+type ThemeDayProgress = { wordsFound?: string[]; foundWords?: string[]; completionPercent?: number };
+type ThemeDayResponse = {
+  success?: boolean;
+  day?: string;
+  date?: string;
+  theme?: ThemeDayTheme;
+  stats?: ThemeDayStats;
+  progress?: ThemeDayProgress;
+  allThemeWords?: ThemeDayWord[];
+  themeWordsFound?: Array<string | { word: string }>;
+  timestamp?: string;
+};
+
 export default function Profile() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -2525,7 +2542,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               {(() => {
                 console.log('🎯 MODAL CONTENT RENDERING - Starting modal content rendering logic');
                 // Get complete theme details (support multiple backend shapes)
-                const themeDetails = (themeAnalytics?.[`${selectedThemeDay}_themeDetails`] as Record<string, unknown>) || null;
+                const themeDetails = (themeAnalytics?.[`${selectedThemeDay}_themeDetails`] as ThemeDayResponse | null) || null;
                 
                 console.log('🎯 Modal debug - themeAnalytics keys:', Object.keys(themeAnalytics || {}));
                 console.log('🎯 Modal debug - looking for key:', `${selectedThemeDay}_themeDetails`);
@@ -2541,7 +2558,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 console.log('🎯 Modal content - Checking condition: !themeDetails =', !themeDetails, ', !themeDetails.success =', !themeDetails?.success);
                 console.log('🎯 Modal content - Will show loading?', (!themeDetails || !themeDetails.success));
                 
-                const tdSuccess = (themeDetails && typeof themeDetails === 'object' && 'success' in themeDetails) ? (themeDetails as any).success === true : true;
+                const tdSuccess = (themeDetails && typeof themeDetails === 'object' && 'success' in themeDetails) ? themeDetails.success === true : true;
                 if (!themeDetails || !tdSuccess) {
                   console.log('🎯 Modal content - No themeDetails or success=false, showing loading state');
                   console.log('🎯 Modal content - themeDetails:', themeDetails);
@@ -2563,22 +2580,22 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 console.log('🎯 Modal content - themeDetails found, proceeding to render content');
                 
                 // Derive words and found lists robustly
-                const themeObj = (themeDetails as any)?.theme || {};
+                const themeObj = themeDetails?.theme || {} as ThemeDayTheme;
                 let allThemeWords: string[] = Array.isArray(themeObj?.words) ? themeObj.words : [];
-                const statsObj = (themeDetails as any)?.stats || {};
-                const allThemeWordsDetailed = (themeDetails as any)?.allThemeWords;
+                const statsObj = themeDetails?.stats || {} as ThemeDayStats;
+                const allThemeWordsDetailed = themeDetails?.allThemeWords;
                 if (Array.isArray(allThemeWordsDetailed)) {
-                  allThemeWords = allThemeWordsDetailed.map((w: any) => (typeof w?.word === 'string' ? w.word : String(w)));
+                  allThemeWords = allThemeWordsDetailed.map((w: ThemeDayWord) => (typeof w?.word === 'string' ? w.word : String(w as unknown)));
                 }
                 let foundWords: string[] = [];
                 if (Array.isArray(allThemeWordsDetailed)) {
-                  foundWords = allThemeWordsDetailed.filter((w: any) => !!w?.found).map((w: any) => w.word);
-                } else if (Array.isArray((themeDetails as any)?.themeWordsFound)) {
-                  foundWords = (themeDetails as any).themeWordsFound.map((w: any) => (typeof w === 'string' ? w : w.word));
-                } else if (Array.isArray((themeDetails as any)?.progress?.foundWords)) {
-                  foundWords = (themeDetails as any).progress.foundWords;
+                  foundWords = allThemeWordsDetailed.filter((w: ThemeDayWord) => !!w?.found).map((w: ThemeDayWord) => w.word);
+                } else if (Array.isArray(themeDetails?.themeWordsFound)) {
+                  foundWords = themeDetails.themeWordsFound.map((w: string | { word: string }) => (typeof w === 'string' ? w : w.word));
+                } else if (Array.isArray(themeDetails?.progress?.foundWords)) {
+                  foundWords = themeDetails.progress!.foundWords || [];
                 } else if (Array.isArray(statsObj?.wordsFound)) {
-                  foundWords = statsObj.wordsFound.map((w: any) => (typeof w === 'string' ? w : w.word));
+                  foundWords = (statsObj.wordsFound || []).map((w: string | { word: string }) => (typeof w === 'string' ? w : w.word));
                 }
                 const foundSet = new Set(foundWords.map(w => String(w).toUpperCase()));
                 const normalizedAll = allThemeWords.map(w => String(w).toUpperCase());
