@@ -1170,7 +1170,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         <MetricCard title="Flectcoins" value={profile.flectcoins.toLocaleString()} accent="from-amber-400 to-yellow-500" />
         <MetricCard title="Points" value={profile.points.toLocaleString()} accent="from-blue-400 to-indigo-500" />
         <MetricCard title="Gems" value={profile.gems.toLocaleString()} accent="from-pink-400 to-rose-500" />
@@ -1411,7 +1411,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           {/* Total Play Time */}
           <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-200">
             <div className="flex items-center justify-between mb-2">
@@ -1538,7 +1538,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
 
 
         {/* Theme Performance Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           {/* Monday - Food & Drinks */}
           {(() => {
             const themeData = getThemeData('monday');
@@ -1980,7 +1980,61 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
         
 
         {/* Time Period Performance Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          {/* Late Night (12AM - 4AM) */}
+          {(() => {
+            const periodData = getTimePeriodData('late-night');
+            if (!periodData) {
+              return (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                  onClick={() => handleThemeDayClick('late-night')}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                      </svg>
+                    </div>
+                    <span className="text-xs text-gray-500 font-semibold">LATE NIGHT</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-500">12:00 AM - 4:00 AM</p>
+                  <div className="mt-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-gray-400 h-2 rounded-full" style={{ width: '0%' }}></div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">0 words found</p>
+                  </div>
+                </div>
+              );
+            }
+            return (
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                onClick={() => handleThemeDayClick('late-night')}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                  </div>
+                  <span className="text-xs text-indigo-600 font-semibold">LATE NIGHT</span>
+                </div>
+                <p className="text-lg font-bold text-indigo-900">12:00 AM - 4:00 AM</p>
+                <div className="mt-2">
+                  <div className="w-full bg-indigo-200 rounded-full h-2">
+                    <div className="bg-indigo-500 h-2 rounded-full" style={{ width: `${Math.min(100, (periodData.wordsFound / 50) * 100)}%` }}></div>
+                  </div>
+                  <p className="text-xs text-indigo-700 mt-1">{periodData.wordsFound} words found</p>
+                </div>
+                <div className="mt-2 text-xs text-indigo-600">
+                  <p>Games: {periodData.gamesPlayed}</p>
+                  <p>Avg: {periodData.avgPerGame} words/game</p>
+                </div>
+              </div>
+            );
+          })()}
+
+
           {/* Early Morning (5AM - 10AM) */}
           {(() => {
             const periodData = getTimePeriodData('early-morning');
@@ -1997,7 +2051,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">EARLY MORNING</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">5:00 AM - 10:00 AM</p>
+                  <p className="text-lg font-bold text-gray-500">5:00 AM - 9:00 AM</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -2014,7 +2068,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   </div>
                   <span className="text-xs text-amber-600 font-semibold">EARLY MORNING</span>
                 </div>
-                <p className="text-lg font-bold text-amber-900">5:00 AM - 10:00 AM</p>
+                <p className="text-lg font-bold text-amber-900">5:00 AM - 9:00 AM</p>
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-amber-700">Words Found:</span>
@@ -2056,7 +2110,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">LATE MORNING</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">10:00 AM - 3:00 PM</p>
+                  <p className="text-lg font-bold text-gray-500">10:00 AM - 12:00 PM</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -2073,7 +2127,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   </div>
                   <span className="text-xs text-blue-600 font-semibold">LATE MORNING</span>
                 </div>
-                <p className="text-lg font-bold text-blue-900">10:00 AM - 3:00 PM</p>
+                <p className="text-lg font-bold text-blue-900">10:00 AM - 12:00 PM</p>
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-blue-700">Words Found:</span>
@@ -2115,7 +2169,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">AFTERNOON</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">3:00 PM - 8:00 PM</p>
+                  <p className="text-lg font-bold text-gray-500">1:00 PM - 5:00 PM</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -2132,7 +2186,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   </div>
                   <span className="text-xs text-green-600 font-semibold">AFTERNOON</span>
                 </div>
-                <p className="text-lg font-bold text-green-900">3:00 PM - 8:00 PM</p>
+                <p className="text-lg font-bold text-green-900">1:00 PM - 5:00 PM</p>
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-green-700">Words Found:</span>
@@ -2174,7 +2228,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">EVENING</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">8:00 PM - 12:00 AM</p>
+                  <p className="text-lg font-bold text-gray-500">6:00 PM - 11:00 PM</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -2191,7 +2245,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   </div>
                   <span className="text-xs text-purple-600 font-semibold">EVENING</span>
                 </div>
-                <p className="text-lg font-bold text-purple-900">8:00 PM - 12:00 AM</p>
+                <p className="text-lg font-bold text-purple-900">6:00 PM - 11:00 PM</p>
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-purple-700">Words Found:</span>
