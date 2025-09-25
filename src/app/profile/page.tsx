@@ -554,7 +554,10 @@ export default function Profile() {
 
     // Prefer detailed backend response if already fetched for this day
     const details = (themeAnalytics as Record<string, unknown>)[`${day}_themeDetails`] as ThemeDayResponse | undefined;
+    console.log(`getThemeData - ${day} details:`, details);
+    
     if (details && details.theme && Array.isArray(details.theme.words)) {
+      console.log(`getThemeData - ${day} using details.theme.words`);
       const totalWords = details.theme.words.length;
       // Derive found count from allThemeWords (with found flags) or stats/progress fallbacks
       let found = 0;
@@ -577,7 +580,11 @@ export default function Profile() {
     // Fallback: use pre-fetched themeWords list + stored progress to populate card without opening modal
     const words = (themeAnalytics as Record<string, unknown>)[`${day}_themeWords`] as string[] | undefined;
     const prog = getProgressFor(day);
+    console.log(`getThemeData - ${day} fallback words:`, words);
+    console.log(`getThemeData - ${day} fallback progress:`, prog);
+    
     if (Array.isArray(words) && words.length) {
+      console.log(`getThemeData - ${day} using fallback words array`);
       const totalWords = words.length;
       const found = prog?.found ?? 0;
       return {
