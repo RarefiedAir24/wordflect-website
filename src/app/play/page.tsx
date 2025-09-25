@@ -1044,7 +1044,7 @@ export default function PlayGame() {
       setSubmitting(false);
       setGameOver(true);
     }
-  }, [submitting, userProfile, score, foundWords, flectcoins, gems, currentLevel, missions]);
+  }, [submitting, userProfile, score, foundWords, flectcoins, gems, currentLevel, missions, flectcoinsSpentThisGame]);
 
   // Auto-call handleGameOver when game ends (for any reason)
   const hasHandledGameOver = useRef(false);
