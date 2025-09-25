@@ -467,12 +467,12 @@ export default function Profile() {
       }
 
       setThemeAnalytics(analytics);
-      } catch (error) {
-        console.error('❌ Error fetching theme analytics from backend:', error);
-        console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
-        // Ensure state becomes a non-null object to allow UI to render augmented week data
-        setThemeAnalytics({} as Record<string, unknown>);
-      }
+    } catch (error) {
+      console.error('❌ Error fetching theme analytics from backend:', error);
+      console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
+      // Ensure state becomes a non-null object to allow UI to render augmented week data
+      setThemeAnalytics({} as Record<string, unknown>);
+    }
     };
 
     if (profile) {
