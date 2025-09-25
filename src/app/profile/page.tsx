@@ -420,14 +420,16 @@ export default function Profile() {
             const dayName = dayNames[i];
             try {
               const dayRes = await apiService.getThemeDayStatistics(dateStr) as ThemeDayResponse;
-              // Store raw response and 20 words for UI consumption
+              // Store raw response under keys consumed by UI
               (analytics as Record<string, unknown>)[`${dayName}_response`] = dayRes as unknown as Record<string, unknown>;
+              (analytics as Record<string, unknown>)[`${dayName}_themeDetails`] = dayRes as unknown as Record<string, unknown>;
               const words = Array.isArray(dayRes?.theme?.words) ? dayRes.theme!.words : [];
               (analytics as Record<string, unknown>)[`${dayName}_themeWords`] = words as unknown as Record<string, unknown>;
               return { dayName, ok: true };
             } catch (e) {
               console.warn(`Theme day fetch failed for ${dayName} ${dateStr}:`, e);
               (analytics as Record<string, unknown>)[`${dayName}_response`] = null as unknown as Record<string, unknown>;
+              (analytics as Record<string, unknown>)[`${dayName}_themeDetails`] = null as unknown as Record<string, unknown>;
               (analytics as Record<string, unknown>)[`${dayName}_themeWords`] = [] as unknown as Record<string, unknown>;
               return { dayName, ok: false };
             }
@@ -1535,13 +1537,15 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             const themeData = getThemeData('tuesday');
             if (!themeData) {
               return (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                  onClick={() => handleThemeDayClick('tuesday')}
+                >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <span className="text-white text-sm">🏠</span>
-            </div>
+                    </div>
                     <span className="text-xs text-gray-500 font-semibold">TUESDAY</span>
-          </div>
+                  </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('tuesday')}</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
@@ -1575,13 +1579,15 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             const themeData = getThemeData('wednesday');
             if (!themeData) {
               return (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                  onClick={() => handleThemeDayClick('wednesday')}
+                >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <span className="text-white text-sm">🏃</span>
-            </div>
+                    </div>
                     <span className="text-xs text-gray-500 font-semibold">WEDNESDAY</span>
-          </div>
+                  </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('wednesday')}</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
@@ -1615,11 +1621,13 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             const themeData = getThemeData('thursday');
             if (!themeData) {
               return (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                  onClick={() => handleThemeDayClick('thursday')}
+                >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <span className="text-white text-sm">📝</span>
-            </div>
+                    </div>
                     <span className="text-xs text-gray-500 font-semibold">THURSDAY</span>
                   </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('thursday')}</p>
@@ -1658,11 +1666,13 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             const themeData = getThemeData('friday');
             if (!themeData) {
               return (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                  onClick={() => handleThemeDayClick('friday')}
+                >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <span className="text-white text-sm">🐕</span>
-            </div>
+                    </div>
                     <span className="text-xs text-gray-500 font-semibold">FRIDAY</span>
           </div>
                   <p className="text-lg font-bold text-gray-500">{getThemeName('friday')}</p>
@@ -1698,7 +1708,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             const themeData = getThemeData('saturday');
             if (!themeData) {
               return (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                  onClick={() => handleThemeDayClick('saturday')}
+                >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <span className="text-white text-sm">🌳</span>
@@ -1738,7 +1750,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             const themeData = getThemeData('sunday');
             if (!themeData) {
               return (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                  onClick={() => handleThemeDayClick('sunday')}
+                >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <span className="text-white text-sm">📱</span>
@@ -1890,7 +1904,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             const periodData = getTimePeriodData('early-morning');
             if (!periodData) {
               return (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                  onClick={() => handleThemeDayClick('early-morning')}
+                >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1905,7 +1921,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               );
             }
             return (
-              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-200">
+              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                onClick={() => handleThemeDayClick('early-morning')}
+              >
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1945,7 +1963,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             const periodData = getTimePeriodData('late-morning');
             if (!periodData) {
               return (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                  onClick={() => handleThemeDayClick('late-morning')}
+                >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1960,7 +1980,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               );
             }
             return (
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                onClick={() => handleThemeDayClick('late-morning')}
+              >
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2000,7 +2022,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             const periodData = getTimePeriodData('afternoon');
             if (!periodData) {
               return (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                  onClick={() => handleThemeDayClick('afternoon')}
+                >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2015,7 +2039,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               );
             }
             return (
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                onClick={() => handleThemeDayClick('afternoon')}
+              >
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2055,7 +2081,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             const periodData = getTimePeriodData('evening');
             if (!periodData) {
               return (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                  onClick={() => handleThemeDayClick('evening')}
+                >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2070,7 +2098,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               );
             }
             return (
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+                onClick={() => handleThemeDayClick('evening')}
+              >
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
