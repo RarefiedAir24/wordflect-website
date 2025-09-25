@@ -327,15 +327,34 @@ class ApiService {
       // Store token in localStorage
       if (typeof window !== 'undefined') {
         console.log('🔐 API SERVICE: Storing token and user in localStorage...');
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        console.log('🔐 API SERVICE: Token to store length:', data.token?.length);
+        console.log('🔐 API SERVICE: User to store:', data.user);
         
-        // Verify storage
+        try {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          console.log('🔐 API SERVICE: localStorage.setItem completed successfully');
+        } catch (storageError) {
+          console.error('🔐 API SERVICE: localStorage.setItem failed:', storageError);
+          throw new Error('Failed to store authentication data');
+        }
+        
+        // Verify storage immediately
         const storedToken = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
         console.log('🔐 API SERVICE: Verification - Token stored:', !!storedToken);
         console.log('🔐 API SERVICE: Verification - User stored:', !!storedUser);
         console.log('🔐 API SERVICE: Verification - Token matches:', storedToken === data.token);
+        console.log('🔐 API SERVICE: Verification - All localStorage keys:', Object.keys(localStorage));
+        
+        // Additional verification after a small delay
+        setTimeout(() => {
+          const delayedToken = localStorage.getItem('token');
+          const delayedUser = localStorage.getItem('user');
+          console.log('🔐 API SERVICE: Delayed verification - Token still there:', !!delayedToken);
+          console.log('🔐 API SERVICE: Delayed verification - User still there:', !!delayedUser);
+          console.log('🔐 API SERVICE: Delayed verification - All keys:', Object.keys(localStorage));
+        }, 50);
       } else {
         console.warn('🔐 API SERVICE: Window is undefined, cannot store in localStorage');
       }

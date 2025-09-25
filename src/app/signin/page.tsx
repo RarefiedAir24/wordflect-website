@@ -41,7 +41,16 @@ export default function SignIn() {
       }
       
       console.log('🔐 SIGN-IN DEBUG: Redirecting to profile...');
-      router.push("/profile");
+      
+      // Add a small delay to ensure localStorage is written before redirect
+      setTimeout(() => {
+        console.log('🔐 SIGN-IN DEBUG: Final localStorage check before redirect:', {
+          token: localStorage.getItem('token')?.substring(0, 20) + '...',
+          user: localStorage.getItem('user') ? 'stored' : 'not stored',
+          allKeys: Object.keys(localStorage)
+        });
+        router.push("/profile");
+      }, 100);
     } catch (error) {
       console.error('🔐 SIGN-IN DEBUG: Sign-in failed:', error);
       setError(error instanceof Error ? error.message : "Sign in failed. Please try again.");
