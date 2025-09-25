@@ -315,6 +315,13 @@ export default function Profile() {
         if (response && (response as Record<string, unknown>).analytics) {
           const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
           console.log('📊 Time analytics data from backend:', analytics);
+          console.log('📊 Time periods structure:', analytics.timePeriods);
+          console.log('📊 Time periods keys:', Object.keys(analytics.timePeriods || {}));
+          if (analytics.timePeriods) {
+            Object.entries(analytics.timePeriods).forEach(([period, data]) => {
+              console.log(`📊 ${period}:`, data);
+            });
+          }
           setTimeAnalytics(analytics);
         } else {
           console.warn('⚠️ No analytics data in backend response');
@@ -453,8 +460,14 @@ export default function Profile() {
 
     // Backend returns timePeriods as an object with period keys, not an array
     const periodData = (timeAnalytics.timePeriods as Record<string, unknown>)[period];
+    console.log(`getTimePeriodData - periodData for ${period}:`, periodData);
+    
     if (periodData) {
       const data = periodData as Record<string, unknown>;
+      console.log(`getTimePeriodData - data fields for ${period}:`, Object.keys(data));
+      console.log(`getTimePeriodData - wordCount for ${period}:`, data.wordCount);
+      console.log(`getTimePeriodData - gamesPlayed for ${period}:`, data.gamesPlayed);
+      
       const wordsFound = (data.wordCount as number) || 0;
       const gamesPlayed = (data.gamesPlayed as number) || 0;
       const avgPerGame = gamesPlayed > 0 ? Math.round(wordsFound / gamesPlayed) : 0;
@@ -2220,8 +2233,8 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
               <span className="text-amber-800">
                 <strong>Peak Time:</strong> {(() => {
-                  const periods = ['early-morning', 'late-morning', 'afternoon', 'evening'];
-                  const periodNames = ['5:00 AM - 10:00 AM', '10:00 AM - 3:00 PM', '3:00 PM - 8:00 PM', '8:00 PM - 12:00 AM'];
+                  const periods = ['late-night', 'early-morning', 'late-morning', 'afternoon', 'evening'];
+                  const periodNames = ['12:00 AM - 4:00 AM', '5:00 AM - 9:00 AM', '10:00 AM - 12:00 PM', '1:00 PM - 5:00 PM', '6:00 PM - 11:00 PM'];
                   let maxWords = 0;
                   let peakPeriod = 'No data';
                   
@@ -2241,7 +2254,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
               <span className="text-amber-800">
                 <strong>Best Session:</strong> {(() => {
-                  const periods = ['early-morning', 'late-morning', 'afternoon', 'evening'];
+                  const periods = ['late-night', 'early-morning', 'late-morning', 'afternoon', 'evening'];
                   let maxAvg = 0;
                   
                   periods.forEach(period => {
@@ -2259,8 +2272,8 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
               <span className="text-amber-800">
                 <strong>Recommendation:</strong> {(() => {
-                  const periods = ['early-morning', 'late-morning', 'afternoon', 'evening'];
-                  const periodNames = ['morning', 'late morning', 'afternoon', 'evening'];
+                  const periods = ['late-night', 'early-morning', 'late-morning', 'afternoon', 'evening'];
+                  const periodNames = ['late night', 'early morning', 'late morning', 'afternoon', 'evening'];
                   let maxWords = 0;
                   let bestPeriod = 0;
                   
