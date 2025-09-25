@@ -453,6 +453,8 @@ export default function Profile() {
                 : (typeof dayRes?.stats?.totalThemeWordsFound === 'number' ? dayRes!.stats!.totalThemeWordsFound! : 0);
               const total = Array.isArray(words) && words.length ? words.length : 20;
               console.log(`🎯 ${dayName} progress calculation:`, { found, total, allThemeWords: dayRes?.allThemeWords, stats: dayRes?.stats });
+              console.log(`🎯 ${dayName} allThemeWords details:`, dayRes?.allThemeWords?.map((w: any) => ({ word: w.word, found: w.found })));
+              console.log(`🎯 ${dayName} stats details:`, dayRes?.stats);
               (analytics as Record<string, unknown>)[`${dayName}_progress`] = { found, total } as unknown as Record<string, unknown>;
               return { dayName, ok: true };
             } catch (e) {
