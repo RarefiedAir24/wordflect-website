@@ -822,19 +822,8 @@ export default function Profile() {
       console.log(`🎯 DEBUG: Days until selected day: ${daysUntilSelectedDay}`);
       console.log(`🎯 DEBUG: Calculated selected date: ${selectedDateString}`);
       
-      // Fetch complete theme details for this specific day and date
-      const response = await fetch(`/api/theme-day-details?day=${day}&date=${selectedDateString}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      // Fetch complete theme details for this specific day and date (direct backend call)
+      const data = await apiService.getThemeDayStatistics(selectedDateString) as Record<string, unknown>;
       console.log('✅ Theme day details from backend:', data);
       
       if (data.success) {
