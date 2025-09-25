@@ -1040,43 +1040,80 @@ export default function Profile() {
                 </svg>
                 Test Time Analytics
           </button>
-            <button
-                onClick={async () => {
-                  try {
-                    console.log('🔍 DEBUG AUTH: Testing authentication state...');
-                    console.log('🔍 Is authenticated:', apiService.isAuthenticated());
-                    console.log('🔍 Token expired:', apiService.isTokenExpired());
-                    console.log('🔍 Token from localStorage:', localStorage.getItem('token')?.substring(0, 20) + '...');
-                    
-                    // Debug localStorage contents
-                    console.log('🔍 All localStorage keys:', Object.keys(localStorage));
-                    console.log('🔍 localStorage contents:', {
-                      token: localStorage.getItem('token'),
-                      user: localStorage.getItem('user'),
-                      '@AuthData:user': localStorage.getItem('@AuthData:user')
-                    });
-                    
-                    // Test if we can get user profile
-                    try {
-                      const profile = await apiService.getUserProfile();
-                      console.log('✅ Profile fetch successful:', profile);
-                      alert('Authentication working! Profile fetched successfully. Check console for details.');
-                    } catch (profileError) {
-                      console.error('❌ Profile fetch failed:', profileError);
-                      alert('Authentication failed! Profile fetch error: ' + (profileError instanceof Error ? profileError.message : String(profileError)));
-                    }
-                  } catch (error) {
-                    console.error('❌ Auth debug error:', error);
-                    alert('Auth debug failed: ' + (error instanceof Error ? error.message : String(error)));
-                  }
-                }}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Test Authentication
-          </button>
+        <button
+          onClick={async () => {
+            try {
+              console.log('🔍 DEBUG AUTH: Testing authentication state...');
+              console.log('🔍 Is authenticated:', apiService.isAuthenticated());
+              console.log('🔍 Token expired:', apiService.isTokenExpired());
+              console.log('🔍 Token from localStorage:', localStorage.getItem('token')?.substring(0, 20) + '...');
+              
+              // Debug localStorage contents
+              console.log('🔍 All localStorage keys:', Object.keys(localStorage));
+              console.log('🔍 localStorage contents:', {
+                token: localStorage.getItem('token'),
+                user: localStorage.getItem('user'),
+                '@AuthData:user': localStorage.getItem('@AuthData:user')
+              });
+              
+              // Test if we can get user profile
+              try {
+                const profile = await apiService.getUserProfile();
+                console.log('✅ Profile fetch successful:', profile);
+                alert('Authentication working! Profile fetched successfully. Check console for details.');
+              } catch (profileError) {
+                console.error('❌ Profile fetch failed:', profileError);
+                alert('Authentication failed! Profile fetch error: ' + (profileError instanceof Error ? profileError.message : String(profileError)));
+              }
+            } catch (error) {
+              console.error('❌ Auth debug error:', error);
+              alert('Auth debug failed: ' + (error instanceof Error ? error.message : String(error)));
+            }
+          }}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Test Authentication
+        </button>
+        
+        <button
+          onClick={async () => {
+            try {
+              console.log('🔍 DEBUG SIGNIN: Testing sign-in process...');
+              
+              // Test sign-in with your credentials
+              const testCredentials = {
+                email: 'supergeek@me.com',
+                password: 'your_password_here' // You'll need to enter this
+              };
+              
+              console.log('🔍 DEBUG SIGNIN: Attempting sign-in with:', testCredentials.email);
+              
+              const result = await apiService.signIn(testCredentials);
+              console.log('✅ Sign-in successful:', result);
+              
+              // Check localStorage immediately after sign-in
+              const storedToken = localStorage.getItem('token');
+              const storedUser = localStorage.getItem('user');
+              console.log('🔍 DEBUG SIGNIN: After sign-in - Token stored:', !!storedToken);
+              console.log('🔍 DEBUG SIGNIN: After sign-in - User stored:', !!storedUser);
+              console.log('🔍 DEBUG SIGNIN: After sign-in - All localStorage keys:', Object.keys(localStorage));
+              
+              alert('Sign-in test completed! Check console for details.');
+            } catch (error) {
+              console.error('❌ Sign-in test failed:', error);
+              alert('Sign-in test failed: ' + (error instanceof Error ? error.message : String(error)));
+            }
+          }}
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+          </svg>
+          Test Sign-In Process
+        </button>
             <button
                 onClick={async () => {
                   try {
