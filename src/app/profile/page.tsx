@@ -574,6 +574,21 @@ export default function Profile() {
       };
     }
 
+    // Fallback: use pre-fetched themeWords list + stored progress to populate card without opening modal
+    const words = (themeAnalytics as Record<string, unknown>)[`${day}_themeWords`] as string[] | undefined;
+    const prog = getProgressFor(day);
+    if (Array.isArray(words) && words.length) {
+      const totalWords = words.length;
+      const found = prog?.found ?? 0;
+      return {
+        wordsFound: found,
+        totalWords,
+        completionPercent: totalWords > 0 ? Math.round((found / totalWords) * 100) : 0,
+        words,
+        foundWords: [] as string[]
+      };
+    }
+
     // Check if we have theme words data from the theme day API (prioritize this over old analytics)
     const themeWords = (themeAnalytics[`${day}_themeWords`] as string[]) || [];
     if (themeWords.length > 0) {
