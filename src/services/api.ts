@@ -334,9 +334,14 @@ class ApiService {
         console.log('🔐 API SERVICE: User to store:', data.user);
         
         try {
+          console.log('🔐 API SERVICE: About to store token:', data.token?.substring(0, 20) + '...');
           localStorage.setItem('token', data.token);
           localStorage.setItem('user', JSON.stringify(data.user));
           console.log('🔐 API SERVICE: localStorage.setItem completed successfully');
+          
+          // Immediate verification
+          const immediateToken = localStorage.getItem('token');
+          console.log('🔐 API SERVICE: Immediate token check:', immediateToken ? 'STORED' : 'NOT STORED');
         } catch (storageError) {
           console.error('🔐 API SERVICE: localStorage.setItem failed:', storageError);
           throw new Error('Failed to store authentication data');
