@@ -244,3 +244,4 @@ export default function Home() {
 //   100% { transform: translateY(-40px) scale(1.2); opacity: 0.7; }
 // }
 // .sparkle-anim { will-change: transform, opacity; }
+// Deployment trigger: Thu Sep 25 21:31:52 EDT 2025
