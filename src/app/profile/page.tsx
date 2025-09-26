@@ -342,6 +342,10 @@ export default function Profile() {
         // Don't sign out the user for time analytics failures - just show no data
         if (error instanceof Error && error.message.includes('Authentication failed')) {
           console.log('🔐 Time analytics auth failed - user may need to refresh token, but keeping them signed in');
+        } else if (error instanceof Error && error.message.includes('Access denied')) {
+          console.log('🚫 Time analytics access denied - user may not have permission');
+        } else {
+          console.log('❓ Unknown time analytics error:', error);
         }
         
         setTimeAnalytics(null);
@@ -1041,6 +1045,8 @@ export default function Profile() {
                     alert('Time analytics API call successful! Check console for details.');
                   } catch (error) {
                     console.error('❌ Time analytics error:', error);
+                    console.error('❌ Error type:', typeof error);
+                    console.error('❌ Error message:', error instanceof Error ? error.message : String(error));
                     alert('Time analytics API call failed: ' + (error instanceof Error ? error.message : String(error)));
                   }
                 }}
