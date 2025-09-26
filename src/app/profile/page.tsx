@@ -874,6 +874,17 @@ export default function Profile() {
     return { bestTheme, mostConsistent, totalThemeWords };
   };
 
+  // Handle time period click - show time analytics data
+  const handleTimePeriodClick = (period: string) => {
+    console.log(`🕐 Opening time analytics for period: ${period}`);
+    setSelectedThemeDay(period);
+    setIsThemeModalOpen(true);
+    
+    // For time periods, we don't need to fetch additional data
+    // The time analytics data should already be loaded
+    console.log(`🕐 Time period modal opened for: ${period}`);
+  };
+
   // Handle theme day click
   const handleThemeDayClick = async (day: string) => {
     console.log(`🎯 Fetching theme details for day: ${day}`);
@@ -2117,7 +2128,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             if (!periodData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                  onClick={() => handleThemeDayClick('late-night')}
+                  onClick={() => handleTimePeriodClick('late-night')}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
@@ -2139,7 +2150,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             }
             return (
               <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                onClick={() => handleThemeDayClick('late-night')}
+                onClick={() => handleTimePeriodClick('late-night')}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
@@ -2171,7 +2182,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             if (!periodData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                  onClick={() => handleThemeDayClick('early-morning')}
+                  onClick={() => handleTimePeriodClick('early-morning')}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
@@ -2188,7 +2199,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             }
             return (
               <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                onClick={() => handleThemeDayClick('early-morning')}
+                onClick={() => handleTimePeriodClick('early-morning')}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
@@ -2230,7 +2241,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             if (!periodData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                  onClick={() => handleThemeDayClick('late-morning')}
+                  onClick={() => handleTimePeriodClick('late-morning')}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
@@ -2247,7 +2258,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             }
             return (
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                onClick={() => handleThemeDayClick('late-morning')}
+                onClick={() => handleTimePeriodClick('late-morning')}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
@@ -2289,7 +2300,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             if (!periodData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                  onClick={() => handleThemeDayClick('afternoon')}
+                  onClick={() => handleTimePeriodClick('afternoon')}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
@@ -2306,7 +2317,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             }
             return (
               <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                onClick={() => handleThemeDayClick('afternoon')}
+                onClick={() => handleTimePeriodClick('afternoon')}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
@@ -2348,7 +2359,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             if (!periodData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                  onClick={() => handleThemeDayClick('evening')}
+                  onClick={() => handleTimePeriodClick('evening')}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
@@ -2365,7 +2376,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             }
             return (
               <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                onClick={() => handleThemeDayClick('evening')}
+                onClick={() => handleTimePeriodClick('evening')}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
@@ -2758,9 +2769,87 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
         </div>
       )}
 
-      {/* Theme Words Modal */}
+      {/* Theme Words / Time Analytics Modal */}
       {isThemeModalOpen && selectedThemeDay && (() => {
         console.log('🎯 MODAL RENDERING - isThemeModalOpen:', isThemeModalOpen, 'selectedThemeDay:', selectedThemeDay);
+        
+        // Check if this is a time period (not a theme day)
+        const timePeriods = ['late-night', 'early-morning', 'late-morning', 'afternoon', 'evening'];
+        const isTimePeriod = timePeriods.includes(selectedThemeDay);
+        
+        if (isTimePeriod) {
+          console.log('🕐 MODAL RENDERING - Time period detected:', selectedThemeDay);
+          const periodData = getTimePeriodData(selectedThemeDay);
+          console.log('🕐 MODAL RENDERING - Period data:', periodData);
+          
+          return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 capitalize">
+                      {selectedThemeDay.replace('-', ' ')} Performance
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {periodData ? `${periodData.wordsFound} words found, ${periodData.gamesPlayed} games played` : 'No data available'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setIsThemeModalOpen(false)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                
+                <div className="p-6 overflow-y-auto max-h-[60vh]">
+                  {!periodData ? (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">No data available</h3>
+                      <p className="text-gray-600 mb-4">No activity recorded for this time period.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {/* Time Period Stats */}
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="bg-blue-50 rounded-lg p-4 text-center">
+                          <div className="text-2xl font-bold text-blue-600">{periodData.wordsFound}</div>
+                          <div className="text-sm text-blue-800">Words Found</div>
+                        </div>
+                        <div className="bg-green-50 rounded-lg p-4 text-center">
+                          <div className="text-2xl font-bold text-green-600">{periodData.gamesPlayed}</div>
+                          <div className="text-sm text-green-800">Games Played</div>
+                        </div>
+                        <div className="bg-purple-50 rounded-lg p-4 text-center">
+                          <div className="text-2xl font-bold text-purple-600">{periodData.avgPerGame}</div>
+                          <div className="text-sm text-purple-800">Avg Words/Game</div>
+                        </div>
+                      </div>
+                      
+                      {/* Time Period Description */}
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <h4 className="font-semibold text-gray-900 mb-2">Time Period Details</h4>
+                        <p className="text-gray-600 text-sm">
+                          This shows your activity during the {selectedThemeDay.replace('-', ' ')} time period.
+                          All words found during this time are included, not just theme words.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        }
+        
+        // Original theme words modal logic
         console.log('🎯 MODAL RENDERING - themeAnalytics keys:', Object.keys(themeAnalytics || {}));
         console.log('🎯 MODAL RENDERING - looking for key:', `${selectedThemeDay}_themeDetails`);
         console.log('🎯 MODAL RENDERING - stored data:', themeAnalytics?.[`${selectedThemeDay}_themeDetails`]);
