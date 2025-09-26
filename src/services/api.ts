@@ -213,9 +213,12 @@ class ApiService {
         headers: this.getAuthHeaders(),
       });
       if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
+        if (response.status === 401) {
           await this.signOut();
           throw new Error('Authentication failed. Please sign in again.');
+        }
+        if (response.status === 403) {
+          throw new Error('Access denied. You do not have permission to view time analytics.');
         }
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to fetch time analytics');
