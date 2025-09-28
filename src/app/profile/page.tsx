@@ -2707,9 +2707,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     <p className="text-sm text-amber-800 font-medium">Limited Historical Data</p>
                     <p className="text-xs text-amber-700 mt-1">
                       Time period analysis is based on recent sessions only. Your lifetime total is {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      {(timeAnalytics.summary as any)?.lifetimeGamesPlayed} games, 
+                      {(timeAnalytics?.summary as any)?.lifetimeGamesPlayed} games, 
                       but only {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      {(timeAnalytics.summary as any)?.recentSessionsAnalyzed} recent sessions are available for time period analysis.
+                      {(timeAnalytics?.summary as any)?.recentSessionsAnalyzed} recent sessions are available for time period analysis.
                     </p>
                   </div>
                 </div>
