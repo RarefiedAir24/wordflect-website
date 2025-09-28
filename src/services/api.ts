@@ -208,7 +208,8 @@ class ApiService {
 
   async getTimeAnalytics(): Promise<unknown> {
     try {
-      const response = await this.makeRequest(buildApiUrl(API_CONFIG.ENDPOINTS.USER_TIME_ANALYTICS), {
+      // Call backend API directly instead of using proxy
+      const response = await this.makeRequest(`${API_CONFIG.BASE_URL}/user/time/analytics`, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
