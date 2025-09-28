@@ -2694,6 +2694,24 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 return `${total} across all time periods`;
               })()}
             </p>
+            
+            {/* Data Limitation Notice */}
+            {timeAnalytics?.summary?.hasLimitedSessionData && (
+              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                  <div className="text-left">
+                    <p className="text-sm text-amber-800 font-medium">Limited Historical Data</p>
+                    <p className="text-xs text-amber-700 mt-1">
+                      Time period analysis is based on recent sessions only. Your lifetime total is {timeAnalytics.summary.lifetimeGamesPlayed} games, 
+                      but only {timeAnalytics.summary.recentSessionsAnalyzed} recent sessions are available for time period analysis.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
