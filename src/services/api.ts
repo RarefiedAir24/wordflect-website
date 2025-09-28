@@ -206,12 +206,24 @@ class ApiService {
     }
   }
 
-  async getTimeAnalytics(): Promise<unknown> {
+  async getTimeAnalytics(filters?: { period?: string; startDate?: string; endDate?: string }): Promise<unknown> {
     try {
-      // Call backend API directly instead of using proxy
-      const url = `${API_CONFIG.BASE_URL}/user/time/analytics`;
+      // Build URL with query parameters
+      let url = `${API_CONFIG.BASE_URL}/user/time/analytics`;
+      const params = new URLSearchParams();
+      
+      if (filters?.period) params.append('period', filters.period);
+      if (filters?.startDate) params.append('startDate', filters.startDate);
+      if (filters?.endDate) params.append('endDate', filters.endDate);
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      
       console.log('🔍 getTimeAnalytics - API_CONFIG.BASE_URL:', API_CONFIG.BASE_URL);
       console.log('🔍 getTimeAnalytics - Full URL:', url);
+      console.log('🔍 getTimeAnalytics - Filters:', filters);
+      
       const response = await this.makeRequest(url, {
         method: 'GET',
         headers: this.getAuthHeaders(),

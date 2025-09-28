@@ -36,6 +36,12 @@ export default function Profile() {
   const [selectedThemeDay, setSelectedThemeDay] = useState<string | null>(null);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  
+  // Time period filter state
+  const [timePeriodFilter, setTimePeriodFilter] = useState<string>('ALL');
+  const [showCustomDateRange, setShowCustomDateRange] = useState(false);
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
 
   // Derived UI helpers
   const winRate = (p: UserProfile) => {
@@ -887,6 +893,55 @@ export default function Profile() {
     // For time periods, we don't need to fetch additional data
     // The time analytics data should already be loaded
     console.log(`🕐 Time period modal opened for: ${period}`);
+  };
+
+  // Handle time period filter change
+  const handleTimePeriodFilter = async (period: string) => {
+    console.log(`🕐 Changing time period filter to: ${period}`);
+    setTimePeriodFilter(period);
+    setShowCustomDateRange(false);
+    
+    // Fetch time analytics with the new filter
+    try {
+      const filters = period === 'ALL' ? {} : { period };
+      const response = await apiService.getTimeAnalytics(filters);
+      console.log('✅ Filtered time analytics response:', response);
+      
+      if (response && (response as Record<string, unknown>).analytics) {
+        const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
+        setTimeAnalytics(analytics);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching filtered time analytics:', error);
+    }
+  };
+
+  // Handle custom date range
+  const handleCustomDateRange = async () => {
+    if (!customStartDate || !customEndDate) {
+      alert('Please select both start and end dates');
+      return;
+    }
+    
+    console.log(`🕐 Applying custom date range: ${customStartDate} to ${customEndDate}`);
+    setTimePeriodFilter('custom');
+    
+    try {
+      const filters = { 
+        period: 'custom',
+        startDate: customStartDate,
+        endDate: customEndDate
+      };
+      const response = await apiService.getTimeAnalytics(filters);
+      console.log('✅ Custom date range time analytics response:', response);
+      
+      if (response && (response as Record<string, unknown>).analytics) {
+        const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
+        setTimeAnalytics(analytics);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching custom date range time analytics:', error);
+    }
   };
 
   // Handle theme day click
@@ -2125,6 +2180,93 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
           </div>
         </div>
         
+
+        {/* Time Period Filter */}
+        <div className="mb-6">
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Performance by Time Period</h3>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => handleTimePeriodFilter('L7')}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  timePeriodFilter === 'L7' 
+                    ? 'bg-blue-500 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Last 7 Days
+              </button>
+              <button
+                onClick={() => handleTimePeriodFilter('L30')}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  timePeriodFilter === 'L30' 
+                    ? 'bg-blue-500 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Last 30 Days
+              </button>
+              <button
+                onClick={() => handleTimePeriodFilter('ALL')}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  timePeriodFilter === 'ALL' 
+                    ? 'bg-blue-500 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                All Time
+              </button>
+              <button
+                onClick={() => setShowCustomDateRange(!showCustomDateRange)}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  showCustomDateRange 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Custom Range
+              </button>
+            </div>
+          </div>
+          
+          {/* Custom Date Range Picker */}
+          {showCustomDateRange && (
+            <div className="bg-gray-50 rounded-lg p-4 mb-4">
+              <div className="flex flex-wrap items-center gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                  <input
+                    type="date"
+                    value={customStartDate}
+                    onChange={(e) => setCustomStartDate(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                  <input
+                    type="date"
+                    value={customEndDate}
+                    onChange={(e) => setCustomEndDate(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <button
+                  onClick={handleCustomDateRange}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                >
+                  Apply Range
+                </button>
+                <button
+                  onClick={() => setShowCustomDateRange(false)}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Time Period Performance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
