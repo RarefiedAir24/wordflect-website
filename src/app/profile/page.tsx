@@ -3313,4 +3313,3 @@ function generateInsights(p: UserProfile): string[] {
   return insights.slice(0, 4);
 }
 // Force deployment Sun Sep 28 08:40:29 EDT 2025
-console.log('API_CONFIG.BASE_URL:', API_CONFIG.BASE_URL);
