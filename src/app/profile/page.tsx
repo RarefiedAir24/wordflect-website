@@ -3312,3 +3312,4 @@ function generateInsights(p: UserProfile): string[] {
   insights.push(`Gem efficiency tip: Convert surplus points into gems when events start.`);
   return insights.slice(0, 4);
 }
+// Force deployment Sun Sep 28 08:40:29 EDT 2025
