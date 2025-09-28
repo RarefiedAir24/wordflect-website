@@ -2696,6 +2696,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             </p>
             
             {/* Data Limitation Notice */}
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {(timeAnalytics?.summary as any)?.hasLimitedSessionData && (
               <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                 <div className="flex items-start gap-2">
@@ -2705,8 +2706,8 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   <div className="text-left">
                     <p className="text-sm text-amber-800 font-medium">Limited Historical Data</p>
                     <p className="text-xs text-amber-700 mt-1">
-                      Time period analysis is based on recent sessions only. Your lifetime total is {(timeAnalytics.summary as any)?.lifetimeGamesPlayed} games, 
-                      but only {(timeAnalytics.summary as any)?.recentSessionsAnalyzed} recent sessions are available for time period analysis.
+                      Time period analysis is based on recent sessions only. Your lifetime total is {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}{(timeAnalytics.summary as any)?.lifetimeGamesPlayed} games, 
+                      but only {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}{(timeAnalytics.summary as any)?.recentSessionsAnalyzed} recent sessions are available for time period analysis.
                     </p>
                   </div>
                 </div>
