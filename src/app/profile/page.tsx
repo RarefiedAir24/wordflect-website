@@ -165,12 +165,12 @@ export default function Profile() {
         const res = await apiService.getDetailedStatistics();
         // Accept known keys only
         const ds: DetailedStats = {
-          sessionHistory: (res as any)?.sessionHistory || [],
-          totalPlayTimeMinutes: (res as any)?.totalPlayTimeMinutes,
-          daysLoggedIn: (res as any)?.daysLoggedIn,
-          currentStreakDays: (res as any)?.currentStreakDays,
-          longestStreakDays: (res as any)?.longestStreakDays,
-          lastLoginAt: (res as any)?.lastLoginAt,
+          sessionHistory: (res as { sessionHistory?: Session[] })?.sessionHistory || [],
+          totalPlayTimeMinutes: (res as { totalPlayTimeMinutes?: number })?.totalPlayTimeMinutes,
+          daysLoggedIn: (res as { daysLoggedIn?: number })?.daysLoggedIn,
+          currentStreakDays: (res as { currentStreakDays?: number })?.currentStreakDays,
+          longestStreakDays: (res as { longestStreakDays?: number })?.longestStreakDays,
+          lastLoginAt: (res as { lastLoginAt?: string })?.lastLoginAt,
         };
         setDetailedStats(ds);
       } catch (e) {
