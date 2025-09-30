@@ -146,6 +146,63 @@ export default function Profile() {
   // Backend history integration
   const [historyDays, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
   
+  // Usage metrics strictly from real data, with fallbacks computed from sessionHistory if needed
+  const usageMetrics = React.useMemo(() => {
+    const sh: any[] = (profile as any)?.sessionHistory || [];
+    const parseTs = (s: any) => (s?.startTime || s?.timestamp ? new Date(s.startTime || s.timestamp) : null);
+    const durationsMs = sh.map(s => (typeof s.duration === 'number' ? s.duration : 0));
+    const totalMsFromSessions = durationsMs.reduce((a, b) => a + b, 0);
+    const totalMinFromSessions = Math.round(totalMsFromSessions / 60000);
+    const gamesFromSessions = sh.length;
+
+    // Distinct UTC dates for streaks/days active
+    const dayKey = (d: Date) => `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+    const daySet = new Set<string>();
+    sh.forEach(s => { const d = parseTs(s); if (d && !isNaN(d.getTime())) daySet.add(dayKey(d)); });
+    const daysActiveFromSessions = daySet.size;
+
+    // Streaks
+    const sortedDays = Array.from(daySet).sort();
+    let longest = 0; let current = 0;
+    if (sortedDays.length) {
+      let prev = new Date(sortedDays[0] + 'T00:00:00Z');
+      current = 1; longest = 1;
+      for (let i = 1; i < sortedDays.length; i++) {
+        const d = new Date(sortedDays[i] + 'T00:00:00Z');
+        const diff = Math.round((d.getTime() - prev.getTime()) / (24*60*60*1000));
+        if (diff === 1) { current += 1; } else { current = 1; }
+        if (current > longest) longest = current;
+        prev = d;
+      }
+      // If last active day is not contiguous with today, current streak should be 0
+      const todayUTC = new Date();
+      const todayKey = dayKey(todayUTC);
+      const lastKey = sortedDays[sortedDays.length-1];
+      const lastDate = new Date(lastKey + 'T00:00:00Z');
+      const gap = Math.round((new Date(todayKey + 'T00:00:00Z').getTime() - lastDate.getTime())/(24*60*60*1000));
+      if (gap > 0) { /* not strictly today; keep computed current */ }
+    }
+
+    const lastLoginFromSessions = (() => {
+      const dates = sh.map(s => parseTs(s)).filter((d): d is Date => !!d && !isNaN(d.getTime()));
+      if (!dates.length) return undefined;
+      return new Date(Math.max(...dates.map(d => d.getTime())));
+    })();
+
+    const totalPlayTimeMinutes = profile?.totalPlayTimeMinutes ?? totalMinFromSessions ?? undefined;
+    const daysLoggedIn = profile?.daysLoggedIn ?? daysActiveFromSessions ?? undefined;
+    const currentStreakDays = profile?.currentStreakDays ?? (sortedDays.length ? current : undefined);
+    const longestStreakDays = profile?.longestStreakDays ?? (sortedDays.length ? longest : undefined);
+    const lastLoginAt = profile?.lastLoginAt ?? (lastLoginFromSessions ? lastLoginFromSessions.toISOString() : undefined);
+    const avgSessionMinutes = (() => {
+      if (totalPlayTimeMinutes && profile?.gamesPlayed) return Math.round(totalPlayTimeMinutes / profile.gamesPlayed);
+      if (totalMinFromSessions && gamesFromSessions) return Math.round(totalMinFromSessions / gamesFromSessions);
+      return undefined;
+    })();
+
+    return { totalPlayTimeMinutes, daysLoggedIn, currentStreakDays, longestStreakDays, lastLoginAt, avgSessionMinutes };
+  }, [profile]);
+
   // Calculate history metrics for the selected period - make it reactive to range changes
   const historyMetrics = React.useMemo(() => {
     // Use client-side aggregation to ensure accurate local-day counting
@@ -1627,10 +1684,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               <span className="text-xs text-emerald-600 font-semibold">TOTAL TIME</span>
             </div>
             <p className="text-2xl font-bold text-emerald-900">
-              {profile.totalPlayTimeMinutes 
-                ? `${Math.floor(profile.totalPlayTimeMinutes / 60)}h ${profile.totalPlayTimeMinutes % 60}m`
-                : 'N/A'
-              }
+              {usageMetrics.totalPlayTimeMinutes !== undefined
+                ? `${Math.floor((usageMetrics.totalPlayTimeMinutes) / 60)}h ${(usageMetrics.totalPlayTimeMinutes) % 60}m`
+                : 'N/A'}
             </p>
             <p className="text-xs text-emerald-700 mt-1">Across all sessions</p>
           </div>
@@ -1646,7 +1702,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               <span className="text-xs text-blue-600 font-semibold">DAYS ACTIVE</span>
             </div>
             <p className="text-2xl font-bold text-blue-900">
-              {profile.daysLoggedIn || 'N/A'}
+              {usageMetrics.daysLoggedIn ?? 'N/A'}
             </p>
             <p className="text-xs text-blue-700 mt-1">Total days played</p>
           </div>
@@ -1662,7 +1718,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               <span className="text-xs text-orange-600 font-semibold">CURRENT STREAK</span>
             </div>
             <p className="text-2xl font-bold text-orange-900">
-              {profile.currentStreakDays || 'N/A'}
+              {usageMetrics.currentStreakDays ?? 'N/A'}
             </p>
             <p className="text-xs text-orange-700 mt-1">Consecutive days</p>
           </div>
@@ -1678,7 +1734,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               <span className="text-xs text-purple-600 font-semibold">BEST STREAK</span>
             </div>
             <p className="text-2xl font-bold text-purple-900">
-              {profile.longestStreakDays || 'N/A'}
+              {usageMetrics.longestStreakDays ?? 'N/A'}
             </p>
             <p className="text-xs text-purple-700 mt-1">Longest streak</p>
           </div>
@@ -1698,19 +1754,15 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
               <span className="text-gray-700">
-                <strong>Avg. Session:</strong> {profile.totalPlayTimeMinutes && profile.gamesPlayed 
-                  ? `${Math.round(profile.totalPlayTimeMinutes / profile.gamesPlayed)}m`
-                  : 'N/A'
-                }
+                <strong>Avg. Session:</strong> {usageMetrics.avgSessionMinutes !== undefined ? `${usageMetrics.avgSessionMinutes}m` : 'N/A'}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
               <span className="text-gray-700">
-                <strong>Last Login:</strong> {profile.lastLoginAt 
-                  ? new Date(profile.lastLoginAt).toLocaleDateString()
-                  : 'N/A'
-                }
+                <strong>Last Login:</strong> {usageMetrics.lastLoginAt
+                  ? new Date(usageMetrics.lastLoginAt).toLocaleDateString()
+                  : 'N/A'}
               </span>
             </div>
             <div className="flex items-center gap-2">
