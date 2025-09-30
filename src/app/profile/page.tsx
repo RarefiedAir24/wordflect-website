@@ -311,9 +311,9 @@ export default function Profile() {
   }, [range, customDateRange]);
 
 
-  const fetchProfile = useCallback(async (showRefreshing = false) => {
+  const fetchProfile = useCallback(async () => {
     try {
-      // Removed: manual refresh state (data refreshes on mount/route)
+      // Data refreshes on mount/route
       
         if (!apiService.isAuthenticated()) {
           router.push("/signin");
