@@ -42,6 +42,9 @@ export default function Profile() {
   const [showCustomDateRange, setShowCustomDateRange] = useState(false);
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [aiQuery, setAiQuery] = useState('');
+  const [aiResponse, setAiResponse] = useState('');
 
   // Derived UI helpers
   const winRate = (p: UserProfile) => {
@@ -573,6 +576,49 @@ export default function Profile() {
   const handleSignOut = async () => {
     await apiService.signOut();
     router.push("/");
+  };
+
+  const handleAiQuery = () => {
+    if (!aiQuery.trim()) return;
+    
+    const query = aiQuery.toLowerCase();
+    let response = '';
+    
+    // AI responses based on user data
+    if (query.includes('words') || query.includes('word')) {
+      const totalWords = profile.allFoundWords.length;
+      response = `You have found ${totalWords.toLocaleString()} words total!`;
+    } else if (query.includes('level') || query.includes('levels')) {
+      response = `You are currently at Level ${profile.highestLevel}!`;
+    } else if (query.includes('win') || query.includes('rate') || query.includes('percentage')) {
+      const rate = winRate(profile);
+      response = `Your win rate is ${rate}% (${profile.battleWins} wins, ${profile.battleLosses} losses).`;
+    } else if (query.includes('games') || query.includes('played')) {
+      response = `You have played ${profile.gamesPlayed} games total.`;
+    } else if (query.includes('coins') || query.includes('flectcoins')) {
+      response = `You have ${profile.flectcoins.toLocaleString()} Flectcoins!`;
+    } else if (query.includes('points')) {
+      response = `You have ${profile.points.toLocaleString()} points!`;
+    } else if (query.includes('gems')) {
+      response = `You have ${profile.gems.toLocaleString()} gems!`;
+    } else if (query.includes('battles') || query.includes('battle')) {
+      response = `You have ${profile.battleWins} battle wins and ${profile.battleLosses} battle losses.`;
+    } else if (query.includes('time') || query.includes('play time')) {
+      const totalMinutes = usageMetrics.totalPlayTimeMinutes;
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      response = `You have played for ${hours} hours and ${minutes} minutes total.`;
+    } else if (query.includes('streak') || query.includes('current streak')) {
+      response = `Your current streak is ${usageMetrics.currentStreakDays} days.`;
+    } else if (query.includes('longest streak')) {
+      response = `Your longest streak was ${usageMetrics.longestStreakDays} days.`;
+    } else if (query.includes('days') || query.includes('active')) {
+      response = `You have been active for ${usageMetrics.daysLoggedIn} days.`;
+    } else {
+      response = `I can help you with information about your words found, level, win rate, games played, coins, points, gems, battles, play time, streaks, and activity. Try asking about any of these!`;
+    }
+    
+    setAiResponse(response);
   };
 
   // Helper function to get time period data
@@ -1162,13 +1208,13 @@ export default function Profile() {
                     </div>
                   )}
                   {profile.selectedFrame && (
-                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                    <div className="absolute -inset-2 pointer-events-none flex items-center justify-center">
                       <Image
                         src={profile.selectedFrame.imageUrl}
                         alt={profile.selectedFrame.name}
-                        width={140}
-                        height={140}
-                        className="w-35 h-35 object-contain drop-shadow-lg"
+                        width={120}
+                        height={120}
+                        className="w-32 h-32 object-contain drop-shadow-lg"
                         onError={() => {
                           console.error('Frame image failed to load:', profile.selectedFrame?.imageUrl);
                         }}
@@ -1189,14 +1235,20 @@ export default function Profile() {
                   <span className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
                     Win Rate {winRate(profile)}%
                   </span>
-                  <span className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                    {profile.allFoundWords.length.toLocaleString()} Words
-                  </span>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setAiModalOpen(true)}
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-200 font-bold shadow-lg flex items-center gap-3 hover:shadow-xl"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                AI Assistant
+              </button>
               <a href="/dashboard">
                 <button className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-200 font-bold shadow-lg flex items-center gap-3 hover:shadow-xl">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3414,4 +3466,62 @@ function generateInsights(p: UserProfile): string[] {
   insights.push(`Gem efficiency tip: Convert surplus points into gems when events start.`);
   return insights.slice(0, 4);
 }
+
+      {/* AI Assistant Modal */}
+      {aiModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">AI Assistant</h3>
+              <button 
+                onClick={() => {
+                  setAiModalOpen(false);
+                  setAiQuery('');
+                  setAiResponse('');
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-3">
+                Ask me about your stats! Try: "How many words have I found?" or "What's my win rate?"
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={aiQuery}
+                  onChange={(e) => setAiQuery(e.target.value)}
+                  placeholder="Ask about your stats..."
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  onKeyPress={(e) => e.key === 'Enter' && handleAiQuery()}
+                />
+                <button
+                  onClick={handleAiQuery}
+                  className="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition-colors"
+                >
+                  Ask
+                </button>
+              </div>
+            </div>
+            
+            {aiResponse && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-800 font-medium">{aiResponse}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 // Force deployment Sun Sep 28 08:40:29 EDT 2025
