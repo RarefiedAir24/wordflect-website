@@ -3394,8 +3394,8 @@ function Sparkline({ data, height = 200, color = '#4f46e5' }: { data: { date: Da
               cy={point.y} 
               r="12" 
               fill="transparent" 
-              onMouseEnter={(e) => handlePointHover(i, e)}
-              onMouseMove={(e) => handlePointHover(i, e)}
+              onMouseEnter={() => handlePointHover(i)}
+              onMouseMove={() => handlePointHover(i)}
               onClick={(e) => {
                 e.stopPropagation();
                 handlePointClick(i);
