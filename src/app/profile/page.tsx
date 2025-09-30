@@ -3300,6 +3300,8 @@ function RadialProgress({ percent }: { percent: number }) {
 function Sparkline({ data, height = 200, color = '#4f46e5' }: { data: { date: Date; value: number }[]; height?: number; color?: string }) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
+  // Selected point persists on click to show exact value even when axis ticks skip values
+  const [selectedPoint, setSelectedPoint] = useState<number | null>(null);
   
   const chartHeight = height - 80; // Much more space for labels
   const leftMargin = 80; // Slightly reduced to free up width
@@ -3336,6 +3338,11 @@ function Sparkline({ data, height = 200, color = '#4f46e5' }: { data: { date: Da
     setTooltipPosition(null);
   };
   
+  const handlePointClick = (index: number) => {
+    // Toggle selection if clicking the same point
+    setSelectedPoint(prev => (prev === index ? null : index));
+  };
+  
   return (
     <div className="w-full bg-white rounded-lg p-4 border border-gray-200">
       <div className="w-full overflow-hidden">
@@ -3346,6 +3353,10 @@ function Sparkline({ data, height = 200, color = '#4f46e5' }: { data: { date: Da
           preserveAspectRatio="xMidYMid meet"
           className="block cursor-pointer"
           onMouseLeave={handlePointLeave}
+          onClick={() => {
+            // Clicking the background clears selection
+            setSelectedPoint(null);
+          }}
         >
         {/* Grid lines */}
         <defs>
@@ -3392,6 +3403,10 @@ function Sparkline({ data, height = 200, color = '#4f46e5' }: { data: { date: Da
               fill="transparent" 
               onMouseEnter={(e) => handlePointHover(i, e)}
               onMouseMove={(e) => handlePointHover(i, e)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePointClick(i);
+              }}
               className="cursor-pointer"
             />
             {/* Visible point */}
@@ -3406,6 +3421,28 @@ function Sparkline({ data, height = 200, color = '#4f46e5' }: { data: { date: Da
             />
           </g>
         ))}
+
+        {/* Pinned value label for selected point */}
+        {selectedPoint !== null && points[selectedPoint] && (
+          <g>
+            {(() => {
+              const p = points[selectedPoint];
+              const labelY = Math.max(16, p.y - 18);
+              const label = String(p.data.value);
+              const padX = 10;
+              const padY = 6;
+              const approxWidth = label.length * 7 + padX * 2; // rough text width estimate
+              const rectX = p.x - approxWidth / 2;
+              const rectY = labelY - (padY * 2);
+              return (
+                <g>
+                  <rect x={rectX} y={rectY} rx="8" ry="8" width={approxWidth} height={padY * 2 + 8} fill="#111827" opacity="0.9" />
+                  <text x={p.x} y={labelY} textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">{label}</text>
+                </g>
+              );
+            })()}
+          </g>
+        )}
         
         {/* Date labels - Better spacing and larger font */}
         {dateLabels.map((d, i) => {
