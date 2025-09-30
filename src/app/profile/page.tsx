@@ -144,7 +144,7 @@ export default function Profile() {
   }, [range, customDateRange]); // Add dependencies for the aggregated function
 
   // Backend history integration
-  const [historyDays, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
+  const [, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
   
   // Usage metrics strictly from real data, with fallbacks computed from sessionHistory if needed
   const usageMetrics = React.useMemo(() => {
