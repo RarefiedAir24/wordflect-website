@@ -1139,315 +1139,82 @@ export default function Profile() {
   return (
     <div className="max-w-6xl mx-auto py-10 px-4">
       {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 p-1 mb-8">
-        <div className="rounded-2xl bg-blue-100/90 text-blue-900 p-6 md:p-8 backdrop-blur">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-2 mb-4 md:mb-0">
-            {/* Removed debug controls from header for production */}
-            {/*
-            <button
-                onClick={async () => {
-                  try {
-                    console.log('🔍 DEBUG: Checking backend data directly...');
-                    const response = await fetch('/api/debug-profile', {
-                      method: 'GET',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                      }
-                    });
-                    const data = await response.json();
-                    console.log('🔍 DEBUG: Backend data result:', data);
-                    
-                    // Show specific info about target words
-                    if (data.backendData && data.backendData.targetWordsCheck) {
-                      const summary = data.backendData.targetWordsCheck.map((w: { word: string; found: boolean }) => 
-                        `${w.word}: ${w.found ? '✅' : '❌'}`
-                      ).join(', ');
-                      alert(`Backend Check Results:\n${summary}\n\nFull data logged to console.`);
-                    } else {
-                      alert('Backend debug data logged to console. Check browser console for details.');
-                    }
-                  } catch (error) {
-                    console.error('🔍 DEBUG: Error:', error);
-                    alert('Debug failed. Check console for details.');
-                  }
-                }}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Debug Backend
-          </button>
-            <button
-                onClick={async () => {
-                  try {
-                    console.log('🔍 DEBUG TIME ANALYTICS: Testing time analytics API...');
-                    console.log('🔍 Is authenticated:', apiService.isAuthenticated());
-                    console.log('🔍 Token expired:', apiService.isTokenExpired());
-                    console.log('🔍 Token from localStorage:', localStorage.getItem('token')?.substring(0, 20) + '...');
-                    
-                    // Debug localStorage contents
-                    console.log('🔍 All localStorage keys:', Object.keys(localStorage));
-                    console.log('🔍 localStorage contents:', {
-                      token: localStorage.getItem('token'),
-                      user: localStorage.getItem('user'),
-                      '@AuthData:user': localStorage.getItem('@AuthData:user')
-                    });
-                    
-                    const response = await apiService.getTimeAnalytics();
-                    console.log('✅ Time analytics response:', response);
-                    alert('Time analytics API call successful! Check console for details.');
-                  } catch (error) {
-                    console.error('❌ Time analytics error:', error);
-                    console.error('❌ Error type:', typeof error);
-                    console.error('❌ Error message:', error instanceof Error ? error.message : String(error));
-                    alert('Time analytics API call failed: ' + (error instanceof Error ? error.message : String(error)));
-                  }
-                }}
-                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Test Time Analytics
-          </button>
-        <button
-          onClick={async () => {
-            try {
-              console.log('🔍 DEBUG AUTH: Testing authentication state...');
-              console.log('🔍 Is authenticated:', apiService.isAuthenticated());
-              console.log('🔍 Token expired:', apiService.isTokenExpired());
-              console.log('🔍 Token from localStorage:', localStorage.getItem('token')?.substring(0, 20) + '...');
-              
-              // Debug localStorage contents
-              console.log('🔍 All localStorage keys:', Object.keys(localStorage));
-              console.log('🔍 localStorage contents:', {
-                token: localStorage.getItem('token'),
-                user: localStorage.getItem('user'),
-                '@AuthData:user': localStorage.getItem('@AuthData:user')
-              });
-              
-              // Test if we can get user profile
-              try {
-                const profile = await apiService.getUserProfile();
-                console.log('✅ Profile fetch successful:', profile);
-                alert('Authentication working! Profile fetched successfully. Check console for details.');
-              } catch (profileError) {
-                console.error('❌ Profile fetch failed:', profileError);
-                alert('Authentication failed! Profile fetch error: ' + (profileError instanceof Error ? profileError.message : String(profileError)));
-              }
-            } catch (error) {
-              console.error('❌ Auth debug error:', error);
-              alert('Auth debug failed: ' + (error instanceof Error ? error.message : String(error)));
-            }
-          }}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Test Authentication
-        </button>
-        
-        <button
-          onClick={async () => {
-            try {
-              console.log('🔍 DEBUG SIGNIN: Testing sign-in process...');
-              
-              // Prompt for password
-              const password = prompt('Enter your password for testing:');
-              if (!password) {
-                alert('Password required for testing');
-                return;
-              }
-              
-              // Test sign-in with your credentials
-              const testCredentials = {
-                email: 'supergeek@me.com',
-                password: password
-              };
-              
-              console.log('🔍 DEBUG SIGNIN: Attempting sign-in with:', testCredentials.email);
-              
-              const result = await apiService.signIn(testCredentials);
-              console.log('✅ Sign-in successful:', result);
-              
-              // Check localStorage immediately after sign-in
-              const storedToken = localStorage.getItem('token');
-              const storedUser = localStorage.getItem('user');
-              console.log('🔍 DEBUG SIGNIN: After sign-in - Token stored:', !!storedToken);
-              console.log('🔍 DEBUG SIGNIN: After sign-in - User stored:', !!storedUser);
-              console.log('🔍 DEBUG SIGNIN: After sign-in - All localStorage keys:', Object.keys(localStorage));
-              
-              alert('Sign-in test completed! Check console for details.');
-            } catch (error) {
-              console.error('❌ Sign-in test failed:', error);
-              alert('Sign-in test failed: ' + (error instanceof Error ? error.message : String(error)));
-            }
-          }}
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-          </svg>
-          Test Sign-In Process
-        </button>
-            <button
-                onClick={async () => {
-                  try {
-                    console.log('🔍 DEBUG THEME DAY: Testing Friday theme words...');
-                    const debugDate = new Date();
-                    const todayString = debugDate.getFullYear() + '-' +
-                      String(debugDate.getMonth() + 1).padStart(2, '0') + '-' +
-                      String(debugDate.getDate()).padStart(2, '0');
-                    
-                    // Use the API service to get theme day data directly
-                    // Disabled backend API call to use hardcoded theme words
-                    // const themeDayData = await apiService.getThemeDayStatistics(todayString);
-                    const themeDayData = null;
-                    console.log('🔍 DEBUG THEME DAY: Direct API response:', themeDayData);
-                    console.log('🔍 DEBUG THEME DAY: Theme name:', 'Using hardcoded theme words');
-                    console.log('🔍 DEBUG THEME DAY: Theme words:', 'Using hardcoded theme words');
-                    console.log('🔍 DEBUG THEME DAY: Is SEAL included?', 'Using hardcoded theme words');
-                    
-                    // Also test the debug endpoint with proper auth
-                    const debugResponse = await fetch(`/api/debug-theme-day?date=${todayString}`, {
-                      method: 'GET',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                      }
-                    });
-                    const debugData = await debugResponse.json();
-                    console.log('🔍 DEBUG THEME DAY: Debug endpoint response:', debugData);
-                    
-                    // Show results from hardcoded theme words
-                    const directThemeWords: string[] = [];
-                    const directThemeName = 'Using hardcoded theme words';
-                    const isSealIncluded = false;
-                    
-                    const message = `🎯 THEME DAY DEBUG RESULTS (Direct API):
-
-📅 Date: ${todayString}
-🎨 Theme: ${directThemeName}
-📊 Total Theme Words: ${directThemeWords.length}
-🔍 Words Found: 0 (using hardcoded theme words)
-🦭 Is SEAL included: ${isSealIncluded ? '✅ YES' : '❌ NO'}
-
-📝 All Theme Words:
-${directThemeWords.join(', ')}
-
-${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
-                    
-                    alert(message);
-                  } catch (error) {
-                    console.error('🔍 DEBUG THEME DAY: Error:', error);
-                    alert('Theme Day Debug failed. Check console for details.');
-                  }
-                }}
-                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Debug Theme Day
-          </button>
-            */}
-            {/* Removed: manual Refresh button (data refreshes on mount/route). Keep UI clean. */}
-        </div>
-            <div className="flex items-center gap-4 md:gap-6">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 p-1 mb-8 shadow-2xl">
+        <div className="rounded-3xl bg-gradient-to-br from-white/95 to-blue-50/95 text-blue-900 p-8 backdrop-blur-sm">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+            <div className="flex items-center gap-6">
               <div className="relative">
-            {profile.profileImageUrl && profile.profileImageUrl.trim() !== '' ? (
-              <Image
-                src={profile.profileImageUrl}
-                alt="Profile"
-                    width={96}
-                    height={96}
-                    className="rounded-full border-4 border-white shadow-xl"
-                    onError={() => {
-                  console.error('Profile image failed to load:', profile.profileImageUrl);
-                }}
-              />
-            ) : (
-                  <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center text-3xl font-bold text-gray-600">
-                {profile.username.charAt(0).toUpperCase()}
-              </div>
-            )}
-            {profile.selectedFrame && (
-                  <div className="absolute -inset-10 pointer-events-none">
-                <Image
-                  src={profile.selectedFrame.imageUrl}
-                  alt={profile.selectedFrame.name}
-                      width={160}
-                      height={160}
-                      className="w-40 h-40 object-contain"
+                <div className="relative w-28 h-28">
+                  {profile.profileImageUrl && profile.profileImageUrl.trim() !== '' ? (
+                    <Image
+                      src={profile.profileImageUrl}
+                      alt="Profile"
+                      width={112}
+                      height={112}
+                      className="rounded-full border-4 border-white shadow-2xl w-28 h-28 object-cover"
                       onError={() => {
-                    console.error('Frame image failed to load:', profile.selectedFrame?.imageUrl);
-                  }}
-                />
+                        console.error('Profile image failed to load:', profile.profileImageUrl);
+                      }}
+                    />
+                  ) : (
+                    <div className="w-28 h-28 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full flex items-center justify-center text-4xl font-bold text-white shadow-2xl">
+                      {profile.username.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  {profile.selectedFrame && (
+                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                      <Image
+                        src={profile.selectedFrame.imageUrl}
+                        alt={profile.selectedFrame.name}
+                        width={140}
+                        height={140}
+                        className="w-35 h-35 object-contain drop-shadow-lg"
+                        onError={() => {
+                          console.error('Frame image failed to load:', profile.selectedFrame?.imageUrl);
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
-          <div>
-                <h1 className="text-3xl md:text-4xl font-extrabold text-blue-950">{profile.username}</h1>
-            <p className="text-blue-700">{profile.email}</p>
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Level {profile.highestLevel}</span>
-                  <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Win Rate {winRate(profile)}%</span>
-                  <span className="bg-indigo-600 text-white px-3 py-1 rounded-full text-sm font-semibold">{profile.allFoundWords.length.toLocaleString()} Words</span>
+              <div className="flex-1">
+                <h1 className="text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2">
+                  {profile.username}
+                </h1>
+                <p className="text-blue-600 text-lg font-medium mb-4">{profile.email}</p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                    Level {profile.highestLevel}
+                  </span>
+                  <span className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                    Win Rate {winRate(profile)}%
+                  </span>
+                  <span className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                    {profile.allFoundWords.length.toLocaleString()} Words
+                  </span>
                 </div>
               </div>
             </div>
 
-        <div className="flex gap-3">
-          <button
-            onClick={() => {
-              setLoading(true);
-              apiService.getUserProfile().then(setProfile).catch(console.error).finally(() => setLoading(false));                                          
-            }}
-                className="bg-emerald-500 text-white px-4 py-2 rounded hover:bg-emerald-600 transition shadow"                                             
-          >
-            Refresh
-          </button>
-          <button
-            onClick={async () => {
-              try {
-                const token = localStorage.getItem('token');
-                if (token) {
-                  // Decode JWT token to get user ID
-                  const payload = JSON.parse(atob(token.split('.')[1]));
-                  console.log('🔍 DEBUG: JWT payload:', payload);
-                  console.log('🔍 DEBUG: User ID:', payload.userId);
-                  
-                  // Test the debug endpoint
-                  const response = await fetch(`https://fo0rh1w8m9.execute-api.us-east-2.amazonaws.com/prod/debug/user-words?userId=${payload.userId}`);
-                  const data = await response.json();
-                  console.log('🔍 DEBUG: Backend response:', data);
-                  
-                  alert(`User ID: ${payload.userId}\nBackend Response: ${JSON.stringify(data, null, 2)}`);
-                } else {
-                  alert('No token found');
-                }
-              } catch (error) {
-                console.error('Debug error:', error);
-                alert('Debug error: ' + (error instanceof Error ? error.message : String(error)));
-              }
-            }}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition shadow"
-          >
-            Debug User ID
-          </button>
-          <a href="/dashboard">
-                <button className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded hover:scale-105 transition font-bold shadow">
-              Dashboard
-            </button>
-          </a>
-              <button onClick={handleSignOut} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition shadow">
-            Sign Out
-          </button>
+            <div className="flex items-center gap-4">
+              <a href="/dashboard">
+                <button className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-200 font-bold shadow-lg flex items-center gap-3 hover:shadow-xl">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z" />
+                  </svg>
+                  Dashboard
+                </button>
+              </a>
+              <button 
+                onClick={handleSignOut} 
+                className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-200 font-bold shadow-lg flex items-center gap-3 hover:shadow-xl"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Sign Out
+              </button>
             </div>
           </div>
         </div>
