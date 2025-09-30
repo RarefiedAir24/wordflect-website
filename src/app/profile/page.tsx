@@ -1571,7 +1571,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               })()}
             </p>
           </div>
-          <Sparkline data={(historyDays && historyDays.length ? historyDays : aggregated(profile).days)} height={120} color="#4f46e5" />
+          <Sparkline data={(historyDays && historyDays.length ? historyDays : aggregated(profile).days)} height={220} color="#4f46e5" />
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
             <MiniStat title="Words (found)" value={historyMetrics.totalWords.toLocaleString()} />
             <MiniStat title="Avg/Day" value={historyMetrics.avgPerDay} />
@@ -3297,16 +3297,16 @@ function RadialProgress({ percent }: { percent: number }) {
   );
 }
 
-function Sparkline({ data, height = 160, color = '#4f46e5' }: { data: { date: Date; value: number }[]; height?: number; color?: string }) {
+function Sparkline({ data, height = 200, color = '#4f46e5' }: { data: { date: Date; value: number }[]; height?: number; color?: string }) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
   
   const chartHeight = height - 80; // Much more space for labels
-  const leftMargin = 100; // Balanced space for Y-axis labels
-  const rightMargin = 50;
+  const leftMargin = 80; // Slightly reduced to free up width
+  const rightMargin = 30;
   const topMargin = 30;
-  const bottomMargin = 50;
-  const width = Math.min(800, Math.max(400, data.length * 8) + leftMargin + rightMargin); // Responsive width with max limit
+  const bottomMargin = 60; // More space for X labels
+  const width = Math.min(1024, Math.max(520, data.length * 10) + leftMargin + rightMargin); // Wider cap and base
   const max = Math.max(1, ...data.map(d => d.value));
   
   const points = data.map((d, i) => {
