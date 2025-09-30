@@ -586,7 +586,7 @@ export default function Profile() {
     
     // AI responses based on user data
     if (query.includes('words') || query.includes('word')) {
-      const totalWords = historyMetrics.totalWords;
+      const totalWords = profile.allFoundWords.length;
       response = `You have found ${totalWords.toLocaleString()} words total!`;
     } else if (query.includes('level') || query.includes('levels')) {
       response = `You are currently at Level ${profile.highestLevel}!`;
