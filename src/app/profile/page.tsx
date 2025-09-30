@@ -148,8 +148,9 @@ export default function Profile() {
   
   // Usage metrics strictly from real data, with fallbacks computed from sessionHistory if needed
   const usageMetrics = React.useMemo(() => {
-    const sh: any[] = (profile as any)?.sessionHistory || [];
-    const parseTs = (s: any) => (s?.startTime || s?.timestamp ? new Date(s.startTime || s.timestamp) : null);
+    type Session = { startTime?: string; timestamp?: string; duration?: number };
+    const sh: Session[] = (profile as unknown as { sessionHistory?: Session[] })?.sessionHistory || [];
+    const parseTs = (s: Session) => (s?.startTime || s?.timestamp ? new Date((s.startTime || s.timestamp) as string) : null);
     const durationsMs = sh.map(s => (typeof s.duration === 'number' ? s.duration : 0));
     const totalMsFromSessions = durationsMs.reduce((a, b) => a + b, 0);
     const totalMinFromSessions = Math.round(totalMsFromSessions / 60000);
@@ -220,7 +221,7 @@ export default function Profile() {
     }
     
     return { totalWords: 0, avgPerDay: 0, avgLength: 0 };
-  }, [historyDays, profile, aggregated]); // Add dependencies to make it reactive
+  }, [profile, aggregated]); // historyDays not used in calc; remove from deps
 
   useEffect(() => {
     const load = async () => {
