@@ -1521,7 +1521,7 @@ export default function Profile() {
           </div>
           <Sparkline data={aggregated(profile).days} height={260} color="#4f46e5" />
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-            <MiniStat title="Words (found)" value={historyMetrics.totalWords.toLocaleString()} />
+            <MiniStat title="Words (found)" value={profile.allFoundWords.length.toLocaleString()} />
             <MiniStat title="Avg/Day" value={historyMetrics.avgPerDay} />
             <MiniStat title="Avg Length" value={historyMetrics.avgLength.toFixed(1)} />
           </div>
