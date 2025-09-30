@@ -2287,12 +2287,30 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     <span className="text-xs text-gray-500 font-semibold">LATE NIGHT</span>
                   </div>
                   <p className="text-lg font-bold text-gray-500">12:00 AM - 4:00 AM</p>
-                  <div className="mt-2">
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-gray-400 h-2 rounded-full" style={{ width: '0%' }}></div>
+                  <div className="mt-3 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-indigo-700">Words Found:</span>
+                      <span className="font-semibold text-indigo-900">{periodData.wordsFound}</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">0 words found</p>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-indigo-700">Games Played:</span>
+                      <span className="font-semibold text-indigo-900">{periodData.gamesPlayed}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-indigo-700">Avg. per Game:</span>
+                      <span className="font-semibold text-indigo-900">{periodData.avgPerGame}</span>
+                    </div>
+                    {periodData.wordsFound > 0 && periodData.gamesPlayed === 0 && (
+                      <p className="text-[11px] text-indigo-700">Words recorded without session data (from historical records).</p>
+                    )}
                   </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <div className="w-full bg-indigo-200 rounded-full h-2">
+                      <div className="bg-indigo-500 h-2 rounded-full" style={{ width: `${periodData.performance}%` }}></div>
+                    </div>
+                    <span className="text-xs text-indigo-600 font-semibold">{periodData.performance}%</span>
+                  </div>
+                  <p className="text-xs text-indigo-700 mt-2">{periodData.status}</p>
                 </div>
               );
             }
@@ -2309,19 +2327,30 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   <span className="text-xs text-indigo-600 font-semibold">LATE NIGHT</span>
                 </div>
                 <p className="text-lg font-bold text-indigo-900">12:00 AM - 4:00 AM</p>
-                <div className="mt-2">
-                  <div className="w-full bg-indigo-200 rounded-full h-2">
-                    <div className="bg-indigo-500 h-2 rounded-full" style={{ width: `${Math.min(100, (periodData.wordsFound / 50) * 100)}%` }}></div>
+                <div className="mt-3 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-indigo-700">Words Found:</span>
+                    <span className="font-semibold text-indigo-900">{periodData.wordsFound}</span>
                   </div>
-                  <p className="text-xs text-indigo-700 mt-1">{periodData.wordsFound} words found</p>
-                </div>
-                <div className="mt-2 text-xs text-indigo-600">
-                  <p>Games: {periodData.gamesPlayed}</p>
-                  <p>Avg: {periodData.avgPerGame} words/game</p>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-indigo-700">Games Played:</span>
+                    <span className="font-semibold text-indigo-900">{periodData.gamesPlayed}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-indigo-700">Avg. per Game:</span>
+                    <span className="font-semibold text-indigo-900">{periodData.avgPerGame}</span>
+                  </div>
                   {periodData.wordsFound > 0 && periodData.gamesPlayed === 0 && (
-                    <p className="mt-1 text-[11px] text-indigo-700">Words recorded without session data (from historical records).</p>
+                    <p className="text-[11px] text-indigo-700">Words recorded without session data (from historical records).</p>
                   )}
                 </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="w-full bg-indigo-200 rounded-full h-2">
+                    <div className="bg-indigo-500 h-2 rounded-full" style={{ width: `${periodData.performance}%` }}></div>
+                  </div>
+                  <span className="text-xs text-indigo-600 font-semibold">{periodData.performance}%</span>
+                </div>
+                <p className="text-xs text-indigo-700 mt-2">{periodData.status}</p>
               </div>
             );
           })()}
