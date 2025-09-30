@@ -1273,7 +1273,7 @@ export default function Profile() {
       </div>
 
       {/* AI Assistant Modal */}
-      {aiModalOpen && (
+      {aiModalOpen ? (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <div className="flex items-center justify-between mb-4">
@@ -3547,7 +3547,7 @@ function generateInsights(p: UserProfile): string[] {
             
             <div className="mb-4">
               <p className="text-sm text-gray-600 mb-3">
-                Ask me about your stats! Try: "How many words have I found?" or "What's my win rate?"
+                Ask me about your stats! Try: How many words have I found? or What&apos;s my win rate?
               </p>
               <div className="flex gap-2">
                 <input
@@ -3556,7 +3556,7 @@ function generateInsights(p: UserProfile): string[] {
                   onChange={(e) => setAiQuery(e.target.value)}
                   placeholder="Ask about your stats..."
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  onKeyPress={(e) => e.key === 'Enter' && handleAiQuery()}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleAiQuery(); }}
                 />
                 <button
                   onClick={handleAiQuery}
@@ -3581,5 +3581,5 @@ function generateInsights(p: UserProfile): string[] {
             )}
           </div>
         </div>
-      )}
+      ) : null}
 // Force deployment Sun Sep 28 08:40:29 EDT 2025
