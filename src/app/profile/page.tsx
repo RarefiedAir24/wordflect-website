@@ -2272,7 +2272,8 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           {/* Late Night (12AM - 4AM) */}
           {(() => {
-            const periodData = getTimePeriodData('late-night');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const periodData = getTimePeriodData('late-night') as any;
             if (!periodData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
@@ -2358,7 +2359,8 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
           
           {/* Early Morning (5AM - 10AM) */}
           {(() => {
-            const periodData = getTimePeriodData('early-morning');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const periodData = getTimePeriodData('early-morning') as any;
             if (!periodData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
@@ -2420,7 +2422,8 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
 
           {/* Late Morning (10AM - 3PM) */}
           {(() => {
-            const periodData = getTimePeriodData('late-morning');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const periodData = getTimePeriodData('late-morning') as any;
             if (!periodData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
@@ -2482,7 +2485,8 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
 
           {/* Afternoon (3PM - 8PM) */}
           {(() => {
-            const periodData = getTimePeriodData('afternoon');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const periodData = getTimePeriodData('afternoon') as any;
             if (!periodData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
@@ -2544,7 +2548,8 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
 
           {/* Evening (8PM - 12AM) */}
           {(() => {
-            const periodData = getTimePeriodData('evening');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const periodData = getTimePeriodData('evening') as any;
             if (!periodData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
