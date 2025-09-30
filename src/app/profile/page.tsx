@@ -182,12 +182,23 @@ export default function Profile() {
 
   // Usage metrics strictly from real data, with fallbacks computed from sessionHistory if needed
   const usageMetrics = React.useMemo(() => {
-    const sh: Session[] = detailedStats?.sessionHistory || [];
+    // Prefer sessions from time analytics when available (already fetched, server-computed)
+    type TAPeriod = { sessions?: { startTime?: string; timestamp?: string; duration?: number }[]; totalPlayTime?: number };
+    const ta = (timeAnalytics as unknown as { timePeriods?: Record<string, TAPeriod>; summary?: { totalGamesAcrossPeriods?: number } }) || {};
+    const sessionsFromTA: Session[] = ta.timePeriods ? Object.values(ta.timePeriods).flatMap(p => (p?.sessions || []) as Session[]) : [];
+    const sh: Session[] = sessionsFromTA.length > 0
+      ? sessionsFromTA
+      : (detailedStats?.sessionHistory || []);
     const parseTs = (s: Session) => (s?.startTime || s?.timestamp ? new Date((s.startTime || s.timestamp) as string) : null);
-    const durationsMs = sh.map(s => (typeof s.duration === 'number' ? s.duration : 0));
-    const totalMsFromSessions = durationsMs.reduce((a, b) => a + b, 0);
+    const totalMsFromSessions = (() => {
+      if (sessionsFromTA.length && ta.timePeriods) {
+        return Object.values(ta.timePeriods).reduce((sum, p) => sum + (p?.totalPlayTime || 0), 0);
+      }
+      const durationsMs = sh.map(s => (typeof s.duration === 'number' ? s.duration : 0));
+      return durationsMs.reduce((a, b) => a + b, 0);
+    })();
     const totalMinFromSessions = Math.round(totalMsFromSessions / 60000);
-    const gamesFromSessions = sh.length;
+    const gamesFromSessions = ta.summary?.totalGamesAcrossPeriods ?? sh.length;
 
     // Distinct UTC dates for streaks/days active
     const dayKey = (d: Date) => `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
@@ -235,7 +246,7 @@ export default function Profile() {
     })();
 
     return { totalPlayTimeMinutes, daysLoggedIn, currentStreakDays, longestStreakDays, lastLoginAt, avgSessionMinutes };
-  }, [profile, detailedStats]);
+  }, [profile, detailedStats, timeAnalytics]);
 
   // Calculate history metrics for the selected period - make it reactive to range changes
   const historyMetrics = React.useMemo(() => {
