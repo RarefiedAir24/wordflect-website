@@ -3582,4 +3582,7 @@ function generateInsights(p: UserProfile): string[] {
           </div>
         </div>
       ) : null}
+    </div>
+  );
+}
 // Force deployment Sun Sep 28 08:40:29 EDT 2025
