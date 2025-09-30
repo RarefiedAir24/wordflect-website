@@ -2318,12 +2318,15 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 <div className="mt-2 text-xs text-indigo-600">
                   <p>Games: {periodData.gamesPlayed}</p>
                   <p>Avg: {periodData.avgPerGame} words/game</p>
+                  {periodData.wordsFound > 0 && periodData.gamesPlayed === 0 && (
+                    <p className="mt-1 text-[11px] text-indigo-700">Words recorded without session data (from historical records).</p>
+                  )}
                 </div>
               </div>
             );
           })()}
 
-
+          
           {/* Early Morning (5AM - 10AM) */}
           {(() => {
             const periodData = getTimePeriodData('early-morning');
@@ -2335,7 +2338,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
                       </svg>
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">EARLY MORNING</span>
@@ -2352,7 +2355,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
                     </svg>
                   </div>
                   <span className="text-xs text-amber-600 font-semibold">EARLY MORNING</span>
@@ -2371,6 +2374,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     <span className="text-amber-700">Avg. per Game:</span>
                     <span className="font-semibold text-amber-900">{periodData.avgPerGame}</span>
                   </div>
+                  {periodData.wordsFound > 0 && periodData.gamesPlayed === 0 && (
+                    <p className="text-[11px] text-amber-700">Words recorded without session data (from historical records).</p>
+                  )}
                 </div>
                 <div className="mt-3 flex items-center gap-2">
                   <div className="w-full bg-amber-200 rounded-full h-2">
@@ -2394,7 +2400,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
                       </svg>
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">LATE MORNING</span>
@@ -2411,7 +2417,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
                     </svg>
                   </div>
                   <span className="text-xs text-blue-600 font-semibold">LATE MORNING</span>
@@ -2430,6 +2436,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     <span className="text-blue-700">Avg. per Game:</span>
                     <span className="font-semibold text-blue-900">{periodData.avgPerGame}</span>
                   </div>
+                  {periodData.wordsFound > 0 && periodData.gamesPlayed === 0 && (
+                    <p className="text-[11px] text-blue-700">Words recorded without session data (from historical records).</p>
+                  )}
                 </div>
                 <div className="mt-3 flex items-center gap-2">
                   <div className="w-full bg-blue-200 rounded-full h-2">
@@ -2453,7 +2462,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
                       </svg>
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">AFTERNOON</span>
@@ -2470,7 +2479,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
                     </svg>
                   </div>
                   <span className="text-xs text-green-600 font-semibold">AFTERNOON</span>
@@ -2489,6 +2498,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     <span className="text-green-700">Avg. per Game:</span>
                     <span className="font-semibold text-green-900">{periodData.avgPerGame}</span>
                   </div>
+                  {periodData.wordsFound > 0 && periodData.gamesPlayed === 0 && (
+                    <p className="text-[11px] text-green-700">Words recorded without session data (from historical records).</p>
+                  )}
                 </div>
                 <div className="mt-3 flex items-center gap-2">
                   <div className="w-full bg-green-200 rounded-full h-2">
@@ -2548,6 +2560,9 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                     <span className="text-purple-700">Avg. per Game:</span>
                     <span className="font-semibold text-purple-900">{periodData.avgPerGame || '-'}</span>
                   </div>
+                  {periodData.wordsFound > 0 && periodData.gamesPlayed === 0 && (
+                    <p className="text-[11px] text-purple-700">Words recorded without session data (from historical records).</p>
+                  )}
                 </div>
                 <div className="mt-3 flex items-center gap-2">
                   <div className="w-full bg-purple-200 rounded-full h-2">
