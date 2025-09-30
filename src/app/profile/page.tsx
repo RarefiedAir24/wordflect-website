@@ -35,7 +35,7 @@ export default function Profile() {
   const [themeAnalytics, setThemeAnalytics] = useState<Record<string, unknown> | null>(null);
   const [selectedThemeDay, setSelectedThemeDay] = useState<string | null>(null);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+  // const [refreshing, setRefreshing] = useState(false); // Removed: no manual refresh in production
   
   // Time period filter state
   const [timePeriodFilter, setTimePeriodFilter] = useState<string>('ALL');
@@ -313,9 +313,7 @@ export default function Profile() {
 
   const fetchProfile = useCallback(async (showRefreshing = false) => {
     try {
-      if (showRefreshing) {
-        setRefreshing(true);
-      }
+      // Removed: manual refresh state (data refreshes on mount/route)
       
         if (!apiService.isAuthenticated()) {
           router.push("/signin");
@@ -389,9 +387,7 @@ export default function Profile() {
         }
       } finally {
         setLoading(false);
-      if (showRefreshing) {
-        setRefreshing(false);
-      }
+      // Removed: manual refresh state (data refreshes on mount/route)
       }
     }, [router]);
 
