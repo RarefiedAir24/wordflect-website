@@ -219,13 +219,13 @@ export default function Profile() {
         if (current > longest) longest = current;
         prev = d;
       }
-      // If last active day is not contiguous with today, current streak should be 0
+      // Current streak must end on today (UTC). If last active day isn't today, reset to 0
       const todayUTC = new Date();
       const todayKey = dayKey(todayUTC);
-      const lastKey = sortedDays[sortedDays.length-1];
-      const lastDate = new Date(lastKey + 'T00:00:00Z');
-      const gap = Math.round((new Date(todayKey + 'T00:00:00Z').getTime() - lastDate.getTime())/(24*60*60*1000));
-      if (gap > 0) { /* not strictly today; keep computed current */ }
+      const lastKey = sortedDays[sortedDays.length - 1];
+      if (lastKey !== todayKey) {
+        current = 0;
+      }
     }
 
     const lastLoginFromSessions = (() => {
