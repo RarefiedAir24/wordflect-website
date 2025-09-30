@@ -2268,6 +2268,21 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
           )}
         </div>
 
+        {/* UTC Timezone Notice */}
+        <div className="mb-4">
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
+            {(() => {
+              const offsetMin = new Date().getTimezoneOffset();
+              const sign = offsetMin <= 0 ? '+' : '-';
+              const abs = Math.abs(offsetMin);
+              const hh = Math.floor(abs / 60).toString().padStart(2, '0');
+              const mm = (abs % 60).toString().padStart(2, '0');
+              const suffix = mm === '00' ? hh : `${hh}:${mm}`;
+              return `Note: Time periods are calculated in UTC. Your local offset is UTC${sign}${suffix}.`;
+            })()}
+          </div>
+        </div>
+
         {/* Time Period Performance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           {/* Late Night (12AM - 4AM) */}
