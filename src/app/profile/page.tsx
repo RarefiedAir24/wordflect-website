@@ -148,9 +148,8 @@ export default function Profile() {
   
   // Calculate history metrics for the selected period - make it reactive to range changes
   const historyMetrics = React.useMemo(() => {
-    // Always use the data that's being displayed in the chart
-    // If historyDays exists (even if empty), use it; otherwise fall back to aggregated
-    const chartData = historyDays !== null ? historyDays : (profile ? aggregated(profile).days : []);
+    // Use client-side aggregation to ensure accurate local-day counting
+    const chartData = profile ? aggregated(profile).days : [];
     
     if (chartData && chartData.length > 0) {
       const totalWords = chartData.reduce((sum, day) => sum + day.value, 0);
@@ -1574,7 +1573,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               })()}
             </p>
           </div>
-          <Sparkline data={(historyDays && historyDays.length ? historyDays : aggregated(profile).days)} height={260} color="#4f46e5" />
+          <Sparkline data={aggregated(profile).days} height={260} color="#4f46e5" />
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
             <MiniStat title="Words (found)" value={historyMetrics.totalWords.toLocaleString()} />
             <MiniStat title="Avg/Day" value={historyMetrics.avgPerDay} />
