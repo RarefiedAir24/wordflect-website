@@ -146,10 +146,43 @@ export default function Profile() {
   // Backend history integration
   const [, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
   
+  // Load detailed stats (includes sessionHistory) for real data mapping
+  type Session = { startTime?: string; timestamp?: string; duration?: number };
+  type DetailedStats = {
+    sessionHistory?: Session[];
+    totalPlayTimeMinutes?: number;
+    daysLoggedIn?: number;
+    currentStreakDays?: number;
+    longestStreakDays?: number;
+    lastLoginAt?: string;
+  };
+  const [detailedStats, setDetailedStats] = useState<DetailedStats | null>(null);
+
+  useEffect(() => {
+    const loadDetails = async () => {
+      if (!apiService.isAuthenticated()) return;
+      try {
+        const res = await apiService.getDetailedStatistics();
+        // Accept known keys only
+        const ds: DetailedStats = {
+          sessionHistory: (res as any)?.sessionHistory || [],
+          totalPlayTimeMinutes: (res as any)?.totalPlayTimeMinutes,
+          daysLoggedIn: (res as any)?.daysLoggedIn,
+          currentStreakDays: (res as any)?.currentStreakDays,
+          longestStreakDays: (res as any)?.longestStreakDays,
+          lastLoginAt: (res as any)?.lastLoginAt,
+        };
+        setDetailedStats(ds);
+      } catch (e) {
+        console.error('Failed to load detailed statistics:', e);
+      }
+    };
+    loadDetails();
+  }, []);
+
   // Usage metrics strictly from real data, with fallbacks computed from sessionHistory if needed
   const usageMetrics = React.useMemo(() => {
-    type Session = { startTime?: string; timestamp?: string; duration?: number };
-    const sh: Session[] = (profile as unknown as { sessionHistory?: Session[] })?.sessionHistory || [];
+    const sh: Session[] = detailedStats?.sessionHistory || [];
     const parseTs = (s: Session) => (s?.startTime || s?.timestamp ? new Date((s.startTime || s.timestamp) as string) : null);
     const durationsMs = sh.map(s => (typeof s.duration === 'number' ? s.duration : 0));
     const totalMsFromSessions = durationsMs.reduce((a, b) => a + b, 0);
@@ -190,11 +223,11 @@ export default function Profile() {
       return new Date(Math.max(...dates.map(d => d.getTime())));
     })();
 
-    const totalPlayTimeMinutes = profile?.totalPlayTimeMinutes ?? totalMinFromSessions ?? undefined;
-    const daysLoggedIn = profile?.daysLoggedIn ?? daysActiveFromSessions ?? undefined;
-    const currentStreakDays = profile?.currentStreakDays ?? (sortedDays.length ? current : undefined);
-    const longestStreakDays = profile?.longestStreakDays ?? (sortedDays.length ? longest : undefined);
-    const lastLoginAt = profile?.lastLoginAt ?? (lastLoginFromSessions ? lastLoginFromSessions.toISOString() : undefined);
+    const totalPlayTimeMinutes = detailedStats?.totalPlayTimeMinutes ?? profile?.totalPlayTimeMinutes ?? totalMinFromSessions ?? undefined;
+    const daysLoggedIn = detailedStats?.daysLoggedIn ?? profile?.daysLoggedIn ?? daysActiveFromSessions ?? undefined;
+    const currentStreakDays = detailedStats?.currentStreakDays ?? profile?.currentStreakDays ?? (sortedDays.length ? current : undefined);
+    const longestStreakDays = detailedStats?.longestStreakDays ?? profile?.longestStreakDays ?? (sortedDays.length ? longest : undefined);
+    const lastLoginAt = detailedStats?.lastLoginAt ?? profile?.lastLoginAt ?? (lastLoginFromSessions ? lastLoginFromSessions.toISOString() : undefined);
     const avgSessionMinutes = (() => {
       if (totalPlayTimeMinutes && profile?.gamesPlayed) return Math.round(totalPlayTimeMinutes / profile.gamesPlayed);
       if (totalMinFromSessions && gamesFromSessions) return Math.round(totalMinFromSessions / gamesFromSessions);
@@ -202,7 +235,7 @@ export default function Profile() {
     })();
 
     return { totalPlayTimeMinutes, daysLoggedIn, currentStreakDays, longestStreakDays, lastLoginAt, avgSessionMinutes };
-  }, [profile]);
+  }, [profile, detailedStats]);
 
   // Calculate history metrics for the selected period - make it reactive to range changes
   const historyMetrics = React.useMemo(() => {
