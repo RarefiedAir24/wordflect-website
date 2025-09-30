@@ -3299,7 +3299,6 @@ function RadialProgress({ percent }: { percent: number }) {
 
 function Sparkline({ data, height = 200, color = '#4f46e5' }: { data: { date: Date; value: number }[]; height?: number; color?: string }) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
-  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
   // Selected point persists on click to show exact value even when axis ticks skip values
   const [selectedPoint, setSelectedPoint] = useState<number | null>(null);
   
@@ -3324,18 +3323,12 @@ function Sparkline({ data, height = 200, color = '#4f46e5' }: { data: { date: Da
   const labelInterval = Math.max(1, Math.floor(data.length / 6));
   const dateLabels = data.filter((_, i) => i % labelInterval === 0 || i === data.length - 1);
   
-  const handlePointHover = (index: number, event: React.MouseEvent) => {
+  const handlePointHover = (index: number) => {
     setHoveredPoint(index);
-    const rect = event.currentTarget.getBoundingClientRect();
-    setTooltipPosition({
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top - 10
-    });
   };
   
   const handlePointLeave = () => {
     setHoveredPoint(null);
-    setTooltipPosition(null);
   };
   
   const handlePointClick = (index: number) => {
