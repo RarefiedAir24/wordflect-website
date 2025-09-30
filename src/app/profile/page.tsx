@@ -3338,10 +3338,12 @@ function Sparkline({ data, height = 160, color = '#4f46e5' }: { data: { date: Da
   
   return (
     <div className="w-full bg-white rounded-lg p-4 border border-gray-200">
-      <div className="w-full overflow-x-auto">
+      <div className="w-full overflow-hidden">
         <svg 
-          width={width} 
-          height={height} 
+          width="100%"
+          height={height}
+          viewBox={`0 0 ${width} ${height}`}
+          preserveAspectRatio="xMidYMid meet"
           className="block cursor-pointer"
           onMouseLeave={handlePointLeave}
         >
