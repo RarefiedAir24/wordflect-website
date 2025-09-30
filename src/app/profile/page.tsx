@@ -66,11 +66,14 @@ export default function Profile() {
     type WordEntry = { word: string; date: Date };
     const entries: WordEntry[] = p.allFoundWords
       .map((w) => {
-        if (typeof w === 'string') return { word: w, date: new Date() };
-        const d = w.date ? new Date(w.date) : new Date();
-        return { word: w.word, date: isNaN(d.getTime()) ? new Date() : d };
+        // Only include entries with a valid date to avoid attributing undated words to "today"
+        if (typeof w === 'string') return null; // skip undated string entries
+        if (!w.date) return null; // skip if no date
+        const d = new Date(w.date);
+        if (isNaN(d.getTime())) return null; // skip invalid dates
+        return { word: w.word, date: d } as WordEntry;
       })
-      .filter((e) => !!e.word);
+      .filter((e): e is WordEntry => !!e && !!e.word);
 
     const now = new Date();
     const start = (() => {
