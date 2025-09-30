@@ -2290,27 +2290,27 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                   <div className="mt-3 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-indigo-700">Words Found:</span>
-                      <span className="font-semibold text-indigo-900">{periodData.wordsFound}</span>
+                      <span className="font-semibold text-indigo-900">{periodData?.wordsFound ?? 0}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-indigo-700">Games Played:</span>
-                      <span className="font-semibold text-indigo-900">{periodData.gamesPlayed}</span>
+                      <span className="font-semibold text-indigo-900">{periodData?.gamesPlayed ?? 0}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-indigo-700">Avg. per Game:</span>
-                      <span className="font-semibold text-indigo-900">{periodData.avgPerGame}</span>
+                      <span className="font-semibold text-indigo-900">{periodData?.avgPerGame ?? 0}</span>
                     </div>
-                    {periodData.wordsFound > 0 && periodData.gamesPlayed === 0 && (
+                    {periodData?.wordsFound > 0 && (periodData?.gamesPlayed ?? 0) === 0 && (
                       <p className="text-[11px] text-indigo-700">Words recorded without session data (from historical records).</p>
                     )}
                   </div>
                   <div className="mt-3 flex items-center gap-2">
                     <div className="w-full bg-indigo-200 rounded-full h-2">
-                      <div className="bg-indigo-500 h-2 rounded-full" style={{ width: `${periodData.performance}%` }}></div>
+                      <div className="bg-indigo-500 h-2 rounded-full" style={{ width: `${periodData?.performance ?? 0}%` }}></div>
                     </div>
-                    <span className="text-xs text-indigo-600 font-semibold">{periodData.performance}%</span>
+                    <span className="text-xs text-indigo-600 font-semibold">{periodData?.performance ?? 0}%</span>
                   </div>
-                  <p className="text-xs text-indigo-700 mt-2">{periodData.status}</p>
+                  <p className="text-xs text-indigo-700 mt-2">{periodData?.status ?? ''}</p>
                 </div>
               );
             }
@@ -2330,27 +2330,27 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-indigo-700">Words Found:</span>
-                    <span className="font-semibold text-indigo-900">{periodData.wordsFound}</span>
+                    <span className="font-semibold text-indigo-900">{periodData?.wordsFound ?? 0}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-indigo-700">Games Played:</span>
-                    <span className="font-semibold text-indigo-900">{periodData.gamesPlayed}</span>
+                    <span className="font-semibold text-indigo-900">{periodData?.gamesPlayed ?? 0}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-indigo-700">Avg. per Game:</span>
-                    <span className="font-semibold text-indigo-900">{periodData.avgPerGame}</span>
+                    <span className="font-semibold text-indigo-900">{periodData?.avgPerGame ?? 0}</span>
                   </div>
-                  {periodData.wordsFound > 0 && periodData.gamesPlayed === 0 && (
+                  {periodData?.wordsFound > 0 && (periodData?.gamesPlayed ?? 0) === 0 && (
                     <p className="text-[11px] text-indigo-700">Words recorded without session data (from historical records).</p>
                   )}
                 </div>
                 <div className="mt-3 flex items-center gap-2">
                   <div className="w-full bg-indigo-200 rounded-full h-2">
-                    <div className="bg-indigo-500 h-2 rounded-full" style={{ width: `${periodData.performance}%` }}></div>
+                    <div className="bg-indigo-500 h-2 rounded-full" style={{ width: `${periodData?.performance ?? 0}%` }}></div>
                   </div>
-                  <span className="text-xs text-indigo-600 font-semibold">{periodData.performance}%</span>
+                  <span className="text-xs text-indigo-600 font-semibold">{periodData?.performance ?? 0}%</span>
                 </div>
-                <p className="text-xs text-indigo-700 mt-2">{periodData.status}</p>
+                <p className="text-xs text-indigo-700 mt-2">{periodData?.status ?? ''}</p>
               </div>
             );
           })()}
@@ -2393,27 +2393,27 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-amber-700">Words Found:</span>
-                    <span className="font-semibold text-amber-900">{periodData.wordsFound}</span>
+                    <span className="font-semibold text-amber-900">{periodData?.wordsFound ?? 0}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-amber-700">Games Played:</span>
-                    <span className="font-semibold text-amber-900">{periodData.gamesPlayed}</span>
+                    <span className="font-semibold text-amber-900">{periodData?.gamesPlayed ?? 0}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-amber-700">Avg. per Game:</span>
-                    <span className="font-semibold text-amber-900">{periodData.avgPerGame}</span>
+                    <span className="font-semibold text-amber-900">{periodData?.avgPerGame ?? 0}</span>
                   </div>
-                  {periodData.wordsFound > 0 && periodData.gamesPlayed === 0 && (
+                  {periodData?.wordsFound > 0 && (periodData?.gamesPlayed ?? 0) === 0 && (
                     <p className="text-[11px] text-amber-700">Words recorded without session data (from historical records).</p>
                   )}
                 </div>
                 <div className="mt-3 flex items-center gap-2">
                   <div className="w-full bg-amber-200 rounded-full h-2">
-                    <div className="bg-amber-500 h-2 rounded-full" style={{ width: `${periodData.performance}%` }}></div>
+                    <div className="bg-amber-500 h-2 rounded-full" style={{ width: `${periodData?.performance ?? 0}%` }}></div>
                   </div>
-                  <span className="text-xs text-amber-600 font-semibold">{periodData.performance}%</span>
+                  <span className="text-xs text-amber-600 font-semibold">{periodData?.performance ?? 0}%</span>
                 </div>
-                <p className="text-xs text-amber-700 mt-2">{periodData.status}</p>
+                <p className="text-xs text-amber-700 mt-2">{periodData?.status ?? ''}</p>
               </div>
             );
           })()}
@@ -2455,27 +2455,27 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-blue-700">Words Found:</span>
-                    <span className="font-semibold text-blue-900">{periodData.wordsFound}</span>
+                    <span className="font-semibold text-blue-900">{periodData?.wordsFound ?? 0}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-blue-700">Games Played:</span>
-                    <span className="font-semibold text-blue-900">{periodData.gamesPlayed}</span>
+                    <span className="font-semibold text-blue-900">{periodData?.gamesPlayed ?? 0}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-blue-700">Avg. per Game:</span>
-                    <span className="font-semibold text-blue-900">{periodData.avgPerGame}</span>
+                    <span className="font-semibold text-blue-900">{periodData?.avgPerGame ?? 0}</span>
                   </div>
-                  {periodData.wordsFound > 0 && periodData.gamesPlayed === 0 && (
+                  {periodData?.wordsFound > 0 && (periodData?.gamesPlayed ?? 0) === 0 && (
                     <p className="text-[11px] text-blue-700">Words recorded without session data (from historical records).</p>
                   )}
                 </div>
                 <div className="mt-3 flex items-center gap-2">
                   <div className="w-full bg-blue-200 rounded-full h-2">
-                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${periodData.performance}%` }}></div>
+                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${periodData?.performance ?? 0}%` }}></div>
                   </div>
-                  <span className="text-xs text-blue-600 font-semibold">{periodData.performance}%</span>
+                  <span className="text-xs text-blue-600 font-semibold">{periodData?.performance ?? 0}%</span>
                 </div>
-                <p className="text-xs text-blue-700 mt-2">{periodData.status}</p>
+                <p className="text-xs text-blue-700 mt-2">{periodData?.status ?? ''}</p>
               </div>
             );
           })()}
@@ -2517,27 +2517,27 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-green-700">Words Found:</span>
-                    <span className="font-semibold text-green-900">{periodData.wordsFound}</span>
+                    <span className="font-semibold text-green-900">{periodData?.wordsFound ?? 0}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-green-700">Games Played:</span>
-                    <span className="font-semibold text-green-900">{periodData.gamesPlayed}</span>
+                    <span className="font-semibold text-green-900">{periodData?.gamesPlayed ?? 0}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-green-700">Avg. per Game:</span>
-                    <span className="font-semibold text-green-900">{periodData.avgPerGame}</span>
+                    <span className="font-semibold text-green-900">{periodData?.avgPerGame ?? 0}</span>
                   </div>
-                  {periodData.wordsFound > 0 && periodData.gamesPlayed === 0 && (
+                  {periodData?.wordsFound > 0 && (periodData?.gamesPlayed ?? 0) === 0 && (
                     <p className="text-[11px] text-green-700">Words recorded without session data (from historical records).</p>
                   )}
                 </div>
                 <div className="mt-3 flex items-center gap-2">
                   <div className="w-full bg-green-200 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full" style={{ width: `${periodData.performance}%` }}></div>
+                    <div className="bg-green-500 h-2 rounded-full" style={{ width: `${periodData?.performance ?? 0}%` }}></div>
                   </div>
-                  <span className="text-xs text-green-600 font-semibold">{periodData.performance}%</span>
+                  <span className="text-xs text-green-600 font-semibold">{periodData?.performance ?? 0}%</span>
                 </div>
-                <p className="text-xs text-green-700 mt-2">{periodData.status}</p>
+                <p className="text-xs text-green-700 mt-2">{periodData?.status ?? ''}</p>
               </div>
             );
           })()}
@@ -2579,27 +2579,27 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-purple-700">Words Found:</span>
-                    <span className="font-semibold text-purple-900">{periodData.wordsFound}</span>
+                    <span className="font-semibold text-purple-900">{periodData?.wordsFound ?? 0}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-purple-700">Games Played:</span>
-                    <span className="font-semibold text-purple-900">{periodData.gamesPlayed}</span>
+                    <span className="font-semibold text-purple-900">{periodData?.gamesPlayed ?? 0}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-purple-700">Avg. per Game:</span>
-                    <span className="font-semibold text-purple-900">{periodData.avgPerGame || '-'}</span>
+                    <span className="font-semibold text-purple-900">{periodData?.avgPerGame ?? '-'}</span>
                   </div>
-                  {periodData.wordsFound > 0 && periodData.gamesPlayed === 0 && (
+                  {periodData?.wordsFound > 0 && (periodData?.gamesPlayed ?? 0) === 0 && (
                     <p className="text-[11px] text-purple-700">Words recorded without session data (from historical records).</p>
                   )}
                 </div>
                 <div className="mt-3 flex items-center gap-2">
                   <div className="w-full bg-purple-200 rounded-full h-2">
-                    <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${periodData.performance}%` }}></div>
+                    <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${periodData?.performance ?? 0}%` }}></div>
                   </div>
-                  <span className="text-xs text-purple-600 font-semibold">{periodData.performance}%</span>
+                  <span className="text-xs text-purple-600 font-semibold">{periodData?.performance ?? 0}%</span>
                 </div>
-                <p className="text-xs text-purple-700 mt-2">{periodData.status}</p>
+                <p className="text-xs text-purple-700 mt-2">{periodData?.status ?? ''}</p>
               </div>
             );
           })()}
