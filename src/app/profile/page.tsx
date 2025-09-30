@@ -3422,6 +3422,28 @@ function Sparkline({ data, height = 200, color = '#4f46e5' }: { data: { date: Da
           </g>
         ))}
 
+        {/* Hover value label as SVG (more reliable than HTML overlay) */}
+        {hoveredPoint !== null && points[hoveredPoint] && (
+          <g>
+            {(() => {
+              const p = points[hoveredPoint];
+              const labelY = Math.max(16, p.y - 28);
+              const title = p.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+              const valueLabel = `${p.data.value} words`;
+              const textWidth = Math.max(title.length, valueLabel.length) * 7 + 20; // rough estimate
+              const rectX = p.x - textWidth / 2;
+              const rectY = labelY - 26;
+              return (
+                <g>
+                  <rect x={rectX} y={rectY} rx="8" ry="8" width={textWidth} height={32} fill="#111827" opacity="0.9" />
+                  <text x={p.x} y={rectY + 14} textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="700">{title}</text>
+                  <text x={p.x} y={rectY + 26} textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">{valueLabel}</text>
+                </g>
+              );
+            })()}
+          </g>
+        )}
+
         {/* Pinned value label for selected point */}
         {selectedPoint !== null && points[selectedPoint] && (
           <g>
@@ -3509,29 +3531,6 @@ function Sparkline({ data, height = 200, color = '#4f46e5' }: { data: { date: Da
           });
         })()}
       </svg>
-      
-      {/* Interactive Tooltip - Enhanced styling */}
-      {hoveredPoint !== null && tooltipPosition && (
-        <div 
-          className="absolute bg-gray-900 text-white text-sm rounded-xl px-4 py-3 shadow-2xl pointer-events-none z-10 border border-gray-700"
-          style={{
-            left: tooltipPosition.x - 60,
-            top: tooltipPosition.y - 50,
-            transform: 'translateX(-50%)'
-          }}
-        >
-          <div className="font-bold text-base">
-            {points[hoveredPoint].data.date.toLocaleDateString('en-US', { 
-              month: 'short', 
-              day: 'numeric',
-              year: 'numeric'
-            })}
-          </div>
-          <div className="text-blue-300 font-semibold text-lg">
-            {points[hoveredPoint].data.value} words found
-          </div>
-        </div>
-      )}
       </div>
     </div>
   );
