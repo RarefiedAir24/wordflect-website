@@ -579,7 +579,7 @@ export default function Profile() {
   };
 
   const handleAiQuery = () => {
-    if (!aiQuery.trim()) return;
+    if (!aiQuery.trim() || !profile) return;
     
     const query = aiQuery.toLowerCase();
     let response = '';
@@ -1328,7 +1328,7 @@ export default function Profile() {
             )}
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
@@ -3524,65 +3524,3 @@ function generateInsights(p: UserProfile): string[] {
   insights.push(`Gem efficiency tip: Convert surplus points into gems when events start.`);
   return insights.slice(0, 4);
 }
-
-      {/* AI Assistant Modal */}
-      {aiModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900">AI Assistant</h3>
-              <button 
-                onClick={() => {
-                  setAiModalOpen(false);
-                  setAiQuery('');
-                  setAiResponse('');
-                }}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-3">
-                Ask me about your stats! Try: How many words have I found? or What&apos;s my win rate?
-              </p>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={aiQuery}
-                  onChange={(e) => setAiQuery(e.target.value)}
-                  placeholder="Ask about your stats..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleAiQuery(); }}
-                />
-                <button
-                  onClick={handleAiQuery}
-                  className="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition-colors"
-                >
-                  Ask
-                </button>
-              </div>
-            </div>
-            
-            {aiResponse && (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
-                  </div>
-                  <p className="text-gray-800 font-medium">{aiResponse}</p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      ) : null}
-    </div>
-  );
-}
-// Force deployment Sun Sep 28 08:40:29 EDT 2025
