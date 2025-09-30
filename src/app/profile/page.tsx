@@ -1571,7 +1571,7 @@ ${debugData.error ? `\n⚠️ Debug endpoint error: ${debugData.error}` : ''}`;
               })()}
             </p>
           </div>
-          <Sparkline data={(historyDays && historyDays.length ? historyDays : aggregated(profile).days)} height={220} color="#4f46e5" />
+          <Sparkline data={(historyDays && historyDays.length ? historyDays : aggregated(profile).days)} height={260} color="#4f46e5" />
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
             <MiniStat title="Words (found)" value={historyMetrics.totalWords.toLocaleString()} />
             <MiniStat title="Avg/Day" value={historyMetrics.avgPerDay} />
@@ -3297,7 +3297,7 @@ function RadialProgress({ percent }: { percent: number }) {
   );
 }
 
-function Sparkline({ data, height = 200, color = '#4f46e5' }: { data: { date: Date; value: number }[]; height?: number; color?: string }) {
+function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Date; value: number }[]; height?: number; color?: string }) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
   // Selected point persists on click to show exact value even when axis ticks skip values
   const [selectedPoint, setSelectedPoint] = useState<number | null>(null);
@@ -3305,7 +3305,7 @@ function Sparkline({ data, height = 200, color = '#4f46e5' }: { data: { date: Da
   const chartHeight = height - 80; // Much more space for labels
   const leftMargin = 80; // Slightly reduced to free up width
   const rightMargin = 30;
-  const topMargin = 30;
+  const topMargin = 60; // extra headroom for hover labels
   const bottomMargin = 60; // More space for X labels
   const width = Math.min(1024, Math.max(520, data.length * 10) + leftMargin + rightMargin); // Wider cap and base
   const max = Math.max(1, ...data.map(d => d.value));
