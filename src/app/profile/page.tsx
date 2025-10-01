@@ -222,11 +222,17 @@ export default function Profile() {
         if (current > longest) longest = current;
         prev = d;
       }
-      // Current streak must end on today (UTC). If last active day isn't today, reset to 0
+      // Current streak logic: 
+      // - If last active day is today → keep current streak
+      // - If last active day is yesterday → keep current streak (streak continues until today ends)
+      // - If last active day is 2+ days ago → reset to 0
       const todayUTC = new Date();
+      const yesterdayUTC = new Date(todayUTC.getTime() - 24*60*60*1000);
       const todayKey = dayKey(todayUTC);
+      const yesterdayKey = dayKey(yesterdayUTC);
       const lastKey = sortedDays[sortedDays.length - 1];
-      if (lastKey !== todayKey) {
+      
+      if (lastKey !== todayKey && lastKey !== yesterdayKey) {
         current = 0;
       }
     }
