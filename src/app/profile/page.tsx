@@ -285,9 +285,11 @@ export default function Profile() {
 
         // Map UI range to backend range param
         const mapRange = (r: typeof range): string | undefined => {
-          if (r === '7D') return '7d';
-          if (r === '30D') return '30d';
-          if (r === 'ALL') return 'all';
+          if (r === '7d') return '7d';
+          if (r === '30d') return '30d';
+          if (r === '90d') return '90d';
+          if (r === '1y') return '1y';
+          if (r === 'all') return 'all';
           if (r === 'custom') return 'all';
           return undefined;
         };
