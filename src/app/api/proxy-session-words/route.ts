@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://fo0rh1w8m9.execute-api.us-east-2.amazonaws.com/prod';
 
+// Force Vercel rebuild - this is a new proxy route for session words
+
 export async function GET(request: NextRequest) {
   try {
     console.log('🟢 Proxy session words route called');
