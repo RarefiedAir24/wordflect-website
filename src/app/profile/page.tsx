@@ -148,6 +148,7 @@ export default function Profile() {
 
   // Backend history integration
   const [, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
+  const [sessionWordsDays, setSessionWordsDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
   
   // Load detailed stats (includes sessionHistory) for real data mapping
   type Session = { startTime?: string; timestamp?: string; duration?: number };
@@ -317,6 +318,51 @@ export default function Profile() {
       }
     };
     load();
+  }, [range, customDateRange]);
+
+  // Load session words data
+  useEffect(() => {
+    const loadSessionWords = async () => {
+      try {
+        if (!apiService.isAuthenticated()) return;
+        
+        // Map UI range to backend range param
+        const mapRange = (r: typeof range): string | undefined => {
+          if (r === '7d') return '7d';
+          if (r === '30d') return '30d';
+          if (r === '90d') return '90d';
+          if (r === '1y') return '1y';
+          if (r === 'all') return 'all';
+          if (r === 'custom') return 'all'; // Custom range fetches all and filters client-side
+          return undefined;
+        };
+
+        const res = await apiService.getUserSessionWords({ range: mapRange(range) });
+        const daysFromApi = Array.isArray(res.days) ? res.days.map(d => ({
+          date: new Date(d.date),
+          value: typeof d.value === 'number' ? d.value : 0,
+          avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
+        })) : [];
+        
+        // For custom range, filter client-side after getting all data
+        if (range === "custom" && customDateRange.start && customDateRange.end) {
+          const startDate = new Date(customDateRange.start + 'T00:00:00');
+          const endDate = new Date(customDateRange.end + 'T23:59:59');
+          
+          const filteredData = daysFromApi.filter(d => {
+            const dataDate = new Date(d.date);
+            return dataDate >= startDate && dataDate <= endDate;
+          });
+          setSessionWordsDays(filteredData);
+        } else {
+          setSessionWordsDays(daysFromApi);
+        }
+      } catch (error) {
+        console.warn('Falling back to client aggregation for session words:', error);
+        setSessionWordsDays(null);
+      }
+    };
+    loadSessionWords();
   }, [range, customDateRange]);
 
 
@@ -1550,6 +1596,126 @@ export default function Profile() {
             <div className="flex items-center justify-between"><span>Leaderboard Placements</span><span className="font-semibold">{profile.leaderboardPlacements}</span></div>
             <div className="flex items-center justify-between"><span>Current Level</span><span className="font-semibold">{profile.highestLevel}</span></div>
           </div>
+        </div>
+      </div>
+
+      {/* Session Words History */}
+      <div className="mt-8 bg-white rounded-xl p-6 shadow-lg border border-green-100">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h3 className="font-bold text-xl text-green-950">Session Words History</h3>
+            <p className="text-sm text-green-700">Total words found per day across all game sessions (including duplicates)</p>
+          </div>
+          <div className="flex items-center gap-2">
+            {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
+              <button key={r} onClick={() => setRange(r)} className={`px-2 py-1 rounded text-sm border ${range===r? 'bg-green-600 text-white border-green-600':'bg-white text-green-800 border-green-200 hover:bg-green-50'}`}>
+                {r.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        {/* Custom Date Range Picker */}
+        {range === "custom" && (
+          <div className="mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-center gap-4">
+              <div>
+                <label className="block text-sm font-medium text-green-700 mb-1">Start Date</label>
+                  <input 
+                    type="date" 
+                    value={customDateRange.start}
+                    onChange={(e) => setCustomDateRange(prev => ({ ...prev, start: e.target.value }))}
+                    max={new Date().toISOString().split('T')[0]}
+                    className="px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white text-gray-900"
+                  />
+            </div>
+              <div>
+                <label className="block text-sm font-medium text-green-700 mb-1">End Date</label>
+                <input 
+                  type="date" 
+                  value={customDateRange.end}
+                  onChange={(e) => setCustomDateRange(prev => ({ ...prev, end: e.target.value }))}
+                  max={new Date().toISOString().split('T')[0]}
+                  className="px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white text-gray-900"
+                />
+              </div>
+              <div className="flex items-end">
+                <button 
+                  onClick={() => {
+                    if (customDateRange.start && customDateRange.end) {
+                      const startDate = new Date(customDateRange.start);
+                      const endDate = new Date(customDateRange.end);
+                      
+                      // Validate dates
+                      if (startDate > endDate) {
+                        alert('Start date must be before end date');
+                        return;
+                      }
+                      const now = new Date();
+                      if (endDate > now) {
+                        alert('End date cannot be in the future');
+                        return;
+                      }
+                      
+                      console.log('Custom range selected:', customDateRange);
+                      // The useEffect will trigger when customDateRange changes
+                    }
+                  }}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Date Range Display */}
+        <div className="mb-4 text-center">
+          <p className="text-sm text-green-600 font-medium">
+            {(() => {
+              if (range === "custom" && customDateRange.start && customDateRange.end) {
+                const startDate = new Date(customDateRange.start).toLocaleDateString();
+                const endDate = new Date(customDateRange.end).toLocaleDateString();
+                return `Custom Range: ${startDate} - ${endDate}`;
+              } else if (range === "7d") {
+                const endDate = new Date();
+                const startDate = new Date();
+                startDate.setDate(endDate.getDate() - 7);
+                return `Last 7 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+              } else if (range === "30d") {
+                const endDate = new Date();
+                const startDate = new Date();
+                startDate.setDate(endDate.getDate() - 30);
+                return `Last 30 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+              } else if (range === "90d") {
+                const endDate = new Date();
+                const startDate = new Date();
+                startDate.setDate(endDate.getDate() - 90);
+                return `Last 90 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+              } else if (range === "1y") {
+                const endDate = new Date();
+                const startDate = new Date();
+                startDate.setFullYear(endDate.getFullYear() - 1);
+                return `Last Year: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+              } else if (range === "all") {
+                return "All Time Data";
+              }
+              return "Select a date range";
+            })()}
+          </p>
+        </div>
+        
+        <Sparkline data={sessionWordsDays || []} height={260} color="#10b981" />
+        <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+          <MiniStat title="Session Words" value={sessionWordsDays ? sessionWordsDays.reduce((sum, day) => sum + day.value, 0).toLocaleString() : '0'} />
+          <MiniStat title="Avg/Day" value={sessionWordsDays && sessionWordsDays.length > 0 ? Math.round(sessionWordsDays.reduce((sum, day) => sum + day.value, 0) / sessionWordsDays.length * 10) / 10 : 0} />
+          <MiniStat title="Peak Day" value={sessionWordsDays && sessionWordsDays.length > 0 ? Math.max(...sessionWordsDays.map(d => d.value)) : 0} />
         </div>
       </div>
 

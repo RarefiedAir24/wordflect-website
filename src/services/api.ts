@@ -605,6 +605,48 @@ class ApiService {
       throw error;
     }
   }
+
+  // Fetch user session words data
+  async getUserSessionWords(params: { range?: string } = {}): Promise<{ days: Array<{ date: string; value: number; avgLen?: number }> }> {
+    try {
+      if (this.isTokenExpired()) {
+        console.warn('Token is expired, clearing auth data');
+        await this.signOut();
+        throw new Error('Session expired. Please sign in again.');
+      }
+
+      const searchParams = new URLSearchParams();
+      if (params.range) searchParams.set('range', params.range);
+
+      const fullUrl = `/api/proxy-session-words${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      console.log('📤 Sending getUserSessionWords request:', { url: fullUrl, params });
+      
+      const response = await this.makeRequest(fullUrl, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      
+      console.log('📥 getUserSessionWords response status:', response.status);
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          console.warn('401 response, clearing auth data');
+          await this.signOut();
+          throw new Error('Session expired. Please sign in again.');
+        }
+        const errorData = await response.json();
+        console.error('❌ getUserSessionWords error response:', errorData);
+        throw new Error(errorData.message || 'Failed to fetch session words data');
+      }
+      
+      const result = await response.json();
+      console.log('✅ getUserSessionWords success:', result);
+      return result;
+    } catch (error) {
+      console.error('Get user session words error:', error);
+      throw error;
+    }
+  }
 }
 
 export const apiService = new ApiService(); 
