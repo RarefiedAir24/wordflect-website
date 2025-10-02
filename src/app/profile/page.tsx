@@ -325,7 +325,11 @@ export default function Profile() {
   useEffect(() => {
     const loadSessionWords = async () => {
       try {
-        if (!apiService.isAuthenticated()) return;
+        console.log('🟢 Loading session words data...');
+        if (!apiService.isAuthenticated()) {
+          console.log('🟢 Not authenticated, skipping session words load');
+          return;
+        }
         
         // Map UI range to backend range param
         const mapRange = (r: typeof range): string | undefined => {
@@ -338,12 +342,19 @@ export default function Profile() {
           return undefined;
         };
 
-        const res = await apiService.getUserSessionWords({ range: mapRange(range) });
+        const mappedRange = mapRange(range);
+        console.log('🟢 Mapped range:', mappedRange);
+        
+        const res = await apiService.getUserSessionWords({ range: mappedRange });
+        console.log('🟢 Session words API response:', res);
+        
         const daysFromApi = Array.isArray(res.days) ? res.days.map(d => ({
           date: new Date(d.date),
           value: typeof d.value === 'number' ? d.value : 0,
           avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
         })) : [];
+        
+        console.log('🟢 Processed session words days:', daysFromApi);
         
         // For custom range, filter client-side after getting all data
         if (range === "custom" && customDateRange.start && customDateRange.end) {
@@ -354,11 +365,14 @@ export default function Profile() {
             const dataDate = new Date(d.date);
             return dataDate >= startDate && dataDate <= endDate;
           });
+          console.log('🟢 Filtered session words data:', filteredData);
           setSessionWordsDays(filteredData);
         } else {
+          console.log('🟢 Setting session words days:', daysFromApi);
           setSessionWordsDays(daysFromApi);
         }
       } catch (error) {
+        console.error('🟢 Session words error:', error);
         console.warn('Falling back to client aggregation for session words:', error);
         setSessionWordsDays(null);
       }
