@@ -147,7 +147,7 @@ export default function Profile() {
   }, [range, customDateRange]); // Add dependencies for the aggregated function
 
   // Backend history integration
-  const [, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
+  const [historyDays, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
   const [sessionWordsDays, setSessionWordsDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
   
   // Load detailed stats (includes sessionHistory) for real data mapping
@@ -260,8 +260,10 @@ export default function Profile() {
 
   // Calculate history metrics for the selected period - make it reactive to range changes
   const historyMetrics = React.useMemo(() => {
-    // Use client-side aggregation to ensure accurate local-day counting
-    const chartData = profile ? aggregated(profile).days : [];
+    // Prefer backend history (sourced from dailyStats) when available
+    const chartData = historyDays && historyDays.length > 0
+      ? historyDays
+      : (profile ? aggregated(profile).days : []);
     
     if (chartData && chartData.length > 0) {
       const totalWords = chartData.reduce((sum, day) => sum + day.value, 0);
@@ -275,42 +277,41 @@ export default function Profile() {
     }
     
     return { totalWords: 0, avgPerDay: 0, avgLength: 0 };
-  }, [profile, aggregated]); // historyDays not used in calc; remove from deps
+  }, [profile, aggregated, historyDays]);
 
   useEffect(() => {
     const load = async () => {
       try {
         if (!apiService.isAuthenticated()) return;
-        
-        // For custom range, we need to get all data and filter client-side
-        // since the API doesn't support custom date ranges
-        if (range === "custom" && customDateRange.start && customDateRange.end) {
-          const res = await apiService.getUserHistory({ range: "all" });
-          const allData = Array.isArray(res.days) ? res.days.map(d => ({
-            date: new Date(d.date),
-            value: typeof d.value === 'number' ? d.value : 0,
-            avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
-          })) : [];
-          
-          // Filter data by custom date range
+
+        // Map UI range to backend range param
+        const mapRange = (r: typeof range): string | undefined => {
+          if (r === '7d') return '7d';
+          if (r === '30d') return '30d';
+          if (r === '90d') return '90d';
+          if (r === '1y') return '1y';
+          if (r === 'all') return 'all';
+          if (r === 'custom') return 'all';
+          return undefined;
+        };
+
+        const res = await apiService.getUserHistory({ range: mapRange(range) });
+        const daysFromApi = Array.isArray(res.days) ? res.days.map(d => ({
+          date: new Date(d.date),
+          value: typeof d.value === 'number' ? d.value : 0,
+          avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
+        })) : [];
+
+        if (range === 'custom' && customDateRange.start && customDateRange.end) {
           const startDate = new Date(customDateRange.start + 'T00:00:00');
           const endDate = new Date(customDateRange.end + 'T23:59:59');
-          
-          const filteredData = allData.filter(d => {
+          const filtered = daysFromApi.filter(d => {
             const dataDate = new Date(d.date);
             return dataDate >= startDate && dataDate <= endDate;
           });
-          
-          // If no data found, fall back to aggregated data
-          if (filteredData.length === 0) {
-            setHistoryDays(null); // This will trigger the fallback to aggregated data
-          } else {
-            setHistoryDays(filteredData);
-          }
+          setHistoryDays(filtered.length ? filtered : null);
         } else {
-          // Since 7D works correctly with aggregated data, use the same approach for all ranges
-          // This ensures consistency and avoids backend API issues
-          setHistoryDays(null); // This will trigger the aggregated function to be used
+          setHistoryDays(daysFromApi.length ? daysFromApi : null);
         }
       } catch (error) {
         console.warn('Falling back to client aggregation for history:', error);
@@ -1571,7 +1572,7 @@ export default function Profile() {
               })()}
             </p>
           </div>
-          <Sparkline data={aggregated(profile).days} height={260} color="#4f46e5" />
+          <Sparkline data={(historyDays && historyDays.length > 0) ? historyDays : aggregated(profile).days} height={260} color="#4f46e5" />
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
             <MiniStat title="Words (found)" value={profile.allFoundWords.length.toLocaleString()} />
             <MiniStat title="Avg/Day" value={historyMetrics.avgPerDay} />
