@@ -42,6 +42,9 @@ export async function GET(request: NextRequest) {
       method: 'GET',
       headers
     });
+    
+    console.log('Backend response status:', response.status);
+    console.log('Backend response headers:', Object.fromEntries(response.headers.entries()));
 
     console.log('🟢 Proxy session words - response status:', response.status);
     console.log('🟢 Proxy session words - response headers:', Object.fromEntries(response.headers.entries()));
