@@ -144,7 +144,7 @@ export default function Profile() {
     
     
     return { days, max, totalWords, avgPerDay, uniqueWords, avgLenAll, filtered };
-  }, [range, customDateRange]); // Add dependencies for the aggregated function
+  }, [range, customDateRange.start, customDateRange.end]); // Add dependencies for the aggregated function
 
   // Backend history integration
   const [historyDays, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
@@ -319,7 +319,7 @@ export default function Profile() {
       }
     };
     load();
-  }, [range, customDateRange]);
+  }, [range, customDateRange.start, customDateRange.end]);
 
   // Load session words data
   useEffect(() => {
@@ -379,7 +379,7 @@ export default function Profile() {
       }
     };
     loadSessionWords();
-  }, [range, customDateRange]);
+  }, [range, customDateRange.start, customDateRange.end]);
 
 
   const fetchProfile = useCallback(async () => {
