@@ -360,7 +360,7 @@ export default function Profile() {
         console.log('🟢 Session words API response.days length:', Array.isArray(res.days) ? res.days.length : 'not array');
         
         const daysFromApi = Array.isArray(res.days) ? res.days.map(d => ({
-          date: new Date(d.date),
+          date: new Date(d.date + 'T00:00:00'), // Parse as local time, not UTC
           value: typeof d.value === 'number' ? d.value : 0,
           avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
         })) : [];
@@ -368,6 +368,9 @@ export default function Profile() {
         console.log('🟢 Processed session words days:', daysFromApi);
         console.log('🟢 Processed session words days length:', daysFromApi.length);
         console.log('🟢 Processed session words days sample:', daysFromApi.slice(0, 3));
+        console.log('🟢 Last 3 days from API:', daysFromApi.slice(-3));
+        console.log('🟢 Today check - last day date:', daysFromApi[daysFromApi.length - 1]?.date);
+        console.log('🟢 Today check - last day value:', daysFromApi[daysFromApi.length - 1]?.value);
         
         // For custom range, filter client-side after getting all data
         if (range === "custom" && customDateRange.start && customDateRange.end) {
@@ -3609,6 +3612,14 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
         {/* Date labels - Better spacing and larger font */}
         {dateLabels.map((d, i) => {
           const originalIndex = data.findIndex(item => item.date.getTime() === d.date.getTime());
+          console.log('🔍 Date label debug:', { 
+            labelDate: d.date, 
+            labelDateString: d.date.toLocaleDateString(),
+            originalIndex,
+            dataLength: data.length,
+            lastDataPoint: data[data.length - 1]?.date,
+            lastDataPointString: data[data.length - 1]?.date?.toLocaleDateString()
+          });
           const x = (originalIndex / Math.max(1, data.length - 1)) * (width - leftMargin - rightMargin) + leftMargin;
           return (
             <g key={i}>

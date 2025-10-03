@@ -18,8 +18,10 @@ export async function GET(request: NextRequest) {
     
     const { searchParams } = new URL(request.url);
     const range = searchParams.get('range') || '';
+    const timezone = searchParams.get('timezone') || '';
     const targetUrl = new URL(`${API_BASE_URL}/user/session-words`);
     if (range) targetUrl.searchParams.set('range', range);
+    if (timezone) targetUrl.searchParams.set('timezone', timezone);
 
     console.log('🟢 Proxy session words - target URL:', targetUrl.toString());
 
