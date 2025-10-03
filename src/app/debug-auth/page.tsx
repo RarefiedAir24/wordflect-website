@@ -71,7 +71,7 @@ export default function DebugAuth() {
         console.log('🔍 API call successful:', response);
       } catch (apiError) {
         console.error('🔍 API call failed:', apiError);
-        apiTest = { success: false, error: apiError.message };
+        apiTest = { success: false, error: apiError instanceof Error ? apiError.message : 'Unknown error' };
       }
       
       setAuthState({
