@@ -7,7 +7,7 @@ interface SessionWordsResult {
   days?: Array<{
     date: string;
     value: number;
-    avgLen: number;
+    avgLen?: number;
   }>;
   success?: boolean;
   error?: string;
