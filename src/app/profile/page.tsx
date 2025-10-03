@@ -464,9 +464,9 @@ export default function Profile() {
       
       console.log('=== END REFRESH DEBUG ===');
       
-        setProfile(userProfile);
-        setLoading(false);
-      } catch (error) {
+      setProfile(userProfile);
+      setLoading(false);
+    } catch (error) {
         console.error("Profile fetch error:", error);
         setError(error instanceof Error ? error.message : "Failed to load profile");
         if (error instanceof Error && error.message.includes("Authentication failed")) {
