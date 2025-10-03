@@ -1,65 +1,79 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE_URL = 'https://fo0rh1w8m9.execute-api.us-east-2.amazonaws.com/prod';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://fo0rh1w8m9.execute-api.us-east-2.amazonaws.com/prod';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔍 DEBUG: Checking session words data directly');
+    console.log('🔍 DEBUG SESSION WORDS CALLED');
+    console.log('Request URL:', request.url);
+    console.log('Request method:', request.method);
     
-    // Get the authorization header from the request
+    // Log all headers
+    const headers = Object.fromEntries(request.headers.entries());
+    console.log('All headers:', headers);
+    
+    // Check for Authorization header
     const authHeader = request.headers.get('authorization');
-    console.log('🔍 DEBUG: Auth header present:', !!authHeader);
-    console.log('🔍 DEBUG: Auth header value:', authHeader ? authHeader.substring(0, 50) + '...' : 'none');
+    console.log('Authorization header:', authHeader ? `present (${authHeader.length} chars)` : 'missing');
     
-    if (!authHeader) {
-      return NextResponse.json({ 
-        error: 'No authentication found. Please sign in first.',
-        details: 'This endpoint requires authentication. Please sign in to the web app first, then visit this URL.'
-      }, { status: 401 });
-    }
-    
+    // Get query parameters
     const { searchParams } = new URL(request.url);
     const range = searchParams.get('range') || '7d';
+    const timezone = searchParams.get('timezone') || '';
     
-    const response = await fetch(`${API_BASE_URL}/user/session-words?range=${range}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': authHeader
-      }
-    });
-
-    console.log('🔍 DEBUG: Backend response status:', response.status);
+    console.log('Query params - range:', range, 'timezone:', timezone);
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.log('🔍 DEBUG: Backend error response:', errorText);
-      return NextResponse.json({ 
-        error: 'Backend request failed', 
-        status: response.status,
-        details: errorText 
-      }, { status: response.status });
+    // Build target URL
+    const targetUrl = new URL(`${API_BASE_URL}/user/session-words`);
+    targetUrl.searchParams.set('range', range);
+    if (timezone) targetUrl.searchParams.set('timezone', timezone);
+    
+    console.log('Target URL:', targetUrl.toString());
+    
+    // Prepare headers
+    const outgoingHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (authHeader) {
+      outgoingHeaders['Authorization'] = authHeader;
+      console.log('Authorization header added to outgoing request');
+    } else {
+      console.log('No Authorization header found in incoming request');
     }
     
+    console.log('Outgoing headers:', outgoingHeaders);
+    
+    // Make the request
+    const response = await fetch(targetUrl.toString(), {
+      method: 'GET',
+      headers: outgoingHeaders
+    });
+    
+    console.log('Backend response status:', response.status);
+    console.log('Backend response headers:', Object.fromEntries(response.headers.entries()));
+    
     const data = await response.json();
-    console.log('🔍 DEBUG: Session words data received');
-    console.log('🔍 DEBUG: Days count:', data.days?.length || 0);
-    console.log('🔍 DEBUG: Sample data:', JSON.stringify(data, null, 2));
+    console.log('Backend response data:', data);
     
     return NextResponse.json({
       success: true,
-      data: data,
+      timestamp: new Date().toISOString(),
       debug: {
-        daysCount: data.days?.length || 0,
-        range: range,
-        hasData: (data.days?.length || 0) > 0
+        authHeader: authHeader ? 'present' : 'missing',
+        backendStatus: response.status,
+        backendResponse: data,
+        targetUrl: targetUrl.toString(),
+        outgoingHeaders
       }
-    });
+    }, { status: 200 });
+    
   } catch (error) {
-    console.error('🔍 DEBUG: Error:', error);
+    console.error('Debug session words error:', error);
     return NextResponse.json({ 
-      error: 'Debug request failed', 
-      details: error instanceof Error ? error.message : 'Unknown error' 
+      success: false,
+      error: 'Debug request failed',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
