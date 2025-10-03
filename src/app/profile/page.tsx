@@ -1753,7 +1753,6 @@ export default function Profile() {
           </p>
         </div>
         
-        {console.log('🟢 Rendering Sparkline with sessionWordsDays:', sessionWordsDays)}
         <Sparkline data={sessionWordsDays || []} height={260} color="#10b981" />
         <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
           <MiniStat title="Session Words" value={sessionWordsDays ? sessionWordsDays.reduce((sum, day) => sum + day.value, 0).toLocaleString() : '0'} />
