@@ -326,7 +326,7 @@ export default function Profile() {
     const loadSessionWords = async () => {
       try {
         console.log('🟢 Loading session words data...');
-        console.log('🟢 Force Vercel rebuild - session words API call');
+        console.log('🟢 Force Vercel rebuild - session words API call - v2');
         if (!apiService.isAuthenticated()) {
           console.log('🟢 Not authenticated, skipping session words load');
           return;
