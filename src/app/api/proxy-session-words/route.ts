@@ -23,24 +23,12 @@ export async function GET(request: NextRequest) {
 
     console.log('🟢 Proxy session words - target URL:', targetUrl.toString());
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    
-    // Only add Authorization header if it exists
-    if (authHeader) {
-      headers['Authorization'] = authHeader;
-      console.log('Authorization header added to outgoing request');
-    } else {
-      console.log('No Authorization header found in incoming request');
-    }
-    
-    console.log('Outgoing headers:', headers);
-    console.log('==========================================');
-
     const response = await fetch(targetUrl.toString(), {
       method: 'GET',
-      headers
+      headers: {
+        'Content-Type': 'application/json',
+        ...Object.fromEntries(request.headers.entries())
+      }
     });
     
     console.log('Backend response status:', response.status);
