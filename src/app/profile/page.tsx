@@ -450,15 +450,14 @@ export default function Profile() {
       console.log('=== END REFRESH DEBUG ===');
       
         setProfile(userProfile);
+        setLoading(false);
       } catch (error) {
         console.error("Profile fetch error:", error);
         setError(error instanceof Error ? error.message : "Failed to load profile");
         if (error instanceof Error && error.message.includes("Authentication failed")) {
           router.push("/signin");
         }
-      } finally {
         setLoading(false);
-      // Removed: manual refresh state (data refreshes on mount/route)
       }
     }, [router]);
 
@@ -959,34 +958,34 @@ export default function Profile() {
             ['PIZZA', 'BURGER', 'SALAD', 'COFFEE', 'JUICE', 'BREAD', 'CHEESE', 'APPLE', 'BANANA', 'GRAPE', 'ORANGE', 'LEMON', 'PASTA', 'RICE', 'SOUP', 'CAKE', 'COOKIE', 'CANDY', 'CHOCOLATE', 'SANDWICH'],
             ['TACO', 'SUSHI', 'STEAK', 'CHICKEN', 'PORK', 'LAMB', 'SHRIMP', 'TUNA', 'MANGO', 'KIWI', 'AVOCADO', 'ORANGE', 'TOMATO', 'CARROT', 'ONION', 'POTATO', 'CORN', 'BEANS', 'VANILLA', 'MINT'],
             ['CARAMEL', 'MAPLE', 'HONEY', 'GARLIC', 'JAM', 'JELLY', 'SYRUP', 'GRAPE', 'LEMON', 'LIME', 'CHERRY', 'BERRY', 'PEACH', 'PLUM', 'PEAR', 'DATE', 'MILK', 'WATER', 'TEA', 'HOTDOG'],
-            ['PEPPER', 'SALT', 'SUGAR', 'FLOUR', 'EGG', 'BUTTER', 'OIL', 'VINEGAR', 'MUSTARD', 'KETCHUP', 'MAYO', 'RELIEF', 'SPICE', 'HERB', 'NUT', 'SEED', 'BEAN', 'LENTIL', 'QUINOA', 'OAT']
+            ['PIZZA', 'BURGER', 'SALAD', 'COFFEE', 'JUICE', 'BREAD', 'CHEESE', 'APPLE', 'BANANA', 'GRAPE', 'ORANGE', 'LEMON', 'PASTA', 'RICE', 'SOUP', 'CAKE', 'COOKIE', 'CANDY', 'CHOCOLATE', 'SANDWICH']
           ]
         },
         tuesday: {
           name: 'Common Nouns',
           sets: [
             ['HOUSE', 'CAR', 'TREE', 'BOOK', 'PHONE', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'CLOCK', 'MONEY', 'MUSIC', 'FAMILY', 'FRIEND', 'SCHOOL', 'WORK', 'GAME', 'MOVIE', 'STORY', 'DREAM'],
-            ['BED', 'SOFA', 'DESK', 'LAMP', 'MIRROR', 'PICTURE', 'CLOCK', 'CALENDAR', 'PEN', 'PAPER', 'BAG', 'BOX', 'BOTTLE', 'CUP', 'PLATE', 'BOWL', 'SPOON', 'FORK', 'KNIFE', 'GLASS'],
-            ['SHIRT', 'PANTS', 'SHOES', 'HAT', 'COAT', 'DRESS', 'SKIRT', 'JACKET', 'SWEATER', 'SOCKS', 'GLOVES', 'SCARF', 'BELT', 'WATCH', 'RING', 'NECKLACE', 'BRACELET', 'EARRINGS', 'SUNGLASSES', 'UMBRELLA'],
-            ['TOY', 'DOLL', 'BALL', 'PUZZLE', 'BLOCK', 'CRAYON', 'MARKER', 'PAINT', 'BRUSH', 'CANVAS', 'CLAY', 'SCISSORS', 'GLUE', 'TAPE', 'STAPLER', 'CLIP', 'RUBBER', 'ERASER', 'RULER', 'PENCIL']
+            ['LAMP', 'SOFA', 'DESK', 'SHELF', 'MIRROR', 'SONG', 'HOUR', 'MORNING', 'EVENING', 'PARTY', 'GIFT', 'PERSON', 'MAN', 'WOMAN', 'CHILD', 'BABY', 'SOLDIER', 'POLICE', 'FARMER', 'WORKER'],
+            ['STUDENT', 'PLAYER', 'RUNNER', 'SWIMMER', 'DANCER', 'SINGER', 'TEACHER', 'DOCTOR', 'LAWYER', 'ENGINEER', 'ARTIST', 'WRITER', 'COOK', 'DRIVER', 'PARK', 'STORE', 'WATCH', 'CLOCK', 'LAMP', 'SOFA'],
+            ['HOUSE', 'CAR', 'TREE', 'BOOK', 'PHONE', 'CHAIR', 'TABLE', 'DOOR', 'WINDOW', 'CLOCK', 'MONEY', 'MUSIC', 'FAMILY', 'FRIEND', 'SCHOOL', 'WORK', 'GAME', 'MOVIE', 'STORY', 'DREAM']
           ]
         },
         wednesday: {
           name: 'Nature',
           sets: [
-            ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'CLEAN', 'LEARN', 'TEACH', 'HELP', 'LOVE', 'THINK', 'DREAM', 'CREATE', 'BUILD'],
-            ['PLAY', 'WORK', 'STUDY', 'SLEEP', 'EAT', 'DRINK', 'TALK', 'LISTEN', 'WATCH', 'LOOK', 'SEE', 'HEAR', 'FEEL', 'TOUCH', 'HOLD', 'CARRY', 'PUSH', 'PULL', 'LIFT', 'DROP'],
-            ['OPEN', 'CLOSE', 'START', 'STOP', 'BEGIN', 'END', 'FINISH', 'COMPLETE', 'CONTINUE', 'PAUSE', 'WAIT', 'HURRY', 'RUSH', 'SLOW', 'SPEED', 'ACCELERATE', 'BRAKE', 'TURN', 'STRAIGHT', 'CURVE'],
-            ['CLIMB', 'DESCEND', 'ASCEND', 'RISE', 'FALL', 'SINK', 'FLOAT', 'FLY', 'SOAR', 'GLIDE', 'SLIDE', 'SKIP', 'HOP', 'LEAP', 'BOUNCE', 'ROLL', 'SPIN', 'TWIST', 'BEND', 'STRETCH']
+            ['TREE', 'FLOWER', 'GRASS', 'LEAF', 'BRANCH', 'ROOT', 'SEED', 'BUD', 'PETAL', 'STEM', 'THORN', 'BARK', 'MOSS', 'FERN', 'VINE', 'BUSH', 'SHRUB', 'HERB', 'WEED', 'MUSHROOM'],
+            ['SUN', 'MOON', 'STAR', 'SKY', 'CLOUD', 'RAIN', 'SNOW', 'WIND', 'STORM', 'LIGHTNING', 'THUNDER', 'FOG', 'MIST', 'DEW', 'FROST', 'ICE', 'FIRE', 'EARTH', 'WATER', 'AIR'],
+            ['MOUNTAIN', 'HILL', 'VALLEY', 'RIVER', 'OCEAN', 'LAKE', 'POND', 'STREAM', 'WATERFALL', 'BEACH', 'DESERT', 'FOREST', 'JUNGLE', 'MEADOW', 'FIELD', 'PARK', 'GARDEN', 'FARM', 'ISLAND', 'CAVE'],
+            ['TREE', 'FLOWER', 'GRASS', 'LEAF', 'BRANCH', 'ROOT', 'SEED', 'BUD', 'PETAL', 'STEM', 'THORN', 'BARK', 'MOSS', 'FERN', 'VINE', 'BUSH', 'SHRUB', 'HERB', 'WEED', 'MUSHROOM']
           ]
         },
         thursday: {
           name: 'Adjectives',
           sets: [
             ['BIG', 'SMALL', 'FAST', 'SLOW', 'HOT', 'COLD', 'NEW', 'OLD', 'GOOD', 'BAD', 'HAPPY', 'SAD', 'BEAUTIFUL', 'STRONG', 'SMART', 'FUNNY', 'QUIET', 'LOUD', 'BRIGHT', 'DARK'],
-            ['TALL', 'SHORT', 'WIDE', 'NARROW', 'THICK', 'THIN', 'HEAVY', 'LIGHT', 'HARD', 'SOFT', 'SMOOTH', 'ROUGH', 'SHARP', 'DULL', 'CLEAN', 'DIRTY', 'WET', 'DRY', 'FULL', 'EMPTY'],
-            ['RICH', 'POOR', 'YOUNG', 'ELDERLY', 'HEALTHY', 'SICK', 'SAFE', 'DANGEROUS', 'EASY', 'DIFFICULT', 'SIMPLE', 'COMPLEX', 'CLEAR', 'FOGGY', 'SUNNY', 'CLOUDY', 'WINDY', 'CALM', 'STORMY', 'PEACEFUL'],
-            ['FRIENDLY', 'SHY', 'WISE', 'HONEST', 'FAIR', 'BRAVE', 'SOFT', 'HARD', 'WARM', 'COOL', 'DRY', 'WET', 'HEAVY', 'LIGHT', 'THICK', 'THIN', 'WIDE', 'NARROW', 'DEEP', 'SHALLOW']
+            ['TALL', 'SHORT', 'FAT', 'THIN', 'YOUNG', 'OLD', 'NICE', 'EASY', 'HARD', 'SIMPLE', 'CLEAN', 'DIRTY', 'FRESH', 'STALE', 'SWEET', 'SOUR', 'BITTER', 'HANDSOME', 'CUTE', 'SERIOUS'],
+            ['FRIENDLY', 'SHY', 'WISE', 'HONEST', 'FAIR', 'BRAVE', 'SOFT', 'HARD', 'WARM', 'COOL', 'DRY', 'WET', 'HEAVY', 'LIGHT', 'THICK', 'THIN', 'WIDE', 'NARROW', 'DEEP', 'SHALLOW'],
+            ['TALL', 'SHORT', 'FAT', 'THIN', 'YOUNG', 'OLD', 'NICE', 'EASY', 'HARD', 'SIMPLE', 'CLEAN', 'DIRTY', 'FRESH', 'STALE', 'SWEET', 'SOUR', 'BITTER', 'HANDSOME', 'CUTE', 'SERIOUS']
           ]
         },
         friday: {
@@ -995,7 +994,7 @@ export default function Profile() {
             ['DOG', 'CAT', 'BIRD', 'FISH', 'BEAR', 'LION', 'TIGER', 'ELEPHANT', 'MONKEY', 'RABBIT', 'MOUSE', 'SNAKE', 'HORSE', 'COW', 'PIG', 'SHEEP', 'GOAT', 'CHICKEN', 'DUCK', 'OWL'],
             ['EAGLE', 'WOLF', 'FOX', 'DEER', 'SEAL', 'WHALE', 'SHARK', 'CRAB', 'SNAIL', 'SPIDER', 'HAMSTER', 'TURTLE', 'LIZARD', 'GECKO', 'IGUANA', 'NEWT', 'TOAD', 'LADYBUG', 'DRAGONFLY', 'BUTTERFLY'],
             ['PANDA', 'KOALA', 'MUSSEL', 'SCALLOP', 'TUNA', 'SALMON', 'TROUT', 'BASS', 'PIKE', 'PERCH', 'CARP', 'GOLDFISH', 'DOLPHIN', 'OTTER', 'BEAVER', 'RACCOON', 'SKUNK', 'POSSUM', 'BAT', 'SQUIRREL'],
-            ['CAT', 'DOG', 'LION', 'TIGER', 'EAGLE', 'BEAR', 'WOLF', 'FOX', 'DEER', 'RABBIT', 'COW', 'PIG', 'CHICKEN', 'DUCK', 'GOOSE', 'TURKEY', 'SEAL', 'WHALE', 'SHARK', 'CRAB']
+            ['DOG', 'CAT', 'BIRD', 'FISH', 'BEAR', 'LION', 'TIGER', 'ELEPHANT', 'MONKEY', 'RABBIT', 'MOUSE', 'SNAKE', 'HORSE', 'COW', 'PIG', 'SHEEP', 'GOAT', 'CHICKEN', 'DUCK', 'OWL']
           ]
         },
         saturday: {
@@ -1010,10 +1009,10 @@ export default function Profile() {
         sunday: {
           name: 'Actions',
           sets: [
-            ['PHONE', 'COMPUTER', 'INTERNET', 'EMAIL', 'WEBSITE', 'APP', 'VIDEO', 'AUDIO', 'CAMERA', 'SCREEN', 'KEYBOARD', 'MOUSE', 'TABLET', 'LAPTOP', 'WIFI', 'BLUETOOTH', 'BATTERY', 'CHARGER', 'HEADPHONES', 'SPEAKER'],
-            ['SMARTPHONE', 'TABLET', 'LAPTOP', 'DESKTOP', 'MONITOR', 'PRINTER', 'SCANNER', 'ROUTER', 'MODEM', 'SERVER', 'CLOUD', 'DATABASE', 'SOFTWARE', 'HARDWARE', 'PROCESSOR', 'MEMORY', 'STORAGE', 'NETWORK', 'BROADBAND', 'FIBER'],
-            ['ALGORITHM', 'PROGRAM', 'CODE', 'SCRIPT', 'FUNCTION', 'VARIABLE', 'ARRAY', 'OBJECT', 'CLASS', 'METHOD', 'INTERFACE', 'API', 'SDK', 'FRAMEWORK', 'LIBRARY', 'PLUGIN', 'EXTENSION', 'WIDGET', 'GADGET', 'DEVICE'],
-            ['ARTIFICIAL', 'INTELLIGENCE', 'MACHINE', 'LEARNING', 'NEURAL', 'NETWORK', 'DEEP', 'LEARNING', 'ALGORITHM', 'DATA', 'ANALYTICS', 'BIG', 'DATA', 'BLOCKCHAIN', 'CRYPTOCURRENCY', 'BITCOIN', 'ETHEREUM', 'SMART', 'CONTRACT', 'DECENTRALIZED']
+            ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'CLEAN', 'LEARN', 'TEACH', 'HELP', 'LOVE', 'THINK', 'DREAM', 'CREATE', 'BUILD'],
+            ['EAT', 'SIT', 'GET', 'PUT', 'SET', 'TALK', 'SLEEP', 'WATCH', 'PLAY', 'WORK', 'STOP', 'MOVE', 'HOLD', 'DROP', 'LIFT', 'PUSH', 'PULL', 'ENTER', 'EXIT', 'CATCH'],
+            ['THROW', 'HIT', 'MISS', 'CALL', 'SEND', 'MAKE', 'DO', 'HAVE', 'USE', 'WANT', 'NEED', 'SAVE', 'FIND', 'LOSE', 'WIN', 'START', 'FINISH', 'DESTROY', 'EXPLORE', 'DISCOVER'],
+            ['RUN', 'WALK', 'JUMP', 'SWIM', 'DANCE', 'SING', 'READ', 'WRITE', 'DRAW', 'PAINT', 'COOK', 'CLEAN', 'LEARN', 'TEACH', 'HELP', 'LOVE', 'THINK', 'DREAM', 'CREATE', 'BUILD']
           ]
         }
       };
