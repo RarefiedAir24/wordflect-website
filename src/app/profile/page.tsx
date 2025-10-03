@@ -1639,7 +1639,7 @@ export default function Profile() {
           </div>
           <div className="flex-1">
             <h3 className="font-bold text-xl text-green-950">Session Words History</h3>
-            <p className="text-sm text-green-700">Total words found per day across all game sessions (including duplicates)</p>
+            <p className="text-sm text-green-700">Newly found words per day across all game sessions (excluding duplicates). This shows your daily word discovery progress.</p>
           </div>
           <div className="flex items-center gap-2">
             {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
