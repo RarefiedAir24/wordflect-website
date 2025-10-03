@@ -63,11 +63,15 @@ export default function DebugAuth() {
       }
       
       // Test API call
-      let apiTest = null;
+      let apiTest: {
+        success: boolean;
+        data?: Record<string, unknown>;
+        error?: string;
+      } | null = null;
       try {
         console.log('🔍 Testing API call...');
         const response = await apiService.getDetailedStatistics();
-        apiTest = { success: true, data: response };
+        apiTest = { success: true, data: response as Record<string, unknown> };
         console.log('🔍 API call successful:', response);
       } catch (apiError) {
         console.error('🔍 API call failed:', apiError);
