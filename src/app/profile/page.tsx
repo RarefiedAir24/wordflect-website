@@ -393,7 +393,7 @@ export default function Profile() {
         setSessionWordsDays(daysFromApi);
         console.log('🟢 Session words days state set, checking in next tick...');
         setTimeout(() => {
-          console.log('🟢 Session words days state after set:', sessionWordsDays);
+          console.log('🟢 Session words days state after set:', daysFromApi);
         }, 100);
         }
       } catch (error) {
