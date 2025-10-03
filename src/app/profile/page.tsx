@@ -387,9 +387,14 @@ export default function Profile() {
           console.log('🟢 Setting filtered session words days, length:', filteredData.length);
           setSessionWordsDays(filteredData);
         } else {
-          console.log('🟢 Setting session words days:', daysFromApi);
-          console.log('🟢 Setting session words days, length:', daysFromApi.length);
-          setSessionWordsDays(daysFromApi);
+        console.log('🟢 Setting session words days:', daysFromApi);
+        console.log('🟢 Setting session words days, length:', daysFromApi.length);
+        console.log('🟢 Setting session words days, first few:', daysFromApi.slice(0, 3));
+        setSessionWordsDays(daysFromApi);
+        console.log('🟢 Session words days state set, checking in next tick...');
+        setTimeout(() => {
+          console.log('🟢 Session words days state after set:', sessionWordsDays);
+        }, 100);
         }
       } catch (error) {
         console.error('🟢 Session words error:', error);
@@ -1748,6 +1753,7 @@ export default function Profile() {
           </p>
         </div>
         
+        {console.log('🟢 Rendering Sparkline with sessionWordsDays:', sessionWordsDays)}
         <Sparkline data={sessionWordsDays || []} height={260} color="#10b981" />
         <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
           <MiniStat title="Session Words" value={sessionWordsDays ? sessionWordsDays.reduce((sum, day) => sum + day.value, 0).toLocaleString() : '0'} />
