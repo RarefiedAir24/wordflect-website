@@ -353,6 +353,11 @@ export default function Profile() {
         
         const res = await apiService.getUserSessionWords({ range: mappedRange });
         console.log('🟢 Session words API response:', res);
+        console.log('🟢 Session words API response type:', typeof res);
+        console.log('🟢 Session words API response keys:', Object.keys(res || {}));
+        console.log('🟢 Session words API response.days:', res.days);
+        console.log('🟢 Session words API response.days type:', typeof res.days);
+        console.log('🟢 Session words API response.days length:', Array.isArray(res.days) ? res.days.length : 'not array');
         
         const daysFromApi = Array.isArray(res.days) ? res.days.map(d => ({
           date: new Date(d.date),
@@ -361,6 +366,8 @@ export default function Profile() {
         })) : [];
         
         console.log('🟢 Processed session words days:', daysFromApi);
+        console.log('🟢 Processed session words days length:', daysFromApi.length);
+        console.log('🟢 Processed session words days sample:', daysFromApi.slice(0, 3));
         
         // For custom range, filter client-side after getting all data
         if (range === "custom" && customDateRange.start && customDateRange.end) {
@@ -372,9 +379,11 @@ export default function Profile() {
             return dataDate >= startDate && dataDate <= endDate;
           });
           console.log('🟢 Filtered session words data:', filteredData);
+          console.log('🟢 Setting filtered session words days, length:', filteredData.length);
           setSessionWordsDays(filteredData);
         } else {
           console.log('🟢 Setting session words days:', daysFromApi);
+          console.log('🟢 Setting session words days, length:', daysFromApi.length);
           setSessionWordsDays(daysFromApi);
         }
       } catch (error) {
