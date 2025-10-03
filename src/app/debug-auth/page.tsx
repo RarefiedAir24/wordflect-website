@@ -6,11 +6,15 @@ import { apiService } from '@/services/api';
 interface AuthState {
   isAuthenticated: boolean;
   tokenExpired: boolean;
-  storedUser: any;
+  storedUser: Record<string, unknown> | null;
   tokenExists: boolean;
   tokenLength?: number;
-  tokenPayload: any;
-  apiTest: any;
+  tokenPayload: Record<string, unknown> | null;
+  apiTest: {
+    success: boolean;
+    data?: Record<string, unknown>;
+    error?: string;
+  } | null;
 }
 
 export default function DebugAuth() {
