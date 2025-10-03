@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     // Get the authorization header from the request
     const authHeader = request.headers.get('authorization');
     console.log('🔍 DEBUG: Auth header present:', !!authHeader);
+    console.log('🔍 DEBUG: Auth header value:', authHeader ? authHeader.substring(0, 50) + '...' : 'none');
     
     if (!authHeader) {
       return NextResponse.json({ 
