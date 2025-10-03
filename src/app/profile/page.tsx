@@ -388,6 +388,7 @@ export default function Profile() {
       
         if (!apiService.isAuthenticated()) {
           router.push("/signin");
+          setLoading(false);
           return;
         }
 
