@@ -1501,6 +1501,7 @@ export default function Profile() {
             <div className="flex-1">
               <h3 className="font-bold text-xl text-blue-950">History</h3>
               <p className="text-sm text-blue-700">View your word discovery trends over time</p>
+              <p className="text-xs text-blue-600 mt-1">Note: The displayed word count is for newly found words (excluding duplicates).</p>
             </div>
             <div className="flex items-center gap-2">
               {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
