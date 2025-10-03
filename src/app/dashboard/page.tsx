@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { apiService, UserProfile } from "@/services/api";
+import MissionResetCountdown from "@/components/MissionResetCountdown";
 
 // Calculate points needed for next level
 function calculateLevelProgress(points: number, currentLevel: number): {
@@ -149,6 +150,10 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* Mission Reset Countdown */}
+        <MissionResetCountdown variant="dashboard" className="w-full max-w-sm" />
+
         <div className="flex flex-col sm:flex-row gap-6 w-full justify-center">
           <Link href="/play" className="flex-1">
             <div className="group bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl p-6 flex flex-col items-center justify-center shadow-lg hover:scale-105 transition-transform cursor-pointer min-h-[200px]">

@@ -3,6 +3,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { apiService, UserProfile } from "@/services/api";
+import MissionResetCountdown from "@/components/MissionResetCountdown";
 
 // Types for theme day responses from backend (used in modal rendering)
 type ThemeDayWord = { word: string; length?: number; found?: boolean };
@@ -1352,6 +1353,9 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      {/* Mission Reset Countdown */}
+      <MissionResetCountdown variant="profile" className="mb-8" />
 
       {/* AI Assistant Modal */}
       {aiModalOpen ? (
