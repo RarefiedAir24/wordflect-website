@@ -327,13 +327,15 @@ export default function Profile() {
       try {
         console.log('🟢 Loading session words data...');
         console.log('🟢 Force Vercel rebuild - session words API call - v2');
-        if (!profile) {
-          console.log('❌ No profile available for session words');
+        
+        // Check authentication instead of waiting for profile
+        if (!apiService.isAuthenticated()) {
+          console.log('❌ Not authenticated for session words');
           setSessionWordsDays(null);
           return;
         }
 
-        console.log('🎯 Starting session words fetch for profile:', profile.id);
+        console.log('🎯 Starting session words fetch (independent of profile)');
         console.log('🔐 Is authenticated:', apiService.isAuthenticated());
         console.log('🔐 Token expired:', apiService.isTokenExpired());
         
@@ -396,7 +398,7 @@ export default function Profile() {
       }
     };
     loadSessionWords();
-  }, [profile, range, customDateRange.start, customDateRange.end]);
+  }, [range, customDateRange.start, customDateRange.end]);
 
 
   const fetchProfile = useCallback(async () => {
