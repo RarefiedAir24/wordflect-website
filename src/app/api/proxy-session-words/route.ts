@@ -6,7 +6,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://fo0rh1w8m9.exec
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🟢 Force Vercel rebuild - session words API call - v2');
+    console.log('🟢 PROXY SESSION WORDS CALLED - v3 - NEW VERSION');
     
     // Log all incoming headers for debugging
     console.log('=== PROXY SESSION WORDS DEBUG ===');
