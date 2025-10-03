@@ -327,8 +327,8 @@ export default function Profile() {
       try {
         console.log('🟢 Loading session words data...');
         console.log('🟢 Force Vercel rebuild - session words API call - v2');
-        if (!apiService.isAuthenticated()) {
-          console.log('🟢 Not authenticated, skipping session words load');
+        if (!profile || !apiService.isAuthenticated()) {
+          console.log('🟢 No profile or not authenticated, skipping session words load');
           return;
         }
         
@@ -379,7 +379,7 @@ export default function Profile() {
       }
     };
     loadSessionWords();
-  }, [range, customDateRange.start, customDateRange.end]);
+  }, [profile, range, customDateRange.start, customDateRange.end]);
 
 
   const fetchProfile = useCallback(async () => {
