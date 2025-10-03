@@ -3,8 +3,19 @@
 import { useState } from 'react';
 import { apiService } from '@/services/api';
 
+interface SessionWordsResult {
+  days?: Array<{
+    date: string;
+    value: number;
+    avgLen: number;
+  }>;
+  success?: boolean;
+  error?: string;
+  [key: string]: any;
+}
+
 export default function DebugSessionWords() {
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<SessionWordsResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [range, setRange] = useState('30d');

@@ -3,8 +3,18 @@
 import { useState } from 'react';
 import { apiService } from '@/services/api';
 
+interface AuthState {
+  isAuthenticated: boolean;
+  tokenExpired: boolean;
+  storedUser: any;
+  tokenExists: boolean;
+  tokenLength?: number;
+  tokenPayload: any;
+  apiTest: any;
+}
+
 export default function DebugAuth() {
-  const [authState, setAuthState] = useState<any>(null);
+  const [authState, setAuthState] = useState<AuthState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
