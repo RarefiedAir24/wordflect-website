@@ -327,10 +327,15 @@ export default function Profile() {
       try {
         console.log('🟢 Loading session words data...');
         console.log('🟢 Force Vercel rebuild - session words API call - v2');
-        if (!profile || !apiService.isAuthenticated()) {
-          console.log('🟢 No profile or not authenticated, skipping session words load');
+        if (!profile) {
+          console.log('❌ No profile available for session words');
+          setSessionWordsDays(null);
           return;
         }
+
+        console.log('🎯 Starting session words fetch for profile:', profile.id);
+        console.log('🔐 Is authenticated:', apiService.isAuthenticated());
+        console.log('🔐 Token expired:', apiService.isTokenExpired());
         
         // Map UI range to backend range param
         const mapRange = (r: typeof range): string | undefined => {
