@@ -618,7 +618,7 @@ class ApiService {
       const searchParams = new URLSearchParams();
       if (params.range) searchParams.set('range', params.range);
 
-      const fullUrl = `/api/proxy-session-words${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      const fullUrl = `${API_CONFIG.ENDPOINTS.USER_SESSION_WORDS}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
       console.log('📤 Sending getUserSessionWords request:', { url: fullUrl, params });
       
       const response = await this.makeRequest(fullUrl, {
