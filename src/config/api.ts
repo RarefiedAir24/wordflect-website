@@ -21,7 +21,7 @@ export const API_CONFIG = {
     USER_STATISTICS_WEEKLY: '/api/proxy-statistics-weekly', // Weekly statistics
     USER_STATISTICS_MONTHLY: '/api/proxy-statistics-monthly', // Monthly statistics
     USER_SESSION_TRACK: '/api/proxy-session-track', // Session tracking
-    USER_SESSION_WORDS: '/api/proxy-session-words', // Session words data
+    USER_SESSION_WORDS: 'https://fo0rh1w8m9.execute-api.us-east-2.amazonaws.com/prod/user/session-words', // Session words data - direct backend call
     USER_THEME_ANALYTICS: '/api/proxy-theme-analytics', // Theme word analytics
     USER_THEME_DAY: '/api/proxy-theme-day', // Daily theme statistics
     USER_TIME_ANALYTICS: '/api/proxy-time-analytics', // Time period analytics
