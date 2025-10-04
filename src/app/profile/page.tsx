@@ -731,40 +731,23 @@ export default function Profile() {
     
     // === GAMEPLAY HELP & TIPS ===
     if (query.includes('how to play') || query.includes('how do i play') || query.includes('rules')) {
-      response = `WordFlect is a word puzzle game! Here's how to play:
+      response = `WordFlect is a fun word puzzle game! Here's how it works:
 
-🎯 **Objective**: Find as many words as possible from a 4x4 letter grid
-📝 **Rules**: 
-• Words must be 3+ letters long
-• Use adjacent letters (including diagonals)
-• Each letter can only be used once per word
-• No proper nouns or abbreviations
+Your goal is to find as many words as possible from a 4x4 letter grid. Words must be at least 3 letters long, and you can use adjacent letters including diagonals. Each letter can only be used once per word, and no proper nouns or abbreviations are allowed.
 
-💡 **Tips**: 
-• Look for common prefixes/suffixes
-• Start with longer words for more points
-• Use the timer strategically
-• Complete daily themes for bonus rewards!
+Here are some helpful tips: look for common prefixes and suffixes, start with longer words for more points, use your timer wisely, and complete daily themes for bonus rewards!
 
-💎 **Pro Tip**: Premium subscribers get exclusive themes, bonus gems, and priority support!`;
+Premium subscribers get exclusive themes, bonus gems, and priority support!`;
     }
     
     else if (query.includes('scoring') || query.includes('points') || query.includes('how to score')) {
-      response = `Scoring in WordFlect:
+      response = `Here's how scoring works in WordFlect:
 
-📊 **Point System**:
-• 3-letter words: 1 point
-• 4-letter words: 2 points  
-• 5-letter words: 3 points
-• 6-letter words: 4 points
-• 7+ letter words: 5+ points
+The longer your words, the more points you get. Three-letter words give you 1 point, four-letter words give you 2 points, five-letter words give you 3 points, six-letter words give you 4 points, and seven or more letter words give you 5 or more points.
 
-🎯 **Bonus Multipliers**:
-• Daily theme words: 2x points
-• Perfect games: Bonus gems
-• Streaks: Extra rewards
+You can earn bonus multipliers too! Daily theme words give you double points, perfect games earn you bonus gems, and maintaining streaks gives you extra rewards.
 
-💎 **Your Stats**: You have ${profile.points.toLocaleString()} total points and ${profile.gems.toLocaleString()} gems!`;
+You currently have ${profile.points.toLocaleString()} total points and ${profile.gems.toLocaleString()} gems!`;
     }
     
     else if (query.includes('daily theme') || query.includes('theme words') || query.includes('daily challenge')) {
@@ -1206,24 +1189,13 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
     } else if (query.includes('coins') || query.includes('flectcoins')) {
       response = `You have ${profile.flectcoins.toLocaleString()} Flectcoins!
 
-💰 **What are Flectcoins?**:
-• In-game currency earned by playing games and completing missions
-• Used exclusively to purchase power-ups for better gameplay
-• Earned through daily games, mission completion, and battle victories
+Flectcoins are your in-game currency that you earn by playing games and completing missions. You use them exclusively to purchase power-ups that give you advantages during gameplay.
 
-🎮 **How to Earn Flectcoins**:
-• Play daily games (earn 10-50 Flectcoins per game)
-• Complete daily missions (bonus Flectcoins)
-• Win battles against other players
-• Maintain daily streaks for bonus rewards
+You can earn Flectcoins by playing daily games, where you typically get 10 to 50 Flectcoins per game, completing daily missions for bonus rewards, winning battles against other players, and maintaining daily streaks.
 
-🛒 **How to Spend Flectcoins**:
-• Purchase power-ups for better gameplay
-• Buy game advantages and boosts
-• Get strategic in-game benefits
-• Enhance your word-finding abilities
+Use your Flectcoins to buy power-ups that enhance your word-finding abilities and give you strategic advantages during games.
 
-💎 **Premium Bonus**: Premium subscribers earn 2x Flectcoins from all activities - double your rewards!`;
+Premium subscribers earn double Flectcoins from all activities, so they get twice the rewards!`;
     } else if (query.includes('points')) {
       response = `You have ${profile.points.toLocaleString()} points!
 
@@ -1418,7 +1390,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
       ) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
     }
 
-    // Clean up the response text for better speech
+    // Clean up the response text for more natural speech
     const cleanResponse = textToSpeak
       .replace(/\*\*(.*?)\*\*/g, '$1') // Remove markdown bold
       .replace(/\*(.*?)\*/g, '$1') // Remove markdown italic
@@ -1427,14 +1399,23 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
       .replace(/\n\n+/g, '. ') // Replace multiple newlines with pause
       .replace(/\n/g, '. ') // Replace single newlines with pause
       .replace(/\s+/g, ' ') // Clean up multiple spaces
+      .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove any remaining bold formatting
+      .replace(/\*([^*]+)\*/g, '$1') // Remove any remaining italic formatting
+      .replace(/\[([^\]]+)\]/g, '$1') // Remove brackets but keep content
+      .replace(/\(([^)]+)\)/g, ', $1') // Convert parentheses to natural speech
+      .replace(/:/g, ',') // Replace colons with commas for better flow
+      .replace(/;/g, ',') // Replace semicolons with commas
+      .replace(/\s+/g, ' ') // Clean up multiple spaces again
+      .replace(/\.\s*\./g, '.') // Remove double periods
+      .replace(/,\s*,/g, ',') // Remove double commas
       .trim();
 
     const utterance = new SpeechSynthesisUtterance(cleanResponse);
     
-    // Enhanced speech parameters for more natural sound
-    utterance.rate = 0.85; // Slightly slower for better comprehension
-    utterance.pitch = 1.1; // Slightly higher pitch for more engaging tone
-    utterance.volume = 0.9; // Higher volume for clarity
+    // Enhanced speech parameters for more natural, conversational sound
+    utterance.rate = 0.9; // Slightly faster for more natural conversation pace
+    utterance.pitch = 1.0; // Natural pitch for conversational tone
+    utterance.volume = 0.85; // Slightly lower volume for more natural sound
     
     // Set voice if available
     if (selectedVoice) {
