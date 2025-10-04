@@ -1344,11 +1344,9 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
         handleAiQuery();
         // Auto-trigger voice response after getting the answer
         setTimeout(() => {
-          if (aiResponse) {
-            speakResponse();
-          }
-        }, 500); // Wait for AI response to be processed
-      }, 100); // Small delay to ensure state is updated
+          speakResponse();
+        }, 800); // Wait for AI response to be processed
+      }, 200); // Increased delay to ensure state is updated
     };
     
     recognition.onerror = (event: { error: string }) => {
@@ -2183,65 +2181,84 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
               <p className="text-sm text-gray-600 mb-3">
                 Ask me about your stats, gameplay help, or customization! Try: &quot;How do I play?&quot;, &quot;How do I change backgrounds?&quot;, &quot;What are premium features?&quot;, or &quot;Give me some tips!&quot; Use Voice Ask for hands-free interaction!
               </p>
-              <div className="flex gap-2">
+              <div className="space-y-3">
                 <input
                   type="text"
                   value={aiQuery}
                   onChange={(e) => setAiQuery(e.target.value)}
                   placeholder="Ask about your stats..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   onKeyDown={(e) => e.key === 'Enter' && handleAiQuery()}
                 />
-                <button
-                  onClick={handleAiQuery}
-                  className="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition-colors"
-                >
-                  Ask
-                </button>
-              </div>
-              
-              {/* Voice Interaction Buttons */}
-              {speechSupported && (
-                <div className="flex gap-2 mt-3">
+                
+                {/* Ask Buttons */}
+                <div className="flex gap-3">
+                  {/* Text Ask Button */}
                   <button
-                    onClick={startListening}
-                    disabled={isListening}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                      isListening 
-                        ? 'bg-red-500 text-white cursor-not-allowed' 
-                        : 'bg-blue-500 text-white hover:bg-blue-600'
-                    }`}
+                    onClick={handleAiQuery}
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
                   >
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
-                    {isListening ? 'Listening...' : 'Voice Ask'}
+                    Text Ask
                   </button>
                   
-                  {aiResponse && (
+                  {/* Voice Ask Button */}
+                  {speechSupported ? (
+                    <button
+                      onClick={startListening}
+                      disabled={isListening}
+                      className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl ${
+                        isListening 
+                          ? 'bg-red-500 text-white cursor-not-allowed animate-pulse' 
+                          : 'bg-blue-500 text-white hover:bg-blue-600'
+                      }`}
+                    >
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                      </svg>
+                      {isListening ? 'Listening...' : 'Voice Ask'}
+                    </button>
+                  ) : (
+                    <button
+                      disabled
+                      className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gray-400 text-white rounded-xl cursor-not-allowed font-medium shadow-lg"
+                    >
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                      </svg>
+                      Voice Ask
+                    </button>
+                  )}
+                </div>
+                
+                {/* Voice Response Button - Only show when there's a response */}
+                {aiResponse && (
+                  <div className="flex justify-center">
                     <button
                       onClick={speakResponse}
                       disabled={isSpeaking}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                      className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl ${
                         isSpeaking 
-                          ? 'bg-orange-500 text-white cursor-not-allowed' 
+                          ? 'bg-orange-500 text-white cursor-not-allowed animate-pulse' 
                           : 'bg-green-500 text-white hover:bg-green-600'
                       }`}
                     >
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                       </svg>
                       {isSpeaking ? 'Speaking...' : 'Speak Response'}
                     </button>
-                  )}
-                </div>
-              )}
-              
-              {!speechSupported && (
-                <div className="text-xs text-gray-500 mt-2">
-                  Voice features require Chrome or Edge browser
-                </div>
-              )}
+                  </div>
+                )}
+                
+                {!speechSupported && (
+                  <div className="text-center text-xs text-gray-500 bg-gray-100 rounded-lg py-2">
+                    Voice features require Chrome or Edge browser
+                  </div>
+                )}
+              </div>
             </div>
             
             {aiResponse && (
