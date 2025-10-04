@@ -1935,7 +1935,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
             
             <div className="mb-4">
               <p className="text-sm text-gray-600 mb-3">
-                Ask me about your stats, gameplay help, or customization! Try: "How do I play?", "How do I change backgrounds?", "What are premium features?", or "Give me some tips!"
+                Ask me about your stats, gameplay help, or customization! Try: &quot;How do I play?&quot;, &quot;How do I change backgrounds?&quot;, &quot;What are premium features?&quot;, or &quot;Give me some tips!&quot;
               </p>
               <div className="flex gap-2">
                 <input
