@@ -1305,10 +1305,54 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(aiResponse);
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    utterance.volume = 0.8;
+    // Get available voices and select the best one
+    const voices = window.speechSynthesis.getVoices();
+    let selectedVoice = null;
+    
+    // Prefer natural-sounding voices
+    const preferredVoices = [
+      'Google US English', 'Microsoft Zira Desktop', 'Microsoft David Desktop',
+      'Alex', 'Samantha', 'Victoria', 'Daniel', 'Karen', 'Moira', 'Tessa'
+    ];
+    
+    // Try to find a preferred voice
+    for (const preferredName of preferredVoices) {
+      selectedVoice = voices.find(voice => 
+        voice.name.includes(preferredName) || 
+        voice.name.toLowerCase().includes(preferredName.toLowerCase())
+      );
+      if (selectedVoice) break;
+    }
+    
+    // Fallback to first English voice if no preferred voice found
+    if (!selectedVoice) {
+      selectedVoice = voices.find(voice => 
+        voice.lang.startsWith('en') && voice.default
+      ) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+    }
+
+    // Clean up the response text for better speech
+    let cleanResponse = aiResponse
+      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove markdown bold
+      .replace(/\*(.*?)\*/g, '$1') // Remove markdown italic
+      .replace(/•/g, '') // Remove bullet points
+      .replace(/🎯|🎮|📊|💎|🎨|💰|🏆|🆘|💡|⏰|📈|📝|🧠|🎯|⚔️|📅|📊|🎯|💡|🎨|🖼️|🌈|📝|💎|🎯|💡|🎮|📈|🎨|💎|💰|🏆|🆘|💡/g, '') // Remove emojis
+      .replace(/\n\n+/g, '. ') // Replace multiple newlines with pause
+      .replace(/\n/g, '. ') // Replace single newlines with pause
+      .replace(/\s+/g, ' ') // Clean up multiple spaces
+      .trim();
+
+    const utterance = new SpeechSynthesisUtterance(cleanResponse);
+    
+    // Enhanced speech parameters for more natural sound
+    utterance.rate = 0.85; // Slightly slower for better comprehension
+    utterance.pitch = 1.1; // Slightly higher pitch for more engaging tone
+    utterance.volume = 0.9; // Higher volume for clarity
+    
+    // Set voice if available
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
     
     utterance.onstart = () => {
       setIsSpeaking(true);
@@ -1323,6 +1367,8 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
       setIsSpeaking(false);
     };
     
+    // Stop any current speech before starting new one
+    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
   };
 
@@ -1331,6 +1377,21 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
     const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
     const hasSpeechSynthesis = 'speechSynthesis' in window;
     setSpeechSupported(hasSpeechRecognition && hasSpeechSynthesis);
+    
+    // Load voices if speech synthesis is supported
+    if (hasSpeechSynthesis) {
+      // Voices might not be immediately available, so we load them
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          console.log('Available voices:', voices.map(v => v.name));
+        }
+      };
+      
+      // Load voices immediately and on voice change
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
   }, []);
 
   // Helper function to determine current time period
