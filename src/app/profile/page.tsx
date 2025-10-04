@@ -49,7 +49,21 @@ export default function Profile() {
   
   // Historical theme analytics state
   const [selectedHistoricalDate, setSelectedHistoricalDate] = useState<string>('');
-  const [historicalThemeData, setHistoricalThemeData] = useState<any>(null);
+  const [historicalThemeData, setHistoricalThemeData] = useState<{
+    theme?: {
+      name: string;
+      words: string[];
+    };
+    stats?: {
+      totalThemeWordsFound: number;
+      completionRate: number;
+      isCompleted: boolean;
+    };
+    allThemeWords?: Array<{
+      word: string;
+      found: boolean;
+    }>;
+  } | null>(null);
   const [loadingHistoricalData, setLoadingHistoricalData] = useState(false);
   const [historicalError, setHistoricalError] = useState<string | null>(null);
 
@@ -2507,7 +2521,7 @@ export default function Profile() {
                   <div className="bg-white border border-gray-200 rounded-lg p-4">
                     <h4 className="text-lg font-semibold text-gray-900 mb-4">Theme Words</h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2">
-                      {historicalThemeData.allThemeWords.map((wordData: any, index: number) => (
+                      {historicalThemeData.allThemeWords.map((wordData: { word: string; found: boolean }, index: number) => (
                         <div
                           key={index}
                           className={`p-3 rounded-lg text-center text-sm font-medium transition-colors ${
