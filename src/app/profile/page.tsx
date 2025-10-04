@@ -1069,6 +1069,39 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
 💡 **Pro Tip**: Premium subscribers get access to all features and exclusive content!`;
     }
     
+    // === POWER-UPS & GAME MECHANICS ===
+    else if (query.includes('power') || query.includes('powerup') || query.includes('power-up') || query.includes('boost') || query.includes('advantage')) {
+      response = `Power-ups & Game Advantages:
+
+⚡ **Power-up Types**:
+• **Extra Time**: Extend your game timer by 30 seconds
+• **Word Hint**: Reveal one letter in a word you're struggling with
+• **Bonus Points**: Double points for your next 3 words found
+• **Letter Reveal**: Show all possible next letters for current word
+• **Streak Protection**: Prevent streak loss for one day
+
+💰 **How to Get Power-ups**:
+• Purchase with Flectcoins (50-200 Flectcoins each)
+• Buy with Gems (1-5 gems for premium power-ups)
+• Earn as mission rewards
+• Win in battle tournaments
+• Daily login bonuses
+
+🎮 **Strategic Use**:
+• Save power-ups for difficult daily themes
+• Use during battle matches for competitive advantage
+• Combine power-ups for maximum effect
+• Time your power-ups with high-scoring opportunities
+
+💎 **Premium Power-ups**:
+• Exclusive power-ups only available to premium subscribers
+• 50% discount on all power-up purchases
+• Special battle power-ups for competitive play
+• Early access to new power-up types
+
+💡 **Pro Tip**: Smart power-up usage can significantly boost your scores and win rates!`;
+    }
+    
     // === HELP & SUPPORT ===
     else if (query.includes('help') || query.includes('support') || query.includes('contact') || query.includes('problem')) {
       response = `Help & Support:
@@ -1167,6 +1200,23 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
     } else if (query.includes('coins') || query.includes('flectcoins')) {
       response = `You have ${profile.flectcoins.toLocaleString()} Flectcoins!
 
+💰 **What are Flectcoins?**:
+• In-game currency earned by playing games and completing missions
+• Used to purchase power-ups, frames, and customization items
+• Earned through daily games, mission completion, and battle victories
+
+🎮 **How to Earn Flectcoins**:
+• Play daily games (earn 10-50 Flectcoins per game)
+• Complete daily missions (bonus Flectcoins)
+• Win battles against other players
+• Maintain daily streaks for bonus rewards
+
+🛒 **How to Spend Flectcoins**:
+• Purchase power-ups for better gameplay
+• Buy exclusive frames and backgrounds
+• Unlock premium customization options
+• Get special in-game advantages
+
 💎 **Premium Bonus**: Premium subscribers earn 2x Flectcoins from all activities - double your rewards!`;
     } else if (query.includes('points')) {
       response = `You have ${profile.points.toLocaleString()} points!
@@ -1174,6 +1224,24 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
 💎 **Premium Multiplier**: Premium subscribers earn 2x points from all activities and get exclusive high-scoring themes!`;
     } else if (query.includes('gems')) {
       response = `You have ${profile.gems.toLocaleString()} gems!
+
+💎 **What are Gems?**:
+• Premium currency for high-value purchases
+• Used to buy exclusive frames, backgrounds, and power-ups
+• More valuable than Flectcoins (1 gem = 100 Flectcoins)
+
+🎮 **How to Earn Gems**:
+• Complete weekly missions (bonus gems)
+• Win battle tournaments
+• Achieve perfect games (no mistakes)
+• Maintain long daily streaks
+• Premium subscribers earn 2x gems from all activities
+
+🛒 **How to Spend Gems**:
+• Purchase exclusive animated frames
+• Buy premium backgrounds with effects
+• Unlock special power-ups and boosts
+• Get early access to new features
 
 💎 **Premium Rewards**: Premium subscribers earn 2x gems from all activities and get exclusive gem-only content!`;
     } else if (query.includes('battles') || query.includes('battle')) {
@@ -1273,6 +1341,12 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
       // Auto-trigger the AI query after speech recognition
       setTimeout(() => {
         handleAiQuery();
+        // Auto-trigger voice response after getting the answer
+        setTimeout(() => {
+          if (aiResponse) {
+            speakResponse();
+          }
+        }, 500); // Wait for AI response to be processed
       }, 100); // Small delay to ensure state is updated
     };
     
