@@ -757,6 +757,19 @@ export default function Profile() {
     setAiResponse(response);
   };
 
+  // Helper function to determine current time period
+  const getCurrentTimePeriod = () => {
+    const now = new Date();
+    const hour = now.getUTCHours();
+    
+    if (hour >= 0 && hour <= 4) return 'late-night';
+    if (hour >= 5 && hour <= 9) return 'early-morning';
+    if (hour >= 10 && hour <= 12) return 'late-morning';
+    if (hour >= 13 && hour <= 17) return 'afternoon';
+    if (hour >= 18 && hour <= 23) return 'evening';
+    return 'late-night'; // fallback
+  };
+
   // Helper function to get time period data
   const getTimePeriodData = (period: string) => {
     console.log('getTimePeriodData called for period:', period);
@@ -2793,17 +2806,49 @@ export default function Profile() {
                 </div>
               );
             }
+            const isCurrentPeriod = getCurrentTimePeriod() === 'late-night';
             return (
-              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+              <div className={`relative rounded-xl p-4 border-2 cursor-pointer transition-all duration-300 ${
+                isCurrentPeriod 
+                  ? 'bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-400 shadow-xl hover:shadow-2xl' 
+                  : 'bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200 hover:shadow-lg hover:scale-105'
+              }`}
                 onClick={() => handleTimePeriodClick('late-night')}
               >
+                {/* Status indicator dot for current period */}
+                {isCurrentPeriod && (
+                  <div className="absolute top-3 left-3 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                )}
+                
+                {/* Animated clock icon for current period */}
+                {isCurrentPeriod && (
+                  <div className="absolute top-3 right-3">
+                    <svg className="w-5 h-5 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                )}
+                
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    isCurrentPeriod ? 'bg-blue-500' : 'bg-indigo-500'
+                  }`}>
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                     </svg>
                   </div>
-                  <span className="text-xs text-indigo-600 font-semibold">LATE NIGHT</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-semibold ${
+                      isCurrentPeriod ? 'text-blue-800' : 'text-indigo-600'
+                    }`}>
+                      LATE NIGHT
+                    </span>
+                    {isCurrentPeriod && (
+                      <span className="text-xs text-blue-600 font-bold bg-blue-100 px-2 py-1 rounded-full">
+                        ● LIVE
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-lg font-bold text-indigo-900">12:00 AM - 4:00 AM</p>
                 <div className="mt-3 space-y-2">
@@ -2857,17 +2902,49 @@ export default function Profile() {
                 </div>
               );
             }
+            const isCurrentPeriod = getCurrentTimePeriod() === 'early-morning';
             return (
-              <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+              <div className={`relative rounded-xl p-4 border-2 cursor-pointer transition-all duration-300 ${
+                isCurrentPeriod 
+                  ? 'bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-400 shadow-xl hover:shadow-2xl' 
+                  : 'bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200 hover:shadow-lg hover:scale-105'
+              }`}
                 onClick={() => handleTimePeriodClick('early-morning')}
               >
+                {/* Status indicator dot for current period */}
+                {isCurrentPeriod && (
+                  <div className="absolute top-3 left-3 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                )}
+                
+                {/* Animated clock icon for current period */}
+                {isCurrentPeriod && (
+                  <div className="absolute top-3 right-3">
+                    <svg className="w-5 h-5 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                )}
+                
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    isCurrentPeriod ? 'bg-blue-500' : 'bg-amber-500'
+                  }`}>
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
                     </svg>
                   </div>
-                  <span className="text-xs text-amber-600 font-semibold">EARLY MORNING</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-semibold ${
+                      isCurrentPeriod ? 'text-blue-800' : 'text-amber-600'
+                    }`}>
+                      EARLY MORNING
+                    </span>
+                    {isCurrentPeriod && (
+                      <span className="text-xs text-blue-600 font-bold bg-blue-100 px-2 py-1 rounded-full">
+                        ● LIVE
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-lg font-bold text-amber-900">5:00 AM - 9:00 AM</p>
                 <div className="mt-3 space-y-2">
@@ -2920,17 +2997,49 @@ export default function Profile() {
                 </div>
               );
             }
+            const isCurrentPeriod = getCurrentTimePeriod() === 'late-morning';
             return (
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+              <div className={`relative rounded-xl p-4 border-2 cursor-pointer transition-all duration-300 ${
+                isCurrentPeriod 
+                  ? 'bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-400 shadow-xl hover:shadow-2xl' 
+                  : 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:shadow-lg hover:scale-105'
+              }`}
                 onClick={() => handleTimePeriodClick('late-morning')}
               >
+                {/* Status indicator dot for current period */}
+                {isCurrentPeriod && (
+                  <div className="absolute top-3 left-3 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                )}
+                
+                {/* Animated clock icon for current period */}
+                {isCurrentPeriod && (
+                  <div className="absolute top-3 right-3">
+                    <svg className="w-5 h-5 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                )}
+                
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    isCurrentPeriod ? 'bg-blue-500' : 'bg-blue-500'
+                  }`}>
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
                     </svg>
                   </div>
-                  <span className="text-xs text-blue-600 font-semibold">LATE MORNING</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-semibold ${
+                      isCurrentPeriod ? 'text-blue-800' : 'text-blue-600'
+                    }`}>
+                      LATE MORNING
+                    </span>
+                    {isCurrentPeriod && (
+                      <span className="text-xs text-blue-600 font-bold bg-blue-100 px-2 py-1 rounded-full">
+                        ● LIVE
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-lg font-bold text-blue-900">10:00 AM - 12:00 PM</p>
                 <div className="mt-3 space-y-2">
@@ -2983,17 +3092,49 @@ export default function Profile() {
                 </div>
               );
             }
+            const isCurrentPeriod = getCurrentTimePeriod() === 'afternoon';
             return (
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+              <div className={`relative rounded-xl p-4 border-2 cursor-pointer transition-all duration-300 ${
+                isCurrentPeriod 
+                  ? 'bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-400 shadow-xl hover:shadow-2xl' 
+                  : 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-lg hover:scale-105'
+              }`}
                 onClick={() => handleTimePeriodClick('afternoon')}
               >
+                {/* Status indicator dot for current period */}
+                {isCurrentPeriod && (
+                  <div className="absolute top-3 left-3 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                )}
+                
+                {/* Animated clock icon for current period */}
+                {isCurrentPeriod && (
+                  <div className="absolute top-3 right-3">
+                    <svg className="w-5 h-5 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                )}
+                
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    isCurrentPeriod ? 'bg-blue-500' : 'bg-green-500'
+                  }`}>
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
                     </svg>
                   </div>
-                  <span className="text-xs text-green-600 font-semibold">AFTERNOON</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-semibold ${
+                      isCurrentPeriod ? 'text-blue-800' : 'text-green-600'
+                    }`}>
+                      AFTERNOON
+                    </span>
+                    {isCurrentPeriod && (
+                      <span className="text-xs text-blue-600 font-bold bg-blue-100 px-2 py-1 rounded-full">
+                        ● LIVE
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-lg font-bold text-green-900">1:00 PM - 5:00 PM</p>
                 <div className="mt-3 space-y-2">
@@ -3046,17 +3187,49 @@ export default function Profile() {
                 </div>
               );
             }
+            const isCurrentPeriod = getCurrentTimePeriod() === 'evening';
             return (
-              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+              <div className={`relative rounded-xl p-4 border-2 cursor-pointer transition-all duration-300 ${
+                isCurrentPeriod 
+                  ? 'bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-400 shadow-xl hover:shadow-2xl' 
+                  : 'bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 hover:shadow-lg hover:scale-105'
+              }`}
                 onClick={() => handleTimePeriodClick('evening')}
               >
+                {/* Status indicator dot for current period */}
+                {isCurrentPeriod && (
+                  <div className="absolute top-3 left-3 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                )}
+                
+                {/* Animated clock icon for current period */}
+                {isCurrentPeriod && (
+                  <div className="absolute top-3 right-3">
+                    <svg className="w-5 h-5 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                )}
+                
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    isCurrentPeriod ? 'bg-blue-500' : 'bg-purple-500'
+                  }`}>
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                     </svg>
                   </div>
-                  <span className="text-xs text-purple-600 font-semibold">EVENING</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-semibold ${
+                      isCurrentPeriod ? 'text-blue-800' : 'text-purple-600'
+                    }`}>
+                      EVENING
+                    </span>
+                    {isCurrentPeriod && (
+                      <span className="text-xs text-blue-600 font-bold bg-blue-100 px-2 py-1 rounded-full">
+                        ● LIVE
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-lg font-bold text-purple-900">6:00 PM - 11:00 PM</p>
                 <div className="mt-3 space-y-2">
