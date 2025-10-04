@@ -1269,6 +1269,11 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
       const transcript = event.results[0][0].transcript;
       setAiQuery(transcript);
       setIsListening(false);
+      
+      // Auto-trigger the AI query after speech recognition
+      setTimeout(() => {
+        handleAiQuery();
+      }, 100); // Small delay to ensure state is updated
     };
     
     recognition.onerror = (event: { error: string }) => {
@@ -2040,7 +2045,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
             
             <div className="mb-4">
               <p className="text-sm text-gray-600 mb-3">
-                Ask me about your stats, gameplay help, or customization! Try: &quot;How do I play?&quot;, &quot;How do I change backgrounds?&quot;, &quot;What are premium features?&quot;, or &quot;Give me some tips!&quot;
+                Ask me about your stats, gameplay help, or customization! Try: &quot;How do I play?&quot;, &quot;How do I change backgrounds?&quot;, &quot;What are premium features?&quot;, or &quot;Give me some tips!&quot; Use Voice Ask for hands-free interaction!
               </p>
               <div className="flex gap-2">
                 <input
@@ -2074,7 +2079,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                     </svg>
-                    {isListening ? 'Listening...' : 'Voice Input'}
+                    {isListening ? 'Listening...' : 'Voice Ask'}
                   </button>
                   
                   {aiResponse && (
