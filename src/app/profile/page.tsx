@@ -717,7 +717,7 @@ export default function Profile() {
     router.push("/");
   };
 
-  const handleAiQuery = () => {
+  const handleAiQuery = (callback?: () => void) => {
     if (!aiQuery.trim() || !profile) return;
     
     const query = aiQuery.toLowerCase();
@@ -1293,6 +1293,11 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
     }
     
     setAiResponse(response);
+    
+    // Call callback if provided (for voice response)
+    if (callback) {
+      setTimeout(callback, 100); // Small delay to ensure state is updated
+    }
   };
 
   // Voice interaction functions
@@ -1341,12 +1346,11 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
       
       // Auto-trigger the AI query after speech recognition
       setTimeout(() => {
-        handleAiQuery();
-        // Auto-trigger voice response after getting the answer
-        setTimeout(() => {
+        handleAiQuery(() => {
+          // This callback will be called after the AI response is set
           speakResponse();
-        }, 800); // Wait for AI response to be processed
-      }, 200); // Increased delay to ensure state is updated
+        });
+      }, 200); // Small delay to ensure state is updated
     };
     
     recognition.onerror = (event: { error: string }) => {
@@ -2187,7 +2191,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
                   value={aiQuery}
                   onChange={(e) => setAiQuery(e.target.value)}
                   placeholder="Ask about your stats..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500 bg-white"
                   onKeyDown={(e) => e.key === 'Enter' && handleAiQuery()}
                 />
                 
@@ -2195,7 +2199,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
                 <div className="flex gap-3">
                   {/* Text Ask Button */}
                   <button
-                    onClick={handleAiQuery}
+                    onClick={() => handleAiQuery()}
                     className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
                   >
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
