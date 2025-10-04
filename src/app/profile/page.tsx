@@ -3787,17 +3787,33 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
         >
         {/* Grid lines */}
         <defs>
-          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f3f4f6" strokeWidth="0.5"/>
-          </pattern>
           <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor={color} stopOpacity="0.2"/>
             <stop offset="100%" stopColor={color} stopOpacity="0.05"/>
           </linearGradient>
         </defs>
         
-        {/* Background grid */}
-        <rect x={leftMargin} y={0} width={width - leftMargin - rightMargin} height={chartHeight} fill="url(#grid)" />
+        {/* Individual grid lines instead of pattern - won't interfere with tooltips */}
+        {(() => {
+          const numHorizontalLines = 5;
+          const lines = [];
+          for (let i = 0; i < numHorizontalLines; i++) {
+            const y = topMargin + i * ((chartHeight - topMargin - bottomMargin) / (numHorizontalLines - 1));
+            lines.push(
+              <line
+                key={`y-grid-${i}`}
+                x1={leftMargin}
+                y1={y}
+                x2={width - rightMargin}
+                y2={y}
+                stroke="#e5e7eb"
+                strokeWidth="1"
+                strokeDasharray="2,2"
+              />
+            );
+          }
+          return lines;
+        })()}
         
         {/* Area under the curve */}
         <polyline points={area} fill="url(#areaGradient)" stroke="none" />
@@ -3883,10 +3899,8 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
                 
                 return (
                   <g>
-                    {/* Extra large solid white background to completely block all grid lines */}
-                    <rect x={rectX - 16} y={rectY - 16} rx="20" ry="20" width={textWidth + 32} height={rectHeight + 32} fill="#ffffff" stroke="none" />
-                    {/* Additional white background for extra coverage */}
-                    <rect x={rectX - 8} y={rectY - 8} rx="16" ry="16" width={textWidth + 16} height={rectHeight + 16} fill="#ffffff" stroke="none" />
+                    {/* Simple white background to block grid lines */}
+                    <rect x={rectX - 4} y={rectY - 4} rx="12" ry="12" width={textWidth + 8} height={rectHeight + 8} fill="#ffffff" stroke="none" />
                     {/* Dark background for tooltip */}
                     <rect x={rectX} y={rectY} rx="8" ry="8" width={textWidth} height={rectHeight} fill="#111827" stroke="#374151" strokeWidth="1" />
                     
@@ -3917,9 +3931,7 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
                 const rectY = labelY - (padY * 2);
                 return (
                   <g>
-                    {/* Extra large solid white background to completely block all grid lines */}
-                    <rect x={rectX - 12} y={rectY - 12} rx="16" ry="16" width={approxWidth + 24} height={padY * 2 + 24} fill="#ffffff" stroke="none" />
-                    {/* Additional white background for extra coverage */}
+                    {/* Simple white background to block grid lines */}
                     <rect x={rectX - 4} y={rectY - 4} rx="12" ry="12" width={approxWidth + 8} height={padY * 2 + 16} fill="#ffffff" stroke="none" />
                     {/* Dark background for tooltip */}
                     <rect x={rectX} y={rectY} rx="8" ry="8" width={approxWidth} height={padY * 2 + 8} fill="#111827" opacity="0.9" />
