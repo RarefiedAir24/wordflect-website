@@ -2464,11 +2464,11 @@ export default function Profile() {
                     </div>
                     <div className="text-right">
                       <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                        historicalThemeData.stats?.completionRate >= 100 
+                        (historicalThemeData.stats?.completionRate || 0) >= 100 
                           ? 'text-green-600 bg-green-100' 
-                          : historicalThemeData.stats?.completionRate >= 75
+                          : (historicalThemeData.stats?.completionRate || 0) >= 75
                           ? 'text-blue-600 bg-blue-100'
-                          : historicalThemeData.stats?.completionRate >= 50
+                          : (historicalThemeData.stats?.completionRate || 0) >= 50
                           ? 'text-yellow-600 bg-yellow-100'
                           : 'text-red-600 bg-red-100'
                       }`}>
