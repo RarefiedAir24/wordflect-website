@@ -383,7 +383,7 @@ export default function Profile() {
         console.log('🟢 Session words API response.days length:', Array.isArray(res.days) ? res.days.length : 'not array');
         
         const daysFromApi = Array.isArray(res.days) ? res.days.map(d => ({
-          date: new Date(d.date + 'T00:00:00'), // Parse as local time, not UTC
+          date: new Date(d.date), // Parse date string directly
           value: typeof d.value === 'number' ? d.value : 0,
           avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
         })) : [];
@@ -405,26 +405,17 @@ export default function Profile() {
             return dataDate >= startDate && dataDate <= endDate;
           });
           
-          // Convert string dates to Date objects for the component
-          const processedFilteredData = filteredData.map(day => ({
-            ...day,
-            date: new Date(day.date)
-          }));
+          // Data is already processed with Date objects
+          const processedFilteredData = filteredData;
           
           console.log('🟢 Filtered session words data:', processedFilteredData);
           console.log('🟢 Setting filtered session words days, length:', processedFilteredData.length);
           setSessionWordsDays(processedFilteredData);
         } else {
-        // Convert string dates to Date objects for the component
-        const processedDays = daysFromApi.map(day => ({
-          ...day,
-          date: new Date(day.date)
-        }));
-        
-        console.log('🟢 Setting session words days:', processedDays);
-        console.log('🟢 Setting session words days, length:', processedDays.length);
-        console.log('🟢 Setting session words days, first few:', processedDays.slice(0, 3));
-        setSessionWordsDays(processedDays);
+        console.log('🟢 Setting session words days:', daysFromApi);
+        console.log('🟢 Setting session words days, length:', daysFromApi.length);
+        console.log('🟢 Setting session words days, first few:', daysFromApi.slice(0, 3));
+        setSessionWordsDays(daysFromApi);
         console.log('🟢 Session words days state set, checking in next tick...');
         setTimeout(() => {
           console.log('🟢 Session words days state after set:', daysFromApi);
