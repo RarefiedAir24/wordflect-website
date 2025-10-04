@@ -2702,18 +2702,47 @@ export default function Profile() {
           )}
         </div>
 
-        {/* UTC Timezone Notice */}
+        {/* Time Period Reference */}
         <div className="mb-4">
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
-            {(() => {
-              const offsetMin = new Date().getTimezoneOffset();
-              const sign = offsetMin <= 0 ? '+' : '-';
-              const abs = Math.abs(offsetMin);
-              const hh = Math.floor(abs / 60).toString().padStart(2, '0');
-              const mm = (abs % 60).toString().padStart(2, '0');
-              const suffix = mm === '00' ? hh : `${hh}:${mm}`;
-              return `Note: Time periods are calculated in UTC. Your local offset is UTC${sign}${suffix}.`;
-            })()}
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+            <div className="font-semibold mb-3 flex items-center">
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Time Period Reference
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+              <div className="space-y-1">
+                <div className="font-medium text-blue-800">Late Night</div>
+                <div className="text-blue-600">12AM-4AM UTC</div>
+                <div className="text-blue-500">7PM-11PM EST</div>
+              </div>
+              <div className="space-y-1">
+                <div className="font-medium text-blue-800">Early Morning</div>
+                <div className="text-blue-600">5AM-9AM UTC</div>
+                <div className="text-blue-500">12AM-4AM EST</div>
+              </div>
+              <div className="space-y-1">
+                <div className="font-medium text-blue-800">Late Morning</div>
+                <div className="text-blue-600">10AM-12PM UTC</div>
+                <div className="text-blue-500">5AM-7AM EST</div>
+              </div>
+              <div className="space-y-1">
+                <div className="font-medium text-blue-800">Afternoon</div>
+                <div className="text-blue-600">1PM-5PM UTC</div>
+                <div className="text-blue-500">8AM-12PM EST</div>
+              </div>
+              <div className="space-y-1">
+                <div className="font-medium text-blue-800">Evening</div>
+                <div className="text-blue-600">6PM-11PM UTC</div>
+                <div className="text-blue-500">1PM-6PM EST</div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-blue-500 text-xs italic">
+                  Times are calculated in UTC for consistency across all users worldwide.
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
