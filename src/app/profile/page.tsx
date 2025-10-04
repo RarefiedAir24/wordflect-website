@@ -888,6 +888,77 @@ export default function Profile() {
 💡 **Pro Tip**: Premium subscribers get exclusive frames and early access to new releases!`;
     }
     
+    // === CUSTOM BACKGROUNDS ===
+    else if (query.includes('background') || query.includes('backgrounds') || query.includes('custom background')) {
+      response = `Custom Backgrounds:
+
+🖼️ **Background System**:
+• Choose from 20+ unique backgrounds
+• Unlock backgrounds by completing missions
+• Premium backgrounds available for gems
+• Change backgrounds anytime in settings
+
+🎨 **Background Categories**:
+• Nature themes (forest, ocean, mountains)
+• Abstract patterns (geometric, artistic)
+• Seasonal themes (winter, spring, summer, fall)
+• Special event backgrounds (holidays, celebrations)
+
+💎 **Premium Backgrounds**:
+• Exclusive animated backgrounds
+• Interactive particle effects
+• Limited edition seasonal backgrounds
+• Premium subscribers get 50% off all backgrounds!
+
+🎯 **How to Change Backgrounds**:
+1. Go to Settings
+2. Tap "Customize Background"
+3. Browse available backgrounds
+4. Preview before purchasing
+5. Apply your selection
+
+💡 **Pro Tip**: Premium subscribers get exclusive animated backgrounds and early access to new releases!`;
+    }
+    
+    // === FONT CUSTOMIZATION ===
+    else if (query.includes('font') || query.includes('text color') || query.includes('color') || query.includes('typography')) {
+      response = `Font & Text Customization:
+
+🎨 **Font System**:
+• Choose from 15+ unique font styles
+• Customize text colors for different elements
+• Adjust font sizes for accessibility
+• Preview changes before applying
+
+🌈 **Color Customization**:
+• Primary text color (main game text)
+• Secondary text color (UI elements)
+• Accent color (highlights and buttons)
+• Background text color (overlays)
+
+📝 **Font Options**:
+• Classic serif fonts (elegant, traditional)
+• Modern sans-serif fonts (clean, minimal)
+• Decorative fonts (fun, playful)
+• Accessibility fonts (dyslexia-friendly)
+
+💎 **Premium Fonts**:
+• Exclusive premium font styles
+• Advanced color customization
+• Font size presets for different needs
+• Premium subscribers get 50% off all fonts!
+
+🎯 **How to Customize Fonts**:
+1. Go to Settings
+2. Tap "Font & Colors"
+3. Choose your font style
+4. Select text colors
+5. Adjust font size
+6. Preview and apply
+
+💡 **Pro Tip**: Premium subscribers get exclusive fonts and advanced color customization options!`;
+    }
+    
     // === SUBSCRIPTION & PREMIUM FEATURES ===
     else if (query.includes('premium') || query.includes('subscription') || query.includes('upgrade') || query.includes('pro')) {
       const isPremium = profile.isPremium || false;
@@ -1131,7 +1202,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
 📊 **Your Stats**: words found, level, score, games played, coins, points, gems, battles, play time, streaks, and activity
 🎮 **Gameplay Help**: how to play, scoring, daily themes, missions, battles, tips, and strategy
 📈 **Analytics**: performance insights, time patterns, and improvement suggestions
-🎨 **Frames & Customization**: changing frames, profile setup, and personalization
+🎨 **Customization**: frames, backgrounds, fonts, colors, and personalization
 💎 **Premium Features**: subscription benefits, pricing, and exclusive content
 💰 **Payment & Purchases**: payment methods, in-app purchases, and billing
 🏆 **Leaderboards**: rankings, competition, and social features
@@ -1141,6 +1212,8 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
 • "How do I play?"
 • "What are premium features?"
 • "How do I change frames?"
+• "How do I customize backgrounds?"
+• "How do I change font colors?"
 • "What's my ranking?"
 • "Give me some tips!"
 
@@ -1862,7 +1935,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
             
             <div className="mb-4">
               <p className="text-sm text-gray-600 mb-3">
-                Ask me about your stats or gameplay help! Try: "How do I play?", "What's my peak playing time?", or "Give me some tips!"
+                Ask me about your stats, gameplay help, or customization! Try: "How do I play?", "How do I change backgrounds?", "What are premium features?", or "Give me some tips!"
               </p>
               <div className="flex gap-2">
                 <input
