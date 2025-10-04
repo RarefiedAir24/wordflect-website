@@ -1074,11 +1074,11 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
       response = `Power-ups & Game Advantages:
 
 ⚡ **Power-up Types**:
-• **Extra Time**: Extend your game timer by 30 seconds
 • **Word Hint**: Reveal one letter in a word you're struggling with
 • **Bonus Points**: Double points for your next 3 words found
 • **Letter Reveal**: Show all possible next letters for current word
 • **Streak Protection**: Prevent streak loss for one day
+• **Word Boost**: Increase word length bonus for one game
 
 💰 **How to Get Power-ups**:
 • Purchase with Flectcoins (50-200 Flectcoins each)
@@ -1202,7 +1202,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
 
 💰 **What are Flectcoins?**:
 • In-game currency earned by playing games and completing missions
-• Used to purchase power-ups, frames, and customization items
+• Used exclusively to purchase power-ups for better gameplay
 • Earned through daily games, mission completion, and battle victories
 
 🎮 **How to Earn Flectcoins**:
@@ -1213,9 +1213,9 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
 
 🛒 **How to Spend Flectcoins**:
 • Purchase power-ups for better gameplay
-• Buy exclusive frames and backgrounds
-• Unlock premium customization options
-• Get special in-game advantages
+• Buy game advantages and boosts
+• Get strategic in-game benefits
+• Enhance your word-finding abilities
 
 💎 **Premium Bonus**: Premium subscribers earn 2x Flectcoins from all activities - double your rewards!`;
     } else if (query.includes('points')) {
@@ -1242,6 +1242,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
 • Buy premium backgrounds with effects
 • Unlock special power-ups and boosts
 • Get early access to new features
+• Customize your profile appearance
 
 💎 **Premium Rewards**: Premium subscribers earn 2x gems from all activities and get exclusive gem-only content!`;
     } else if (query.includes('battles') || query.includes('battle')) {
