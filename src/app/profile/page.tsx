@@ -1881,7 +1881,7 @@ export default function Profile() {
               <span className="text-xs text-emerald-600 font-semibold">TOTAL TIME</span>
             </div>
             <p className="text-2xl font-bold text-emerald-900">
-              {(timeAnalytics?.summary as any)?.totalPlayTimeFormatted || 
+              {(timeAnalytics?.summary as { totalPlayTimeFormatted?: string })?.totalPlayTimeFormatted || 
                (usageMetrics.totalPlayTimeMinutes !== undefined
                 ? `${Math.floor((usageMetrics.totalPlayTimeMinutes) / 60)}h ${(usageMetrics.totalPlayTimeMinutes) % 60}m`
                 : 'N/A')}
@@ -3397,8 +3397,7 @@ export default function Profile() {
             </p>
             
             {/* Data Limitation Notice */}
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(timeAnalytics?.summary as any)?.hasLimitedSessionData && (
+            {(timeAnalytics?.summary as { hasLimitedSessionData?: boolean })?.hasLimitedSessionData && (
               <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                 <div className="flex items-start gap-2">
                   <svg className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3407,10 +3406,10 @@ export default function Profile() {
                   <div className="text-left">
                     <p className="text-sm text-amber-800 font-medium">Limited Historical Data</p>
                     <p className="text-xs text-amber-700 mt-1">
-                      Time period analysis is based on recent sessions only. Your lifetime total is {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      {(timeAnalytics?.summary as any)?.lifetimeGamesPlayed} games, 
-                      but only {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      {(timeAnalytics?.summary as any)?.recentSessionsAnalyzed} recent sessions are available for time period analysis.
+                      Time period analysis is based on recent sessions only. Your lifetime total is 
+                      {(timeAnalytics?.summary as { lifetimeGamesPlayed?: number })?.lifetimeGamesPlayed} games, 
+                      but only 
+                      {(timeAnalytics?.summary as { recentSessionsAnalyzed?: number })?.recentSessionsAnalyzed} recent sessions are available for time period analysis.
                     </p>
                   </div>
                 </div>
