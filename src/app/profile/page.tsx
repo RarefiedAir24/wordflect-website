@@ -46,6 +46,9 @@ export default function Profile() {
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [aiQuery, setAiQuery] = useState('');
   const [aiResponse, setAiResponse] = useState('');
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
   
   // Historical theme analytics state
   const [selectedHistoricalDate, setSelectedHistoricalDate] = useState<string>('');
@@ -1223,6 +1226,87 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
     setAiResponse(response);
   };
 
+  // Voice interaction functions
+  const startListening = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Speech recognition is not supported in this browser. Please use Chrome or Edge.');
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+    
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setAiQuery(transcript);
+      setIsListening(false);
+    };
+    
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setIsListening(false);
+    };
+    
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+    
+    recognition.start();
+  };
+
+  const speakResponse = () => {
+    if (!('speechSynthesis' in window)) {
+      alert('Speech synthesis is not supported in this browser.');
+      return;
+    }
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    if (!aiResponse) {
+      alert('No response to speak.');
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(aiResponse);
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 0.8;
+    
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+    };
+    
+    utterance.onend = () => {
+      setIsSpeaking(false);
+    };
+    
+    utterance.onerror = (event) => {
+      console.error('Speech synthesis error:', event.error);
+      setIsSpeaking(false);
+    };
+    
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Check for speech support on component mount
+  useEffect(() => {
+    const hasSpeechRecognition = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+    const hasSpeechSynthesis = 'speechSynthesis' in window;
+    setSpeechSupported(hasSpeechRecognition && hasSpeechSynthesis);
+  }, []);
+
   // Helper function to determine current time period
   const getCurrentTimePeriod = () => {
     const now = new Date();
@@ -1953,6 +2037,49 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
                   Ask
                 </button>
               </div>
+              
+              {/* Voice Interaction Buttons */}
+              {speechSupported && (
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={startListening}
+                    disabled={isListening}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                      isListening 
+                        ? 'bg-red-500 text-white cursor-not-allowed' 
+                        : 'bg-blue-500 text-white hover:bg-blue-600'
+                    }`}
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                    {isListening ? 'Listening...' : 'Voice Input'}
+                  </button>
+                  
+                  {aiResponse && (
+                    <button
+                      onClick={speakResponse}
+                      disabled={isSpeaking}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                        isSpeaking 
+                          ? 'bg-orange-500 text-white cursor-not-allowed' 
+                          : 'bg-green-500 text-white hover:bg-green-600'
+                      }`}
+                    >
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                      </svg>
+                      {isSpeaking ? 'Speaking...' : 'Speak Response'}
+                    </button>
+                  )}
+                </div>
+              )}
+              
+              {!speechSupported && (
+                <div className="text-xs text-gray-500 mt-2">
+                  Voice features require Chrome or Edge browser
+                </div>
+              )}
             </div>
             
             {aiResponse && (
