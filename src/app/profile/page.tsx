@@ -3857,11 +3857,22 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
                 const valueLabel = `${p.data.value} words`;
                 const words = p.data.words || [];
                 
-              // Format words better - show up to 2 words, then "and X more" for better fit
+              // Format words with line breaks for better fit
               const formatWords = (wordList: string[]) => {
-                if (wordList.length === 0) return 'No new words';
-                if (wordList.length <= 2) return wordList.join(', ');
-                return `${wordList.slice(0, 2).join(', ')} and ${wordList.length - 2} more`;
+                if (wordList.length === 0) return ['No new words'];
+                if (wordList.length <= 3) return [wordList.join(', ')];
+                
+                // Split into multiple lines for better fit
+                const words = wordList.slice(0, 6); // Show up to 6 words
+                const lines = [];
+                for (let i = 0; i < words.length; i += 3) {
+                  const lineWords = words.slice(i, i + 3);
+                  lines.push(lineWords.join(', '));
+                }
+                if (wordList.length > 6) {
+                  lines[lines.length - 1] += ` and ${wordList.length - 6} more`;
+                }
+                return lines;
               };
                 
                 const wordsText = formatWords(words);
@@ -3869,13 +3880,13 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
               // Calculate dimensions with better width estimation and centering
               const titleWidth = title.length * 7;
               const valueWidth = valueLabel.length * 7;
-              const wordsWidth = wordsText.length * 6;
+              const wordsWidth = Math.max(...wordsText.map(line => line.length * 6));
               const maxWidth = Math.max(titleWidth, valueWidth, wordsWidth) + 40; // More padding
-              const textWidth = Math.max(maxWidth, 180); // Minimum width increased
+              const textWidth = Math.max(maxWidth, 200); // Minimum width increased
                 
                 const rectX = p.x - textWidth / 2;
                 const rectY = labelY - 32;
-                const rectHeight = 40;
+                const rectHeight = 40 + (wordsText.length - 1) * 12; // Dynamic height based on lines
                 
                 return (
                   <g>
@@ -3887,10 +3898,20 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
                     <text x={p.x} y={rectY + 14} textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="700">{title}</text>
                     <text x={p.x} y={rectY + 26} textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">{valueLabel}</text>
                     
-                    {/* Better word text handling with proper centering and truncation */}
-                    <text x={p.x} y={rectY + 38} textAnchor="middle" fill="#d1d5db" fontSize="10" fontWeight="500">
-                      {wordsText.length > 45 ? wordsText.substring(0, 42) + '...' : wordsText}
-                    </text>
+                    {/* Multi-line word text with proper centering */}
+                    {wordsText.map((line, index) => (
+                      <text 
+                        key={index}
+                        x={p.x} 
+                        y={rectY + 38 + (index * 12)} 
+                        textAnchor="middle" 
+                        fill="#d1d5db" 
+                        fontSize="10" 
+                        fontWeight="500"
+                      >
+                        {line}
+                      </text>
+                    ))}
                   </g>
                 );
               })()}
