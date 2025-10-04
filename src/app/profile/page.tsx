@@ -1233,7 +1233,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
       return;
     }
 
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition = (window as { SpeechRecognition?: any; webkitSpeechRecognition?: any }).SpeechRecognition || (window as { SpeechRecognition?: any; webkitSpeechRecognition?: any }).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     
     recognition.continuous = false;
@@ -1244,13 +1244,13 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
       setIsListening(true);
     };
     
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: { results: { [key: number]: { [key: number]: { transcript: string } } } }) => {
       const transcript = event.results[0][0].transcript;
       setAiQuery(transcript);
       setIsListening(false);
     };
     
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: { error: string }) => {
       console.error('Speech recognition error:', event.error);
       setIsListening(false);
     };
