@@ -3849,77 +3849,80 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
           </g>
         ))}
 
-        {/* Hover value label as SVG (more reliable than HTML overlay) */}
-        {hoveredPoint !== null && points[hoveredPoint] && (
-          <g>
-            {(() => {
-              const p = points[hoveredPoint];
-              const labelY = Math.max(16, p.y - 28);
-              const title = p.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-              const valueLabel = `${p.data.value} words`;
-              const words = p.data.words || [];
-              
-              // Format words better - show up to 3 words, then "and X more"
-              const formatWords = (wordList: string[]) => {
-                if (wordList.length === 0) return 'No new words';
-                if (wordList.length <= 3) return wordList.join(', ');
-                return `${wordList.slice(0, 3).join(', ')} and ${wordList.length - 3} more`;
-              };
-              
-              const wordsText = formatWords(words);
-              
-              // Calculate dimensions with better width estimation
-              const titleWidth = title.length * 7;
-              const valueWidth = valueLabel.length * 7;
-              const wordsWidth = wordsText.length * 6;
-              const maxWidth = Math.max(titleWidth, valueWidth, wordsWidth) + 32; // More padding
-              const textWidth = Math.max(maxWidth, 160); // Minimum width increased
-              
-              const rectX = p.x - textWidth / 2;
-              const rectY = labelY - 32;
-              const rectHeight = 40;
-              
-              return (
-                <g>
-                  {/* Solid background to completely block grid lines */}
-                  <rect x={rectX - 4} y={rectY - 4} rx="12" ry="12" width={textWidth + 8} height={rectHeight + 8} fill="#111827" />
-                  {/* Main tooltip background */}
-                  <rect x={rectX} y={rectY} rx="8" ry="8" width={textWidth} height={rectHeight} fill="#111827" stroke="#374151" strokeWidth="1" />
-                  
-                  <text x={p.x} y={rectY + 14} textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="700">{title}</text>
-                  <text x={p.x} y={rectY + 26} textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">{valueLabel}</text>
-                  
-                  {/* Better word text handling with proper wrapping */}
-                  <text x={p.x} y={rectY + 38} textAnchor="middle" fill="#d1d5db" fontSize="10" fontWeight="500">
-                    {wordsText.length > 50 ? wordsText.substring(0, 47) + '...' : wordsText}
-                  </text>
-                </g>
-              );
-            })()}
-          </g>
-        )}
+        {/* Tooltips layer - rendered on top of everything */}
+        <g style={{ zIndex: 10 }}>
+          {/* Hover value label as SVG (more reliable than HTML overlay) */}
+          {hoveredPoint !== null && points[hoveredPoint] && (
+            <g>
+              {(() => {
+                const p = points[hoveredPoint];
+                const labelY = Math.max(16, p.y - 28);
+                const title = p.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const valueLabel = `${p.data.value} words`;
+                const words = p.data.words || [];
+                
+                // Format words better - show up to 3 words, then "and X more"
+                const formatWords = (wordList: string[]) => {
+                  if (wordList.length === 0) return 'No new words';
+                  if (wordList.length <= 3) return wordList.join(', ');
+                  return `${wordList.slice(0, 3).join(', ')} and ${wordList.length - 3} more`;
+                };
+                
+                const wordsText = formatWords(words);
+                
+                // Calculate dimensions with better width estimation
+                const titleWidth = title.length * 7;
+                const valueWidth = valueLabel.length * 7;
+                const wordsWidth = wordsText.length * 6;
+                const maxWidth = Math.max(titleWidth, valueWidth, wordsWidth) + 32; // More padding
+                const textWidth = Math.max(maxWidth, 160); // Minimum width increased
+                
+                const rectX = p.x - textWidth / 2;
+                const rectY = labelY - 32;
+                const rectHeight = 40;
+                
+                return (
+                  <g>
+                    {/* Solid background to completely block grid lines */}
+                    <rect x={rectX - 4} y={rectY - 4} rx="12" ry="12" width={textWidth + 8} height={rectHeight + 8} fill="#111827" />
+                    {/* Main tooltip background */}
+                    <rect x={rectX} y={rectY} rx="8" ry="8" width={textWidth} height={rectHeight} fill="#111827" stroke="#374151" strokeWidth="1" />
+                    
+                    <text x={p.x} y={rectY + 14} textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="700">{title}</text>
+                    <text x={p.x} y={rectY + 26} textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">{valueLabel}</text>
+                    
+                    {/* Better word text handling with proper wrapping */}
+                    <text x={p.x} y={rectY + 38} textAnchor="middle" fill="#d1d5db" fontSize="10" fontWeight="500">
+                      {wordsText.length > 50 ? wordsText.substring(0, 47) + '...' : wordsText}
+                    </text>
+                  </g>
+                );
+              })()}
+            </g>
+          )}
 
-        {/* Pinned value label for selected point */}
-        {selectedPoint !== null && points[selectedPoint] && (
-          <g>
-            {(() => {
-              const p = points[selectedPoint];
-              const labelY = Math.max(16, p.y - 18);
-              const label = String(p.data.value);
-              const padX = 10;
-              const padY = 6;
-              const approxWidth = label.length * 7 + padX * 2; // rough text width estimate
-              const rectX = p.x - approxWidth / 2;
-              const rectY = labelY - (padY * 2);
-              return (
-                <g>
-                  <rect x={rectX} y={rectY} rx="8" ry="8" width={approxWidth} height={padY * 2 + 8} fill="#111827" opacity="0.9" />
-                  <text x={p.x} y={labelY} textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">{label}</text>
-                </g>
-              );
-            })()}
-          </g>
-        )}
+          {/* Pinned value label for selected point */}
+          {selectedPoint !== null && points[selectedPoint] && (
+            <g>
+              {(() => {
+                const p = points[selectedPoint];
+                const labelY = Math.max(16, p.y - 18);
+                const label = String(p.data.value);
+                const padX = 10;
+                const padY = 6;
+                const approxWidth = label.length * 7 + padX * 2; // rough text width estimate
+                const rectX = p.x - approxWidth / 2;
+                const rectY = labelY - (padY * 2);
+                return (
+                  <g>
+                    <rect x={rectX} y={rectY} rx="8" ry="8" width={approxWidth} height={padY * 2 + 8} fill="#111827" opacity="0.9" />
+                    <text x={p.x} y={labelY} textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">{label}</text>
+                  </g>
+                );
+              })()}
+            </g>
+          )}
+        </g>
         
         {/* Date labels - Better spacing and larger font */}
         {dateLabels.map((d, i) => {
