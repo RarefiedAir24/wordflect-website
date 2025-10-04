@@ -2281,6 +2281,99 @@ export default function Profile() {
           })()}
         </div>
 
+        {/* Historical Theme Analytics */}
+        <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center">
+              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h4 className="font-semibold text-gray-900">Historical Theme Performance</h4>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Date Picker */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Date
+              </label>
+              <input
+                type="date"
+                max={new Date().toISOString().split('T')[0]}
+                min={new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                onChange={(e) => {
+                  if (e.target.value) {
+                    // Handle date selection - you can add state management here
+                    console.log('Selected date:', e.target.value);
+                  }
+                }}
+              />
+            </div>
+            
+            {/* Quick Date Buttons */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quick Select
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    const today = new Date().toISOString().split('T')[0];
+                    // Handle today selection
+                    console.log('Today selected:', today);
+                  }}
+                  className="px-3 py-1 text-xs bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition-colors"
+                >
+                  Today
+                </button>
+                <button
+                  onClick={() => {
+                    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                    // Handle yesterday selection
+                    console.log('Yesterday selected:', yesterday);
+                  }}
+                  className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                >
+                  Yesterday
+                </button>
+                <button
+                  onClick={() => {
+                    const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                    // Handle last week selection
+                    console.log('Last week selected:', lastWeek);
+                  }}
+                  className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                >
+                  Last Week
+                </button>
+                <button
+                  onClick={() => {
+                    const lastMonth = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                    // Handle last month selection
+                    console.log('Last month selected:', lastMonth);
+                  }}
+                  className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                >
+                  Last Month
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Historical Data Display */}
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <div className="text-center text-gray-600">
+              <svg className="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              <p className="text-sm">Select a date to view historical theme performance</p>
+              <p className="text-xs text-gray-500 mt-1">View your daily theme progress for any past date</p>
+            </div>
+          </div>
+        </div>
+
         {/* Theme Search & Filter */}
         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
           <div className="flex items-center gap-3 mb-4">
