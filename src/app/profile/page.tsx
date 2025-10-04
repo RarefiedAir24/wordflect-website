@@ -735,7 +735,9 @@ export default function Profile() {
 • Look for common prefixes/suffixes
 • Start with longer words for more points
 • Use the timer strategically
-• Complete daily themes for bonus rewards!`;
+• Complete daily themes for bonus rewards!
+
+💎 **Pro Tip**: Premium subscribers get exclusive themes, bonus gems, and priority support!`;
     }
     
     else if (query.includes('scoring') || query.includes('points') || query.includes('how to score')) {
@@ -853,47 +855,296 @@ export default function Profile() {
 🎯 **Improvement Areas**:
 • Try playing during your peak time: ${peakPeriod}
 • Focus on longer words for higher scores
-• Complete daily themes for bonus points!`;
+• Complete daily themes for bonus points!
+
+💎 **Premium Analytics**: Upgrade to Premium for advanced analytics, trend analysis, and personalized insights!`;
+    }
+    
+    // === FRAMES & CUSTOMIZATION ===
+    else if (query.includes('frames') || query.includes('customize') || query.includes('profile') || query.includes('avatar')) {
+      response = `Frames & Customization:
+
+🎨 **Current Frame**: ${profile.selectedFrame || 'Default Frame'}
+💰 **Your Flectcoins**: ${profile.flectcoins.toLocaleString()}
+
+🖼️ **Frame System**:
+• Unlock frames by playing games and completing missions
+• Each frame has unique visual effects and animations
+• Premium frames available for Flectcoins or gems
+• Change frames anytime in your profile
+
+💎 **Premium Frames**:
+• Exclusive animated frames
+• Special effects and particles
+• Limited edition seasonal frames
+• Premium subscribers get 50% off all frames!
+
+🎯 **How to Change Frames**:
+1. Go to your Profile
+2. Tap "Select Frame"
+3. Choose from unlocked frames
+4. Preview before purchasing
+
+💡 **Pro Tip**: Premium subscribers get exclusive frames and early access to new releases!`;
+    }
+    
+    // === SUBSCRIPTION & PREMIUM FEATURES ===
+    else if (query.includes('premium') || query.includes('subscription') || query.includes('upgrade') || query.includes('pro')) {
+      const isPremium = profile.isPremium || false;
+      response = `Premium Subscription:
+
+${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Premium for exclusive benefits!**'}
+
+⭐ **Premium Features**:
+• Unlimited daily games (vs 3 for free users)
+• Exclusive daily themes and word sets
+• 2x gems and Flectcoins from all activities
+• Priority customer support
+• Advanced analytics and insights
+• Exclusive frames and customization
+• Ad-free experience
+• Early access to new features
+
+💰 **Pricing**:
+• Monthly: $4.99/month
+• Annual: $39.99/year (33% savings!)
+• Lifetime: $99.99 (one-time payment)
+
+🎯 **Value Proposition**:
+• Save 2+ hours per month with unlimited games
+• Earn 2x rewards worth $10+ monthly
+• Exclusive content worth $15+ monthly
+• Total value: $25+ monthly for just $4.99!
+
+💡 **Why Premium?**: Premium users find 3x more words, earn 2x more rewards, and get exclusive content that free users miss out on!`;
+    }
+    
+    // === PAYMENT & PURCHASES ===
+    else if (query.includes('purchase') || query.includes('buy') || query.includes('payment') || query.includes('billing')) {
+      response = `Payment & Purchases:
+
+💳 **Payment Methods**:
+• Credit/Debit Cards (Visa, MasterCard, American Express)
+• PayPal
+• Apple Pay (iOS)
+• Google Pay (Android)
+• Cryptocurrency (Bitcoin, Ethereum)
+
+💰 **In-App Purchases**:
+• Flectcoins: $0.99 - $19.99
+• Gems: $1.99 - $49.99
+• Premium Frames: $2.99 - $9.99
+• Premium Subscription: $4.99/month
+
+🔒 **Security**:
+• All payments processed securely
+• No payment data stored on our servers
+• PCI DSS compliant
+• 256-bit SSL encryption
+
+💎 **Premium Value**:
+• Monthly subscription costs less than a coffee
+• Annual subscription saves you $20/year
+• Lifetime option pays for itself in 2 years
+• Cancel anytime with no penalties
+
+🎯 **Best Value**: Annual Premium subscription gives you the most bang for your buck!`;
+    }
+    
+    // === GAME FEATURES & MECHANICS ===
+    else if (query.includes('features') || query.includes('what can i do') || query.includes('game features')) {
+      response = `WordFlect Game Features:
+
+🎮 **Core Features**:
+• Daily word puzzles with unique grids
+• Daily themes with bonus rewards
+• Mission system (Daily, Weekly, Global)
+• Battle system for multiplayer competition
+• Leaderboards and rankings
+• Achievement system
+• Progress tracking and analytics
+
+🏆 **Rewards System**:
+• Flectcoins for in-game purchases
+• Gems for premium content
+• Experience points for leveling up
+• Streak bonuses for daily play
+• Mission completion rewards
+
+🎨 **Customization**:
+• Multiple frame options
+• Profile customization
+• Achievement badges
+• Progress tracking
+• Personal statistics
+
+💎 **Premium Features**:
+• Unlimited daily games
+• Exclusive themes and content
+• 2x rewards and bonuses
+• Advanced analytics
+• Priority support
+• Ad-free experience
+
+🎯 **Social Features**:
+• Friend battles and challenges
+• Leaderboard competitions
+• Achievement sharing
+• Progress comparison
+
+💡 **Pro Tip**: Premium subscribers get access to all features and exclusive content!`;
+    }
+    
+    // === HELP & SUPPORT ===
+    else if (query.includes('help') || query.includes('support') || query.includes('contact') || query.includes('problem')) {
+      response = `Help & Support:
+
+🆘 **Getting Help**:
+• Check this AI assistant for instant answers
+• Browse our comprehensive help center
+• Contact support via in-app messaging
+• Join our community Discord server
+
+📞 **Support Channels**:
+• In-app support (24/7)
+• Email: support@wordflect.com
+• Discord community
+• Social media support
+
+💎 **Premium Support**:
+• Priority support queue
+• Direct access to developers
+• Advanced troubleshooting
+• Feature request priority
+
+🔧 **Common Issues**:
+• Game not loading: Check internet connection
+• Progress not saving: Ensure you're logged in
+• Payment issues: Contact support immediately
+• Account problems: Use account recovery
+
+🎯 **Quick Solutions**:
+• Restart the app for most issues
+• Clear cache if experiencing lag
+• Update to latest version
+• Check device compatibility
+
+💡 **Pro Tip**: Premium subscribers get priority support and direct developer access!`;
+    }
+    
+    // === LEADERBOARDS & COMPETITION ===
+    else if (query.includes('leaderboard') || query.includes('ranking') || query.includes('competition') || query.includes('top players')) {
+      response = `Leaderboards & Competition:
+
+🏆 **Leaderboard Types**:
+• Daily leaderboards (resets daily)
+• Weekly leaderboards (resets Sunday)
+• Monthly leaderboards (resets monthly)
+• All-time leaderboards
+• Friend leaderboards
+
+📊 **Ranking Factors**:
+• Total words found
+• High scores
+• Win rate in battles
+• Streak length
+• Mission completion
+
+🎯 **Your Rankings**:
+• Current level: ${profile.level || 1}
+• Total games: ${profile.gamesPlayed}
+• High score: ${profile.topScore?.toLocaleString() || 0}
+• Battle wins: ${profile.battleWins || 0}
+
+💎 **Premium Advantages**:
+• Exclusive leaderboard categories
+• Advanced ranking statistics
+• Detailed performance analysis
+• Competitive edge with unlimited games
+
+🎮 **Competition Tips**:
+• Play daily for consistent ranking
+• Focus on high-scoring words
+• Complete missions for bonus points
+• Battle other players for extra rewards
+
+💡 **Pro Tip**: Premium subscribers get exclusive leaderboard categories and advanced statistics!`;
     }
     
     // === PERSONAL STATS (existing functionality) ===
     else if (query.includes('words') || query.includes('word')) {
       const totalWords = profile.allFoundWords.length;
-      response = `You have found ${totalWords.toLocaleString()} words total!`;
+      response = `You have found ${totalWords.toLocaleString()} words total!
+
+💎 **Premium Tip**: Premium subscribers find 3x more words with unlimited daily games and exclusive themes!`;
     } else if (query.includes('level') || query.includes('levels')) {
-      response = `You are currently at Level ${profile.highestLevel}!`;
+      response = `You are currently at Level ${profile.highestLevel}!
+
+💎 **Premium Advantage**: Premium subscribers level up 2x faster with bonus experience points!`;
     } else if (query.includes('win') || query.includes('rate') || query.includes('percentage')) {
       const rate = winRate(profile);
-      response = `Your win rate is ${rate}% (${profile.battleWins} wins, ${profile.battleLosses} losses).`;
+      response = `Your win rate is ${rate}% (${profile.battleWins} wins, ${profile.battleLosses} losses).
+
+💎 **Premium Edge**: Premium subscribers get exclusive battle strategies and advanced analytics to improve their win rate!`;
     } else if (query.includes('games') || query.includes('played')) {
-      response = `You have played ${profile.gamesPlayed} games total.`;
+      response = `You have played ${profile.gamesPlayed} games total.
+
+💎 **Premium Benefit**: Premium subscribers get unlimited daily games (vs 3 for free users) - that's 10x more games per day!`;
     } else if (query.includes('coins') || query.includes('flectcoins')) {
-      response = `You have ${profile.flectcoins.toLocaleString()} Flectcoins!`;
+      response = `You have ${profile.flectcoins.toLocaleString()} Flectcoins!
+
+💎 **Premium Bonus**: Premium subscribers earn 2x Flectcoins from all activities - double your rewards!`;
     } else if (query.includes('points')) {
-      response = `You have ${profile.points.toLocaleString()} points!`;
+      response = `You have ${profile.points.toLocaleString()} points!
+
+💎 **Premium Multiplier**: Premium subscribers earn 2x points from all activities and get exclusive high-scoring themes!`;
     } else if (query.includes('gems')) {
-      response = `You have ${profile.gems.toLocaleString()} gems!`;
+      response = `You have ${profile.gems.toLocaleString()} gems!
+
+💎 **Premium Rewards**: Premium subscribers earn 2x gems from all activities and get exclusive gem-only content!`;
     } else if (query.includes('battles') || query.includes('battle')) {
-      response = `You have ${profile.battleWins} battle wins and ${profile.battleLosses} battle losses.`;
+      response = `You have ${profile.battleWins} battle wins and ${profile.battleLosses} battle losses.
+
+💎 **Premium Battles**: Premium subscribers get exclusive battle modes, advanced strategies, and priority matchmaking!`;
     } else if (query.includes('time') || query.includes('play time')) {
       const totalMinutes = usageMetrics.totalPlayTimeMinutes;
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
-      response = `You have played for ${hours} hours and ${minutes} minutes total.`;
+      response = `You have played for ${hours} hours and ${minutes} minutes total.
+
+💎 **Premium Value**: Premium subscribers get unlimited play time and advanced time analytics to optimize their gaming sessions!`;
     } else if (query.includes('streak') || query.includes('current streak')) {
-      response = `Your current streak is ${usageMetrics.currentStreakDays} days.`;
+      response = `Your current streak is ${usageMetrics.currentStreakDays} days.
+
+💎 **Premium Streaks**: Premium subscribers get streak protection and bonus rewards for maintaining streaks!`;
     } else if (query.includes('longest streak')) {
-      response = `Your longest streak was ${usageMetrics.longestStreakDays} days.`;
+      response = `Your longest streak was ${usageMetrics.longestStreakDays} days.
+
+💎 **Premium Streaks**: Premium subscribers get streak protection and bonus rewards for maintaining streaks!`;
     } else if (query.includes('days') || query.includes('active')) {
-      response = `You have been active for ${usageMetrics.daysLoggedIn} days.`;
+      response = `You have been active for ${usageMetrics.daysLoggedIn} days.
+
+💎 **Premium Activity**: Premium subscribers get daily login bonuses and exclusive rewards for consistent activity!`;
     } else {
       response = `I can help you with:
 
 📊 **Your Stats**: words found, level, score, games played, coins, points, gems, battles, play time, streaks, and activity
 🎮 **Gameplay Help**: how to play, scoring, daily themes, missions, battles, tips, and strategy
 📈 **Analytics**: performance insights, time patterns, and improvement suggestions
+🎨 **Frames & Customization**: changing frames, profile setup, and personalization
+💎 **Premium Features**: subscription benefits, pricing, and exclusive content
+💰 **Payment & Purchases**: payment methods, in-app purchases, and billing
+🏆 **Leaderboards**: rankings, competition, and social features
+🆘 **Help & Support**: troubleshooting, contact info, and common issues
 
-Try asking: "How do I play?", "What's my peak playing time?", or "Give me some tips!"`;
+💡 **Try asking**: 
+• "How do I play?"
+• "What are premium features?"
+• "How do I change frames?"
+• "What's my ranking?"
+• "Give me some tips!"
+
+💎 **Pro Tip**: Premium subscribers get exclusive content, unlimited games, and priority support!`;
     }
     
     setAiResponse(response);
