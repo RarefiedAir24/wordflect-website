@@ -837,8 +837,8 @@ export default function Profile() {
     }
     
     else if (query.includes('analytics') || query.includes('stats') || query.includes('performance')) {
-      const totalTime = timeAnalytics?.summary?.totalPlayTimeFormatted || '0m 0s';
-      const peakPeriod = timeAnalytics?.summary?.peakPeriod || 'Unknown';
+      const totalTime = (timeAnalytics?.summary as { totalPlayTimeFormatted?: string })?.totalPlayTimeFormatted || '0m 0s';
+      const peakPeriod = (timeAnalytics?.summary as { peakPeriod?: string })?.peakPeriod || 'Unknown';
       response = `Your Performance Analytics:
 
 ⏰ **Play Patterns**:
@@ -849,7 +849,7 @@ export default function Profile() {
 
 📊 **Time Analytics**:
 • Your most active time period: ${peakPeriod}
-• Total words across all periods: ${timeAnalytics?.summary?.totalWordsAcrossPeriods || 0}
+• Total words across all periods: ${(timeAnalytics?.summary as { totalWordsAcrossPeriods?: number })?.totalWordsAcrossPeriods || 0}
 • Average session length: ${usageMetrics.avgSessionMinutes || 0} minutes
 
 🎯 **Improvement Areas**:
