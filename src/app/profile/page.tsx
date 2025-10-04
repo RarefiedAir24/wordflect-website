@@ -46,6 +46,12 @@ export default function Profile() {
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [aiQuery, setAiQuery] = useState('');
   const [aiResponse, setAiResponse] = useState('');
+  
+  // Historical theme analytics state
+  const [selectedHistoricalDate, setSelectedHistoricalDate] = useState<string>('');
+  const [historicalThemeData, setHistoricalThemeData] = useState<any>(null);
+  const [loadingHistoricalData, setLoadingHistoricalData] = useState(false);
+  const [historicalError, setHistoricalError] = useState<string | null>(null);
 
   // Derived UI helpers
   const winRate = (p: UserProfile) => {
@@ -963,6 +969,40 @@ export default function Profile() {
       return { found, total };
     }
     return undefined;
+  };
+
+  // Fetch historical theme data for a specific date
+  const fetchHistoricalThemeData = async (date: string) => {
+    setLoadingHistoricalData(true);
+    setHistoricalError(null);
+    
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`/api/proxy-theme-day?date=${date}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch theme data: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Historical theme data:', data);
+      setHistoricalThemeData(data);
+    } catch (err) {
+      console.error('Error fetching historical theme data:', err);
+      setHistoricalError(err instanceof Error ? err.message : 'Failed to fetch theme data');
+      setHistoricalThemeData(null);
+    } finally {
+      setLoadingHistoricalData(false);
+    }
   };
 
   const getThemePerformanceSummary = () => {
@@ -2300,13 +2340,14 @@ export default function Profile() {
               </label>
               <input
                 type="date"
+                value={selectedHistoricalDate}
                 max={new Date().toISOString().split('T')[0]}
                 min={new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 onChange={(e) => {
                   if (e.target.value) {
-                    // Handle date selection - you can add state management here
-                    console.log('Selected date:', e.target.value);
+                    setSelectedHistoricalDate(e.target.value);
+                    fetchHistoricalThemeData(e.target.value);
                   }
                 }}
               />
@@ -2321,8 +2362,8 @@ export default function Profile() {
                 <button
                   onClick={() => {
                     const today = new Date().toISOString().split('T')[0];
-                    // Handle today selection
-                    console.log('Today selected:', today);
+                    setSelectedHistoricalDate(today);
+                    fetchHistoricalThemeData(today);
                   }}
                   className="px-3 py-1 text-xs bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition-colors"
                 >
@@ -2331,8 +2372,8 @@ export default function Profile() {
                 <button
                   onClick={() => {
                     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                    // Handle yesterday selection
-                    console.log('Yesterday selected:', yesterday);
+                    setSelectedHistoricalDate(yesterday);
+                    fetchHistoricalThemeData(yesterday);
                   }}
                   className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
                 >
@@ -2341,8 +2382,8 @@ export default function Profile() {
                 <button
                   onClick={() => {
                     const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                    // Handle last week selection
-                    console.log('Last week selected:', lastWeek);
+                    setSelectedHistoricalDate(lastWeek);
+                    fetchHistoricalThemeData(lastWeek);
                   }}
                   className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
                 >
@@ -2351,8 +2392,8 @@ export default function Profile() {
                 <button
                   onClick={() => {
                     const lastMonth = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                    // Handle last month selection
-                    console.log('Last month selected:', lastMonth);
+                    setSelectedHistoricalDate(lastMonth);
+                    fetchHistoricalThemeData(lastMonth);
                   }}
                   className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
                 >
@@ -2363,14 +2404,160 @@ export default function Profile() {
           </div>
           
           {/* Historical Data Display */}
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <div className="text-center text-gray-600">
-              <svg className="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              <p className="text-sm">Select a date to view historical theme performance</p>
-              <p className="text-xs text-gray-500 mt-1">View your daily theme progress for any past date</p>
-            </div>
+          <div className="mt-4">
+            {loadingHistoricalData && (
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                  <span className="ml-3 text-blue-700">Loading theme data...</span>
+                </div>
+              </div>
+            )}
+
+            {historicalError && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800">Error loading theme data</h3>
+                    <div className="mt-2 text-sm text-red-700">{historicalError}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {historicalThemeData && !loadingHistoricalData && (
+              <div className="space-y-4">
+                {/* Header Info */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {new Date(selectedHistoricalDate).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {historicalThemeData.theme?.name || 'Unknown Theme'}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                        historicalThemeData.stats?.completionRate >= 100 
+                          ? 'text-green-600 bg-green-100' 
+                          : historicalThemeData.stats?.completionRate >= 75
+                          ? 'text-blue-600 bg-blue-100'
+                          : historicalThemeData.stats?.completionRate >= 50
+                          ? 'text-yellow-600 bg-yellow-100'
+                          : 'text-red-600 bg-red-100'
+                      }`}>
+                        {historicalThemeData.stats?.completionRate || 0}% Complete
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Progress Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {historicalThemeData.stats?.totalThemeWordsFound || 0}
+                    </div>
+                    <div className="text-sm text-gray-600">Words Found</div>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="text-2xl font-bold text-green-600">
+                      {historicalThemeData.theme?.words?.length || 20}
+                    </div>
+                    <div className="text-sm text-gray-600">Total Words</div>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="text-2xl font-bold text-purple-600">
+                      {historicalThemeData.stats?.isCompleted ? '✅' : '⏳'}
+                    </div>
+                    <div className="text-sm text-gray-600">Status</div>
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Progress</span>
+                    <span className="text-sm text-gray-600">
+                      {historicalThemeData.stats?.totalThemeWordsFound || 0} / {historicalThemeData.theme?.words?.length || 20}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div
+                      className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-300"
+                      style={{ width: `${historicalThemeData.stats?.completionRate || 0}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Theme Words Grid */}
+                {historicalThemeData.allThemeWords && (
+                  <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Theme Words</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                      {historicalThemeData.allThemeWords.map((wordData: any, index: number) => (
+                        <div
+                          key={index}
+                          className={`p-3 rounded-lg text-center text-sm font-medium transition-colors ${
+                            wordData.found
+                              ? 'bg-green-100 text-green-800 border border-green-200'
+                              : 'bg-gray-100 text-gray-600 border border-gray-200'
+                          }`}
+                        >
+                          <div className="flex items-center justify-center">
+                            {wordData.found && (
+                              <svg className="w-4 h-4 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                            {wordData.word}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Summary */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="text-lg font-semibold text-blue-900 mb-2">Performance Summary</h4>
+                  <div className="text-sm text-blue-800">
+                    {historicalThemeData.stats?.isCompleted ? (
+                      <p>🎉 Congratulations! You completed the {historicalThemeData.theme?.name} theme on {new Date(selectedHistoricalDate).toLocaleDateString()}!</p>
+                    ) : (
+                      <p>
+                        You found {historicalThemeData.stats?.totalThemeWordsFound || 0} out of {historicalThemeData.theme?.words?.length || 20} words 
+                        ({historicalThemeData.stats?.completionRate || 0}% complete) for the {historicalThemeData.theme?.name} theme.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!selectedHistoricalDate && !loadingHistoricalData && !historicalError && (
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <div className="text-center text-gray-600">
+                  <svg className="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-sm">Select a date to view historical theme performance</p>
+                  <p className="text-xs text-gray-500 mt-1">View your daily theme progress for any past date</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
