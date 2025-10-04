@@ -720,8 +720,144 @@ export default function Profile() {
     const query = aiQuery.toLowerCase();
     let response = '';
     
-    // AI responses based on user data
-    if (query.includes('words') || query.includes('word')) {
+    // === GAMEPLAY HELP & TIPS ===
+    if (query.includes('how to play') || query.includes('how do i play') || query.includes('rules')) {
+      response = `WordFlect is a word puzzle game! Here's how to play:
+
+🎯 **Objective**: Find as many words as possible from a 4x4 letter grid
+📝 **Rules**: 
+• Words must be 3+ letters long
+• Use adjacent letters (including diagonals)
+• Each letter can only be used once per word
+• No proper nouns or abbreviations
+
+💡 **Tips**: 
+• Look for common prefixes/suffixes
+• Start with longer words for more points
+• Use the timer strategically
+• Complete daily themes for bonus rewards!`;
+    }
+    
+    else if (query.includes('scoring') || query.includes('points') || query.includes('how to score')) {
+      response = `Scoring in WordFlect:
+
+📊 **Point System**:
+• 3-letter words: 1 point
+• 4-letter words: 2 points  
+• 5-letter words: 3 points
+• 6-letter words: 4 points
+• 7+ letter words: 5+ points
+
+🎯 **Bonus Multipliers**:
+• Daily theme words: 2x points
+• Perfect games: Bonus gems
+• Streaks: Extra rewards
+
+💎 **Your Stats**: You have ${profile.points.toLocaleString()} total points and ${profile.gems.toLocaleString()} gems!`;
+    }
+    
+    else if (query.includes('daily theme') || query.includes('theme words') || query.includes('daily challenge')) {
+      const currentTheme = themeAnalytics?.currentTheme || 'Unknown';
+      const themeProgress = themeAnalytics?.themeProgress;
+      response = `Daily Theme System:
+
+🎨 **Today's Theme**: ${currentTheme}
+📈 **Your Progress**: ${themeProgress?.found || 0}/${themeProgress?.total || 0} words found
+
+💡 **Benefits**:
+• Theme words give 2x points
+• Complete themes for bonus gems
+• New theme every day at midnight UTC
+• Track your progress in analytics
+
+🎯 **Tip**: Focus on finding theme words first, then explore other words!`;
+    }
+    
+    else if (query.includes('missions') || query.includes('daily mission') || query.includes('weekly mission')) {
+      const dailyProgress = profile.missions?.daily;
+      const weeklyProgress = profile.missions?.weekly;
+      response = `Mission System:
+
+📅 **Daily Missions**: 
+• Progress: ${dailyProgress?.progress || 0}/${dailyProgress?.target || 0}
+• Reset: Every day at midnight UTC
+• Rewards: Gems and Flectcoins
+
+📊 **Weekly Missions**:
+• Progress: ${weeklyProgress?.progress || 0}/${weeklyProgress?.target || 0}  
+• Reset: Every Sunday at midnight UTC
+• Rewards: Premium rewards
+
+🎯 **Global Missions**: Long-term achievements with special rewards!`;
+    }
+    
+    else if (query.includes('battles') || query.includes('how to battle') || query.includes('multiplayer')) {
+      response = `Battle System:
+
+⚔️ **How Battles Work**:
+• Challenge friends or random opponents
+• Both players get the same word grid
+• Find words within the time limit
+• Highest score wins!
+
+📊 **Your Battle Stats**: 
+• Wins: ${profile.battleWins || 0}
+• Losses: ${profile.battleLosses || 0}
+• Win Rate: ${profile.battleWins && profile.battleLosses ? Math.round((profile.battleWins / (profile.battleWins + profile.battleLosses)) * 100) : 0}%
+
+💡 **Battle Tips**:
+• Practice with daily games first
+• Focus on longer, higher-scoring words
+• Use your best strategies
+• Challenge players of similar skill level!`;
+    }
+    
+    else if (query.includes('tips') || query.includes('strategy') || query.includes('how to improve')) {
+      response = `Pro Tips for WordFlect:
+
+🧠 **Word Finding Strategy**:
+• Scan for common word patterns (ING, TION, ER, ED)
+• Look for prefixes (UN, RE, PRE) and suffixes (LY, EST, FUL)
+• Start with longer words for more points
+• Use the timer wisely - don't rush!
+
+🎯 **Scoring Optimization**:
+• Daily theme words = 2x points
+• Longer words = more points
+• Perfect games = bonus gems
+• Maintain daily streaks for rewards
+
+📈 **Improvement**:
+• Play daily games regularly to improve
+• Complete missions for rewards
+• Practice with different letter combinations
+• Learn from your analytics!`;
+    }
+    
+    else if (query.includes('analytics') || query.includes('stats') || query.includes('performance')) {
+      const totalTime = timeAnalytics?.summary?.totalPlayTimeFormatted || '0m 0s';
+      const peakPeriod = timeAnalytics?.summary?.peakPeriod || 'Unknown';
+      response = `Your Performance Analytics:
+
+⏰ **Play Patterns**:
+• Total Play Time: ${totalTime}
+• Peak Playing Time: ${peakPeriod}
+• Games Played: ${profile.gamesPlayed}
+• Words Found: ${profile.allFoundWords?.length || 0}
+
+📊 **Time Analytics**:
+• Your most active time period: ${peakPeriod}
+• Total words across all periods: ${timeAnalytics?.summary?.totalWordsAcrossPeriods || 0}
+• Average session length: ${usageMetrics.avgSessionMinutes || 0} minutes
+
+🎯 **Improvement Areas**:
+• Try playing during your peak time: ${peakPeriod}
+• Focus on longer words for higher scores
+• Complete daily themes for bonus points!`;
+    }
+    
+    // === PERSONAL STATS (existing functionality) ===
+    else if (query.includes('words') || query.includes('word')) {
       const totalWords = profile.allFoundWords.length;
       response = `You have found ${totalWords.toLocaleString()} words total!`;
     } else if (query.includes('level') || query.includes('levels')) {
@@ -751,7 +887,13 @@ export default function Profile() {
     } else if (query.includes('days') || query.includes('active')) {
       response = `You have been active for ${usageMetrics.daysLoggedIn} days.`;
     } else {
-      response = `I can help you with information about your words found, level, win rate, games played, coins, points, gems, battles, play time, streaks, and activity. Try asking about any of these!`;
+      response = `I can help you with:
+
+📊 **Your Stats**: words found, level, score, games played, coins, points, gems, battles, play time, streaks, and activity
+🎮 **Gameplay Help**: how to play, scoring, daily themes, missions, battles, tips, and strategy
+📈 **Analytics**: performance insights, time patterns, and improvement suggestions
+
+Try asking: "How do I play?", "What's my peak playing time?", or "Give me some tips!"`;
     }
     
     setAiResponse(response);
@@ -1469,7 +1611,7 @@ export default function Profile() {
             
             <div className="mb-4">
               <p className="text-sm text-gray-600 mb-3">
-                Ask me about your stats! Try: How many words have I found? or What&apos;s my win rate?
+                Ask me about your stats or gameplay help! Try: "How do I play?", "What's my peak playing time?", or "Give me some tips!"
               </p>
               <div className="flex gap-2">
                 <input
