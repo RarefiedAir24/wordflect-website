@@ -3793,27 +3793,7 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
           </linearGradient>
         </defs>
         
-        {/* Individual grid lines instead of pattern - won't interfere with tooltips */}
-        {(() => {
-          const numHorizontalLines = 5;
-          const lines = [];
-          for (let i = 0; i < numHorizontalLines; i++) {
-            const y = topMargin + i * ((chartHeight - topMargin - bottomMargin) / (numHorizontalLines - 1));
-            lines.push(
-              <line
-                key={`y-grid-${i}`}
-                x1={leftMargin}
-                y1={y}
-                x2={width - rightMargin}
-                y2={y}
-                stroke="#e5e7eb"
-                strokeWidth="1"
-                strokeDasharray="2,2"
-              />
-            );
-          }
-          return lines;
-        })()}
+        {/* Grid lines removed to prevent tooltip interference */}
         
         {/* Area under the curve */}
         <polyline points={area} fill="url(#areaGradient)" stroke="none" />
@@ -3992,15 +3972,7 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
             return (
               <g key={i}>
                 {/* Grid line */}
-                <line 
-                  x1={leftMargin} 
-                  y1={y} 
-                  x2={width - rightMargin} 
-                  y2={y} 
-                  stroke="#e5e7eb" 
-                  strokeWidth="1" 
-                  strokeDasharray="2,2"
-                />
+                {/* Grid line removed to prevent tooltip interference */}
                 {/* Label */}
                 <text 
                   x={leftMargin - 15} 
