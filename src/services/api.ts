@@ -617,9 +617,8 @@ class ApiService {
 
       const searchParams = new URLSearchParams();
       if (params.range) searchParams.set('range', params.range);
-      // Add user's timezone
-      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      searchParams.set('timezone', userTimezone);
+      // Use UTC timezone to match daily mission reset schedule
+      searchParams.set('timezone', 'UTC');
 
       const fullUrl = `${API_CONFIG.ENDPOINTS.USER_SESSION_WORDS}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
       console.log('📤 Sending getUserSessionWords request:', { url: fullUrl, params });
