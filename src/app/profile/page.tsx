@@ -3868,12 +3868,12 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
               
               const wordsText = formatWords(words);
               
-              // Calculate dimensions
+              // Calculate dimensions with better width estimation
               const titleWidth = title.length * 7;
               const valueWidth = valueLabel.length * 7;
               const wordsWidth = wordsText.length * 6;
-              const maxWidth = Math.max(titleWidth, valueWidth, wordsWidth) + 24;
-              const textWidth = Math.max(maxWidth, 140);
+              const maxWidth = Math.max(titleWidth, valueWidth, wordsWidth) + 32; // More padding
+              const textWidth = Math.max(maxWidth, 160); // Minimum width increased
               
               const rectX = p.x - textWidth / 2;
               const rectY = labelY - 32;
@@ -3881,11 +3881,17 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
               
               return (
                 <g>
-                  <rect x={rectX} y={rectY} rx="8" ry="8" width={textWidth} height={rectHeight} fill="#111827" opacity="0.95" stroke="#374151" strokeWidth="1" />
+                  {/* Background with higher opacity to block graph lines */}
+                  <rect x={rectX} y={rectY} rx="8" ry="8" width={textWidth} height={rectHeight} fill="#111827" opacity="0.98" stroke="#374151" strokeWidth="1" />
+                  {/* Additional background for extra coverage */}
+                  <rect x={rectX - 2} y={rectY - 2} rx="10" ry="10" width={textWidth + 4} height={rectHeight + 4} fill="#111827" opacity="0.95" />
+                  
                   <text x={p.x} y={rectY + 14} textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="700">{title}</text>
                   <text x={p.x} y={rectY + 26} textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">{valueLabel}</text>
+                  
+                  {/* Better word text handling with proper wrapping */}
                   <text x={p.x} y={rectY + 38} textAnchor="middle" fill="#d1d5db" fontSize="10" fontWeight="500">
-                    {wordsText.length > 60 ? wordsText.substring(0, 57) + '...' : wordsText}
+                    {wordsText.length > 50 ? wordsText.substring(0, 47) + '...' : wordsText}
                   </text>
                 </g>
               );
