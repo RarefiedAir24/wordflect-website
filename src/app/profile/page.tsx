@@ -3884,9 +3884,22 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
               const maxWidth = Math.max(titleWidth, valueWidth, wordsWidth) + 40; // More padding
               const textWidth = Math.max(maxWidth, 200); // Minimum width increased
                 
-                const rectX = p.x - textWidth / 2;
+                // Calculate tooltip position with edge detection
+                let rectX = p.x - textWidth / 2;
                 const rectY = labelY - 32;
                 const rectHeight = 40 + (wordsText.length - 1) * 12; // Dynamic height based on lines
+                
+                // Adjust position if tooltip would go off-screen
+                const rightEdge = width - rightMargin;
+                const leftEdge = leftMargin;
+                
+                if (rectX + textWidth > rightEdge) {
+                  // Tooltip would go off right edge, position it to the left of the point
+                  rectX = p.x - textWidth - 10;
+                } else if (rectX < leftEdge) {
+                  // Tooltip would go off left edge, position it to the right of the point
+                  rectX = p.x + 10;
+                }
                 
                 return (
                   <g>
@@ -3895,23 +3908,31 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
                     {/* Dark background for tooltip */}
                     <rect x={rectX} y={rectY} rx="8" ry="8" width={textWidth} height={rectHeight} fill="#111827" stroke="#374151" strokeWidth="1" />
                     
-                    <text x={p.x} y={rectY + 14} textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="700">{title}</text>
-                    <text x={p.x} y={rectY + 26} textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">{valueLabel}</text>
-                    
-                    {/* Multi-line word text with proper centering */}
-                    {wordsText.map((line, index) => (
-                      <text 
-                        key={index}
-                        x={p.x} 
-                        y={rectY + 38 + (index * 12)} 
-                        textAnchor="middle" 
-                        fill="#d1d5db" 
-                        fontSize="10" 
-                        fontWeight="500"
-                      >
-                        {line}
-                      </text>
-                    ))}
+                    {/* Calculate text X position based on tooltip position */}
+                    {(() => {
+                      const textX = rectX + textWidth / 2;
+                      return (
+                        <>
+                          <text x={textX} y={rectY + 14} textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="700">{title}</text>
+                          <text x={textX} y={rectY + 26} textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">{valueLabel}</text>
+                          
+                          {/* Multi-line word text with proper centering */}
+                          {wordsText.map((line, index) => (
+                            <text 
+                              key={index}
+                              x={textX} 
+                              y={rectY + 38 + (index * 12)} 
+                              textAnchor="middle" 
+                              fill="#d1d5db" 
+                              fontSize="10" 
+                              fontWeight="500"
+                            >
+                              {line}
+                            </text>
+                          ))}
+                        </>
+                      );
+                    })()}
                   </g>
                 );
               })()}
