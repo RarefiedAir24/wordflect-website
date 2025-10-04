@@ -3858,29 +3858,35 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
               const title = p.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
               const valueLabel = `${p.data.value} words`;
               const words = p.data.words || [];
-              const wordsText = words.length > 0 ? words.join(', ') : 'No new words';
               
-              // Calculate dimensions based on content
-              const maxTextWidth = Math.max(
-                title.length * 7,
-                valueLabel.length * 7,
-                wordsText.length * 6
-              );
-              const textWidth = Math.max(maxTextWidth + 20, 120);
+              // Format words better - show up to 3 words, then "and X more"
+              const formatWords = (wordList: string[]) => {
+                if (wordList.length === 0) return 'No new words';
+                if (wordList.length <= 3) return wordList.join(', ');
+                return `${wordList.slice(0, 3).join(', ')} and ${wordList.length - 3} more`;
+              };
+              
+              const wordsText = formatWords(words);
+              
+              // Calculate dimensions
+              const titleWidth = title.length * 7;
+              const valueWidth = valueLabel.length * 7;
+              const wordsWidth = wordsText.length * 6;
+              const maxWidth = Math.max(titleWidth, valueWidth, wordsWidth) + 24;
+              const textWidth = Math.max(maxWidth, 140);
+              
               const rectX = p.x - textWidth / 2;
-              const rectY = labelY - (words.length > 0 ? 40 : 26);
-              const rectHeight = words.length > 0 ? 50 : 32;
+              const rectY = labelY - 32;
+              const rectHeight = 40;
               
               return (
                 <g>
-                  <rect x={rectX} y={rectY} rx="8" ry="8" width={textWidth} height={rectHeight} fill="#111827" opacity="0.9" />
+                  <rect x={rectX} y={rectY} rx="8" ry="8" width={textWidth} height={rectHeight} fill="#111827" opacity="0.95" stroke="#374151" strokeWidth="1" />
                   <text x={p.x} y={rectY + 14} textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="700">{title}</text>
                   <text x={p.x} y={rectY + 26} textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">{valueLabel}</text>
-                  {words.length > 0 && (
-                    <text x={p.x} y={rectY + 40} textAnchor="middle" fill="#d1d5db" fontSize="10" fontWeight="500">
-                      {wordsText.length > 50 ? wordsText.substring(0, 47) + '...' : wordsText}
-                    </text>
-                  )}
+                  <text x={p.x} y={rectY + 38} textAnchor="middle" fill="#d1d5db" fontSize="10" fontWeight="500">
+                    {wordsText.length > 60 ? wordsText.substring(0, 57) + '...' : wordsText}
+                  </text>
                 </g>
               );
             })()}
