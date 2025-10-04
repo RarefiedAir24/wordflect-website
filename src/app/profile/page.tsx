@@ -1332,7 +1332,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
     }
 
     // Clean up the response text for better speech
-    let cleanResponse = aiResponse
+    const cleanResponse = aiResponse
       .replace(/\*\*(.*?)\*\*/g, '$1') // Remove markdown bold
       .replace(/\*(.*?)\*/g, '$1') // Remove markdown italic
       .replace(/•/g, '') // Remove bullet points
