@@ -1881,9 +1881,10 @@ export default function Profile() {
               <span className="text-xs text-emerald-600 font-semibold">TOTAL TIME</span>
             </div>
             <p className="text-2xl font-bold text-emerald-900">
-              {usageMetrics.totalPlayTimeMinutes !== undefined
+              {(timeAnalytics?.summary as any)?.totalPlayTimeFormatted || 
+               (usageMetrics.totalPlayTimeMinutes !== undefined
                 ? `${Math.floor((usageMetrics.totalPlayTimeMinutes) / 60)}h ${(usageMetrics.totalPlayTimeMinutes) % 60}m`
-                : 'N/A'}
+                : 'N/A')}
             </p>
             <p className="text-xs text-emerald-700 mt-1">Across all sessions</p>
           </div>
