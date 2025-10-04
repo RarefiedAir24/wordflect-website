@@ -2180,7 +2180,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             
             <div className="mb-4">
               <p className="text-sm text-gray-600 mb-3">
-                Hi! I'm Lexi, your AI assistant. Ask me about your stats, gameplay help, or customization! Try: &quot;How do I play?&quot;, &quot;How do I change backgrounds?&quot;, &quot;What are premium features?&quot;, or &quot;Give me some tips!&quot; Use Voice Ask for hands-free interaction!
+                Hi! I&apos;m Lexi, your AI assistant. Ask me about your stats, gameplay help, or customization! Try: &quot;How do I play?&quot;, &quot;How do I change backgrounds?&quot;, &quot;What are premium features?&quot;, or &quot;Give me some tips!&quot; Use Voice Ask for hands-free interaction!
               </p>
               <div className="space-y-3">
                 <input
