@@ -717,10 +717,16 @@ export default function Profile() {
     router.push("/");
   };
 
-  const handleAiQuery = (callback?: (response: string) => void) => {
-    if (!aiQuery.trim() || !profile) return;
+  const handleAiQuery = (callback?: (response: string) => void, queryText?: string) => {
+    const currentQuery = queryText || aiQuery;
+    console.log('handleAiQuery called with query:', currentQuery);
+    if (!currentQuery.trim() || !profile) {
+      console.log('Early return: no query or profile');
+      return;
+    }
     
-    const query = aiQuery.toLowerCase();
+    const query = currentQuery.toLowerCase();
+    console.log('Processing query:', query);
     let response = '';
     
     // === GAMEPLAY HELP & TIPS ===
@@ -1341,16 +1347,19 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
     
     recognition.onresult = (event: { results: { [key: number]: { [key: number]: { transcript: string } } } }) => {
       const transcript = event.results[0][0].transcript;
+      console.log('Voice recognition result:', transcript);
       setAiQuery(transcript);
       setIsListening(false);
       
       // Auto-trigger the AI query after speech recognition
       setTimeout(() => {
+        console.log('Processing AI query with transcript:', transcript);
         handleAiQuery((response) => {
+          console.log('AI response received:', response);
           // This callback will be called with the AI response
           speakResponse(response);
-        });
-      }, 200); // Small delay to ensure state is updated
+        }, transcript); // Pass the transcript directly
+      }, 100); // Reduced delay since we're passing the transcript directly
     };
     
     recognition.onerror = (event: { error: string }) => {
