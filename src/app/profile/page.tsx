@@ -1122,7 +1122,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
 • Mission completion
 
 🎯 **Your Rankings**:
-• Current level: ${profile.level || 1}
+• Current level: ${profile.highestLevel || 1}
 • Total games: ${profile.gamesPlayed}
 • High score: ${profile.topScore?.toLocaleString() || 0}
 • Battle wins: ${profile.battleWins || 0}
