@@ -717,7 +717,7 @@ export default function Profile() {
     router.push("/");
   };
 
-  const handleAiQuery = (callback?: () => void) => {
+  const handleAiQuery = (callback?: (response: string) => void) => {
     if (!aiQuery.trim() || !profile) return;
     
     const query = aiQuery.toLowerCase();
@@ -1296,7 +1296,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
     
     // Call callback if provided (for voice response)
     if (callback) {
-      setTimeout(callback, 100); // Small delay to ensure state is updated
+      setTimeout(() => callback(response), 100); // Small delay to ensure state is updated
     }
   };
 
@@ -1346,9 +1346,9 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
       
       // Auto-trigger the AI query after speech recognition
       setTimeout(() => {
-        handleAiQuery(() => {
-          // This callback will be called after the AI response is set
-          speakResponse();
+        handleAiQuery((response) => {
+          // This callback will be called with the AI response
+          speakResponse(response);
         });
       }, 200); // Small delay to ensure state is updated
     };
@@ -1365,7 +1365,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
     recognition.start();
   };
 
-  const speakResponse = () => {
+  const speakResponse = (responseText?: string) => {
     if (!('speechSynthesis' in window)) {
       alert('Speech synthesis is not supported in this browser.');
       return;
@@ -1377,7 +1377,8 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
       return;
     }
 
-    if (!aiResponse) {
+    const textToSpeak = responseText || aiResponse;
+    if (!textToSpeak || textToSpeak.trim() === '') {
       alert('No response to speak.');
       return;
     }
@@ -1409,7 +1410,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
     }
 
     // Clean up the response text for better speech
-    const cleanResponse = aiResponse
+    const cleanResponse = textToSpeak
       .replace(/\*\*(.*?)\*\*/g, '$1') // Remove markdown bold
       .replace(/\*(.*?)\*/g, '$1') // Remove markdown italic
       .replace(/•/g, '') // Remove bullet points
@@ -2241,7 +2242,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
                 {aiResponse && (
                   <div className="flex justify-center">
                     <button
-                      onClick={speakResponse}
+                      onClick={() => speakResponse()}
                       disabled={isSpeaking}
                       className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl ${
                         isSpeaking 
