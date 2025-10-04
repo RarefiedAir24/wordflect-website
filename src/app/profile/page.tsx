@@ -776,8 +776,8 @@ export default function Profile() {
     }
     
     else if (query.includes('missions') || query.includes('daily mission') || query.includes('weekly mission')) {
-      const dailyProgress = (profile as any).missions?.daily;
-      const weeklyProgress = (profile as any).missions?.weekly;
+      const dailyProgress = (profile as { missions?: { daily?: { progress?: number; target?: number } } }).missions?.daily;
+      const weeklyProgress = (profile as { missions?: { weekly?: { progress?: number; target?: number } } }).missions?.weekly;
       response = `Mission System:
 
 📅 **Daily Missions**: 
@@ -864,7 +864,7 @@ export default function Profile() {
     else if (query.includes('frames') || query.includes('customize') || query.includes('profile') || query.includes('avatar')) {
       response = `Frames & Customization:
 
-🎨 **Current Frame**: ${(profile as any).selectedFrame || 'Default Frame'}
+🎨 **Current Frame**: ${(profile as { selectedFrame?: string }).selectedFrame || 'Default Frame'}
 💰 **Your Flectcoins**: ${profile.flectcoins.toLocaleString()}
 
 🖼️ **Frame System**:
@@ -961,7 +961,7 @@ export default function Profile() {
     
     // === SUBSCRIPTION & PREMIUM FEATURES ===
     else if (query.includes('premium') || query.includes('subscription') || query.includes('upgrade') || query.includes('pro')) {
-      const isPremium = (profile as any).isPremium || false;
+      const isPremium = (profile as { isPremium?: boolean }).isPremium || false;
       response = `Premium Subscription:
 
 ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Premium for exclusive benefits!**'}
