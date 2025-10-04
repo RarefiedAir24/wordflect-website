@@ -845,19 +845,19 @@ export default function Profile() {
       // Check user's profile for found words that match this theme AND were found on the specific day
       const userFoundWords = profile?.allFoundWords || [];
       
-      // Calculate the date for the selected day
+      // Calculate the date for the selected day using UTC to match mobile app
       const today = new Date();
-      const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const dayOfWeek = today.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
       const selectedDayIndex = dayNames.indexOf(day);
       
-      // Calculate the date for the selected day (this week)
+      // Calculate the date for the selected day (this week) using UTC
       const daysUntilSelectedDay = selectedDayIndex - dayOfWeek;
       const selectedDate = new Date(today);
-      selectedDate.setDate(today.getDate() + daysUntilSelectedDay);
+      selectedDate.setUTCDate(today.getUTCDate() + daysUntilSelectedDay);
       const selectedDateString = selectedDate.toISOString().split('T')[0];
       
-      console.log(`🎯 DEBUG: Today is ${today.toISOString().split('T')[0]} (day ${dayOfWeek})`);
+      console.log(`🎯 DEBUG: Today is ${today.toISOString().split('T')[0]} (UTC day ${dayOfWeek})`);
       console.log(`🎯 DEBUG: Selected day is ${day} (index ${selectedDayIndex})`);
       console.log(`🎯 DEBUG: Days until selected day: ${daysUntilSelectedDay}`);
       console.log(`🎯 DEBUG: Calculated selected date: ${selectedDateString}`);
@@ -1192,20 +1192,20 @@ export default function Profile() {
     
     try {
       // Calculate the date for the selected day
-      // Use local date to avoid timezone issues
+      // Use UTC date to match mobile app theme schedule
       const today = new Date();
-      const localDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      const dayOfWeek = localDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+      const dayOfWeek = utcDate.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
       const selectedDayIndex = dayNames.indexOf(day);
       
-      // Calculate the date for the selected day (this week)
+      // Calculate the date for the selected day (this week) using UTC
       const daysUntilSelectedDay = selectedDayIndex - dayOfWeek;
-      const selectedDate = new Date(localDate);
-      selectedDate.setDate(localDate.getDate() + daysUntilSelectedDay);
+      const selectedDate = new Date(utcDate);
+      selectedDate.setUTCDate(utcDate.getUTCDate() + daysUntilSelectedDay);
       const selectedDateString = selectedDate.toISOString().split('T')[0];
       
-      console.log(`🎯 DEBUG: Today is ${localDate.toISOString().split('T')[0]} (day ${dayOfWeek})`);
+      console.log(`🎯 DEBUG: Today is ${utcDate.toISOString().split('T')[0]} (UTC day ${dayOfWeek})`);
       console.log(`🎯 DEBUG: Selected day is ${day} (index ${selectedDayIndex})`);
       console.log(`🎯 DEBUG: Days until selected day: ${daysUntilSelectedDay}`);
       console.log(`🎯 DEBUG: Calculated selected date: ${selectedDateString}`);
