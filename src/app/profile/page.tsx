@@ -3883,7 +3883,9 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
                 
                 return (
                   <g>
-                    {/* Large solid white background to completely block all grid lines */}
+                    {/* Extra large solid white background to completely block all grid lines */}
+                    <rect x={rectX - 16} y={rectY - 16} rx="20" ry="20" width={textWidth + 32} height={rectHeight + 32} fill="#ffffff" stroke="none" />
+                    {/* Additional white background for extra coverage */}
                     <rect x={rectX - 8} y={rectY - 8} rx="16" ry="16" width={textWidth + 16} height={rectHeight + 16} fill="#ffffff" stroke="none" />
                     {/* Dark background for tooltip */}
                     <rect x={rectX} y={rectY} rx="8" ry="8" width={textWidth} height={rectHeight} fill="#111827" stroke="#374151" strokeWidth="1" />
@@ -3915,7 +3917,9 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
                 const rectY = labelY - (padY * 2);
                 return (
                   <g>
-                    {/* Large solid white background to completely block all grid lines */}
+                    {/* Extra large solid white background to completely block all grid lines */}
+                    <rect x={rectX - 12} y={rectY - 12} rx="16" ry="16" width={approxWidth + 24} height={padY * 2 + 24} fill="#ffffff" stroke="none" />
+                    {/* Additional white background for extra coverage */}
                     <rect x={rectX - 4} y={rectY - 4} rx="12" ry="12" width={approxWidth + 8} height={padY * 2 + 16} fill="#ffffff" stroke="none" />
                     {/* Dark background for tooltip */}
                     <rect x={rectX} y={rectY} rx="8" ry="8" width={approxWidth} height={padY * 2 + 8} fill="#111827" opacity="0.9" />
