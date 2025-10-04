@@ -129,7 +129,7 @@ export default function Profile() {
     
 
     const keyOf = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    const dayCounts = new Map<string, { date: Date; count: number; avgLenSum: number; lenCount: number }>();
+    const dayCounts = new Map<string, { date: Date; count: number; avgLenSum: number; lenCount: number; words: string[] }>();
     
     // Track words that have been seen before to only count "new" words
     const seenWords = new Set<string>();
@@ -146,21 +146,27 @@ export default function Profile() {
         seenWords.add(e.word);
         
         const k = keyOf(e.date);
-        if (!dayCounts.has(k)) dayCounts.set(k, { date: new Date(e.date.getFullYear(), e.date.getMonth(), e.date.getDate()), count: 0, avgLenSum: 0, lenCount: 0 });
+        if (!dayCounts.has(k)) dayCounts.set(k, { date: new Date(e.date.getFullYear(), e.date.getMonth(), e.date.getDate()), count: 0, avgLenSum: 0, lenCount: 0, words: [] });
         const rec = dayCounts.get(k)!;
         rec.count += 1;
         rec.avgLenSum += e.word.length;
         rec.lenCount += 1;
+        rec.words.push(e.word);
       }
     });
     
 
-    const days: { date: Date; value: number; avgLen?: number }[] = [];
+    const days: { date: Date; value: number; avgLen?: number; words?: string[] }[] = [];
     const cursor = new Date(start);
     while (cursor <= endDate) {
       const k = keyOf(cursor);
       const rec = dayCounts.get(k);
-      days.push({ date: new Date(cursor), value: rec?.count || 0, avgLen: rec && rec.lenCount ? rec.avgLenSum / rec.lenCount : undefined });
+      days.push({ 
+        date: new Date(cursor), 
+        value: rec?.count || 0, 
+        avgLen: rec && rec.lenCount ? rec.avgLenSum / rec.lenCount : undefined,
+        words: rec?.words || []
+      });
       cursor.setDate(cursor.getDate() + 1);
     }
 
@@ -3725,7 +3731,7 @@ function RadialProgress({ percent }: { percent: number }) {
   );
 }
 
-function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Date; value: number }[]; height?: number; color?: string }) {
+function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Date; value: number; words?: string[] }[]; height?: number; color?: string }) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
   // Selected point persists on click to show exact value even when axis ticks skip values
   const [selectedPoint, setSelectedPoint] = useState<number | null>(null);
@@ -3851,14 +3857,30 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
               const labelY = Math.max(16, p.y - 28);
               const title = p.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
               const valueLabel = `${p.data.value} words`;
-              const textWidth = Math.max(title.length, valueLabel.length) * 7 + 20; // rough estimate
+              const words = p.data.words || [];
+              const wordsText = words.length > 0 ? words.join(', ') : 'No new words';
+              
+              // Calculate dimensions based on content
+              const maxTextWidth = Math.max(
+                title.length * 7,
+                valueLabel.length * 7,
+                wordsText.length * 6
+              );
+              const textWidth = Math.max(maxTextWidth + 20, 120);
               const rectX = p.x - textWidth / 2;
-              const rectY = labelY - 26;
+              const rectY = labelY - (words.length > 0 ? 40 : 26);
+              const rectHeight = words.length > 0 ? 50 : 32;
+              
               return (
                 <g>
-                  <rect x={rectX} y={rectY} rx="8" ry="8" width={textWidth} height={32} fill="#111827" opacity="0.9" />
+                  <rect x={rectX} y={rectY} rx="8" ry="8" width={textWidth} height={rectHeight} fill="#111827" opacity="0.9" />
                   <text x={p.x} y={rectY + 14} textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="700">{title}</text>
                   <text x={p.x} y={rectY + 26} textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">{valueLabel}</text>
+                  {words.length > 0 && (
+                    <text x={p.x} y={rectY + 40} textAnchor="middle" fill="#d1d5db" fontSize="10" fontWeight="500">
+                      {wordsText.length > 50 ? wordsText.substring(0, 47) + '...' : wordsText}
+                    </text>
+                  )}
                 </g>
               );
             })()}
