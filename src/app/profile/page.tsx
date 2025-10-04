@@ -760,7 +760,7 @@ export default function Profile() {
     
     else if (query.includes('daily theme') || query.includes('theme words') || query.includes('daily challenge')) {
       const currentTheme = themeAnalytics?.currentTheme || 'Unknown';
-      const themeProgress = themeAnalytics?.themeProgress;
+      const themeProgress = themeAnalytics?.themeProgress as { found?: number; total?: number } | undefined;
       response = `Daily Theme System:
 
 🎨 **Today's Theme**: ${currentTheme}
@@ -776,8 +776,8 @@ export default function Profile() {
     }
     
     else if (query.includes('missions') || query.includes('daily mission') || query.includes('weekly mission')) {
-      const dailyProgress = profile.missions?.daily;
-      const weeklyProgress = profile.missions?.weekly;
+      const dailyProgress = profile.missions?.daily as { progress?: number; target?: number } | undefined;
+      const weeklyProgress = profile.missions?.weekly as { progress?: number; target?: number } | undefined;
       response = `Mission System:
 
 📅 **Daily Missions**: 
