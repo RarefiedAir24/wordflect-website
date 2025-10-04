@@ -2116,15 +2116,21 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setAiModalOpen(true)}
-                className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-200 font-bold shadow-lg flex items-center gap-3 hover:shadow-xl border-2 border-emerald-400/20 hover:border-emerald-300/40"
+                className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-bold shadow-2xl flex items-center gap-4 hover:shadow-3xl border-2 border-emerald-400/30 hover:border-emerald-300/50 relative overflow-hidden"
               >
-                <div className="relative">
-                  <svg className="h-5 w-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
-                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
+                <div className="relative flex items-center gap-4">
+                  <div className="relative">
+                    <svg className="h-6 w-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
+                  </div>
+                  <div className="text-left">
+                    <div className="text-lg font-bold">Ask Lexi</div>
+                    <div className="text-sm opacity-90">Your AI WordFlect Assistant</div>
+                  </div>
                 </div>
-                AI Assistant
               </button>
               <a href="/dashboard">
                 <button className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-200 font-bold shadow-lg flex items-center gap-3 hover:shadow-xl">
@@ -2157,7 +2163,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900">AI Assistant</h3>
+              <h3 className="text-xl font-bold text-gray-900">Lexi - Your AI Assistant</h3>
               <button 
                 onClick={() => {
                   setAiModalOpen(false);
@@ -2174,7 +2180,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             
             <div className="mb-4">
               <p className="text-sm text-gray-600 mb-3">
-                Ask me about your stats, gameplay help, or customization! Try: &quot;How do I play?&quot;, &quot;How do I change backgrounds?&quot;, &quot;What are premium features?&quot;, or &quot;Give me some tips!&quot; Use Voice Ask for hands-free interaction!
+                Hi! I'm Lexi, your AI assistant. Ask me about your stats, gameplay help, or customization! Try: &quot;How do I play?&quot;, &quot;How do I change backgrounds?&quot;, &quot;What are premium features?&quot;, or &quot;Give me some tips!&quot; Use Voice Ask for hands-free interaction!
               </p>
               <div className="space-y-3">
                 <input
@@ -2264,7 +2270,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
                   </div>
-                  <p className="text-gray-800 font-medium">{aiResponse}</p>
+                  <div>
+                    <div className="text-sm font-semibold text-emerald-700 mb-1">Lexi</div>
+                    <p className="text-gray-800 font-medium">{aiResponse}</p>
+                  </div>
                 </div>
               </div>
             )}
