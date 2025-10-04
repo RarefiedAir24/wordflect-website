@@ -130,15 +130,28 @@ export default function Profile() {
 
     const keyOf = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const dayCounts = new Map<string, { date: Date; count: number; avgLenSum: number; lenCount: number }>();
-    entries.forEach((e) => {
+    
+    // Track words that have been seen before to only count "new" words
+    const seenWords = new Set<string>();
+    
+    // Sort entries by date to process chronologically
+    const sortedEntries = [...entries].sort((a, b) => a.date.getTime() - b.date.getTime());
+    
+    sortedEntries.forEach((e) => {
       // Filter entries to only include those within the date range
       if (e.date < start || e.date > endDate) return;
-      const k = keyOf(e.date);
-      if (!dayCounts.has(k)) dayCounts.set(k, { date: new Date(e.date.getFullYear(), e.date.getMonth(), e.date.getDate()), count: 0, avgLenSum: 0, lenCount: 0 });
-      const rec = dayCounts.get(k)!;
-      rec.count += 1;
-      rec.avgLenSum += e.word.length;
-      rec.lenCount += 1;
+      
+      // Only count if this is a "new" word (never seen before)
+      if (!seenWords.has(e.word)) {
+        seenWords.add(e.word);
+        
+        const k = keyOf(e.date);
+        if (!dayCounts.has(k)) dayCounts.set(k, { date: new Date(e.date.getFullYear(), e.date.getMonth(), e.date.getDate()), count: 0, avgLenSum: 0, lenCount: 0 });
+        const rec = dayCounts.get(k)!;
+        rec.count += 1;
+        rec.avgLenSum += e.word.length;
+        rec.lenCount += 1;
+      }
     });
     
 
@@ -1572,8 +1585,8 @@ export default function Profile() {
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-xl text-blue-950">History</h3>
-              <p className="text-sm text-blue-700">View your word discovery trends over time</p>
-              <p className="text-xs text-blue-600 mt-1">Note: The displayed word count is for newly found words (excluding duplicates).</p>
+              <p className="text-sm text-blue-700">View your new word discovery trends over time</p>
+              <p className="text-xs text-blue-600 mt-1">Note: Shows only newly discovered words (never found before). Historical total equals your total unique words.</p>
             </div>
             <div className="flex items-center gap-2">
               {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
