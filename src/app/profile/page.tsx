@@ -404,14 +404,27 @@ export default function Profile() {
             const dataDate = new Date(d.date);
             return dataDate >= startDate && dataDate <= endDate;
           });
-          console.log('🟢 Filtered session words data:', filteredData);
-          console.log('🟢 Setting filtered session words days, length:', filteredData.length);
-          setSessionWordsDays(filteredData);
+          
+          // Convert string dates to Date objects for the component
+          const processedFilteredData = filteredData.map(day => ({
+            ...day,
+            date: new Date(day.date)
+          }));
+          
+          console.log('🟢 Filtered session words data:', processedFilteredData);
+          console.log('🟢 Setting filtered session words days, length:', processedFilteredData.length);
+          setSessionWordsDays(processedFilteredData);
         } else {
-        console.log('🟢 Setting session words days:', daysFromApi);
-        console.log('🟢 Setting session words days, length:', daysFromApi.length);
-        console.log('🟢 Setting session words days, first few:', daysFromApi.slice(0, 3));
-        setSessionWordsDays(daysFromApi);
+        // Convert string dates to Date objects for the component
+        const processedDays = daysFromApi.map(day => ({
+          ...day,
+          date: new Date(day.date)
+        }));
+        
+        console.log('🟢 Setting session words days:', processedDays);
+        console.log('🟢 Setting session words days, length:', processedDays.length);
+        console.log('🟢 Setting session words days, first few:', processedDays.slice(0, 3));
+        setSessionWordsDays(processedDays);
         console.log('🟢 Session words days state set, checking in next tick...');
         setTimeout(() => {
           console.log('🟢 Session words days state after set:', daysFromApi);
