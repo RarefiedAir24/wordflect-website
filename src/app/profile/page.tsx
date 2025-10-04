@@ -2374,61 +2374,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Theme Search & Filter */}
-        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center">
-              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <h4 className="font-semibold text-gray-900">Theme Word Search</h4>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Search Period</label>
-              <div className="flex gap-2">
-                <input 
-                  type="date" 
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="Start date"
-                />
-                <input 
-                  type="date" 
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="End date"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Theme</label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white text-gray-900">
-                <option value="" className="text-gray-900">All Themes</option>
-                <option value="food" className="text-gray-900">Food & Drinks (Monday)</option>
-                <option value="nouns" className="text-gray-900">Common Nouns (Tuesday)</option>
-                <option value="nature" className="text-gray-900">Nature (Wednesday)</option>
-                <option value="verbs" className="text-gray-900">Verbs (Thursday)</option>
-                <option value="adjectives" className="text-gray-900">Adjectives (Friday)</option>
-                <option value="colors" className="text-gray-900">Colors (Saturday)</option>
-                <option value="animals" className="text-gray-900">Animals (Sunday)</option>
-              </select>
-            </div>
-          </div>
-          <div className="mt-4 flex gap-2">
-            <button className="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-200 font-semibold flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              Search Theme Words
-            </button>
-            <button className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Reset
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Performance by Time Period */}
