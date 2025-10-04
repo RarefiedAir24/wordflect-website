@@ -3881,10 +3881,10 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
               
               return (
                 <g>
-                  {/* Background with higher opacity to block graph lines */}
-                  <rect x={rectX} y={rectY} rx="8" ry="8" width={textWidth} height={rectHeight} fill="#111827" opacity="0.98" stroke="#374151" strokeWidth="1" />
-                  {/* Additional background for extra coverage */}
-                  <rect x={rectX - 2} y={rectY - 2} rx="10" ry="10" width={textWidth + 4} height={rectHeight + 4} fill="#111827" opacity="0.95" />
+                  {/* Solid background to completely block grid lines */}
+                  <rect x={rectX - 4} y={rectY - 4} rx="12" ry="12" width={textWidth + 8} height={rectHeight + 8} fill="#111827" />
+                  {/* Main tooltip background */}
+                  <rect x={rectX} y={rectY} rx="8" ry="8" width={textWidth} height={rectHeight} fill="#111827" stroke="#374151" strokeWidth="1" />
                   
                   <text x={p.x} y={rectY + 14} textAnchor="middle" fill="#93c5fd" fontSize="11" fontWeight="700">{title}</text>
                   <text x={p.x} y={rectY + 26} textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">{valueLabel}</text>
