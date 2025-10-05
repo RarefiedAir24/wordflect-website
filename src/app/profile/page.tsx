@@ -1415,40 +1415,26 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   };
 
   const openAiModal = () => {
-    console.log('openAiModal called');
     setAiModalOpen(true);
     // Auto-speak welcome message when modal opens
     const welcomeMessage = `Hi! I'm Lexi, your AI WordFlect assistant. I can help you with gameplay, stats, customization, and even navigation. You can ask me to take you to the dashboard, sign you out, or open the WordFlect app. Try saying "How do I play?", "Take me to dashboard", or "Open app". Click the voice icon to enable audio, or use the text input to chat with me!`;
     setAiResponse(welcomeMessage);
     
     // Auto-speak after a short delay to ensure modal is open
-    // Temporarily unmute for welcome message
+    // Force unmute for welcome message
     setTimeout(() => {
-      console.log('Attempting to speak welcome message');
-      const wasMuted = isMuted;
-      if (wasMuted) {
-        setIsMuted(false); // Temporarily unmute for welcome
-      }
+      setIsMuted(false); // Force unmute for welcome
       speakResponse(welcomeMessage);
-      // Restore mute state after speaking
-      if (wasMuted) {
-        setTimeout(() => setIsMuted(true), 100);
-      }
     }, 500);
   };
 
   const speakResponse = (responseText?: string) => {
-    console.log('speakResponse called with:', responseText);
-    console.log('isMuted:', isMuted);
-    console.log('isSpeaking:', isSpeaking);
-    
     if (!('speechSynthesis' in window)) {
       alert('Speech synthesis is not supported in this browser.');
       return;
     }
 
     if (isMuted) {
-      console.log('Speech blocked - muted');
       return; // Don't speak if muted
     }
 
@@ -2247,20 +2233,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-gray-900">Lexi - Your AI Assistant</h3>
               <div className="flex items-center gap-3">
-                {/* Test Speech Button */}
-                <button
-                  onClick={() => {
-                    console.log('Test speech button clicked');
-                    speakResponse('Hello, this is a test of the speech synthesis.');
-                  }}
-                  className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-all duration-200"
-                  title="Test speech"
-                >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                  </svg>
-                </button>
-                
                 {/* Mute/Unmute Button */}
                 <button
                   onClick={toggleMute}
