@@ -2904,7 +2904,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           {/* Monday - Food & Drinks */}
           {(() => {
+            console.log('🎯 Monday card rendering - themeAnalytics:', themeAnalytics);
             const themeData = getThemeData('monday');
+            console.log('🎯 Monday card - themeData:', themeData);
             if (!themeData) {
               return (
                 <div 
