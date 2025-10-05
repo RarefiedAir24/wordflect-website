@@ -1453,15 +1453,14 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     const voices = window.speechSynthesis.getVoices();
     let selectedVoice = null;
     
-    // Enhanced voice selection for Kirsten Dunst-like voice
+    // Enhanced voice selection for natural sound
     const preferredVoices = [
-      // Kirsten Dunst-like voices (warm, natural, slightly higher-pitched female)
-      'Samantha', 'Victoria', 'Ava', 'Emma', 'Olivia', 'Sophia', 'Isabella', 'Charlotte', 'Amelia',
-      'Microsoft Zira Desktop', 'Microsoft Hazel Desktop', 'Microsoft Susan Desktop',
-      'Google US English Female', 'Google UK English Female', 'Google Australian English Female',
-      'Alex', 'Karen', 'Moira', 'Tessa', 'Siri', 'Cortana', 'Amazon Polly', 'IBM Watson',
-      // Additional natural female voices
-      'Google US English', 'Microsoft David Desktop', 'Daniel'
+      // High-quality natural voices
+      'Google US English', 'Microsoft Zira Desktop', 'Microsoft David Desktop',
+      'Alex', 'Samantha', 'Victoria', 'Daniel', 'Karen', 'Moira', 'Tessa',
+      'Microsoft Hazel Desktop', 'Microsoft Susan Desktop', 'Microsoft Mark Desktop',
+      'Google UK English Female', 'Google UK English Male', 'Google Australian English',
+      'Siri', 'Cortana', 'Amazon Polly', 'IBM Watson'
     ];
     
     // Try to find a preferred voice with enhanced matching
@@ -1528,13 +1527,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       .replace(/\?\s*\?/g, '?') // Double question marks
       .replace(/!\s*!/g, '!') // Double exclamation marks
       
-      // Add natural pauses for better rhythm (Kirsten Dunst style)
+      // Add natural pauses for better rhythm
       .replace(/([.!?])\s*([A-Z])/g, '$1. $2') // Pause before new sentences
       .replace(/(\d+)\s*([A-Za-z])/g, '$1 $2') // Space between numbers and letters
-      .replace(/\b(Hi|Hello|Hey)\b/g, 'Hi there') // More casual greetings
-      .replace(/\b(you can|you should|you need to)\b/g, 'you can totally') // More conversational
-      .replace(/\b(try saying|try)\b/g, 'you can say') // More natural phrasing
-      .replace(/\b(click|press)\b/g, 'just click') // More casual instructions
       
       // Final cleanup
       .replace(/\s+/g, ' ') // Clean up multiple spaces
@@ -1543,17 +1538,14 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
     const utterance = new SpeechSynthesisUtterance(cleanResponse);
     
-    // Enhanced speech parameters for Kirsten Dunst-like voice
-    utterance.rate = 0.95; // Slightly faster, more energetic pace like Kirsten
-    utterance.pitch = 1.1; // Slightly higher pitch for that warm, youthful tone
-    utterance.volume = 0.9; // Clear, confident volume
+    // Enhanced speech parameters for natural, conversational sound
+    utterance.rate = 0.9; // Slightly faster for more natural conversation pace
+    utterance.pitch = 1.0; // Natural pitch for conversational tone
+    utterance.volume = 0.85; // Slightly lower volume for more natural sound
     
     // Set voice if available
     if (selectedVoice) {
       utterance.voice = selectedVoice;
-      console.log('Selected voice:', selectedVoice.name, 'Language:', selectedVoice.lang);
-    } else {
-      console.log('No preferred voice found, using default');
     }
     
     utterance.onstart = () => {
@@ -2306,6 +2298,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 {/* Close Button */}
                 <button 
                   onClick={() => {
+                    // Stop any current speech when closing modal
+                    window.speechSynthesis.cancel();
+                    setIsSpeaking(false);
                     setAiModalOpen(false);
                     setAiQuery('');
                     setAiResponse('');
