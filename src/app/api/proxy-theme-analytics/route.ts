@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       console.log('No Authorization header found in incoming request');
     }
     
-    const targetUrl = `${API_BASE_URL}/user/theme-analytics`;
+    const targetUrl = `${API_BASE_URL}/user/theme/analytics`;
     console.log('Outgoing headers:', headers);
     console.log('Target URL:', targetUrl);
     console.log('==========================================');

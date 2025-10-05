@@ -1,4 +1,4 @@
-// API Configuration for Wordflect - CACHE BUST v2
+// API Configuration for Wordflect - CACHE BUST v3
 export const API_CONFIG = {
   // Base URL for the Wordflect API
   // For production, this should point to the actual deployed API
