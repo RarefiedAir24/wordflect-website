@@ -2941,6 +2941,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             
             const themeData = getThemeData('monday');
             console.log('🎯 Monday card - themeData:', themeData);
+            const progress = getProgressFor('monday');
+            console.log('🎯 Monday card - progress:', progress);
             if (!themeData) {
               return (
                 <div 
