@@ -1400,17 +1400,17 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     const newMutedState = !isMuted;
     setIsMuted(newMutedState);
     
+    // If we're muting and currently speaking, stop speech immediately
+    if (newMutedState) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+    
     // If we're unmuting and there's a response to speak, speak it
     if (!newMutedState && aiResponse && aiResponse.trim() !== '') {
       setTimeout(() => {
         speakResponse(aiResponse);
       }, 100);
-    }
-    
-    // If we're muting and currently speaking, stop speech
-    if (newMutedState && isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
     }
   };
 
@@ -1423,21 +1423,17 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     // Auto-speak after a short delay to ensure modal is open
     // Force unmute for welcome message
     setTimeout(() => {
-      console.log('About to speak welcome message');
       speakResponse(welcomeMessage, true); // Force unmute for welcome
     }, 500);
   };
 
   const speakResponse = (responseText?: string, forceUnmute = false) => {
-    console.log('speakResponse called:', { responseText, forceUnmute, isMuted });
-    
     if (!('speechSynthesis' in window)) {
       alert('Speech synthesis is not supported in this browser.');
       return;
     }
 
     if (isMuted && !forceUnmute) {
-      console.log('Speech blocked - muted');
       return; // Don't speak if muted (unless forced)
     }
 
