@@ -5143,7 +5143,11 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
                 className="fill-gray-700 font-semibold"
                 fontSize="12"
               >
-                {d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                {(() => {
+                  // Normalize to viewer's local day to avoid UTC off-by-one labels
+                  const shifted = new Date(d.date.getTime() - (d.date.getTimezoneOffset() * 60000));
+                  return shifted.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                })()}
               </text>
             </g>
           );
