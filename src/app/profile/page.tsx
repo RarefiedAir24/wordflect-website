@@ -646,6 +646,11 @@ export default function Profile() {
         // Always augment with current week's 7 days so all cards show current week data
         console.log('🎯 Starting auto-population for all 7 days...');
         try {
+          // Add timeout to prevent hanging
+          const autoPopulationTimeout = setTimeout(() => {
+            console.warn('🎯 Auto-population timeout - forcing completion');
+            setIsLoadingThemeAnalytics(false);
+          }, 10000); // 10 second timeout
           const today = new Date();
           const dayIdx = today.getUTCDay(); // 0=Sun..6=Sat (UTC)
           const sunday = new Date(today);
@@ -703,10 +708,16 @@ export default function Profile() {
             }
           });
           console.log('🎯 Waiting for all 7 day fetches to complete...');
-          const results = await Promise.all(weekFetches);
-          console.log('🎯 Week fetch results:', results);
-          console.log('🎯 Final analytics object:', analytics);
-          console.log('🎯 Auto-population completed successfully!');
+          try {
+            const results = await Promise.all(weekFetches);
+            console.log('🎯 Week fetch results:', results);
+            console.log('🎯 Final analytics object:', analytics);
+            console.log('🎯 Auto-population completed successfully!');
+            clearTimeout(autoPopulationTimeout);
+          } catch (error) {
+            console.error('🎯 Auto-population Promise.all failed:', error);
+            console.log('🎯 Continuing with partial data...');
+          }
         } catch (e) {
           console.warn('Week augmentation failed:', e);
         }
