@@ -642,12 +642,12 @@ export default function Profile() {
           console.warn('⚠️ Theme analytics main endpoint failed, proceeding with week augmentation only:', innerError);
         }
 
-        // Augment with previous week's 7 days so all cards show historical data
+        // Augment with current week's 7 days so all cards show current week data
         try {
           const today = new Date();
           const dayIdx = today.getUTCDay(); // 0=Sun..6=Sat (UTC)
           const sunday = new Date(today);
-          sunday.setUTCDate(today.getUTCDate() - dayIdx - 7); // Go back one week
+          sunday.setUTCDate(today.getUTCDate() - dayIdx); // Current week
           const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
 
           type ThemeDayResponse = {
