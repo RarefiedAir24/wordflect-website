@@ -852,6 +852,22 @@ You currently have ${profile.points.toLocaleString()} total points and ${profile
 💎 **Premium Analytics**: Upgrade to Premium for advanced analytics, trend analysis, and personalized insights!`;
     }
     
+    // === NAVIGATION & ACTIONS ===
+    else if (query.includes('dashboard') || query.includes('go to dashboard') || query.includes('navigate to dashboard')) {
+      response = `I&apos;ll take you to your dashboard right now!`;
+      // Redirect to dashboard
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 1000);
+    }
+    else if (query.includes('sign out') || query.includes('logout') || query.includes('log out') || query.includes('sign me out')) {
+      response = `I&apos;ll sign you out now. Thanks for playing WordFlect!`;
+      // Sign out the user
+      setTimeout(() => {
+        handleSignOut();
+      }, 1000);
+    }
+    
     // === FRAMES & CUSTOMIZATION ===
     else if (query.includes('frames') || query.includes('customize') || query.includes('profile') || query.includes('avatar')) {
       response = `Frames & Customization:
@@ -2133,22 +2149,28 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 </div>
               </button>
               <a href="/dashboard">
-                <button className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-200 font-bold shadow-lg flex items-center gap-3 hover:shadow-xl">
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z" />
-                  </svg>
-                  Dashboard
+                <button className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-bold shadow-2xl flex items-center gap-4 hover:shadow-3xl border-2 border-blue-400/30 hover:border-blue-300/50 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
+                  <div className="relative flex items-center gap-4">
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z" />
+                    </svg>
+                    <div className="text-lg font-bold">Dashboard</div>
+                  </div>
                 </button>
               </a>
               <button 
                 onClick={handleSignOut} 
-                className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-200 font-bold shadow-lg flex items-center gap-3 hover:shadow-xl"
+                className="bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-bold shadow-2xl flex items-center gap-4 hover:shadow-3xl border-2 border-red-400/30 hover:border-red-300/50 relative overflow-hidden"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                Sign Out
+                <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
+                <div className="relative flex items-center gap-4">
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  <div className="text-lg font-bold">Sign Out</div>
+                </div>
               </button>
             </div>
           </div>
@@ -2180,7 +2202,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             
             <div className="mb-4">
               <p className="text-sm text-gray-600 mb-3">
-                Hi! I&apos;m Lexi, your AI assistant. Ask me about your stats, gameplay help, or customization! Try: &quot;How do I play?&quot;, &quot;How do I change backgrounds?&quot;, &quot;What are premium features?&quot;, or &quot;Give me some tips!&quot; Use Voice Ask for hands-free interaction!
+                Hi! I&apos;m Lexi, your AI assistant. Ask me about your stats, gameplay help, or customization! Try: &quot;How do I play?&quot;, &quot;Take me to dashboard&quot;, &quot;Sign me out&quot;, &quot;What are premium features?&quot;, or &quot;Give me some tips!&quot; Use Voice Ask for hands-free interaction!
               </p>
               <div className="space-y-3">
                 <input
