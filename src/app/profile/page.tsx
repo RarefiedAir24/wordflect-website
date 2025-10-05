@@ -706,6 +706,7 @@ export default function Profile() {
           const results = await Promise.all(weekFetches);
           console.log('🎯 Week fetch results:', results);
           console.log('🎯 Final analytics object:', analytics);
+          console.log('🎯 Auto-population completed successfully!');
         } catch (e) {
           console.warn('Week augmentation failed:', e);
         }
@@ -732,6 +733,7 @@ export default function Profile() {
 
         console.log('🎯 Setting themeAnalytics state with:', analytics);
         setThemeAnalytics(analytics);
+        console.log('🎯 Setting isLoadingThemeAnalytics to false');
         setIsLoadingThemeAnalytics(false);
       } catch (error) {
         console.error('❌ Error fetching theme analytics from backend:', error);
