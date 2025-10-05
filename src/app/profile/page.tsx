@@ -645,6 +645,9 @@ export default function Profile() {
 
         // SIMPLE WORKAROUND: Just show cards with 0 progress initially
         console.log('🎯 Using simple workaround - showing cards with 0 progress');
+        
+        // Set empty theme analytics so cards show 0 progress instead of loading
+        setThemeAnalytics({} as Record<string, unknown>);
         setIsLoadingThemeAnalytics(false);
         console.log('🎯 Cards ready for user interaction');
       } catch (error) {
