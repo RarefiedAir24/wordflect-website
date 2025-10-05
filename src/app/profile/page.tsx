@@ -34,6 +34,7 @@ export default function Profile() {
   const [expandedLetters, setExpandedLetters] = useState<Record<string, boolean>>({});
   const [timeAnalytics, setTimeAnalytics] = useState<Record<string, unknown> | null>(null);
   const [themeAnalytics, setThemeAnalytics] = useState<Record<string, unknown> | null>(null);
+  const [isLoadingThemeAnalytics, setIsLoadingThemeAnalytics] = useState(true);
   const [selectedThemeDay, setSelectedThemeDay] = useState<string | null>(null);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   // const [refreshing, setRefreshing] = useState(false); // Removed: no manual refresh in production
@@ -731,6 +732,7 @@ export default function Profile() {
 
         console.log('🎯 Setting themeAnalytics state with:', analytics);
         setThemeAnalytics(analytics);
+        setIsLoadingThemeAnalytics(false);
       } catch (error) {
         console.error('❌ Error fetching theme analytics from backend:', error);
         console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
@@ -2905,6 +2907,25 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           {/* Monday - Food & Drinks */}
           {(() => {
             console.log('🎯 Monday card rendering - themeAnalytics:', themeAnalytics);
+            console.log('🎯 Monday card rendering - isLoadingThemeAnalytics:', isLoadingThemeAnalytics);
+            
+            if (isLoadingThemeAnalytics) {
+              return (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center animate-pulse">
+                      <span className="text-white font-bold text-sm">🍕</span>
+                    </div>
+                    <span className="text-xs text-gray-500 font-semibold">MONDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-500">Food & Drinks</p>
+                  <div className="mt-3 text-center text-gray-600 text-sm font-medium">
+                    Loading theme data...
+                  </div>
+                </div>
+              );
+            }
+            
             const themeData = getThemeData('monday');
             console.log('🎯 Monday card - themeData:', themeData);
             if (!themeData) {
