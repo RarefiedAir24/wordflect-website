@@ -1453,58 +1453,107 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     const voices = window.speechSynthesis.getVoices();
     let selectedVoice = null;
     
-    // Prefer natural-sounding voices
+    // Enhanced voice selection for Kirsten Dunst-like voice
     const preferredVoices = [
-      'Google US English', 'Microsoft Zira Desktop', 'Microsoft David Desktop',
-      'Alex', 'Samantha', 'Victoria', 'Daniel', 'Karen', 'Moira', 'Tessa'
+      // Kirsten Dunst-like voices (warm, natural, slightly higher-pitched female)
+      'Samantha', 'Victoria', 'Ava', 'Emma', 'Olivia', 'Sophia', 'Isabella', 'Charlotte', 'Amelia',
+      'Microsoft Zira Desktop', 'Microsoft Hazel Desktop', 'Microsoft Susan Desktop',
+      'Google US English Female', 'Google UK English Female', 'Google Australian English Female',
+      'Alex', 'Karen', 'Moira', 'Tessa', 'Siri', 'Cortana', 'Amazon Polly', 'IBM Watson',
+      // Additional natural female voices
+      'Google US English', 'Microsoft David Desktop', 'Daniel'
     ];
     
-    // Try to find a preferred voice
+    // Try to find a preferred voice with enhanced matching
     for (const preferredName of preferredVoices) {
-      selectedVoice = voices.find(voice => 
-        voice.name.includes(preferredName) || 
-        voice.name.toLowerCase().includes(preferredName.toLowerCase())
-      );
+      selectedVoice = voices.find(voice => {
+        const voiceName = voice.name.toLowerCase();
+        const preferredLower = preferredName.toLowerCase();
+        return voiceName.includes(preferredLower) || 
+               voiceName.includes(preferredLower.replace(' ', '')) ||
+               voiceName.includes(preferredLower.replace(' desktop', '')) ||
+               voiceName.includes(preferredLower.replace(' us english', '')) ||
+               voiceName.includes(preferredLower.replace(' uk english', ''));
+      });
       if (selectedVoice) break;
     }
     
-    // Fallback to first English voice if no preferred voice found
+    // Enhanced fallback logic
     if (!selectedVoice) {
+      // Try to find any high-quality English voice
       selectedVoice = voices.find(voice => 
+        voice.lang.startsWith('en') && 
+        (voice.name.toLowerCase().includes('google') || 
+         voice.name.toLowerCase().includes('microsoft') ||
+         voice.name.toLowerCase().includes('siri') ||
+         voice.name.toLowerCase().includes('cortana'))
+      ) || voices.find(voice => 
         voice.lang.startsWith('en') && voice.default
       ) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
     }
 
-    // Clean up the response text for more natural speech
+    // Enhanced text cleaning for more natural, conversational speech
     const cleanResponse = textToSpeak
-      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove markdown bold
-      .replace(/\*(.*?)\*/g, '$1') // Remove markdown italic
-      .replace(/•/g, '') // Remove bullet points
-      .replace(/🎯|🎮|📊|💎|🎨|💰|🏆|🆘|💡|⏰|📈|📝|🧠|🎯|⚔️|📅|📊|🎯|💡|🎨|🖼️|🌈|📝|💎|🎯|💡|🎮|📈|🎨|💎|💰|🏆|🆘|💡/g, '') // Remove emojis
-      .replace(/\n\n+/g, '. ') // Replace multiple newlines with pause
-      .replace(/\n/g, '. ') // Replace single newlines with pause
+      // Remove all markdown formatting
+      .replace(/\*\*(.*?)\*\*/g, '$1') // Bold
+      .replace(/\*(.*?)\*/g, '$1') // Italic
+      .replace(/`(.*?)`/g, '$1') // Code
+      .replace(/#{1,6}\s*/g, '') // Headers
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Links
+      
+      // Remove all emojis and symbols
+      .replace(/[🎯🎮📊💎🎨💰🏆🆘💡⏰📈📝🧠⚔️📅🖼️🌈🎉🚀⭐✨🎊🎁🎈🎂🍰🎪🎭🎨🎬🎵🎶🎸🎹🎺🎻🎼🎤🎧🎨🎯🎮📱💻⌨️🖥️🖨️📠📞☎️📧📨📩📤📥📦📫📪📬📭📮🗳️🗂️🗃️🗄️🗑️🔒🔓🔏🔐🔑🗝️🔨⛏️⚒️🛠️🔧🔩⚙️🗜️⚖️🔗⛓️🧰🧲⚗️🧪🧫🧬🔬🔭📡💉💊🩹🩺🧻🚽🚰🚿🛁🛀🧴🧷🧹🧺🧻🚰🚿🛁🛀🧴🧷🧹🧺]/g, '')
+      
+      // Convert formatting to natural speech
+      .replace(/•\s*/g, '') // Bullet points
+      .replace(/\n\n+/g, '. ') // Multiple newlines to pause
+      .replace(/\n/g, '. ') // Single newlines to pause
+      .replace(/\s+/g, ' ') // Multiple spaces to single
+      
+      // Remove brackets and convert to natural speech
+      .replace(/\[([^\]]+)\]/g, '$1') // Square brackets
+      .replace(/\(([^)]+)\)/g, ', $1') // Parentheses to commas
+      .replace(/\{([^}]+)\}/g, '$1') // Curly braces
+      
+      // Convert punctuation for better flow
+      .replace(/:/g, ',') // Colons to commas
+      .replace(/;/g, ',') // Semicolons to commas
+      .replace(/—/g, ', ') // Em dashes to commas
+      .replace(/–/g, ', ') // En dashes to commas
+      .replace(/\|/g, ', ') // Pipes to commas
+      
+      // Clean up repeated punctuation
+      .replace(/\.\s*\./g, '.') // Double periods
+      .replace(/,\s*,/g, ',') // Double commas
+      .replace(/\?\s*\?/g, '?') // Double question marks
+      .replace(/!\s*!/g, '!') // Double exclamation marks
+      
+      // Add natural pauses for better rhythm (Kirsten Dunst style)
+      .replace(/([.!?])\s*([A-Z])/g, '$1. $2') // Pause before new sentences
+      .replace(/(\d+)\s*([A-Za-z])/g, '$1 $2') // Space between numbers and letters
+      .replace(/\b(Hi|Hello|Hey)\b/g, 'Hi there') // More casual greetings
+      .replace(/\b(you can|you should|you need to)\b/g, 'you can totally') // More conversational
+      .replace(/\b(try saying|try)\b/g, 'you can say') // More natural phrasing
+      .replace(/\b(click|press)\b/g, 'just click') // More casual instructions
+      
+      // Final cleanup
       .replace(/\s+/g, ' ') // Clean up multiple spaces
-      .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove any remaining bold formatting
-      .replace(/\*([^*]+)\*/g, '$1') // Remove any remaining italic formatting
-      .replace(/\[([^\]]+)\]/g, '$1') // Remove brackets but keep content
-      .replace(/\(([^)]+)\)/g, ', $1') // Convert parentheses to natural speech
-      .replace(/:/g, ',') // Replace colons with commas for better flow
-      .replace(/;/g, ',') // Replace semicolons with commas
-      .replace(/\s+/g, ' ') // Clean up multiple spaces again
-      .replace(/\.\s*\./g, '.') // Remove double periods
-      .replace(/,\s*,/g, ',') // Remove double commas
+      .replace(/^\s+|\s+$/g, '') // Trim whitespace
       .trim();
 
     const utterance = new SpeechSynthesisUtterance(cleanResponse);
     
-    // Enhanced speech parameters for more natural, conversational sound
-    utterance.rate = 0.9; // Slightly faster for more natural conversation pace
-    utterance.pitch = 1.0; // Natural pitch for conversational tone
-    utterance.volume = 0.85; // Slightly lower volume for more natural sound
+    // Enhanced speech parameters for Kirsten Dunst-like voice
+    utterance.rate = 0.95; // Slightly faster, more energetic pace like Kirsten
+    utterance.pitch = 1.1; // Slightly higher pitch for that warm, youthful tone
+    utterance.volume = 0.9; // Clear, confident volume
     
     // Set voice if available
     if (selectedVoice) {
       utterance.voice = selectedVoice;
+      console.log('Selected voice:', selectedVoice.name, 'Language:', selectedVoice.lang);
+    } else {
+      console.log('No preferred voice found, using default');
     }
     
     utterance.onstart = () => {
