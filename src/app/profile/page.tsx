@@ -3039,7 +3039,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                     <span className="text-xs text-purple-600 font-semibold">THURSDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-purple-700">Adjectives</p>
+                  <p className="text-lg font-bold text-purple-700">{getThemeName('thursday')}</p>
                   <div className="mt-3 text-center text-purple-600 text-sm font-medium">
                     Tap to load progress
                   </div>
@@ -3102,7 +3102,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                     <span className="text-xs text-orange-600 font-semibold">FRIDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-orange-700">Animals</p>
+                  <p className="text-lg font-bold text-orange-700">{getThemeName('friday')}</p>
                   <div className="mt-3 text-center text-orange-600 text-sm font-medium">
                     Tap to load progress
                   </div>
@@ -3165,7 +3165,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                     <span className="text-xs text-pink-600 font-semibold">SATURDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-pink-700">Colors</p>
+                  <p className="text-lg font-bold text-pink-700">{getThemeName('saturday')}</p>
                   <div className="mt-3 text-center text-pink-600 text-sm font-medium">
                     Tap to load progress
                   </div>
@@ -3228,7 +3228,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                     <span className="text-xs text-red-600 font-semibold">SUNDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-red-700">Actions</p>
+                  <p className="text-lg font-bold text-red-700">{getThemeName('sunday')}</p>
                   <div className="mt-3 text-center text-red-600 text-sm font-medium">
                     Tap to load progress
                   </div>
