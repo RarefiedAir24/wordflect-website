@@ -712,13 +712,13 @@ export default function Profile() {
           });
           console.log('🎯 Waiting for all 7 day fetches to complete...');
           try {
-            const results = await Promise.all(weekFetches);
+            const results = await Promise.allSettled(weekFetches);
             console.log('🎯 Week fetch results:', results);
             console.log('🎯 Final analytics object:', analytics);
             console.log('🎯 Auto-population completed successfully!');
             clearTimeout(autoPopulationTimeout);
           } catch (error) {
-            console.error('🎯 Auto-population Promise.all failed:', error);
+            console.error('🎯 Auto-population Promise.allSettled failed:', error);
             console.log('🎯 Continuing with partial data...');
           }
         } catch (e) {
