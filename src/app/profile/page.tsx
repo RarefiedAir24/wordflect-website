@@ -1453,14 +1453,15 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     const voices = window.speechSynthesis.getVoices();
     let selectedVoice = null;
     
-    // Enhanced voice selection for natural sound
+    // Enhanced voice selection for Taylor Swift-like sound
     const preferredVoices = [
-      // High-quality natural voices
-      'Google US English', 'Microsoft Zira Desktop', 'Microsoft David Desktop',
-      'Alex', 'Samantha', 'Victoria', 'Daniel', 'Karen', 'Moira', 'Tessa',
-      'Microsoft Hazel Desktop', 'Microsoft Susan Desktop', 'Microsoft Mark Desktop',
-      'Google UK English Female', 'Google UK English Male', 'Google Australian English',
-      'Siri', 'Cortana', 'Amazon Polly', 'IBM Watson'
+      // Taylor Swift-like voices (clear American accent, warm female tone)
+      'Samantha', 'Victoria', 'Alex', 'Karen', 'Moira', 'Tessa',
+      'Microsoft Zira Desktop', 'Microsoft Hazel Desktop', 'Microsoft Susan Desktop',
+      'Google US English', 'Google US English Female', 'Google US English Male',
+      'Siri', 'Cortana', 'Amazon Polly', 'IBM Watson',
+      'Microsoft David Desktop', 'Daniel', 'Microsoft Mark Desktop',
+      'Google UK English Female', 'Google UK English Male', 'Google Australian English'
     ];
     
     // Try to find a preferred voice with enhanced matching
@@ -1477,15 +1478,18 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       if (selectedVoice) break;
     }
     
-    // Enhanced fallback logic
+    // Enhanced fallback logic for Taylor Swift-like voice
     if (!selectedVoice) {
-      // Try to find any high-quality English voice
+      // Prioritize American English voices for Taylor Swift-like accent
       selectedVoice = voices.find(voice => 
-        voice.lang.startsWith('en') && 
-        (voice.name.toLowerCase().includes('google') || 
-         voice.name.toLowerCase().includes('microsoft') ||
-         voice.name.toLowerCase().includes('siri') ||
-         voice.name.toLowerCase().includes('cortana'))
+        voice.lang.startsWith('en-US') || voice.lang.startsWith('en')
+      ) && voices.find(voice => 
+        voice.name.toLowerCase().includes('us') || 
+        voice.name.toLowerCase().includes('american') ||
+        voice.name.toLowerCase().includes('google') || 
+        voice.name.toLowerCase().includes('microsoft') ||
+        voice.name.toLowerCase().includes('siri') ||
+        voice.name.toLowerCase().includes('cortana')
       ) || voices.find(voice => 
         voice.lang.startsWith('en') && voice.default
       ) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
@@ -1527,9 +1531,14 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       .replace(/\?\s*\?/g, '?') // Double question marks
       .replace(/!\s*!/g, '!') // Double exclamation marks
       
-      // Add natural pauses for better rhythm
+      // Add natural pauses for better rhythm (Taylor Swift style)
       .replace(/([.!?])\s*([A-Z])/g, '$1. $2') // Pause before new sentences
       .replace(/(\d+)\s*([A-Za-z])/g, '$1 $2') // Space between numbers and letters
+      .replace(/\b(Hi|Hello|Hey)\b/g, 'Hey') // More casual, Taylor-like greetings
+      .replace(/\b(you can|you should|you need to)\b/g, 'you can totally') // More conversational
+      .replace(/\b(try saying|try)\b/g, 'you can say') // More natural phrasing
+      .replace(/\b(click|press)\b/g, 'just click') // More casual instructions
+      .replace(/\b(awesome|great|amazing)\b/g, 'so cool') // Taylor-like expressions
       
       // Final cleanup
       .replace(/\s+/g, ' ') // Clean up multiple spaces
@@ -1538,10 +1547,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
     const utterance = new SpeechSynthesisUtterance(cleanResponse);
     
-    // Enhanced speech parameters for natural, conversational sound
-    utterance.rate = 0.9; // Slightly faster for more natural conversation pace
-    utterance.pitch = 1.0; // Natural pitch for conversational tone
-    utterance.volume = 0.85; // Slightly lower volume for more natural sound
+    // Enhanced speech parameters for Taylor Swift-like voice
+    utterance.rate = 0.92; // Slightly faster, more energetic pace like Taylor
+    utterance.pitch = 1.05; // Slightly higher pitch for that warm, youthful tone
+    utterance.volume = 0.88; // Clear, confident volume like Taylor's speaking voice
     
     // Set voice if available
     if (selectedVoice) {
