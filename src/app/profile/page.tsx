@@ -2826,7 +2826,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             console.log('🎯 Monday card rendering - themeAnalytics keys:', themeAnalytics ? Object.keys(themeAnalytics) : 'null');
             
             // Show "tap to load" for cards without data
-            const hasData = themeAnalytics && Object.keys(themeAnalytics).length > 0;
+            const hasData = themeAnalytics && themeAnalytics[`monday_response`];
             if (!hasData) {
               return (
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200 cursor-pointer hover:from-blue-100 hover:to-blue-200 transition-all duration-200" onClick={() => handleThemeDayClick('monday')}>
@@ -2893,7 +2893,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           {/* Tuesday - Common Nouns */}
           {(() => {
             // Show "tap to load" for cards without data
-            const hasData = themeAnalytics && Object.keys(themeAnalytics).length > 0;
+            const hasData = themeAnalytics && themeAnalytics[`tuesday_response`];
             if (!hasData) {
               return (
                 <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200 cursor-pointer hover:from-green-100 hover:to-green-200 transition-all duration-200" onClick={() => handleThemeDayClick('tuesday')}>
@@ -2959,7 +2959,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           {/* Wednesday - Nature */}
           {(() => {
             // Show "tap to load" for cards without data
-            const hasData = themeAnalytics && Object.keys(themeAnalytics).length > 0;
+            const hasData = themeAnalytics && themeAnalytics[`wednesday_response`];
             if (!hasData) {
               return (
                 <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200 cursor-pointer hover:from-emerald-100 hover:to-emerald-200 transition-all duration-200" onClick={() => handleThemeDayClick('wednesday')}>
@@ -3025,7 +3025,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           {/* Friday - Animals */}
           {(() => {
             // Show "tap to load" for cards without data
-            const hasData = themeAnalytics && Object.keys(themeAnalytics).length > 0;
+            const hasData = themeAnalytics && themeAnalytics[`friday_response`];
             if (!hasData) {
               return (
                 <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200 cursor-pointer hover:from-orange-100 hover:to-orange-200 transition-all duration-200" onClick={() => handleThemeDayClick('friday')}>
@@ -3094,7 +3094,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           {/* Thursday - Adjectives */}
           {(() => {
             // Show "tap to load" for cards without data
-            const hasData = themeAnalytics && Object.keys(themeAnalytics).length > 0;
+            const hasData = themeAnalytics && themeAnalytics[`thursday_response`];
             if (!hasData) {
               return (
                 <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200 cursor-pointer hover:from-purple-100 hover:to-purple-200 transition-all duration-200" onClick={() => handleThemeDayClick('thursday')}>
@@ -3160,7 +3160,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           {/* Saturday - Colors */}
           {(() => {
             // Show "tap to load" for cards without data
-            const hasData = themeAnalytics && Object.keys(themeAnalytics).length > 0;
+            const hasData = themeAnalytics && themeAnalytics[`saturday_response`];
             if (!hasData) {
               return (
                 <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200 cursor-pointer hover:from-pink-100 hover:to-pink-200 transition-all duration-200" onClick={() => handleThemeDayClick('saturday')}>
@@ -3226,7 +3226,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           {/* Sunday - Actions */}
           {(() => {
             // Show "tap to load" for cards without data
-            const hasData = themeAnalytics && Object.keys(themeAnalytics).length > 0;
+            const hasData = themeAnalytics && themeAnalytics[`sunday_response`];
             if (!hasData) {
               return (
                 <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 border border-red-200 cursor-pointer hover:from-red-100 hover:to-red-200 transition-all duration-200" onClick={() => handleThemeDayClick('sunday')}>
