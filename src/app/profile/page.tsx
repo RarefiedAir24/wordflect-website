@@ -698,6 +698,26 @@ export default function Profile() {
           console.warn('Week augmentation failed:', e);
         }
 
+        // If current day has no theme data, try to show previous day's data
+        const today = new Date();
+        const todayDay = today.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayDay = yesterday.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        
+        // Check if current day has no theme data but previous day does
+        const currentDayData = analytics[`${todayDay}_response`];
+        const previousDayData = analytics[`${yesterdayDay}_response`];
+        
+        if (!currentDayData && previousDayData) {
+          console.log(`🎯 Current day (${todayDay}) has no theme data, showing previous day (${yesterdayDay}) data`);
+          // Copy previous day's data to current day for display
+          analytics[`${todayDay}_response`] = previousDayData;
+          analytics[`${todayDay}_themeDetails`] = previousDayData;
+          analytics[`${todayDay}_themeWords`] = analytics[`${yesterdayDay}_themeWords`];
+          analytics[`${todayDay}_progress`] = analytics[`${yesterdayDay}_progress`];
+        }
+
         setThemeAnalytics(analytics);
       } catch (error) {
         console.error('❌ Error fetching theme analytics from backend:', error);
