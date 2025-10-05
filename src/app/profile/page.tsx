@@ -3137,15 +3137,15 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             return (
               <div 
                 className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                onClick={() => handleThemeDayClick('friday')}
+                onClick={() => handleThemeDayClick('thursday')}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">🐕</span>
             </div>
-                  <span className="text-xs text-yellow-600 font-semibold">FRIDAY</span>
-          </div>
-                <p className="text-lg font-bold text-yellow-900">{getThemeName('friday')}</p>
+                  <span className="text-xs text-yellow-600 font-semibold">THURSDAY</span>
+                </div>
+                <p className="text-lg font-bold text-yellow-900">Adjectives</p>
                 <p className="text-xs text-yellow-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
                 <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-yellow-200 rounded-full h-2">
