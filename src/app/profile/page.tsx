@@ -643,13 +643,10 @@ export default function Profile() {
           console.warn('⚠️ Theme analytics main endpoint failed, proceeding with week augmentation only:', innerError);
         }
 
-        // SIMPLE WORKAROUND: Just show cards with 0 progress initially
-        console.log('🎯 Using simple workaround - showing cards with 0 progress');
-        
-        // Set empty theme analytics so cards show 0 progress instead of loading
-        setThemeAnalytics({} as Record<string, unknown>);
+        // Let the auto-population data be used - don't override it
+        console.log('🎯 Auto-population completed, using fetched data');
         setIsLoadingThemeAnalytics(false);
-        console.log('🎯 Cards ready for user interaction');
+        console.log('🎯 Cards ready with actual progress data');
       } catch (error) {
         console.error('❌ Error fetching theme analytics from backend:', error);
         console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
