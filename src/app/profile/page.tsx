@@ -1423,19 +1423,22 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     // Auto-speak after a short delay to ensure modal is open
     // Force unmute for welcome message
     setTimeout(() => {
-      setIsMuted(false); // Force unmute for welcome
-      speakResponse(welcomeMessage);
+      console.log('About to speak welcome message');
+      speakResponse(welcomeMessage, true); // Force unmute for welcome
     }, 500);
   };
 
-  const speakResponse = (responseText?: string) => {
+  const speakResponse = (responseText?: string, forceUnmute = false) => {
+    console.log('speakResponse called:', { responseText, forceUnmute, isMuted });
+    
     if (!('speechSynthesis' in window)) {
       alert('Speech synthesis is not supported in this browser.');
       return;
     }
 
-    if (isMuted) {
-      return; // Don't speak if muted
+    if (isMuted && !forceUnmute) {
+      console.log('Speech blocked - muted');
+      return; // Don't speak if muted (unless forced)
     }
 
     if (isSpeaking) {
