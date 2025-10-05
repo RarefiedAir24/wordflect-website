@@ -1453,12 +1453,12 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     const voices = window.speechSynthesis.getVoices();
     let selectedVoice = null;
     
-    // Enhanced voice selection for Taylor Swift-like sound
+    // Enhanced voice selection for most natural sound
     const preferredVoices = [
-      // Taylor Swift-like voices (clear American accent, warm female tone)
-      'Samantha', 'Victoria', 'Alex', 'Karen', 'Moira', 'Tessa',
-      'Microsoft Zira Desktop', 'Microsoft Hazel Desktop', 'Microsoft Susan Desktop',
+      // Most natural-sounding voices available in browsers
       'Google US English', 'Google US English Female', 'Google US English Male',
+      'Microsoft Zira Desktop', 'Microsoft Hazel Desktop', 'Microsoft Susan Desktop',
+      'Samantha', 'Victoria', 'Alex', 'Karen', 'Moira', 'Tessa',
       'Siri', 'Cortana', 'Amazon Polly', 'IBM Watson',
       'Microsoft David Desktop', 'Daniel', 'Microsoft Mark Desktop',
       'Google UK English Female', 'Google UK English Male', 'Google Australian English'
@@ -1531,14 +1531,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       .replace(/\?\s*\?/g, '?') // Double question marks
       .replace(/!\s*!/g, '!') // Double exclamation marks
       
-      // Add natural pauses for better rhythm (Taylor Swift style)
+      // Add natural pauses for better rhythm
       .replace(/([.!?])\s*([A-Z])/g, '$1. $2') // Pause before new sentences
       .replace(/(\d+)\s*([A-Za-z])/g, '$1 $2') // Space between numbers and letters
-      .replace(/\b(Hi|Hello|Hey)\b/g, 'Hey') // More casual, Taylor-like greetings
-      .replace(/\b(you can|you should|you need to)\b/g, 'you can totally') // More conversational
-      .replace(/\b(try saying|try)\b/g, 'you can say') // More natural phrasing
-      .replace(/\b(click|press)\b/g, 'just click') // More casual instructions
-      .replace(/\b(awesome|great|amazing)\b/g, 'so cool') // Taylor-like expressions
       
       // Final cleanup
       .replace(/\s+/g, ' ') // Clean up multiple spaces
@@ -1547,10 +1542,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
     const utterance = new SpeechSynthesisUtterance(cleanResponse);
     
-    // Enhanced speech parameters for Taylor Swift-like voice
-    utterance.rate = 0.92; // Slightly faster, more energetic pace like Taylor
-    utterance.pitch = 1.05; // Slightly higher pitch for that warm, youthful tone
-    utterance.volume = 0.88; // Clear, confident volume like Taylor's speaking voice
+    // Optimized speech parameters for most natural sound
+    utterance.rate = 0.85; // Slower rate for more natural, less robotic sound
+    utterance.pitch = 0.95; // Slightly lower pitch for more natural tone
+    utterance.volume = 0.8; // Moderate volume for natural conversation
     
     // Set voice if available
     if (selectedVoice) {
