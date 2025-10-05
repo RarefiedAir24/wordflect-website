@@ -645,9 +645,9 @@ export default function Profile() {
         // Augment with current week's 7 days so all cards are clickable
         try {
           const today = new Date();
-          const dayIdx = today.getDay(); // 0=Sun..6=Sat
+          const dayIdx = today.getUTCDay(); // 0=Sun..6=Sat (UTC)
           const sunday = new Date(today);
-          sunday.setDate(today.getDate() - dayIdx);
+          sunday.setUTCDate(today.getUTCDate() - dayIdx);
           const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
 
           type ThemeDayResponse = {
@@ -700,10 +700,10 @@ export default function Profile() {
 
         // If current day has no theme data, try to show previous day's data
         const today = new Date();
-        const todayDay = today.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        const todayDay = today.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' }).toLowerCase();
         const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayDay = yesterday.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        yesterday.setUTCDate(today.getUTCDate() - 1);
+        const yesterdayDay = yesterday.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' }).toLowerCase();
         
         // Check if current day has no theme data but previous day does
         const currentDayData = analytics[`${todayDay}_response`];
