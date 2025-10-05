@@ -642,7 +642,8 @@ export default function Profile() {
           console.warn('⚠️ Theme analytics main endpoint failed, proceeding with week augmentation only:', innerError);
         }
 
-        // Augment with current week's 7 days so all cards show current week data
+        // Always augment with current week's 7 days so all cards show current week data
+        console.log('🎯 Starting auto-population for all 7 days...');
         try {
           const today = new Date();
           const dayIdx = today.getUTCDay(); // 0=Sun..6=Sat (UTC)
@@ -661,11 +662,17 @@ export default function Profile() {
             timestamp?: string;
           };
 
+          console.log('🎯 Calculating week dates...');
+          console.log('🎯 Today:', today.toISOString());
+          console.log('🎯 Day index:', dayIdx);
+          console.log('🎯 Sunday:', sunday.toISOString());
+          
           const weekFetches = Array.from({ length: 7 }).map(async (_, i) => {
             const dateObj = new Date(sunday);
             dateObj.setUTCDate(sunday.getUTCDate() + i);
             const dateStr = dateObj.toISOString().split('T')[0];
             const dayName = dayNames[i];
+            console.log(`🎯 Fetching ${dayName} (${dateStr})...`);
             try {
               const dayRes = await apiService.getThemeDayStatistics(dateStr) as ThemeDayResponse;
               console.log(`🎯 ${dayName} (${dateStr}) backend response:`, dayRes);
@@ -694,7 +701,10 @@ export default function Profile() {
               return { dayName, ok: false };
             }
           });
-          await Promise.all(weekFetches);
+          console.log('🎯 Waiting for all 7 day fetches to complete...');
+          const results = await Promise.all(weekFetches);
+          console.log('🎯 Week fetch results:', results);
+          console.log('🎯 Final analytics object:', analytics);
         } catch (e) {
           console.warn('Week augmentation failed:', e);
         }
