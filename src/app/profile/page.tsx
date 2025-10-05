@@ -2168,7 +2168,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center lg:justify-end gap-4">
               <button 
                 onClick={openAiModal}
                 className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-bold shadow-2xl flex items-center gap-4 hover:shadow-3xl border-2 border-emerald-400/30 hover:border-emerald-300/50 relative overflow-hidden"
