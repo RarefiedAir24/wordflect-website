@@ -269,8 +269,12 @@ class ApiService {
 
   async getThemeDayStatistics(date: string): Promise<unknown> {
     try {
-      const url = new URL(buildApiUrl(API_CONFIG.ENDPOINTS.USER_THEME_DAY), window.location.origin);
+      const endpoint = buildApiUrl(API_CONFIG.ENDPOINTS.USER_THEME_DAY);
+      console.log('🔍 getThemeDayStatistics - endpoint:', endpoint);
+      console.log('🔍 getThemeDayStatistics - API_CONFIG.ENDPOINTS.USER_THEME_DAY:', API_CONFIG.ENDPOINTS.USER_THEME_DAY);
+      const url = new URL(endpoint, window.location.origin);
       url.searchParams.set('date', date);
+      console.log('🔍 getThemeDayStatistics - final URL:', url.toString());
       const response = await this.makeRequest(url.toString(), {
         method: 'GET',
         headers: this.getAuthHeaders(),
