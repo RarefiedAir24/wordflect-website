@@ -680,7 +680,9 @@ export default function Profile() {
             const dayName = dayNames[i];
             console.log(`🎯 Fetching ${dayName} (${dateStr})...`);
             try {
+              console.log(`🎯 Starting API call for ${dayName} (${dateStr})...`);
               const dayRes = await apiService.getThemeDayStatistics(dateStr) as ThemeDayResponse;
+              console.log(`🎯 ${dayName} (${dateStr}) API call completed successfully`);
               console.log(`🎯 ${dayName} (${dateStr}) backend response:`, dayRes);
               
               // Store raw response under keys consumed by UI
@@ -699,6 +701,7 @@ export default function Profile() {
               (analytics as Record<string, unknown>)[`${dayName}_progress`] = { found, total } as unknown as Record<string, unknown>;
               return { dayName, ok: true };
             } catch (e) {
+              console.error(`🎯 API call failed for ${dayName} (${dateStr}):`, e);
               console.warn(`Theme day fetch failed for ${dayName} ${dateStr}:`, e);
               (analytics as Record<string, unknown>)[`${dayName}_response`] = null as unknown as Record<string, unknown>;
               (analytics as Record<string, unknown>)[`${dayName}_themeDetails`] = null as unknown as Record<string, unknown>;
