@@ -3059,12 +3059,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">THURSDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">Adjectives</p>
+                  <p className="text-lg font-bold text-gray-700">{getThemeName('thursday')}</p>
                   <div className="mt-3 text-center text-gray-600 text-sm font-medium">
-                    {(() => {
-                      const p = getProgressFor('thursday');
-                      return p ? `${p.found}/${p.total} theme words` : 'No data available';
-                    })()}
+                    {(() => { const p = getProgressFor('thursday'); return p ? `${p.found}/${p.total} theme words` : 'No data available (tap to load)'; })()}
                   </div>
                 </div>
               );
@@ -3125,12 +3122,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">FRIDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">Animals</p>
+                  <p className="text-lg font-bold text-gray-700">{getThemeName('friday')}</p>
                   <div className="mt-3 text-center text-gray-600 text-sm font-medium">
-                    {(() => {
-                      const p = getProgressFor('friday');
-                      return p ? `${p.found}/${p.total} theme words` : 'No data available';
-                    })()}
+                    {(() => { const p = getProgressFor('friday'); return p ? `${p.found}/${p.total} theme words` : 'No data available (tap to load)'; })()}
                   </div>
                 </div>
               );
@@ -3191,12 +3185,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">SATURDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">{getThemeName('saturday')}</p>
+                  <p className="text-lg font-bold text-gray-700">{getThemeName('saturday')}</p>
                   <div className="mt-3 text-center text-gray-600 text-sm font-medium">
-                    {(() => {
-                      const p = getProgressFor('saturday');
-                      return p ? `${p.found}/${p.total} theme words` : 'No data available';
-                    })()}
+                    {(() => { const p = getProgressFor('saturday'); return p ? `${p.found}/${p.total} theme words` : 'No data available (tap to load)'; })()}
                   </div>
                 </div>
               );
@@ -3257,12 +3248,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">SUNDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">{getThemeName('sunday')}</p>
+                  <p className="text-lg font-bold text-gray-700">{getThemeName('sunday')}</p>
                   <div className="mt-3 text-center text-gray-600 text-sm font-medium">
-                    {(() => {
-                      const p = getProgressFor('sunday');
-                      return p ? `${p.found}/${p.total} theme words` : 'No data available';
-                    })()}
+                    {(() => { const p = getProgressFor('sunday'); return p ? `${p.found}/${p.total} theme words` : 'No data available (tap to load)'; })()}
                   </div>
                 </div>
               );
