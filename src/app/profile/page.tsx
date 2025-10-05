@@ -49,6 +49,7 @@ export default function Profile() {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   
   // Historical theme analytics state
   const [selectedHistoricalDate, setSelectedHistoricalDate] = useState<string>('');
@@ -1362,10 +1363,36 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     recognition.start();
   };
 
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    if (isSpeaking && !isMuted) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+  const openAiModal = () => {
+    setAiModalOpen(true);
+    // Auto-speak welcome message when modal opens
+    const welcomeMessage = `Hi! I'm Lexi, your AI WordFlect assistant. I can help you with gameplay, stats, customization, and even navigation. You can ask me to take you to the dashboard or sign you out. Try saying "How do I play?" or "Take me to dashboard". Click the voice icon to enable audio, or use the text input to chat with me!`;
+    setAiResponse(welcomeMessage);
+    
+    // Auto-speak after a short delay to ensure modal is open
+    setTimeout(() => {
+      if (!isMuted) {
+        speakResponse(welcomeMessage);
+      }
+    }, 500);
+  };
+
   const speakResponse = (responseText?: string) => {
     if (!('speechSynthesis' in window)) {
       alert('Speech synthesis is not supported in this browser.');
       return;
+    }
+
+    if (isMuted) {
+      return; // Don't speak if muted
     }
 
     if (isSpeaking) {
@@ -2131,7 +2158,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
             <div className="flex items-center gap-4">
               <button 
-                onClick={() => setAiModalOpen(true)}
+                onClick={openAiModal}
                 className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-bold shadow-2xl flex items-center gap-4 hover:shadow-3xl border-2 border-emerald-400/30 hover:border-emerald-300/50 relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
@@ -2162,23 +2189,48 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-gray-900">Lexi - Your AI Assistant</h3>
-              <button 
-                onClick={() => {
-                  setAiModalOpen(false);
-                  setAiQuery('');
-                  setAiResponse('');
-                }}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-3">
+                {/* Mute/Unmute Button */}
+                <button
+                  onClick={toggleMute}
+                  className={`p-2 rounded-full transition-all duration-200 ${
+                    isMuted 
+                      ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+                      : 'bg-green-100 text-green-600 hover:bg-green-200'
+                  }`}
+                  title={isMuted ? 'Enable audio' : 'Mute audio'}
+                >
+                  {isMuted ? (
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                    </svg>
+                  ) : (
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    </svg>
+                  )}
+                </button>
+                
+                {/* Close Button */}
+                <button 
+                  onClick={() => {
+                    setAiModalOpen(false);
+                    setAiQuery('');
+                    setAiResponse('');
+                  }}
+                  className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100"
+                >
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
             
             <div className="mb-4">
               <p className="text-sm text-gray-600 mb-3">
-                Hi! I&apos;m Lexi, your AI assistant. Ask me about your stats, gameplay help, or customization! Try: &quot;How do I play?&quot;, &quot;Take me to dashboard&quot;, &quot;Sign me out&quot;, &quot;What are premium features?&quot;, or &quot;Give me some tips!&quot; Use Voice Ask for hands-free interaction!
+                Hi! I&apos;m Lexi, your AI assistant. I can help with gameplay, stats, customization, and even navigation! Ask me to take you to the dashboard or sign you out. Try: &quot;How do I play?&quot;, &quot;Take me to dashboard&quot;, &quot;Sign me out&quot;, &quot;What are premium features?&quot;, or &quot;Give me some tips!&quot; Use Voice Ask for hands-free interaction!
               </p>
               <div className="space-y-3">
                 <input
