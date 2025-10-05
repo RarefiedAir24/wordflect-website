@@ -2349,7 +2349,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         <MetricCard title="Flectcoins" value={profile.flectcoins.toLocaleString()} accent="from-amber-400 to-yellow-500" />
-        <MetricCard title="Points" value={profile.points.toLocaleString()} accent="from-blue-400 to-indigo-500" />
         <MetricCard title="Gems" value={profile.gems.toLocaleString()} accent="from-pink-400 to-rose-500" />
         <div className="bg-white rounded-xl p-5 shadow relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50" />
