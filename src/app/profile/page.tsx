@@ -680,9 +680,18 @@ export default function Profile() {
             const dayName = dayNames[i];
             console.log(`🎯 Fetching ${dayName} (${dateStr})...`);
             try {
-              console.log(`🎯 Starting API call for ${dayName} (${dateStr})...`);
-              const dayRes = await apiService.getThemeDayStatistics(dateStr) as ThemeDayResponse;
-              console.log(`🎯 ${dayName} (${dateStr}) API call completed successfully`);
+            console.log(`🎯 Starting API call for ${dayName} (${dateStr})...`);
+            
+            // Add timeout to individual API call
+            const apiCallPromise = apiService.getThemeDayStatistics(dateStr) as Promise<ThemeDayResponse>;
+            const timeoutPromise = new Promise<never>((_, reject) => 
+              setTimeout(() => reject(new Error(`API call timeout for ${dayName}`)), 5000)
+            );
+            
+            const dayRes = await Promise.race([apiCallPromise, timeoutPromise]);
+            console.log(`🎯 ${dayName} (${dateStr}) API call completed successfully`);
+            console.log(`🎯 ${dayName} API response status:`, dayRes ? 'SUCCESS' : 'FAILED');
+            console.log(`🎯 ${dayName} API response data:`, dayRes);
               console.log(`🎯 ${dayName} (${dateStr}) backend response:`, dayRes);
               
               // Store raw response under keys consumed by UI
@@ -712,9 +721,12 @@ export default function Profile() {
             }
           });
           console.log('🎯 Waiting for all 7 day fetches to complete...');
+          console.log('🎯 Week fetches array length:', weekFetches.length);
           try {
             const results = await Promise.allSettled(weekFetches);
             console.log('🎯 Week fetch results:', results);
+            console.log('🎯 Results length:', results.length);
+            console.log('🎯 Results statuses:', results.map(r => r.status));
             console.log('🎯 Final analytics object:', analytics);
             console.log('🎯 Auto-population completed successfully!');
             clearTimeout(autoPopulationTimeout);
