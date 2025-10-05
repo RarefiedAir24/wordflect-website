@@ -1,30 +1,30 @@
-// API Configuration for Wordflect
+// API Configuration for Wordflect - CACHE BUST v2
 export const API_CONFIG = {
   // Base URL for the Wordflect API
   // For production, this should point to the actual deployed API
   BASE_URL: 'https://fo0rh1w8m9.execute-api.us-east-2.amazonaws.com/prod',
   
-  // API Endpoints - Temporarily using direct API calls to bypass proxy issues
+  // API Endpoints - Using proxy routes to bypass CORS
   ENDPOINTS: {
-    SIGNIN: '/api/proxy-signin', // Keep proxy for auth
-    SIGNUP: '/api/proxy-signup', // Keep proxy for auth
-    USER_PROFILE: '/api/proxy-profile', // Keep proxy for auth
-    USER_MISSIONS: '/api/proxy-missions', // Keep proxy for auth
-    USER_UPDATE_STATS: '/api/proxy-stats', // Keep proxy for auth
-    USER_COMPLETE_MISSION: '/api/proxy-complete-mission', // Keep proxy for auth
-    LEADERBOARD: '/api/proxy-leaderboard', // Keep proxy for auth
-    USER_FRAMES: '/api/proxy-frames', // Keep proxy for auth
-    WORD_OF_THE_DAY: '/api/proxy-word-of-the-day', // Keep proxy for auth
-    USER_HISTORY: '/user/history', // Direct API call
-    USER_STATISTICS_DETAILED: '/user/statistics/detailed', // Direct API call
-    USER_STATISTICS_DAILY: '/user/statistics/daily', // Direct API call
-    USER_STATISTICS_WEEKLY: '/user/statistics/weekly', // Direct API call
-    USER_STATISTICS_MONTHLY: '/user/statistics/monthly', // Direct API call
-    USER_SESSION_TRACK: '/api/proxy-session-track', // Keep proxy for auth
-    USER_SESSION_WORDS: '/user/session-words', // Direct API call
-    USER_THEME_ANALYTICS: '/user/theme-analytics', // Direct API call
-    USER_THEME_DAY: '/user/theme-day', // Direct API call
-    USER_TIME_ANALYTICS: '/user/time-analytics', // Direct API call
+    SIGNIN: '/api/proxy-signin', // Use proxy to bypass CORS
+    SIGNUP: '/api/proxy-signup', // Use proxy to bypass CORS
+    USER_PROFILE: '/api/proxy-profile', // Use proxy to bypass CORS
+    USER_MISSIONS: '/api/proxy-missions', // Use proxy to bypass CORS
+    USER_UPDATE_STATS: '/api/proxy-stats', // Use proxy to bypass CORS
+    USER_COMPLETE_MISSION: '/api/proxy-complete-mission', // Use proxy to bypass CORS
+    LEADERBOARD: '/api/proxy-leaderboard', // Use proxy to bypass CORS
+    USER_FRAMES: '/api/proxy-frames', // Use proxy to bypass CORS
+    WORD_OF_THE_DAY: '/api/proxy-word-of-the-day', // Use proxy to bypass CORS
+    USER_HISTORY: '/api/proxy-history', // Historical stats
+    USER_STATISTICS_DETAILED: '/api/proxy-statistics-detailed', // Comprehensive user statistics
+    USER_STATISTICS_DAILY: '/api/proxy-statistics-daily', // Daily statistics
+    USER_STATISTICS_WEEKLY: '/api/proxy-statistics-weekly', // Weekly statistics
+    USER_STATISTICS_MONTHLY: '/api/proxy-statistics-monthly', // Monthly statistics
+    USER_SESSION_TRACK: '/api/proxy-session-track', // Session tracking
+    USER_SESSION_WORDS: '/api/proxy-session-words', // Session words data - proxy call with timezone support
+    USER_THEME_ANALYTICS: '/api/proxy-theme-analytics', // Theme word analytics
+    USER_THEME_DAY: '/api/proxy-theme-day', // Daily theme statistics
+    USER_TIME_ANALYTICS: '/api/proxy-time-analytics', // Time period analytics
   },
   
   // Request timeout in milliseconds
