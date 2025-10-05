@@ -2126,27 +2126,27 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   }
 
   return (
-    <div className="max-w-6xl mx-auto py-10 px-4">
+    <div className="max-w-6xl mx-auto py-6 sm:py-8 md:py-10 px-3 sm:px-4">
       {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 p-1 mb-8 shadow-2xl">
-        <div className="rounded-3xl bg-gradient-to-br from-white/95 to-blue-50/95 text-blue-900 p-8 backdrop-blur-sm">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-            <div className="flex items-center gap-6">
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 p-[3px] mb-6 sm:mb-8 shadow-xl sm:shadow-2xl sticky top-0 z-30">
+        <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white/95 to-blue-50/95 text-blue-900 p-4 sm:p-6 md:p-8 backdrop-blur-sm">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6 md:gap-8">
+            <div className="flex items-center gap-4 sm:gap-6">
               <div className="relative">
-                <div className="relative w-28 h-28">
+                <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28">
                   {profile.profileImageUrl && profile.profileImageUrl.trim() !== '' ? (
                     <Image
                       src={profile.profileImageUrl}
                       alt="Profile"
                       width={112}
                       height={112}
-                      className="rounded-full border-4 border-white shadow-2xl w-28 h-28 object-cover"
+                      className="rounded-full border-4 border-white shadow-2xl w-full h-full object-cover"
                       onError={() => {
                         console.error('Profile image failed to load:', profile.profileImageUrl);
                       }}
                     />
                   ) : (
-                    <div className="w-28 h-28 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full flex items-center justify-center text-4xl font-bold text-white shadow-2xl">
+                    <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 rounded-full flex items-center justify-center text-3xl sm:text-4xl font-bold text-white shadow-2xl">
                       {profile.username.charAt(0).toUpperCase()}
                     </div>
                   )}
