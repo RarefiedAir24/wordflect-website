@@ -2094,7 +2094,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       
       // Calculate the date for the selected day
       // If it's the current day and we have no data, try the previous week
-      let selectedDate = new Date(utcDate);
       let daysUntilSelectedDay = selectedDayIndex - dayOfWeek;
       
       // If the selected day is in the future (next week), go back to previous week
@@ -2102,6 +2101,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         daysUntilSelectedDay -= 7; // Go back one week
       }
       
+      const selectedDate = new Date(utcDate);
       selectedDate.setUTCDate(utcDate.getUTCDate() + daysUntilSelectedDay);
       const selectedDateString = selectedDate.toISOString().split('T')[0];
       
