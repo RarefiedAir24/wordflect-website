@@ -3043,19 +3043,19 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               );
             }
             
-            const themeData = getThemeData('friday');
+            const themeData = getThemeData('thursday');
             if (!themeData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                  onClick={() => handleThemeDayClick('friday')}
+                  onClick={() => handleThemeDayClick('thursday')}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-sm">🐕</span>
+                      <span className="text-white text-sm">📝</span>
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">THURSDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">{getThemeName('thursday')}</p>
+                  <p className="text-lg font-bold text-gray-500">Adjectives</p>
                   <div className="mt-3 text-center text-gray-600 text-sm font-medium">
                     {(() => {
                       const p = getProgressFor('thursday');
@@ -3116,11 +3116,11 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             if (!themeData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                  onClick={() => handleThemeDayClick('friday')}
+                  onClick={() => handleThemeDayClick('thursday')}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-sm">🐕</span>
+                      <span className="text-white text-sm">📝</span>
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">FRIDAY</span>
           </div>
