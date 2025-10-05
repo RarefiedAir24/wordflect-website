@@ -406,11 +406,17 @@ export default function Profile() {
         console.log('🟢 Session words API response.days type:', typeof res.days);
         console.log('🟢 Session words API response.days length:', Array.isArray(res.days) ? res.days.length : 'not array');
         
-        const daysFromApi = Array.isArray(res.days) ? res.days.map(d => ({
-          date: new Date(d.date), // Parse date string directly
-          value: typeof d.value === 'number' ? d.value : 0,
-          avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
-        })) : [];
+        const daysFromApi = Array.isArray(res.days) ? res.days.map(d => {
+          const utcDate = new Date(d.date);
+          // Normalize to viewer local day boundary so label matches expectations
+          const localDate = new Date(utcDate.getTime() - (utcDate.getTimezoneOffset() * 60000));
+          const normalized = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+          return {
+            date: normalized,
+            value: typeof d.value === 'number' ? d.value : 0,
+            avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
+          };
+        }) : [];
         
         console.log('🟢 Processed session words days:', daysFromApi);
         console.log('🟢 Processed session words days length:', daysFromApi.length);
