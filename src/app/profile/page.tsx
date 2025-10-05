@@ -3043,22 +3043,22 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               );
             }
             
-            const themeData = getThemeData('thursday');
+            const themeData = getThemeData('friday');
             if (!themeData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                  onClick={() => handleThemeDayClick('thursday')}
+                  onClick={() => handleThemeDayClick('friday')}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-sm">📝</span>
+                      <span className="text-white text-sm">🐕</span>
                     </div>
-                    <span className="text-xs text-gray-500 font-semibold">THURSDAY</span>
+                    <span className="text-xs text-gray-500 font-semibold">FRIDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">Adjectives</p>
+                  <p className="text-lg font-bold text-gray-500">Animals</p>
                   <div className="mt-3 text-center text-gray-600 text-sm font-medium">
                     {(() => {
-                      const p = getProgressFor('thursday');
+                      const p = getProgressFor('friday');
                       return p ? `${p.found}/${p.total} theme words` : 'No data available';
                     })()}
                   </div>
@@ -3122,12 +3122,12 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <span className="text-white text-sm">📝</span>
                     </div>
-                    <span className="text-xs text-gray-500 font-semibold">FRIDAY</span>
-          </div>
-                  <p className="text-lg font-bold text-gray-500">{getThemeName('friday')}</p>
+                    <span className="text-xs text-gray-500 font-semibold">THURSDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-gray-500">Adjectives</p>
                   <div className="mt-3 text-center text-gray-600 text-sm font-medium">
                     {(() => {
-                      const p = getProgressFor('friday');
+                      const p = getProgressFor('thursday');
                       return p ? `${p.found}/${p.total} theme words` : 'No data available';
                     })()}
                   </div>
