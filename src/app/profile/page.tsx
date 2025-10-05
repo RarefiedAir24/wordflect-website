@@ -1397,8 +1397,18 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   };
 
   const toggleMute = () => {
-    setIsMuted(!isMuted);
-    if (isSpeaking && !isMuted) {
+    const newMutedState = !isMuted;
+    setIsMuted(newMutedState);
+    
+    // If we're unmuting and there's a response to speak, speak it
+    if (!newMutedState && aiResponse && aiResponse.trim() !== '') {
+      setTimeout(() => {
+        speakResponse(aiResponse);
+      }, 100);
+    }
+    
+    // If we're muting and currently speaking, stop speech
+    if (newMutedState && isSpeaking) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
     }
@@ -1411,10 +1421,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     setAiResponse(welcomeMessage);
     
     // Auto-speak after a short delay to ensure modal is open
+    // Note: We'll speak regardless of mute state for the welcome message
     setTimeout(() => {
-      if (!isMuted) {
-        speakResponse(welcomeMessage);
-      }
+      speakResponse(welcomeMessage);
     }, 500);
   };
 
