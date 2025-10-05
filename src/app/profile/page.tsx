@@ -874,7 +874,6 @@ You currently have ${profile.points.toLocaleString()} total points and ${profile
       setTimeout(() => {
         // Try deep link first (for iOS/Android)
         const deepLink = 'wordflect://open';
-        const fallbackUrl = 'https://wordflect.com/app';
         
         // Create a hidden iframe to attempt deep link
         const iframe = document.createElement('iframe');
