@@ -643,10 +643,11 @@ export default function Profile() {
           console.warn('⚠️ Theme analytics main endpoint failed, proceeding with week augmentation only:', innerError);
         }
 
-        // Let the auto-population data be used - don't override it
-        console.log('🎯 Auto-population completed, using fetched data');
+        // Show cards with "tap to load" - no auto-population
+        console.log('🎯 Showing cards with tap to load');
+        setThemeAnalytics({} as Record<string, unknown>);
         setIsLoadingThemeAnalytics(false);
-        console.log('🎯 Cards ready with actual progress data');
+        console.log('🎯 Cards ready for tap to load');
       } catch (error) {
         console.error('❌ Error fetching theme analytics from backend:', error);
         console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
@@ -2824,18 +2825,20 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             console.log('🎯 Monday card rendering - isLoadingThemeAnalytics:', isLoadingThemeAnalytics);
             console.log('🎯 Monday card rendering - themeAnalytics keys:', themeAnalytics ? Object.keys(themeAnalytics) : 'null');
             
-            if (isLoadingThemeAnalytics) {
+            // Show "tap to load" for cards without data
+            const hasData = themeAnalytics && Object.keys(themeAnalytics).length > 0;
+            if (!hasData) {
               return (
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200 cursor-pointer hover:from-blue-100 hover:to-blue-200 transition-all duration-200" onClick={() => handleThemeDayClick('monday')}>
                   <div className="flex items-center justify-between mb-3">
-                    <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center animate-pulse">
+                    <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
                       <span className="text-white font-bold text-sm">🍕</span>
                     </div>
-                    <span className="text-xs text-gray-500 font-semibold">MONDAY</span>
+                    <span className="text-xs text-blue-600 font-semibold">MONDAY</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">Food & Drinks</p>
-                  <div className="mt-3 text-center text-gray-600 text-sm font-medium">
-                    Loading theme data...
+                  <p className="text-lg font-bold text-blue-700">Food & Drinks</p>
+                  <div className="mt-3 text-center text-blue-600 text-sm font-medium">
+                    Tap to load progress
                   </div>
                 </div>
               );
@@ -2889,6 +2892,25 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
           {/* Tuesday - Common Nouns */}
           {(() => {
+            // Show "tap to load" for cards without data
+            const hasData = themeAnalytics && Object.keys(themeAnalytics).length > 0;
+            if (!hasData) {
+              return (
+                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200 cursor-pointer hover:from-green-100 hover:to-green-200 transition-all duration-200" onClick={() => handleThemeDayClick('tuesday')}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">📚</span>
+                    </div>
+                    <span className="text-xs text-green-600 font-semibold">TUESDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-green-700">Common Nouns</p>
+                  <div className="mt-3 text-center text-green-600 text-sm font-medium">
+                    Tap to load progress
+                  </div>
+                </div>
+              );
+            }
+            
             const themeData = getThemeData('tuesday');
             if (!themeData) {
               return (
@@ -2936,6 +2958,25 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
           {/* Wednesday - Nature */}
           {(() => {
+            // Show "tap to load" for cards without data
+            const hasData = themeAnalytics && Object.keys(themeAnalytics).length > 0;
+            if (!hasData) {
+              return (
+                <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200 cursor-pointer hover:from-emerald-100 hover:to-emerald-200 transition-all duration-200" onClick={() => handleThemeDayClick('wednesday')}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">🌿</span>
+                    </div>
+                    <span className="text-xs text-emerald-600 font-semibold">WEDNESDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-emerald-700">Nature</p>
+                  <div className="mt-3 text-center text-emerald-600 text-sm font-medium">
+                    Tap to load progress
+                  </div>
+                </div>
+              );
+            }
+            
             const themeData = getThemeData('wednesday');
             if (!themeData) {
               return (
@@ -2981,17 +3022,36 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             );
           })()}
 
-          {/* Thursday - Animals */}
+          {/* Friday - Animals */}
           {(() => {
-            const themeData = getThemeData('thursday');
+            // Show "tap to load" for cards without data
+            const hasData = themeAnalytics && Object.keys(themeAnalytics).length > 0;
+            if (!hasData) {
+              return (
+                <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200 cursor-pointer hover:from-orange-100 hover:to-orange-200 transition-all duration-200" onClick={() => handleThemeDayClick('friday')}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">🐕</span>
+                    </div>
+                    <span className="text-xs text-orange-600 font-semibold">FRIDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-orange-700">Animals</p>
+                  <div className="mt-3 text-center text-orange-600 text-sm font-medium">
+                    Tap to load progress
+                  </div>
+                </div>
+              );
+            }
+            
+            const themeData = getThemeData('friday');
             if (!themeData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
-                  onClick={() => handleThemeDayClick('thursday')}
+                  onClick={() => handleThemeDayClick('friday')}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-sm">📝</span>
+                      <span className="text-white text-sm">🐕</span>
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">THURSDAY</span>
                   </div>
@@ -3031,9 +3091,28 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
         {/* Additional Theme Days */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          {/* Friday - Adjectives */}
+          {/* Thursday - Adjectives */}
           {(() => {
-            const themeData = getThemeData('friday');
+            // Show "tap to load" for cards without data
+            const hasData = themeAnalytics && Object.keys(themeAnalytics).length > 0;
+            if (!hasData) {
+              return (
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200 cursor-pointer hover:from-purple-100 hover:to-purple-200 transition-all duration-200" onClick={() => handleThemeDayClick('thursday')}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">📝</span>
+                    </div>
+                    <span className="text-xs text-purple-600 font-semibold">THURSDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-purple-700">Adjectives</p>
+                  <div className="mt-3 text-center text-purple-600 text-sm font-medium">
+                    Tap to load progress
+                  </div>
+                </div>
+              );
+            }
+            
+            const themeData = getThemeData('thursday');
             if (!themeData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
@@ -3080,6 +3159,25 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
           {/* Saturday - Colors */}
           {(() => {
+            // Show "tap to load" for cards without data
+            const hasData = themeAnalytics && Object.keys(themeAnalytics).length > 0;
+            if (!hasData) {
+              return (
+                <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 border border-pink-200 cursor-pointer hover:from-pink-100 hover:to-pink-200 transition-all duration-200" onClick={() => handleThemeDayClick('saturday')}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-pink-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">🎨</span>
+                    </div>
+                    <span className="text-xs text-pink-600 font-semibold">SATURDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-pink-700">Colors</p>
+                  <div className="mt-3 text-center text-pink-600 text-sm font-medium">
+                    Tap to load progress
+                  </div>
+                </div>
+              );
+            }
+            
             const themeData = getThemeData('saturday');
             if (!themeData) {
               return (
@@ -3088,7 +3186,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-sm">🌳</span>
+                      <span className="text-white text-sm">🎨</span>
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">SATURDAY</span>
                   </div>
@@ -3125,8 +3223,27 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             );
           })()}
 
-          {/* Sunday - Animals */}
+          {/* Sunday - Actions */}
           {(() => {
+            // Show "tap to load" for cards without data
+            const hasData = themeAnalytics && Object.keys(themeAnalytics).length > 0;
+            if (!hasData) {
+              return (
+                <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 border border-red-200 cursor-pointer hover:from-red-100 hover:to-red-200 transition-all duration-200" onClick={() => handleThemeDayClick('sunday')}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">🏃</span>
+                    </div>
+                    <span className="text-xs text-red-600 font-semibold">SUNDAY</span>
+                  </div>
+                  <p className="text-lg font-bold text-red-700">Actions</p>
+                  <div className="mt-3 text-center text-red-600 text-sm font-medium">
+                    Tap to load progress
+                  </div>
+                </div>
+              );
+            }
+            
             const themeData = getThemeData('sunday');
             if (!themeData) {
               return (
@@ -3135,7 +3252,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-sm">📱</span>
+                      <span className="text-white text-sm">🏃</span>
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">SUNDAY</span>
                   </div>
