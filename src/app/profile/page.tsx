@@ -3025,7 +3025,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </div>
 
         {/* Additional Theme Days */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           {/* Thursday - Adjectives */}
           {(() => {
             // Show "tap to load" for cards without data
