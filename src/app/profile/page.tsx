@@ -663,12 +663,43 @@ export default function Profile() {
 
           const weekFetches = Array.from({ length: 7 }).map(async (_, i) => {
             const dateObj = new Date(sunday);
-            dateObj.setDate(sunday.getDate() + i);
+            dateObj.setUTCDate(sunday.getUTCDate() + i);
             const dateStr = dateObj.toISOString().split('T')[0];
             const dayName = dayNames[i];
             try {
               const dayRes = await apiService.getThemeDayStatistics(dateStr) as ThemeDayResponse;
               console.log(`🎯 ${dayName} (${dateStr}) backend response:`, dayRes);
+              
+              // If current week has no data, try previous week
+              if (!dayRes.success || !dayRes.theme || !dayRes.theme.words || dayRes.theme.words.length === 0) {
+                console.log(`🎯 ${dayName} has no data, trying previous week...`);
+                const prevWeekDate = new Date(dateObj);
+                prevWeekDate.setUTCDate(dateObj.getUTCDate() - 7);
+                const prevWeekDateStr = prevWeekDate.toISOString().split('T')[0];
+                
+                try {
+                  const prevWeekRes = await apiService.getThemeDayStatistics(prevWeekDateStr) as ThemeDayResponse;
+                  console.log(`🎯 ${dayName} previous week (${prevWeekDateStr}) response:`, prevWeekRes);
+                  
+                  if (prevWeekRes.success && prevWeekRes.theme && prevWeekRes.theme.words && prevWeekRes.theme.words.length > 0) {
+                    console.log(`🎯 Using previous week data for ${dayName}`);
+                    // Use previous week's data
+                    (analytics as Record<string, unknown>)[`${dayName}_response`] = prevWeekRes as unknown as Record<string, unknown>;
+                    (analytics as Record<string, unknown>)[`${dayName}_themeDetails`] = prevWeekRes as unknown as Record<string, unknown>;
+                    const words = Array.isArray(prevWeekRes?.theme?.words) ? prevWeekRes.theme!.words : [];
+                    (analytics as Record<string, unknown>)[`${dayName}_themeWords`] = words as unknown as Record<string, unknown>;
+                    const found = Array.isArray(prevWeekRes?.allThemeWords)
+                      ? (prevWeekRes!.allThemeWords!.filter(w => !!w.found).length)
+                      : (typeof prevWeekRes?.stats?.totalThemeWordsFound === 'number' ? prevWeekRes!.stats!.totalThemeWordsFound! : 0);
+                    const total = Array.isArray(words) && words.length ? words.length : 20;
+                    (analytics as Record<string, unknown>)[`${dayName}_progress`] = { found, total } as unknown as Record<string, unknown>;
+                    return { dayName, ok: true };
+                  }
+                } catch (prevWeekError) {
+                  console.warn(`Previous week fetch failed for ${dayName}:`, prevWeekError);
+                }
+              }
+              
               // Store raw response under keys consumed by UI
               (analytics as Record<string, unknown>)[`${dayName}_response`] = dayRes as unknown as Record<string, unknown>;
               (analytics as Record<string, unknown>)[`${dayName}_themeDetails`] = dayRes as unknown as Record<string, unknown>;
