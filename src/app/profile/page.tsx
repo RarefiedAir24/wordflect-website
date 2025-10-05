@@ -868,6 +868,40 @@ You currently have ${profile.points.toLocaleString()} total points and ${profile
         handleSignOut();
       }, 1000);
     }
+    else if (query.includes('open app') || query.includes('launch app') || query.includes('open wordflect app') || query.includes('play game') || query.includes('start game')) {
+      response = `I&apos;ll try to open the WordFlect app for you!`;
+      // Try to open the mobile app
+      setTimeout(() => {
+        // Try deep link first (for iOS/Android)
+        const deepLink = 'wordflect://open';
+        const fallbackUrl = 'https://wordflect.com/app';
+        
+        // Create a hidden iframe to attempt deep link
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = deepLink;
+        document.body.appendChild(iframe);
+        
+        // Remove iframe after attempt
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 1000);
+        
+        // Fallback: try to redirect to app store or web version
+        setTimeout(() => {
+          // Check if we're on mobile
+          const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+          
+          if (isMobile) {
+            // Try to open app store
+            window.open('https://apps.apple.com/app/wordflect', '_blank');
+          } else {
+            // Desktop - redirect to web version or show message
+            window.open('https://wordflect.com', '_blank');
+          }
+        }, 2000);
+      }, 1000);
+    }
     
     // === FRAMES & CUSTOMIZATION ===
     else if (query.includes('frames') || query.includes('customize') || query.includes('profile') || query.includes('avatar')) {
@@ -1374,7 +1408,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   const openAiModal = () => {
     setAiModalOpen(true);
     // Auto-speak welcome message when modal opens
-    const welcomeMessage = `Hi! I'm Lexi, your AI WordFlect assistant. I can help you with gameplay, stats, customization, and even navigation. You can ask me to take you to the dashboard or sign you out. Try saying "How do I play?" or "Take me to dashboard". Click the voice icon to enable audio, or use the text input to chat with me!`;
+    const welcomeMessage = `Hi! I'm Lexi, your AI WordFlect assistant. I can help you with gameplay, stats, customization, and even navigation. You can ask me to take you to the dashboard, sign you out, or open the WordFlect app. Try saying "How do I play?", "Take me to dashboard", or "Open app". Click the voice icon to enable audio, or use the text input to chat with me!`;
     setAiResponse(welcomeMessage);
     
     // Auto-speak after a short delay to ensure modal is open
@@ -2230,7 +2264,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             
             <div className="mb-4">
               <p className="text-sm text-gray-600 mb-3">
-                Hi! I&apos;m Lexi, your AI assistant. I can help with gameplay, stats, customization, and even navigation! Ask me to take you to the dashboard or sign you out. Try: &quot;How do I play?&quot;, &quot;Take me to dashboard&quot;, &quot;Sign me out&quot;, &quot;What are premium features?&quot;, or &quot;Give me some tips!&quot; Use Voice Ask for hands-free interaction!
+                Hi! I&apos;m Lexi, your AI assistant. I can help with gameplay, stats, customization, and even navigation! Ask me to take you to the dashboard, sign you out, or open the WordFlect app. Try: &quot;How do I play?&quot;, &quot;Take me to dashboard&quot;, &quot;Open app&quot;, &quot;Sign me out&quot;, &quot;What are premium features?&quot;, or &quot;Give me some tips!&quot; Use Voice Ask for hands-free interaction!
               </p>
               <div className="space-y-3">
                 <input
