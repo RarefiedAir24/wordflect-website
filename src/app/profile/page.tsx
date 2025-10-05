@@ -407,10 +407,19 @@ export default function Profile() {
         console.log('🟢 Session words API response.days length:', Array.isArray(res.days) ? res.days.length : 'not array');
         
         const daysFromApi = Array.isArray(res.days) ? res.days.map(d => {
-          const utcDate = new Date(d.date);
-          // Normalize to viewer local day boundary so label matches expectations
-          const localDate = new Date(utcDate.getTime() - (utcDate.getTimezoneOffset() * 60000));
-          const normalized = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+          // If backend sends YYYY-MM-DD, build a local Date without timezone shifts
+          const raw = String(d.date);
+          let normalized: Date;
+          const parts = raw.split('-');
+          if (parts.length === 3) {
+            const y = Number(parts[0]);
+            const m = Number(parts[1]) - 1;
+            const dd = Number(parts[2]);
+            normalized = new Date(y, m, dd);
+          } else {
+            const dt = new Date(d.date);
+            normalized = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+          }
           return {
             date: normalized,
             value: typeof d.value === 'number' ? d.value : 0,
@@ -5149,11 +5158,7 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
                 className="fill-gray-700 font-semibold"
                 fontSize="12"
               >
-                {(() => {
-                  // Normalize to viewer's local day to avoid UTC off-by-one labels
-                  const shifted = new Date(d.date.getTime() - (d.date.getTimezoneOffset() * 60000));
-                  return shifted.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                })()}
+                {d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
               </text>
             </g>
           );
