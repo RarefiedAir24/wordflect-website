@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const date = searchParams.get('date') || '';
     
     // Build the target URL
-    let targetUrl = `${API_BASE_URL}/user/theme/day`;
+    let targetUrl = `${API_BASE_URL}/user/theme-day`;
     if (date) {
       targetUrl += `?date=${encodeURIComponent(date)}`;
     }
