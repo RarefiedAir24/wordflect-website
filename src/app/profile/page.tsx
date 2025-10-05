@@ -1427,12 +1427,67 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     }, 500);
   };
 
-  const speakResponse = (responseText?: string, forceUnmute = false) => {
+  // ElevenLabs TTS function
+  const speakWithElevenLabs = async (text: string) => {
+    try {
+      setIsSpeaking(true);
+      
+      // Call our API route that handles ElevenLabs
+      const response = await fetch('/api/elevenlabs-tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        throw new Error('ElevenLabs TTS failed');
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      
+      audio.onended = () => {
+        setIsSpeaking(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+      
+      audio.onerror = () => {
+        setIsSpeaking(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+      
+      await audio.play();
+    } catch (error) {
+      console.error('ElevenLabs TTS error:', error);
+      setIsSpeaking(false);
+      // Fallback to browser TTS
+      fallbackToBrowserTTS(text);
+    }
+  };
+
+  // Fallback to browser TTS
+  const fallbackToBrowserTTS = (text: string) => {
     if (!('speechSynthesis' in window)) {
       alert('Speech synthesis is not supported in this browser.');
       return;
     }
 
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.85;
+    utterance.pitch = 0.95;
+    utterance.volume = 0.8;
+    
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const speakResponse = (responseText?: string, forceUnmute = false) => {
     if (isMuted && !forceUnmute) {
       return; // Don't speak if muted (unless forced)
     }
@@ -1449,125 +1504,18 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       return;
     }
 
-    // Get available voices and select the best one
-    const voices = window.speechSynthesis.getVoices();
-    let selectedVoice = null;
-    
-    // Enhanced voice selection for most natural sound
-    const preferredVoices = [
-      // Most natural-sounding voices available in browsers
-      'Google US English', 'Google US English Female', 'Google US English Male',
-      'Microsoft Zira Desktop', 'Microsoft Hazel Desktop', 'Microsoft Susan Desktop',
-      'Samantha', 'Victoria', 'Alex', 'Karen', 'Moira', 'Tessa',
-      'Siri', 'Cortana', 'Amazon Polly', 'IBM Watson',
-      'Microsoft David Desktop', 'Daniel', 'Microsoft Mark Desktop',
-      'Google UK English Female', 'Google UK English Male', 'Google Australian English'
-    ];
-    
-    // Try to find a preferred voice with enhanced matching
-    for (const preferredName of preferredVoices) {
-      selectedVoice = voices.find(voice => {
-        const voiceName = voice.name.toLowerCase();
-        const preferredLower = preferredName.toLowerCase();
-        return voiceName.includes(preferredLower) || 
-               voiceName.includes(preferredLower.replace(' ', '')) ||
-               voiceName.includes(preferredLower.replace(' desktop', '')) ||
-               voiceName.includes(preferredLower.replace(' us english', '')) ||
-               voiceName.includes(preferredLower.replace(' uk english', ''));
-      });
-      if (selectedVoice) break;
-    }
-    
-    // Enhanced fallback logic for Taylor Swift-like voice
-    if (!selectedVoice) {
-      // Prioritize American English voices for Taylor Swift-like accent
-      selectedVoice = voices.find(voice => 
-        voice.lang.startsWith('en-US') || voice.lang.startsWith('en')
-      ) && voices.find(voice => 
-        voice.name.toLowerCase().includes('us') || 
-        voice.name.toLowerCase().includes('american') ||
-        voice.name.toLowerCase().includes('google') || 
-        voice.name.toLowerCase().includes('microsoft') ||
-        voice.name.toLowerCase().includes('siri') ||
-        voice.name.toLowerCase().includes('cortana')
-      ) || voices.find(voice => 
-        voice.lang.startsWith('en') && voice.default
-      ) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
-    }
-
-    // Enhanced text cleaning for more natural, conversational speech
+    // Clean up the text for better speech
     const cleanResponse = textToSpeak
-      // Remove all markdown formatting
-      .replace(/\*\*(.*?)\*\*/g, '$1') // Bold
-      .replace(/\*(.*?)\*/g, '$1') // Italic
-      .replace(/`(.*?)`/g, '$1') // Code
-      .replace(/#{1,6}\s*/g, '') // Headers
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Links
-      
-      // Remove all emojis and symbols
-      .replace(/[🎯🎮📊💎🎨💰🏆🆘💡⏰📈📝🧠⚔️📅🖼️🌈🎉🚀⭐✨🎊🎁🎈🎂🍰🎪🎭🎨🎬🎵🎶🎸🎹🎺🎻🎼🎤🎧🎨🎯🎮📱💻⌨️🖥️🖨️📠📞☎️📧📨📩📤📥📦📫📪📬📭📮🗳️🗂️🗃️🗄️🗑️🔒🔓🔏🔐🔑🗝️🔨⛏️⚒️🛠️🔧🔩⚙️🗜️⚖️🔗⛓️🧰🧲⚗️🧪🧫🧬🔬🔭📡💉💊🩹🩺🧻🚽🚰🚿🛁🛀🧴🧷🧹🧺🧻🚰🚿🛁🛀🧴🧷🧹🧺]/g, '')
-      
-      // Convert formatting to natural speech
-      .replace(/•\s*/g, '') // Bullet points
+      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove markdown bold
+      .replace(/\*(.*?)\*/g, '$1') // Remove markdown italic
+      .replace(/[🎯🎮📊💎🎨💰🏆🆘💡⏰📈📝🧠⚔️📅🖼️🌈🎉🚀⭐✨🎊🎁🎈🎂🍰🎪🎭🎨🎬🎵🎶🎸🎹🎺🎻🎼🎤🎧]/g, '') // Remove emojis
       .replace(/\n\n+/g, '. ') // Multiple newlines to pause
       .replace(/\n/g, '. ') // Single newlines to pause
-      .replace(/\s+/g, ' ') // Multiple spaces to single
-      
-      // Remove brackets and convert to natural speech
-      .replace(/\[([^\]]+)\]/g, '$1') // Square brackets
-      .replace(/\(([^)]+)\)/g, ', $1') // Parentheses to commas
-      .replace(/\{([^}]+)\}/g, '$1') // Curly braces
-      
-      // Convert punctuation for better flow
-      .replace(/:/g, ',') // Colons to commas
-      .replace(/;/g, ',') // Semicolons to commas
-      .replace(/—/g, ', ') // Em dashes to commas
-      .replace(/–/g, ', ') // En dashes to commas
-      .replace(/\|/g, ', ') // Pipes to commas
-      
-      // Clean up repeated punctuation
-      .replace(/\.\s*\./g, '.') // Double periods
-      .replace(/,\s*,/g, ',') // Double commas
-      .replace(/\?\s*\?/g, '?') // Double question marks
-      .replace(/!\s*!/g, '!') // Double exclamation marks
-      
-      // Add natural pauses for better rhythm
-      .replace(/([.!?])\s*([A-Z])/g, '$1. $2') // Pause before new sentences
-      .replace(/(\d+)\s*([A-Za-z])/g, '$1 $2') // Space between numbers and letters
-      
-      // Final cleanup
       .replace(/\s+/g, ' ') // Clean up multiple spaces
-      .replace(/^\s+|\s+$/g, '') // Trim whitespace
       .trim();
 
-    const utterance = new SpeechSynthesisUtterance(cleanResponse);
-    
-    // Optimized speech parameters for most natural sound
-    utterance.rate = 0.85; // Slower rate for more natural, less robotic sound
-    utterance.pitch = 0.95; // Slightly lower pitch for more natural tone
-    utterance.volume = 0.8; // Moderate volume for natural conversation
-    
-    // Set voice if available
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-    }
-    
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-    };
-    
-    utterance.onend = () => {
-      setIsSpeaking(false);
-    };
-    
-    utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event.error);
-      setIsSpeaking(false);
-    };
-    
-    // Stop any current speech before starting new one
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
+    // Try ElevenLabs first, fallback to browser TTS
+    speakWithElevenLabs(cleanResponse);
   };
 
   // Check for speech support on component mount
