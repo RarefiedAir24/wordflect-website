@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ElevenLabs API endpoint
-    const voiceId = process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB'; // Default voice ID (Adam)
+    const voiceId = process.env.ELEVENLABS_VOICE_ID || 'db0e7kB1Ok43TcwAEuyl'; // Your selected voice ID
     const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`;
 
     const response = await fetch(url, {
@@ -29,9 +29,9 @@ export async function POST(request: NextRequest) {
         text: text,
         model_id: 'eleven_multilingual_v2',
         voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.5,
-          style: 0.0,
+          stability: 0.6,
+          similarity_boost: 0.7,
+          style: 0.2,
           use_speaker_boost: true
         }
       }),
