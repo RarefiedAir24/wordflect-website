@@ -2205,8 +2205,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
                   </div>
                   <div className="text-left">
-                    <div className="text-xl font-black text-white drop-shadow-lg">Ask Lexi</div>
-                    <div className="text-sm font-semibold text-white/95 drop-shadow-md">Your AI WordFlect Assistant</div>
+                    <div className="text-2xl font-black text-white drop-shadow-2xl">Ask Lexi</div>
+                    <div className="text-base font-bold text-white drop-shadow-lg">Your WordFlect Assistant</div>
                   </div>
                 </div>
               </button>
