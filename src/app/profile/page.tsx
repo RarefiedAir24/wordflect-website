@@ -1666,6 +1666,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     // Prefer detailed backend response if already fetched for this day
     const details = (themeAnalytics as Record<string, unknown>)[`${day}_themeDetails`] as ThemeDayResponse | undefined;
     console.log(`getThemeData - ${day} details:`, details);
+    console.log(`getThemeData - ${day} details.theme:`, details?.theme);
+    console.log(`getThemeData - ${day} details.theme.words:`, details?.theme?.words);
     
     if (details && details.theme && Array.isArray(details.theme.words)) {
       console.log(`getThemeData - ${day} using details.theme.words`);
