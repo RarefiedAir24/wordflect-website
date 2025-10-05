@@ -698,6 +698,7 @@ export default function Profile() {
               console.log(`🎯 ${dayName} progress calculation:`, { found, total, allThemeWords: dayRes?.allThemeWords, stats: dayRes?.stats });
               console.log(`🎯 ${dayName} allThemeWords details:`, dayRes?.allThemeWords?.map((w: { word: string; found: boolean }) => ({ word: w.word, found: w.found })));
               console.log(`🎯 ${dayName} stats details:`, dayRes?.stats);
+              console.log(`🎯 ${dayName} FULL API RESPONSE:`, JSON.stringify(dayRes, null, 2));
               (analytics as Record<string, unknown>)[`${dayName}_progress`] = { found, total } as unknown as Record<string, unknown>;
               return { dayName, ok: true };
             } catch (e) {
