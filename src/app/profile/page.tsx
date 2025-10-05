@@ -3141,7 +3141,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">🐕</span>
+                    <span className="text-white font-bold text-sm">📝</span>
             </div>
                   <span className="text-xs text-yellow-600 font-semibold">THURSDAY</span>
                 </div>
