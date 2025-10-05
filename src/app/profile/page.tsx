@@ -749,6 +749,7 @@ export default function Profile() {
         setThemeAnalytics(analytics);
         console.log('🎯 Setting isLoadingThemeAnalytics to false');
         setIsLoadingThemeAnalytics(false);
+        console.log('🎯 Auto-population state update complete - theme cards should re-render now');
       } catch (error) {
         console.error('❌ Error fetching theme analytics from backend:', error);
         console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
@@ -2924,6 +2925,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           {(() => {
             console.log('🎯 Monday card rendering - themeAnalytics:', themeAnalytics);
             console.log('🎯 Monday card rendering - isLoadingThemeAnalytics:', isLoadingThemeAnalytics);
+            console.log('🎯 Monday card rendering - themeAnalytics keys:', themeAnalytics ? Object.keys(themeAnalytics) : 'null');
             
             if (isLoadingThemeAnalytics) {
               return (
