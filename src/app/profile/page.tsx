@@ -3074,15 +3074,15 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
                 onClick={() => handleThemeDayClick('thursday')}
               >
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-2">
                   <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">📝</span>
                   </div>
                   <span className="text-xs text-yellow-600 font-semibold">THURSDAY</span>
                 </div>
-                <p className="text-lg font-bold text-yellow-900">Adjectives</p>
+                <p className="text-lg font-bold text-yellow-900">{getThemeName('thursday')}</p>
                 <p className="text-xs text-yellow-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
-                <div className="mt-3 flex items-center gap-2">
+                <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-yellow-200 rounded-full h-2">
                     <div className="bg-yellow-500 h-2 rounded-full" style={{ width: `${themeData.completionPercent}%` }}></div>
                   </div>
@@ -3140,15 +3140,15 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
                 onClick={() => handleThemeDayClick('friday')}
               >
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-2">
                   <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">🐕</span>
                   </div>
                   <span className="text-xs text-purple-600 font-semibold">FRIDAY</span>
                 </div>
-                <p className="text-lg font-bold text-purple-900">Animals</p>
+                <p className="text-lg font-bold text-purple-900">{getThemeName('friday')}</p>
                 <p className="text-xs text-purple-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
-                <div className="mt-3 flex items-center gap-2">
+                <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-purple-200 rounded-full h-2">
                     <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${themeData.completionPercent}%` }}></div>
                   </div>
@@ -3206,15 +3206,15 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-4 border border-teal-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
                 onClick={() => handleThemeDayClick('saturday')}
               >
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-2">
                   <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">🎨</span>
                   </div>
                   <span className="text-xs text-teal-600 font-semibold">SATURDAY</span>
                 </div>
-                <p className="text-lg font-bold text-teal-900">Colors</p>
+                <p className="text-lg font-bold text-teal-900">{getThemeName('saturday')}</p>
                 <p className="text-xs text-teal-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
-                <div className="mt-3 flex items-center gap-2">
+                <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-teal-200 rounded-full h-2">
                     <div className="bg-teal-500 h-2 rounded-full" style={{ width: `${themeData.completionPercent}%` }}></div>
                   </div>
@@ -3272,15 +3272,15 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
                 onClick={() => handleThemeDayClick('sunday')}
               >
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-2">
                   <div className="w-8 h-8 bg-gray-500 rounded-lg flex items-center justify-center">
                     <span className="text-white font-bold text-sm">🏃</span>
                   </div>
                   <span className="text-xs text-gray-600 font-semibold">SUNDAY</span>
                 </div>
-                <p className="text-lg font-bold text-gray-900">Actions</p>
+                <p className="text-lg font-bold text-gray-900">{getThemeName('sunday')}</p>
                 <p className="text-xs text-gray-700 mt-1">{themeData.wordsFound}/{themeData.totalWords} theme words found</p>
-                <div className="mt-3 flex items-center gap-2">
+                <div className="mt-2 flex items-center gap-2">
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div className="bg-gray-500 h-2 rounded-full" style={{ width: `${themeData.completionPercent}%` }}></div>
                   </div>
