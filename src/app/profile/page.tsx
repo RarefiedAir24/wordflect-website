@@ -729,6 +729,7 @@ export default function Profile() {
           analytics[`${todayDay}_progress`] = analytics[`${yesterdayDay}_progress`];
         }
 
+        console.log('🎯 Setting themeAnalytics state with:', analytics);
         setThemeAnalytics(analytics);
       } catch (error) {
         console.error('❌ Error fetching theme analytics from backend:', error);
@@ -1818,9 +1819,13 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   type ThemeDayProgress = { found: number; total: number };
   const getProgressFor = (day: string): ThemeDayProgress | undefined => {
     const ta = themeAnalytics as Record<string, unknown> | null;
-    if (!ta) return undefined;
+    if (!ta) {
+      console.log(`🎯 getProgressFor(${day}): themeAnalytics is null`);
+      return undefined;
+    }
     const key = `${day}_progress`;
     const value = ta[key];
+    console.log(`🎯 getProgressFor(${day}): key=${key}, value=`, value);
     if (
       value &&
       typeof value === 'object' &&
