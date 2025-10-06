@@ -378,10 +378,19 @@ export default function Profile() {
           const k = `${day.date.getFullYear()}-${String(day.date.getMonth()+1).padStart(2,'0')}-${String(day.date.getDate()).padStart(2,'0')}`;
           const uniq = uniqMap.get(k);
           const hasBackendWords = Array.isArray(day.words);
+          // Compute avgLen if missing using available words arrays
+          const computeAvgLen = (ws?: string[]) => {
+            if (!ws || ws.length === 0) return undefined;
+            const total = ws.reduce((sum, w) => sum + (w?.length || 0), 0);
+            return Math.round((total / ws.length) * 10) / 10;
+          };
+          const candidateWords = hasBackendWords ? day.words : (uniq?.words);
+          const resolvedAvgLen = typeof day.avgLen === 'number' ? day.avgLen : computeAvgLen(candidateWords);
           return {
             ...day,
             value: hasBackendWords ? (day.words?.length || 0) : (uniq?.value ?? day.value),
             words: hasBackendWords ? day.words : (uniq?.words ?? day.words),
+            avgLen: resolvedAvgLen,
           };
         });
 
