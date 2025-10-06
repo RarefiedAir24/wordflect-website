@@ -611,7 +611,6 @@ export default function Profile() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [router, fetchProfile]);
-
   // Generate time analytics from existing data
   useEffect(() => {
     console.log('🔄 Time analytics useEffect triggered, profile:', !!profile);
@@ -1259,7 +1258,6 @@ Use your Flectcoins to buy power-ups that enhance your word-finding abilities an
 Premium subscribers earn double Flectcoins from all activities, so they get twice the rewards!`;
     } else if (query.includes('points')) {
       response = `You have ${profile.points.toLocaleString()} points!
-
 💎 **Premium Multiplier**: Premium subscribers earn 2x points from all activities and get exclusive high-scoring themes!`;
     } else if (query.includes('gems')) {
       response = `You have ${profile.gems.toLocaleString()} gems!
@@ -1843,7 +1841,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       setLoadingHistoricalData(false);
     }
   };
-
   const getThemePerformanceSummary = () => {
     if (!profile || !profile.allFoundWords || profile.allFoundWords.length === 0) {
       return {
@@ -2159,7 +2156,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   if (!profile) {
     return null;
   }
-
   return (
     <div className="max-w-6xl mx-auto py-6 sm:py-8 md:py-10 px-3 sm:px-4">
       {/* Hero Header */}
@@ -2629,7 +2625,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           <div className="flex-1">
             <h3 className="font-bold text-xl text-green-950">Session Words History</h3>
             <p className="text-sm text-green-700">Total words found per day across all game sessions. This shows your daily word discovery progress.</p>
-            <p className="text-xs text-green-600 mt-1">Note: The displayed word count is for newly found words (excluding duplicates).</p>
           </div>
           <div className="flex items-center gap-2">
             {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
@@ -2747,7 +2742,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           <MiniStat title="Peak Day" value={sessionWordsDays && sessionWordsDays.length > 0 ? Math.max(...sessionWordsDays.map(d => d.value)) : 0} />
         </div>
       </div>
-
       {/* Time & Usage Analytics */}
       <div className="mt-8 bg-white rounded-xl p-6 shadow-lg border border-blue-100">
         <div className="flex items-center gap-3 mb-6">
@@ -3391,7 +3385,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             );
           })()}
         </div>
-
         {/* Historical Theme Analytics */}
         <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
           <div className="flex items-center gap-3 mb-4">
@@ -3777,7 +3770,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             </div>
           </div>
         </div>
-
         {/* Time Period Performance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           {/* Late Night (12AM - 4AM) */}
@@ -4352,7 +4344,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             </div>
           </div>
         </div>
-
         {/* Time Period Analysis Chart */}
         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
           <div className="flex items-center gap-3 mb-4">
@@ -4948,7 +4939,6 @@ function RadialProgress({ percent }: { percent: number }) {
     </div>
   );
 }
-
 function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Date; value: number; words?: string[] }[]; height?: number; color?: string }) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
   // Selected point persists on click to show exact value even when axis ticks skip values
