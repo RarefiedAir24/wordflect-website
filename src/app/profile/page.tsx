@@ -2739,7 +2739,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         </div>
       </div>
 
-      {/* Session Words History */}
+      {/* Game Words History */}
       <div className="mt-8 bg-white rounded-xl p-6 shadow-lg border border-green-100">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
@@ -2748,8 +2748,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             </svg>
           </div>
           <div className="flex-1">
-            <h3 className="font-bold text-xl text-green-950">Session Words History</h3>
-            <p className="text-sm text-green-700">Total words found per day across all game sessions. This shows your daily word discovery progress.</p>
+            <h3 className="font-bold text-xl text-green-950">Game Words History</h3>
+            <p className="text-sm text-green-700">Total words found per day across all games. This shows your daily word discovery progress.</p>
           </div>
           <div className="flex items-center gap-2">
             {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
@@ -2761,7 +2761,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           <div className="mt-2 text-xs text-green-900/80 flex items-center gap-3">
             <span className="inline-flex items-center gap-1">
               <span className="inline-block w-3 h-3 rounded-sm bg-emerald-500"></span>
-              <span>Sessions: all words found per day across games</span>
+              <span>Games: all words found per day across games</span>
             </span>
             <span className="inline-flex items-center gap-1">
               <span className="inline-block w-3 h-3 rounded-sm bg-gray-300"></span>
@@ -2860,7 +2860,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </p>
         </div>
         
-        <Sparkline data={sessionWordsDays || []} height={260} color="#10b981" wordsEmptyText="No sessions recorded" wordsPreFormatted={true} />
+        <Sparkline data={sessionWordsDays || []} height={260} color="#10b981" wordsEmptyText="No games recorded" wordsPreFormatted={true} />
         <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
           <MiniStat title="Session Words" value={sessionWordsDays ? sessionWordsDays.reduce((sum, day) => sum + day.value, 0).toLocaleString() : '0'} />
           <MiniStat title="Avg/Day" value={sessionWordsDays && sessionWordsDays.length > 0 ? Math.round(sessionWordsDays.reduce((sum, day) => sum + day.value, 0) / sessionWordsDays.length * 10) / 10 : 0} />
