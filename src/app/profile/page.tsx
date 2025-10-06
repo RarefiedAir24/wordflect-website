@@ -192,7 +192,7 @@ export default function Profile() {
   }, [range, customDateRange.start, customDateRange.end]); // Add dependencies for the aggregated function
 
   // Backend history integration
-  const [historyDays, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
+  const [historyDays, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number; words?: string[] }[] | null>(null);
   const [sessionWordsDays, setSessionWordsDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
   
   // Load detailed stats (includes sessionHistory) for real data mapping
@@ -354,10 +354,13 @@ export default function Profile() {
           } else {
             normalized = new Date(raw);
           }
+          const firstTimeWords = Array.isArray((d as any).words) ? (d as any).words as string[] : undefined;
           return {
             date: normalized,
             value: typeof d.value === 'number' ? d.value : 0,
-            avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
+            avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined,
+            // Include backend-provided first-time words for tooltips when available
+            words: firstTimeWords
           };
         }) : [];
 
