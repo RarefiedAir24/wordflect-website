@@ -16,13 +16,12 @@ export async function GET(request: NextRequest) {
       'Content-Type': 'application/json',
     };
     
-    // Only add Authorization header if it exists
-    if (authHeader) {
-      headers['Authorization'] = authHeader;
-      console.log('Authorization header added to outgoing request');
-    } else {
-      console.log('No Authorization header found in incoming request');
+    // Require Authorization header to prevent 403s from backend
+    if (!authHeader) {
+      return NextResponse.json({ message: 'Authorization header required' }, { status: 401 });
     }
+    headers['Authorization'] = authHeader;
+    console.log('Authorization header added to outgoing request');
     
     console.log('Outgoing headers:', headers);
     console.log('Target URL:', `${API_BASE_URL}/user/statistics/detailed`);
