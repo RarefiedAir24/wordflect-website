@@ -413,7 +413,7 @@ export default function Profile() {
       }
     };
     load();
-  }, [historyRange, customHistoryDateRange.start, customHistoryDateRange.end]);
+  }, [historyRange, customHistoryDateRange.start, customHistoryDateRange.end, profile]);
 
   // Load session words data
   useEffect(() => {
