@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { apiService, UserProfile } from "@/services/api";
@@ -46,6 +46,7 @@ export default function Profile() {
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
   const [aiModalOpen, setAiModalOpen] = useState(false);
+  const aiInputRef = useRef<HTMLInputElement | null>(null);
   const [aiQuery, setAiQuery] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -1506,11 +1507,14 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       audio.onended = () => {
         setIsSpeaking(false);
         URL.revokeObjectURL(audioUrl);
+        // Re-focus input to allow immediate follow-up
+        try { aiInputRef.current?.focus(); } catch {}
       };
       
       audio.onerror = () => {
         setIsSpeaking(false);
         URL.revokeObjectURL(audioUrl);
+        try { aiInputRef.current?.focus(); } catch {}
       };
       
       await audio.play();
@@ -1535,8 +1539,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     utterance.volume = 0.8;
     
     utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    utterance.onend = () => { setIsSpeaking(false); try { aiInputRef.current?.focus(); } catch {} };
+    utterance.onerror = () => { setIsSpeaking(false); try { aiInputRef.current?.focus(); } catch {} };
     
     window.speechSynthesis.speak(utterance);
   };
@@ -2332,6 +2336,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   placeholder="Ask about your stats..."
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500 bg-white"
                   onKeyDown={(e) => e.key === 'Enter' && handleAiQuery()}
+                  ref={aiInputRef}
                 />
                 
                 {/* Ask Buttons */}
