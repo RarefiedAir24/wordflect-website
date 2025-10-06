@@ -818,6 +818,27 @@ You currently have ${profile.points.toLocaleString()} total points and ${profile
       const count = todaysWords.length;
       response = `You've found ${count} word${count === 1 ? '' : 's'} today (UTC).`;
     }
+
+    // Games played today (UTC): derive from sessionHistory if available
+    else if ((query.includes('how many') || query.includes('count')) && query.includes('today') && (query.includes('game') || query.includes('games'))) {
+      const now = new Date();
+      const todayUTC = new Date(now.toISOString().split('T')[0] + 'T00:00:00.000Z');
+      const tomorrowUTC = new Date(todayUTC.getTime() + 24 * 60 * 60 * 1000);
+      const sessions = (detailedStats?.sessionHistory || []) as Array<{ startTime?: string; timestamp?: string; sessionId?: string }>; 
+      // Count distinct sessions started today UTC
+      const uniq = new Set<string>();
+      sessions.forEach(s => {
+        const ts = s.startTime || s.timestamp;
+        if (!ts) return;
+        const d = new Date(ts);
+        if (d >= todayUTC && d < tomorrowUTC) {
+          const key = s.sessionId || d.toISOString();
+          uniq.add(key);
+        }
+      });
+      const count = uniq.size;
+      response = `You've played ${count} game${count === 1 ? '' : 's'} today (UTC).`;
+    }
     
     else if (query.includes('missions') || query.includes('daily mission') || query.includes('weekly mission')) {
       const dailyProgress = (profile as { missions?: { daily?: { progress?: number; target?: number } } }).missions?.daily;
