@@ -10,11 +10,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: 'Authorization header required' }, { status: 401 });
     }
 
-    // Forward the request to the backend API (corrected path)
-    const response = await fetch(`${API_BASE_URL}/user/time-analytics`, {
+    // Forward the request to the backend API
+    const response = await fetch(`${API_BASE_URL}/user/time/analytics`, {
       method: 'GET',
       headers: {
         'Authorization': authHeader,
+        'authorization': authHeader,
         'Content-Type': 'application/json',
       },
     });

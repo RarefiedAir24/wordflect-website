@@ -21,6 +21,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: 'Authorization header required' }, { status: 401 });
     }
     headers['Authorization'] = authHeader;
+    // Also set lowercase header to accommodate any downstream normalization quirks
+    (headers as any)['authorization'] = authHeader;
     console.log('Authorization header added to outgoing request');
     
     console.log('Outgoing headers:', headers);
