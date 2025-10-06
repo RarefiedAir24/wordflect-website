@@ -2610,7 +2610,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               })()}
             </p>
           </div>
-          <Sparkline data={(historyDays && historyDays.length > 0) ? historyDays : aggregated(profile).days} height={260} color="#4f46e5" />
+          <Sparkline data={(historyDays && historyDays.length > 0) ? historyDays : aggregated(profile).days} height={260} color="#4f46e5" wordsEmptyText="No new words" />
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
             <MiniStat title="Words (found)" value={profile.allFoundWords.length.toLocaleString()} />
             <MiniStat title="Avg/Day" value={historyMetrics.avgPerDay} />
@@ -2759,7 +2759,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </p>
         </div>
         
-        <Sparkline data={sessionWordsDays || []} height={260} color="#10b981" />
+        <Sparkline data={sessionWordsDays || []} height={260} color="#10b981" wordsEmptyText="No sessions recorded" wordsPreFormatted={true} />
         <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
           <MiniStat title="Session Words" value={sessionWordsDays ? sessionWordsDays.reduce((sum, day) => sum + day.value, 0).toLocaleString() : '0'} />
           <MiniStat title="Avg/Day" value={sessionWordsDays && sessionWordsDays.length > 0 ? Math.round(sessionWordsDays.reduce((sum, day) => sum + day.value, 0) / sessionWordsDays.length * 10) / 10 : 0} />
@@ -4963,7 +4963,7 @@ function RadialProgress({ percent }: { percent: number }) {
     </div>
   );
 }
-function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Date; value: number; words?: string[] }[]; height?: number; color?: string }) {
+function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No new words', wordsPreFormatted = false }: { data: { date: Date; value: number; words?: string[] }[]; height?: number; color?: string; wordsEmptyText?: string; wordsPreFormatted?: boolean }) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
   // Selected point persists on click to show exact value even when axis ticks skip values
   const [selectedPoint, setSelectedPoint] = useState<number | null>(null);
@@ -5090,12 +5090,12 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
                 
               // Format words with line breaks for better fit
               const formatWords = (wordList: string[]) => {
-                if (wordList.length === 0) return ['No new words'];
+                if (wordList.length === 0) return [wordsEmptyText];
+                if (wordsPreFormatted) return wordList;
                 if (wordList.length <= 3) return [wordList.join(', ')];
-                
                 // Split into multiple lines for better fit
                 const words = wordList.slice(0, 6); // Show up to 6 words
-                const lines = [];
+                const lines: string[] = [];
                 for (let i = 0; i < words.length; i += 3) {
                   const lineWords = words.slice(i, i + 3);
                   lines.push(lineWords.join(', '));
