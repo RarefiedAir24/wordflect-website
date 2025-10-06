@@ -354,7 +354,9 @@ export default function Profile() {
           } else {
             normalized = new Date(raw);
           }
-          const firstTimeWords = Array.isArray((d as any).words) ? (d as any).words as string[] : undefined;
+          type HistoryDayApi = { date: string; value: number; avgLen?: number; words?: string[] };
+          const dayApi = d as HistoryDayApi;
+          const firstTimeWords = Array.isArray(dayApi.words) ? dayApi.words : undefined;
           return {
             date: normalized,
             value: typeof d.value === 'number' ? d.value : 0,
