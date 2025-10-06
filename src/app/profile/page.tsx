@@ -414,7 +414,7 @@ export default function Profile() {
       }
     };
     load();
-  }, [historyRange, customHistoryDateRange.start, customHistoryDateRange.end, profile]);
+  }, [historyRange, customHistoryDateRange.start, customHistoryDateRange.end, profile, aggregated]);
 
   // Load session words data
   useEffect(() => {
@@ -541,7 +541,7 @@ export default function Profile() {
       }
     };
     loadSessionWords();
-  }, [sessionsRange, customSessionsDateRange.start, customSessionsDateRange.end]);
+  }, [sessionsRange, customSessionsDateRange.start, customSessionsDateRange.end, detailedStats?.sessionHistory]);
 
 
   const fetchProfile = useCallback(async () => {
@@ -768,7 +768,8 @@ export default function Profile() {
     
     // --- Intent helpers ---
     const getUtcDayStart = (d: Date) => new Date(d.toISOString().split('T')[0] + 'T00:00:00.000Z');
-    const getUtcRange = (label: 'today' | 'yesterday' | 'thisweek' | 'lastweek' | 'thismonth' | 'lastmonth') => {
+    type TimeLabel = 'today' | 'yesterday' | 'thisweek' | 'lastweek' | 'thismonth' | 'lastmonth';
+    const getUtcRange = (label: TimeLabel) => {
       const now = new Date();
       const todayStart = getUtcDayStart(now);
       if (label === 'today') return { start: todayStart, end: new Date(todayStart.getTime() + 86400000) };
@@ -853,7 +854,7 @@ You currently have ${profile.points.toLocaleString()} total points and ${profile
       // Words in a time period (UTC). Default to today if time phrase present; otherwise total unique words overall
       const t = timeIntent();
       if (t) {
-        const { start, end } = getUtcRange(t as any);
+        const { start, end } = getUtcRange(t as TimeLabel);
         const inRange = profile.allFoundWords.filter(w => {
           const dateStr = typeof w === 'string' ? undefined : w.date;
           if (!dateStr) return false;
@@ -874,7 +875,7 @@ You currently have ${profile.points.toLocaleString()} total points and ${profile
       const sessions = (detailedStats?.sessionHistory || []) as Array<{ startTime?: string; timestamp?: string; sessionId?: string }>; 
       const t = timeIntent();
       if (t) {
-        const { start, end } = getUtcRange(t as any);
+        const { start, end } = getUtcRange(t as TimeLabel);
         const uniq = new Set<string>();
         sessions.forEach(s => {
           const ts = s.startTime || s.timestamp;
@@ -1279,7 +1280,6 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
 • Email: support@wordflect.com
 • Discord community
 • Social media support
-
 💎 **Premium Support**:
 • Priority support queue
 • Direct access to developers
@@ -1930,7 +1930,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     }
     return undefined;
   };
-
   // Fetch historical theme data for a specific date
   const fetchHistoricalThemeData = async (date: string) => {
     setLoadingHistoricalData(true);
