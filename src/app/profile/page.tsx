@@ -1448,15 +1448,22 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
   const openAiModal = () => {
     setAiModalOpen(true);
-    // Auto-speak welcome message when modal opens
     const welcomeMessage = `Hi! I'm Lexi, your AI WordFlect assistant. I can help you with gameplay, stats, customization, and even navigation. You can ask me to take you to the dashboard, sign you out, or open the WordFlect app. Try saying "How do I play?", "Take me to dashboard", or "Open app". Click the voice icon to enable audio, or use the text input to chat with me!`;
-    setAiResponse(welcomeMessage);
-    
-    // Auto-speak after a short delay to ensure modal is open
-    // Force unmute for welcome message
-    setTimeout(() => {
-      speakResponse(welcomeMessage, true); // Force unmute for welcome
-    }, 500);
+    const WELCOME_KEY = 'lexiWelcomeSpoken';
+    const hasWindow = typeof window !== 'undefined';
+    const alreadyWelcomed = hasWindow ? localStorage.getItem(WELCOME_KEY) === '1' : false;
+
+    if (!alreadyWelcomed) {
+      // Show and auto-speak only on the first time the user opens Lexi
+      setAiResponse(welcomeMessage);
+      setTimeout(() => {
+        speakResponse(welcomeMessage, true);
+        try { if (hasWindow) localStorage.setItem(WELCOME_KEY, '1'); } catch {}
+      }, 500);
+    } else {
+      // Do not auto-speak on subsequent opens; keep existing response or a short prompt
+      setAiResponse((prev) => prev || "Hi! I'm Lexi. How can I help?");
+    }
   };
 
   // ElevenLabs TTS function
