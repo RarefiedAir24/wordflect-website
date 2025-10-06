@@ -365,17 +365,37 @@ export default function Profile() {
             words: firstTimeWords
           };
         }) : [];
+        
+        // Reconcile with unique-first aggregation as a fallback when backend doesn't supply words
+        const uniqDays = profile ? aggregated(profile).days : [];
+        const uniqMap = new Map<string, { value: number; words?: string[] }>();
+        uniqDays.forEach(ud => {
+          const k = `${ud.date.getFullYear()}-${String(ud.date.getMonth()+1).padStart(2,'0')}-${String(ud.date.getDate()).padStart(2,'0')}`;
+          uniqMap.set(k, { value: ud.value, words: ud.words });
+        });
+        const reconciled = daysFromApi.map(day => {
+          const k = `${day.date.getFullYear()}-${String(day.date.getMonth()+1).padStart(2,'0')}-${String(day.date.getDate()).padStart(2,'0')}`;
+          const uniq = uniqMap.get(k);
+          const hasBackendWords = Array.isArray(day.words);
+          return {
+            ...day,
+            value: hasBackendWords ? (day.words?.length || 0) : (uniq?.value ?? day.value),
+            words: hasBackendWords ? day.words : (uniq?.words ?? day.words),
+          };
+        });
+
+        const finalDays = reconciled;
 
         if (range === 'custom' && customDateRange.start && customDateRange.end) {
           const startDate = new Date(customDateRange.start + 'T00:00:00');
           const endDate = new Date(customDateRange.end + 'T23:59:59');
-          const filtered = daysFromApi.filter(d => {
+          const filtered = finalDays.filter(d => {
             const dataDate = new Date(d.date);
             return dataDate >= startDate && dataDate <= endDate;
           });
           setHistoryDays(filtered.length ? filtered : null);
         } else {
-          setHistoryDays(daysFromApi.length ? daysFromApi : null);
+          setHistoryDays(finalDays.length ? finalDays : null);
         }
       } catch (error) {
         console.warn('Falling back to client aggregation for history:', error);
