@@ -766,6 +766,50 @@ export default function Profile() {
     console.log('Processing query:', query);
     let response = '';
     
+    // --- Intent helpers ---
+    const getUtcDayStart = (d: Date) => new Date(d.toISOString().split('T')[0] + 'T00:00:00.000Z');
+    const getUtcRange = (label: 'today' | 'yesterday' | 'thisweek' | 'lastweek' | 'thismonth' | 'lastmonth') => {
+      const now = new Date();
+      const todayStart = getUtcDayStart(now);
+      if (label === 'today') return { start: todayStart, end: new Date(todayStart.getTime() + 86400000) };
+      if (label === 'yesterday') {
+        const y = new Date(todayStart.getTime() - 86400000);
+        return { start: y, end: todayStart };
+      }
+      if (label === 'thisweek') {
+        const day = todayStart.getUTCDay(); // 0=Sun
+        const weekStart = new Date(todayStart.getTime() - day * 86400000);
+        return { start: weekStart, end: new Date(weekStart.getTime() + 7 * 86400000) };
+      }
+      if (label === 'lastweek') {
+        const day = todayStart.getUTCDay();
+        const thisWeekStart = new Date(todayStart.getTime() - day * 86400000);
+        const lastWeekStart = new Date(thisWeekStart.getTime() - 7 * 86400000);
+        return { start: lastWeekStart, end: thisWeekStart };
+      }
+      if (label === 'thismonth') {
+        const start = new Date(Date.UTC(todayStart.getUTCFullYear(), todayStart.getUTCMonth(), 1));
+        const end = new Date(Date.UTC(todayStart.getUTCFullYear(), todayStart.getUTCMonth() + 1, 1));
+        return { start, end };
+      }
+      if (label === 'lastmonth') {
+        const start = new Date(Date.UTC(todayStart.getUTCFullYear(), todayStart.getUTCMonth() - 1, 1));
+        const end = new Date(Date.UTC(todayStart.getUTCFullYear(), todayStart.getUTCMonth(), 1));
+        return { start, end };
+      }
+      return { start: todayStart, end: new Date(todayStart.getTime() + 86400000) };
+    };
+    const containsAny = (s: string, arr: string[]) => arr.some(k => s.includes(k));
+    const timeIntent = () => {
+      if (containsAny(query, ['today'])) return 'today';
+      if (containsAny(query, ['yesterday'])) return 'yesterday';
+      if (containsAny(query, ['this week', 'thisweek'])) return 'thisweek';
+      if (containsAny(query, ['last week', 'lastweek'])) return 'lastweek';
+      if (containsAny(query, ['this month', 'thismonth'])) return 'thismonth';
+      if (containsAny(query, ['last month', 'lastmonth'])) return 'lastmonth';
+      return null;
+    };
+    
     // === GAMEPLAY HELP & TIPS ===
     if (query.includes('how to play') || query.includes('how do i play') || query.includes('rules')) {
       response = `WordFlect is a fun word puzzle game! Here's how it works:
@@ -805,39 +849,47 @@ You currently have ${profile.points.toLocaleString()} total points and ${profile
     }
     
     // Words found today (UTC-aligned with missions/themes/time analytics)
-    else if ((query.includes('how many') || query.includes('count')) && query.includes('today') && query.includes('word')) {
-      const now = new Date();
-      const todayUTC = new Date(now.toISOString().split('T')[0] + 'T00:00:00.000Z');
-      const tomorrowUTC = new Date(todayUTC.getTime() + 24 * 60 * 60 * 1000);
-      const todaysWords = profile.allFoundWords.filter(w => {
-        const dateStr = typeof w === 'string' ? undefined : w.date;
-        if (!dateStr) return false;
-        const foundDate = new Date(dateStr);
-        return foundDate >= todayUTC && foundDate < tomorrowUTC;
-      });
-      const count = todaysWords.length;
-      response = `You've found ${count} word${count === 1 ? '' : 's'} today (UTC).`;
+    else if ((query.includes('how many') || query.includes('count')) && query.includes('word')) {
+      // Words in a time period (UTC). Default to today if time phrase present; otherwise total unique words overall
+      const t = timeIntent();
+      if (t) {
+        const { start, end } = getUtcRange(t as any);
+        const inRange = profile.allFoundWords.filter(w => {
+          const dateStr = typeof w === 'string' ? undefined : w.date;
+          if (!dateStr) return false;
+          const foundDate = new Date(dateStr);
+          return foundDate >= start && foundDate < end;
+        });
+        const count = inRange.length;
+        response = `You've found ${count} word${count === 1 ? '' : 's'} ${t.replace('this', 'this ').replace('last','last ')} (UTC).`;
+      } else {
+        const total = profile.allFoundWords.length;
+        response = `You've found ${total} words overall.`;
+      }
     }
 
     // Games played today (UTC): derive from sessionHistory if available
-    else if ((query.includes('how many') || query.includes('count')) && query.includes('today') && (query.includes('game') || query.includes('games'))) {
-      const now = new Date();
-      const todayUTC = new Date(now.toISOString().split('T')[0] + 'T00:00:00.000Z');
-      const tomorrowUTC = new Date(todayUTC.getTime() + 24 * 60 * 60 * 1000);
+    else if ((query.includes('how many') || query.includes('count')) && (query.includes('game') || query.includes('games'))) {
+      // Games (sessions) in a time period from sessionHistory; default to overall total
       const sessions = (detailedStats?.sessionHistory || []) as Array<{ startTime?: string; timestamp?: string; sessionId?: string }>; 
-      // Count distinct sessions started today UTC
-      const uniq = new Set<string>();
-      sessions.forEach(s => {
-        const ts = s.startTime || s.timestamp;
-        if (!ts) return;
-        const d = new Date(ts);
-        if (d >= todayUTC && d < tomorrowUTC) {
-          const key = s.sessionId || d.toISOString();
-          uniq.add(key);
-        }
-      });
-      const count = uniq.size;
-      response = `You've played ${count} game${count === 1 ? '' : 's'} today (UTC).`;
+      const t = timeIntent();
+      if (t) {
+        const { start, end } = getUtcRange(t as any);
+        const uniq = new Set<string>();
+        sessions.forEach(s => {
+          const ts = s.startTime || s.timestamp;
+          if (!ts) return;
+          const d = new Date(ts);
+          if (d >= start && d < end) {
+            const key = s.sessionId || d.toISOString();
+            uniq.add(key);
+          }
+        });
+        const count = uniq.size;
+        response = `You've played ${count} game${count === 1 ? '' : 's'} ${t.replace('this', 'this ').replace('last','last ')} (UTC).`;
+      } else {
+        response = `You've played ${profile.gamesPlayed?.toLocaleString?.() || profile.gamesPlayed || 0} games overall.`;
+      }
     }
     
     else if (query.includes('missions') || query.includes('daily mission') || query.includes('weekly mission')) {
