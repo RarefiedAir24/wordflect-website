@@ -27,9 +27,10 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
-  const [range, setRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("30d");
-  
-  const [customDateRange, setCustomDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
+  const [historyRange, setHistoryRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("30d");
+  const [sessionsRange, setSessionsRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("30d");
+  const [customHistoryDateRange, setCustomHistoryDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
+  const [customSessionsDateRange, setCustomSessionsDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
   const [expandedLetters, setExpandedLetters] = useState<Record<string, boolean>>({});
   const [timeAnalytics, setTimeAnalytics] = useState<Record<string, unknown> | null>(null);
@@ -107,27 +108,27 @@ export default function Profile() {
     const now = new Date();
     const start = (() => {
       const d = new Date(now);
-      if (range === '7d') { d.setDate(d.getDate() - 6); return d; }
-      if (range === '30d') { d.setDate(d.getDate() - 29); return d; } // 30 days including today
-      if (range === '90d') { d.setDate(d.getDate() - 89); return d; } // 90 days including today
-      if (range === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
-      if (range === 'all') { 
+      if (historyRange === '7d') { d.setDate(d.getDate() - 6); return d; }
+      if (historyRange === '30d') { d.setDate(d.getDate() - 29); return d; } // 30 days including today
+      if (historyRange === '90d') { d.setDate(d.getDate() - 89); return d; } // 90 days including today
+      if (historyRange === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
+      if (historyRange === 'all') { 
         // Find the earliest date from user's words
         const earliestDate = entries.length > 0 
           ? new Date(Math.min(...entries.map(e => e.date.getTime())))
           : new Date(now);
         return earliestDate;
       }
-      if (range === 'custom' && customDateRange.start && customDateRange.end) {
-        return new Date(customDateRange.start + 'T00:00:00');
+      if (historyRange === 'custom' && customHistoryDateRange.start && customHistoryDateRange.end) {
+        return new Date(customHistoryDateRange.start + 'T00:00:00');
       }
       return new Date(0);
     })();
     
     // Determine the end date based on range
     const endDate = (() => {
-      if (range === 'custom' && customDateRange.end) {
-        return new Date(customDateRange.end + 'T23:59:59');
+      if (historyRange === 'custom' && customHistoryDateRange.end) {
+        return new Date(customHistoryDateRange.end + 'T23:59:59');
       }
       return now;
     })();
@@ -189,7 +190,7 @@ export default function Profile() {
     
     
     return { days, max, totalWords, avgPerDay, uniqueWords, avgLenAll, filtered };
-  }, [range, customDateRange.start, customDateRange.end]); // Add dependencies for the aggregated function
+  }, [historyRange, customHistoryDateRange.start, customHistoryDateRange.end]); // Add dependencies for the aggregated function
 
   // Backend history integration
   const [historyDays, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number; words?: string[] }[] | null>(null);
@@ -330,7 +331,7 @@ export default function Profile() {
         if (!apiService.isAuthenticated()) return;
 
         // Map UI range to backend range param
-        const mapRange = (r: typeof range): string | undefined => {
+        const mapRange = (r: typeof historyRange): string | undefined => {
           if (r === '7d') return '7d';
           if (r === '30d') return '30d';
           if (r === '90d') return '90d';
@@ -340,7 +341,7 @@ export default function Profile() {
           return undefined;
         };
 
-        const res = await apiService.getUserHistory({ range: mapRange(range) });
+        const res = await apiService.getUserHistory({ range: mapRange(historyRange) });
         const daysFromApi = Array.isArray(res.days) ? res.days.map(d => {
           // Normalize YYYY-MM-DD to local Date without timezone shifting
           const raw = String(d.date);
@@ -386,9 +387,9 @@ export default function Profile() {
 
         const finalDays = reconciled;
 
-        if (range === 'custom' && customDateRange.start && customDateRange.end) {
-          const startDate = new Date(customDateRange.start + 'T00:00:00');
-          const endDate = new Date(customDateRange.end + 'T23:59:59');
+        if (historyRange === 'custom' && customHistoryDateRange.start && customHistoryDateRange.end) {
+          const startDate = new Date(customHistoryDateRange.start + 'T00:00:00');
+          const endDate = new Date(customHistoryDateRange.end + 'T23:59:59');
           const filtered = finalDays.filter(d => {
             const dataDate = new Date(d.date);
             return dataDate >= startDate && dataDate <= endDate;
@@ -403,7 +404,7 @@ export default function Profile() {
       }
     };
     load();
-  }, [range, customDateRange.start, customDateRange.end]);
+  }, [historyRange, customHistoryDateRange.start, customHistoryDateRange.end]);
 
   // Load session words data
   useEffect(() => {
@@ -424,7 +425,7 @@ export default function Profile() {
         console.log('🔐 Token expired:', apiService.isTokenExpired());
         
         // Map UI range to backend range param
-        const mapRange = (r: typeof range): string | undefined => {
+        const mapRange = (r: typeof sessionsRange): string | undefined => {
           if (r === '7d') return '7d';
           if (r === '30d') return '30d';
           if (r === '90d') return '90d';
@@ -434,7 +435,7 @@ export default function Profile() {
           return undefined;
         };
 
-        const mappedRange = mapRange(range);
+        const mappedRange = mapRange(sessionsRange);
         console.log('🟢 Mapped range:', mappedRange);
         
         const res = await apiService.getUserSessionWords({ range: mappedRange });
@@ -474,9 +475,9 @@ export default function Profile() {
         console.log('🟢 Today check - last day value:', daysFromApi[daysFromApi.length - 1]?.value);
         
         // For custom range, filter client-side after getting all data
-        if (range === "custom" && customDateRange.start && customDateRange.end) {
-          const startDate = new Date(customDateRange.start + 'T00:00:00');
-          const endDate = new Date(customDateRange.end + 'T23:59:59');
+        if (sessionsRange === "custom" && customSessionsDateRange.start && customSessionsDateRange.end) {
+          const startDate = new Date(customSessionsDateRange.start + 'T00:00:00');
+          const endDate = new Date(customSessionsDateRange.end + 'T23:59:59');
           
           const filteredData = daysFromApi.filter(d => {
             const dataDate = new Date(d.date);
@@ -506,7 +507,7 @@ export default function Profile() {
       }
     };
     loadSessionWords();
-  }, [range, customDateRange.start, customDateRange.end]);
+  }, [sessionsRange, customSessionsDateRange.start, customSessionsDateRange.end]);
 
 
   const fetchProfile = useCallback(async () => {
@@ -663,7 +664,6 @@ export default function Profile() {
       console.log('❌ No profile, skipping time analytics fetch');
     }
   }, [profile]);
-
   // Fetch theme analytics from backend API
   useEffect(() => {
     const fetchThemeAnalytics = async () => {
@@ -1010,7 +1010,6 @@ You currently have ${profile.points.toLocaleString()} total points and ${profile
       response = `Premium Subscription:
 
 ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Premium for exclusive benefits!**'}
-
 ⭐ **Premium Features**:
 • Unlimited daily games (vs 3 for free users)
 • Exclusive daily themes and word sets
@@ -1310,7 +1309,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 💰 **Payment & Purchases**: payment methods, in-app purchases, and billing
 🏆 **Leaderboards**: rankings, competition, and social features
 🆘 **Help & Support**: troubleshooting, contact info, and common issues
-
 💡 **Try asking**: 
 • "How do I play?"
 • "What are premium features?"
@@ -1651,7 +1649,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         foundWords: [] as string[]
       };
     }
-
     // Fallback: use pre-fetched themeWords list + stored progress to populate card without opening modal
     const words = (themeAnalytics as Record<string, unknown>)[`${day}_themeWords`] as string[] | undefined;
     const prog = getProgressFor(day);
@@ -1995,7 +1992,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
     return { bestTheme, mostConsistent, totalThemeWords };
   };
-
   // Handle time period click - show time analytics data
   const handleTimePeriodClick = (period: string) => {
     console.log(`🕐 Opening time analytics for period: ${period}`);
@@ -2328,7 +2324,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </button>
                   )}
                 </div>
-                
                 {/* Voice Response Button - Only show when there's a response */}
                 {aiResponse && (
                   <div className="flex justify-center">
@@ -2479,7 +2474,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             </div>
             <div className="flex items-center gap-2">
               {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
-                <button key={r} onClick={() => setRange(r)} className={`px-2 py-1 rounded text-sm border ${range===r? 'bg-blue-600 text-white border-blue-600':'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'}`}>
+                <button key={r} onClick={() => setHistoryRange(r)} className={`px-2 py-1 rounded text-sm border ${historyRange===r? 'bg-blue-600 text-white border-blue-600':'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'}`}>
                   {r.toUpperCase()}
                 </button>
               ))}
@@ -2487,15 +2482,15 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </div>
           
           {/* Custom Date Range Picker */}
-          {range === "custom" && (
+          {historyRange === "custom" && (
             <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <div className="flex items-center gap-4">
                 <div>
                   <label className="block text-sm font-medium text-blue-700 mb-1">Start Date</label>
                     <input 
                       type="date" 
-                      value={customDateRange.start}
-                      onChange={(e) => setCustomDateRange(prev => ({ ...prev, start: e.target.value }))}
+                      value={customHistoryDateRange.start}
+                      onChange={(e) => setCustomHistoryDateRange(prev => ({ ...prev, start: e.target.value }))}
                       max={new Date().toISOString().split('T')[0]}
                       className="px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
                     />
@@ -2504,8 +2499,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   <label className="block text-sm font-medium text-blue-700 mb-1">End Date</label>
                   <input 
                     type="date" 
-                    value={customDateRange.end}
-                    onChange={(e) => setCustomDateRange(prev => ({ ...prev, end: e.target.value }))}
+                    value={customHistoryDateRange.end}
+                    onChange={(e) => setCustomHistoryDateRange(prev => ({ ...prev, end: e.target.value }))}
                     max={new Date().toISOString().split('T')[0]}
                     className="px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
                   />
@@ -2513,9 +2508,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 <div className="flex items-end">
                   <button 
                     onClick={() => {
-                      if (customDateRange.start && customDateRange.end) {
-                        const startDate = new Date(customDateRange.start);
-                        const endDate = new Date(customDateRange.end);
+                      if (customHistoryDateRange.start && customHistoryDateRange.end) {
+                        const startDate = new Date(customHistoryDateRange.start);
+                        const endDate = new Date(customHistoryDateRange.end);
                         
                         // Validate dates
                         if (startDate > endDate) {
@@ -2528,7 +2523,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                           return;
                         }
                         
-                        console.log('Custom range selected:', customDateRange);
+                        console.log('Custom range selected:', customHistoryDateRange);
                         // The useEffect will trigger when customDateRange changes
                       }
                     }}
@@ -2545,31 +2540,31 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           <div className="mb-4 text-center">
             <p className="text-sm text-blue-600 font-medium">
               {(() => {
-                if (range === "custom" && customDateRange.start && customDateRange.end) {
-                  const startDate = new Date(customDateRange.start).toLocaleDateString();
-                  const endDate = new Date(customDateRange.end).toLocaleDateString();
+                if (historyRange === "custom" && customHistoryDateRange.start && customHistoryDateRange.end) {
+                  const startDate = new Date(customHistoryDateRange.start).toLocaleDateString();
+                  const endDate = new Date(customHistoryDateRange.end).toLocaleDateString();
                   return `Custom Range: ${startDate} - ${endDate}`;
-                } else if (range === "7d") {
+                } else if (historyRange === "7d") {
                   const endDate = new Date();
                   const startDate = new Date();
                   startDate.setDate(endDate.getDate() - 7);
                   return `Last 7 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
-                } else if (range === "30d") {
+                } else if (historyRange === "30d") {
                   const endDate = new Date();
                   const startDate = new Date();
                   startDate.setDate(endDate.getDate() - 30);
                   return `Last 30 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
-                } else if (range === "90d") {
+                } else if (historyRange === "90d") {
                   const endDate = new Date();
                   const startDate = new Date();
                   startDate.setDate(endDate.getDate() - 90);
                   return `Last 90 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
-                } else if (range === "1y") {
+                } else if (historyRange === "1y") {
                   const endDate = new Date();
                   const startDate = new Date();
                   startDate.setFullYear(endDate.getFullYear() - 1);
                   return `Last Year: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
-                } else if (range === "all") {
+                } else if (historyRange === "all") {
                   return "All Time Data";
                 }
                 return "Select a date range";
@@ -2619,7 +2614,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </div>
           <div className="flex items-center gap-2">
             {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
-              <button key={r} onClick={() => setRange(r)} className={`px-2 py-1 rounded text-sm border ${range===r? 'bg-green-600 text-white border-green-600':'bg-white text-green-800 border-green-200 hover:bg-green-50'}`}>
+              <button key={r} onClick={() => setSessionsRange(r)} className={`px-2 py-1 rounded text-sm border ${sessionsRange===r? 'bg-green-600 text-white border-green-600':'bg-white text-green-800 border-green-200 hover:bg-green-50'}`}>
                 {r.toUpperCase()}
               </button>
             ))}
@@ -2627,15 +2622,15 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         </div>
         
         {/* Custom Date Range Picker */}
-        {range === "custom" && (
+        {sessionsRange === "custom" && (
           <div className="mb-4 p-4 bg-green-50 rounded-lg border border-green-200">
             <div className="flex items-center gap-4">
               <div>
                 <label className="block text-sm font-medium text-green-700 mb-1">Start Date</label>
                   <input 
                     type="date" 
-                    value={customDateRange.start}
-                    onChange={(e) => setCustomDateRange(prev => ({ ...prev, start: e.target.value }))}
+                    value={customSessionsDateRange.start}
+                    onChange={(e) => setCustomSessionsDateRange(prev => ({ ...prev, start: e.target.value }))}
                     max={new Date().toISOString().split('T')[0]}
                     className="px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white text-gray-900"
                   />
@@ -2644,8 +2639,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 <label className="block text-sm font-medium text-green-700 mb-1">End Date</label>
                 <input 
                   type="date" 
-                  value={customDateRange.end}
-                  onChange={(e) => setCustomDateRange(prev => ({ ...prev, end: e.target.value }))}
+                  value={customSessionsDateRange.end}
+                  onChange={(e) => setCustomSessionsDateRange(prev => ({ ...prev, end: e.target.value }))}
                   max={new Date().toISOString().split('T')[0]}
                   className="px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white text-gray-900"
                 />
@@ -2653,9 +2648,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               <div className="flex items-end">
                 <button 
                   onClick={() => {
-                    if (customDateRange.start && customDateRange.end) {
-                      const startDate = new Date(customDateRange.start);
-                      const endDate = new Date(customDateRange.end);
+                    if (customSessionsDateRange.start && customSessionsDateRange.end) {
+                      const startDate = new Date(customSessionsDateRange.start);
+                      const endDate = new Date(customSessionsDateRange.end);
                       
                       // Validate dates
                       if (startDate > endDate) {
@@ -2668,7 +2663,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                         return;
                       }
                       
-                      console.log('Custom range selected:', customDateRange);
+                      console.log('Custom range selected:', customSessionsDateRange);
                       // The useEffect will trigger when customDateRange changes
                     }
                   }}
@@ -2680,36 +2675,35 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             </div>
           </div>
         )}
-        
         {/* Date Range Display */}
         <div className="mb-4 text-center">
           <p className="text-sm text-green-600 font-medium">
             {(() => {
-              if (range === "custom" && customDateRange.start && customDateRange.end) {
-                const startDate = new Date(customDateRange.start).toLocaleDateString();
-                const endDate = new Date(customDateRange.end).toLocaleDateString();
+              if (sessionsRange === "custom" && customSessionsDateRange.start && customSessionsDateRange.end) {
+                const startDate = new Date(customSessionsDateRange.start).toLocaleDateString();
+                const endDate = new Date(customSessionsDateRange.end).toLocaleDateString();
                 return `Custom Range: ${startDate} - ${endDate}`;
-              } else if (range === "7d") {
+              } else if (sessionsRange === "7d") {
                 const endDate = new Date();
                 const startDate = new Date();
                 startDate.setDate(endDate.getDate() - 7);
                 return `Last 7 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
-              } else if (range === "30d") {
+              } else if (sessionsRange === "30d") {
                 const endDate = new Date();
                 const startDate = new Date();
                 startDate.setDate(endDate.getDate() - 30);
                 return `Last 30 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
-              } else if (range === "90d") {
+              } else if (sessionsRange === "90d") {
                 const endDate = new Date();
                 const startDate = new Date();
                 startDate.setDate(endDate.getDate() - 90);
                 return `Last 90 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
-              } else if (range === "1y") {
+              } else if (sessionsRange === "1y") {
                 const endDate = new Date();
                 const startDate = new Date();
                 startDate.setFullYear(endDate.getFullYear() - 1);
                 return `Last Year: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
-              } else if (range === "all") {
+              } else if (sessionsRange === "all") {
                 return "All Time Data";
               }
               return "Select a date range";
@@ -2999,7 +2993,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               </div>
             );
           })()}
-
           {/* Wednesday - Nature */}
           {(() => {
             // Show "tap to load" for cards without data
@@ -3322,7 +3315,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             );
           })()}
         </div>
-
         {/* Theme Performance Summary */}
         <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-lg p-4 border border-violet-200 mb-6">
           <div className="flex items-center justify-between mb-3">
@@ -3626,8 +3618,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             <p className="text-sm text-blue-700">Discover when your brain performs at its peak</p>
           </div>
         </div>
-        
-
         {/* Time Period Filter */}
         <div className="mb-6">
           <div className="flex flex-wrap items-center gap-4 mb-4">
@@ -3974,7 +3964,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               </div>
             );
           })()}
-
           {/* Late Morning (10AM - 3PM) */}
           {(() => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -4636,7 +4625,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </div>
         </div>
       )}
-
       {/* Theme Words / Time Analytics Modal */}
       {isThemeModalOpen && selectedThemeDay && (() => {
         console.log('🎯 MODAL RENDERING - isThemeModalOpen:', isThemeModalOpen, 'selectedThemeDay:', selectedThemeDay);
@@ -4970,7 +4958,6 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
     // Toggle selection if clicking the same point
     setSelectedPoint(prev => (prev === index ? null : index));
   };
-  
   return (
     <div className="w-full bg-white rounded-lg p-4 border border-gray-200">
       <div className="w-full overflow-hidden">
