@@ -194,7 +194,7 @@ export default function Profile() {
 
   // Backend history integration
   const [historyDays, setHistoryDays] = useState<{ date: Date; value: number; avgLen?: number; words?: string[] }[] | null>(null);
-  const [sessionWordsDays, setSessionWordsDays] = useState<{ date: Date; value: number; avgLen?: number }[] | null>(null);
+  const [sessionWordsDays, setSessionWordsDays] = useState<{ date: Date; value: number; avgLen?: number; words?: string[] }[] | null>(null);
   
   // Load detailed stats (includes sessionHistory) for real data mapping
   type Session = { startTime?: string; timestamp?: string; duration?: number };
@@ -469,12 +469,36 @@ export default function Profile() {
             const dt = new Date(d.date);
             normalized = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
           }
-          return {
+          const day = {
             date: normalized,
             value: typeof d.value === 'number' ? d.value : 0,
             avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
-          };
+          } as { date: Date; value: number; avgLen?: number; words?: string[] };
+          return day;
         }) : [];
+
+        // Build per-day session summaries for tooltip (time – words per session)
+        try {
+          const sessions = (detailedStats?.sessionHistory || []) as { startTime?: string; timestamp?: string; wordsFound?: number; words?: string[] }[];
+          const byDay = new Map<string, { time: string; count: number }[]>();
+          sessions.forEach(s => {
+            const start = new Date(s.startTime || s.timestamp || '');
+            if (isNaN(start.getTime())) return;
+            const k = `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,'0')}-${String(start.getDate()).padStart(2,'0')}`;
+            const hh = String(start.getHours()).padStart(2, '0');
+            const mm = String(start.getMinutes()).padStart(2, '0');
+            const count = typeof s.wordsFound === 'number' ? s.wordsFound : (Array.isArray(s.words) ? s.words.length : 0);
+            const arr = byDay.get(k) || [];
+            arr.push({ time: `${hh}:${mm}`, count });
+            byDay.set(k, arr);
+          });
+          daysFromApi.forEach(day => {
+            const k = `${day.date.getFullYear()}-${String(day.date.getMonth()+1).padStart(2,'0')}-${String(day.date.getDate()).padStart(2,'0')}`;
+            const arr = byDay.get(k) || [];
+            arr.sort((a,b) => a.time.localeCompare(b.time));
+            day.words = arr.length ? arr.map(x => `${x.time} – ${x.count} words`) : undefined;
+          });
+        } catch {}
         
         console.log('🟢 Processed session words days:', daysFromApi);
         console.log('🟢 Processed session words days length:', daysFromApi.length);
