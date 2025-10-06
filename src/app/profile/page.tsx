@@ -1519,24 +1519,15 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
   // Helper function to get time period data
   const getTimePeriodData = (period: string) => {
-    console.log('getTimePeriodData called for period:', period);
-    console.log('timeAnalytics:', timeAnalytics);
-    console.log('timeAnalytics.timePeriods:', timeAnalytics?.timePeriods);
-    
     if (!timeAnalytics || !timeAnalytics.timePeriods) {
-      console.log('No time analytics data available');
       return null;
     }
 
     // Backend returns timePeriods as an object with period keys, not an array
     const periodData = (timeAnalytics.timePeriods as Record<string, unknown>)[period];
-    console.log(`getTimePeriodData - periodData for ${period}:`, periodData);
     
     if (periodData) {
       const data = periodData as Record<string, unknown>;
-      console.log(`getTimePeriodData - data fields for ${period}:`, Object.keys(data));
-      console.log(`getTimePeriodData - wordCount for ${period}:`, data.wordCount);
-      console.log(`getTimePeriodData - gamesPlayed for ${period}:`, data.gamesPlayed);
       
       const wordsFound = (data.wordCount as number) || 0;
       const gamesPlayed = (data.gamesPlayed as number) || 0;
@@ -5139,14 +5130,6 @@ function Sparkline({ data, height = 240, color = '#4f46e5' }: { data: { date: Da
         {/* Date labels - Better spacing and larger font */}
         {dateLabels.map((d, i) => {
           const originalIndex = data.findIndex(item => item.date.getTime() === d.date.getTime());
-          console.log('🔍 Date label debug:', { 
-            labelDate: d.date, 
-            labelDateString: d.date.toLocaleDateString(),
-            originalIndex,
-            dataLength: data.length,
-            lastDataPoint: data[data.length - 1]?.date,
-            lastDataPointString: data[data.length - 1]?.date?.toLocaleDateString()
-          });
           const x = (originalIndex / Math.max(1, data.length - 1)) * (width - leftMargin - rightMargin) + leftMargin;
           return (
             <g key={i}>
