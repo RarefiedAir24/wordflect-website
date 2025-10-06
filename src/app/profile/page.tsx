@@ -341,11 +341,25 @@ export default function Profile() {
         };
 
         const res = await apiService.getUserHistory({ range: mapRange(range) });
-        const daysFromApi = Array.isArray(res.days) ? res.days.map(d => ({
-          date: new Date(d.date),
-          value: typeof d.value === 'number' ? d.value : 0,
-          avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
-        })) : [];
+        const daysFromApi = Array.isArray(res.days) ? res.days.map(d => {
+          // Normalize YYYY-MM-DD to local Date without timezone shifting
+          const raw = String(d.date);
+          let normalized: Date;
+          const parts = raw.split('-');
+          if (parts.length === 3) {
+            const y = Number(parts[0]);
+            const m = Number(parts[1]) - 1;
+            const dd = Number(parts[2]);
+            normalized = new Date(y, m, dd);
+          } else {
+            normalized = new Date(raw);
+          }
+          return {
+            date: normalized,
+            value: typeof d.value === 'number' ? d.value : 0,
+            avgLen: typeof d.avgLen === 'number' ? d.avgLen : undefined
+          };
+        }) : [];
 
         if (range === 'custom' && customDateRange.start && customDateRange.end) {
           const startDate = new Date(customDateRange.start + 'T00:00:00');
