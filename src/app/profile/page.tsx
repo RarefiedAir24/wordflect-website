@@ -2488,6 +2488,16 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 </button>
               ))}
             </div>
+            <div className="mt-2 text-xs text-blue-900/80 flex items-center gap-3">
+              <span className="inline-flex items-center gap-1">
+                <span className="inline-block w-3 h-3 rounded-sm bg-indigo-500"></span>
+                <span>History: first-time (unique) words per day</span>
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="inline-block w-3 h-3 rounded-sm bg-gray-300"></span>
+                <span>Tooltip lists new words; count is unique-first only</span>
+              </span>
+            </div>
           </div>
           
           {/* Custom Date Range Picker */}
@@ -2627,6 +2637,16 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 {r.toUpperCase()}
               </button>
             ))}
+          </div>
+          <div className="mt-2 text-xs text-green-900/80 flex items-center gap-3">
+            <span className="inline-flex items-center gap-1">
+              <span className="inline-block w-3 h-3 rounded-sm bg-emerald-500"></span>
+              <span>Sessions: all words found per day across games</span>
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="inline-block w-3 h-3 rounded-sm bg-gray-300"></span>
+              <span>Includes repeats; reflects total daily activity</span>
+            </span>
           </div>
         </div>
         
