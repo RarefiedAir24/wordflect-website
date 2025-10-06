@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     }
     headers['Authorization'] = authHeader;
     // Also set lowercase header to accommodate any downstream normalization quirks
-    (headers as any)['authorization'] = authHeader;
+    headers['authorization'] = authHeader;
     console.log('Authorization header added to outgoing request');
     
     console.log('Outgoing headers:', headers);
