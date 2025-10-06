@@ -3697,32 +3697,32 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
               <div className="space-y-1">
                 <div className="font-medium text-blue-800">Late Night</div>
-                <div className="text-blue-600">12AM-4AM UTC</div>
-                <div className="text-blue-500">7PM-11PM EST</div>
+                <div className="text-blue-600">00:00–04:00 UTC</div>
+                <div className="text-blue-500">Example (US Eastern): 7PM–11PM EST / 8PM–12AM EDT (prev day)</div>
               </div>
               <div className="space-y-1">
                 <div className="font-medium text-blue-800">Early Morning</div>
-                <div className="text-blue-600">5AM-9AM UTC</div>
-                <div className="text-blue-500">12AM-4AM EST</div>
+                <div className="text-blue-600">05:00–09:00 UTC</div>
+                <div className="text-blue-500">Example (US Eastern): 12AM–4AM EST / 1AM–5AM EDT</div>
               </div>
               <div className="space-y-1">
                 <div className="font-medium text-blue-800">Late Morning</div>
-                <div className="text-blue-600">10AM-12PM UTC</div>
-                <div className="text-blue-500">5AM-7AM EST</div>
+                <div className="text-blue-600">10:00–12:00 UTC</div>
+                <div className="text-blue-500">Example (US Eastern): 5AM–7AM EST / 6AM–8AM EDT</div>
               </div>
               <div className="space-y-1">
                 <div className="font-medium text-blue-800">Afternoon</div>
-                <div className="text-blue-600">1PM-5PM UTC</div>
-                <div className="text-blue-500">8AM-12PM EST</div>
+                <div className="text-blue-600">13:00–17:00 UTC</div>
+                <div className="text-blue-500">Example (US Eastern): 8AM–12PM EST / 9AM–1PM EDT</div>
               </div>
               <div className="space-y-1">
                 <div className="font-medium text-blue-800">Evening</div>
-                <div className="text-blue-600">6PM-11PM UTC</div>
-                <div className="text-blue-500">1PM-6PM EST</div>
+                <div className="text-blue-600">18:00–23:00 UTC</div>
+                <div className="text-blue-500">Example (US Eastern): 1PM–6PM EST / 2PM–7PM EDT</div>
               </div>
               <div className="space-y-1">
                 <div className="text-blue-500 text-xs italic">
-                  Times are calculated in UTC for consistency across all users worldwide.
+                  Times are in UTC for consistency. Local equivalents vary by timezone and daylight saving.
                 </div>
               </div>
             </div>
