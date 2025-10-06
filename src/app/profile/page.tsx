@@ -3853,7 +3853,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12 a4 4 0 1 1 -8 0 a4 4 0 1 1 8 0z" />
                       </svg>
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">EARLY MORNING</span>
@@ -3891,7 +3891,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     isCurrentPeriod ? 'bg-blue-500' : 'bg-amber-500'
                   }`}>
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12 a4 4 0 1 1 -8 0 a4 4 0 1 1 8 0z" />
                     </svg>
                   </div>
                   <div className="flex items-center gap-2">
@@ -3948,7 +3948,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12 a4 4 0 1 1 -8 0 a4 4 0 1 1 8 0z" />
                       </svg>
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">LATE MORNING</span>
@@ -3986,7 +3986,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     isCurrentPeriod ? 'bg-blue-500' : 'bg-blue-500'
                   }`}>
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12 a4 4 0 1 1 -8 0 a4 4 0 1 1 8 0z" />
                     </svg>
                   </div>
                   <div className="flex items-center gap-2">
@@ -4043,7 +4043,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   <div className="flex items-center justify-between mb-3">
                     <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12 a4 4 0 1 1 -8 0 a4 4 0 1 1 8 0z" />
                       </svg>
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">AFTERNOON</span>
@@ -4081,7 +4081,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     isCurrentPeriod ? 'bg-blue-500' : 'bg-green-500'
                   }`}>
                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0 0 18 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12 a4 4 0 1 1 -8 0 a4 4 0 1 1 8 0z" />
                     </svg>
                   </div>
                   <div className="flex items-center gap-2">
