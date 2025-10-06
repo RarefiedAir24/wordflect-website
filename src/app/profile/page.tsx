@@ -870,7 +870,7 @@ You currently have ${profile.points.toLocaleString()} total points and ${profile
     }
 
     // Games played today (UTC): derive from sessionHistory if available
-    else if ((query.includes('how many') || query.includes('count')) && (query.includes('game') || query.includes('games'))) {
+    else if ((query.includes('how many') || query.includes('count')) && (query.includes('game') || query.includes('games') || query.includes('session') || query.includes('sessions'))) {
       // Games (sessions) in a time period from sessionHistory; default to overall total
       const sessions = (detailedStats?.sessionHistory || []) as Array<{ startTime?: string; timestamp?: string; sessionId?: string }>; 
       const t = timeIntent();
@@ -887,9 +887,11 @@ You currently have ${profile.points.toLocaleString()} total points and ${profile
           }
         });
         const count = uniq.size;
-        response = `You've played ${count} game${count === 1 ? '' : 's'} ${t.replace('this', 'this ').replace('last','last ')} (UTC).`;
+        const noun = (query.includes('session') || query.includes('sessions')) ? 'session' : 'game';
+        response = `You've played ${count} ${noun}${count === 1 ? '' : 's'} ${t.replace('this', 'this ').replace('last','last ')} (UTC).`;
       } else {
-        response = `You've played ${profile.gamesPlayed?.toLocaleString?.() || profile.gamesPlayed || 0} games overall.`;
+        const noun = (query.includes('session') || query.includes('sessions')) ? 'sessions' : 'games';
+        response = `You've played ${profile.gamesPlayed?.toLocaleString?.() || profile.gamesPlayed || 0} ${noun} overall.`;
       }
     }
     
