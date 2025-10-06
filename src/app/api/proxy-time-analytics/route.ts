@@ -14,14 +14,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: 'Authorization header required' }, { status: 401 });
     }
 
+    // Build pass-through headers and force no-store
+    const headers: Record<string, string> = Object.fromEntries(request.headers.entries());
+    headers['Content-Type'] = 'application/json';
+    headers['Cache-Control'] = 'no-store';
+    headers['Authorization'] = authHeader;
+    headers['authorization'] = authHeader;
+
     // Forward the request to the backend API
     const response = await fetch(`${API_BASE_URL}/user/time/analytics`, {
       method: 'GET',
-      headers: {
-        'Authorization': authHeader,
-        'authorization': authHeader,
-        'Content-Type': 'application/json',
-      },
+      headers,
+      cache: 'no-store'
     });
 
     const data = await response.json();

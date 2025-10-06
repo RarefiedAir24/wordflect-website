@@ -16,18 +16,17 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
     console.log('Authorization header received:', authHeader);
     
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    
-    // Require Authorization header to prevent 403s from backend
-    if (!authHeader) {
+    // Build pass-through headers and force no-store
+    const headers: Record<string, string> = Object.fromEntries(request.headers.entries());
+    headers['Content-Type'] = 'application/json';
+    headers['Cache-Control'] = 'no-store';
+    // Normalize Authorization casing
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+      headers['authorization'] = authHeader;
+    } else {
       return NextResponse.json({ message: 'Authorization header required' }, { status: 401 });
     }
-    headers['Authorization'] = authHeader;
-    // Also set lowercase header to accommodate any downstream normalization quirks
-    headers['authorization'] = authHeader;
-    console.log('Authorization header added to outgoing request');
     
     console.log('Outgoing headers:', headers);
     console.log('Target URL:', `${API_BASE_URL}/user/statistics/detailed`);
@@ -35,7 +34,8 @@ export async function GET(request: NextRequest) {
     
     const response = await fetch(`${API_BASE_URL}/user/statistics/detailed`, {
       method: 'GET',
-      headers
+      headers,
+      cache: 'no-store'
     });
 
     console.log('Backend response status:', response.status);
