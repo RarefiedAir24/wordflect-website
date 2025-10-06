@@ -803,6 +803,21 @@ You currently have ${profile.points.toLocaleString()} total points and ${profile
 🎯 **Tip**: Focus on finding theme words first, then explore other words!`;
     }
     
+    // Words found today (UTC-aligned with missions/themes/time analytics)
+    else if ((query.includes('how many') || query.includes('count')) && query.includes('today') && query.includes('word')) {
+      const now = new Date();
+      const todayUTC = new Date(now.toISOString().split('T')[0] + 'T00:00:00.000Z');
+      const tomorrowUTC = new Date(todayUTC.getTime() + 24 * 60 * 60 * 1000);
+      const todaysWords = profile.allFoundWords.filter(w => {
+        const dateStr = typeof w === 'string' ? undefined : w.date;
+        if (!dateStr) return false;
+        const foundDate = new Date(dateStr);
+        return foundDate >= todayUTC && foundDate < tomorrowUTC;
+      });
+      const count = todaysWords.length;
+      response = `You've found ${count} word${count === 1 ? '' : 's'} today (UTC).`;
+    }
+    
     else if (query.includes('missions') || query.includes('daily mission') || query.includes('weekly mission')) {
       const dailyProgress = (profile as { missions?: { daily?: { progress?: number; target?: number } } }).missions?.daily;
       const weeklyProgress = (profile as { missions?: { weekly?: { progress?: number; target?: number } } }).missions?.weekly;
