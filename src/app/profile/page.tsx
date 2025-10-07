@@ -672,7 +672,7 @@ export default function Profile() {
         }
         setLoading(false);
       }
-    }, [router]);
+    }, [router, checkLexiPopupVisibility]);
 
   useEffect(() => {
     fetchProfile();
@@ -2435,7 +2435,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                       
                       <div className="flex items-center gap-2 text-emerald-300 text-xs">
                         <span>💡</span>
-                        <span>Try: "How many words did I find today?"</span>
+                        <span>Try: &quot;How many words did I find today?&quot;</span>
                       </div>
                     </div>
                     
