@@ -48,6 +48,7 @@ export default function Profile() {
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const aiInputRef = useRef<HTMLInputElement | null>(null);
   const [aiQuery, setAiQuery] = useState('');
+  const [showLexiPopup, setShowLexiPopup] = useState(false);
   const [aiResponse, setAiResponse] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -543,6 +544,52 @@ export default function Profile() {
     loadSessionWords();
   }, [sessionsRange, customSessionsDateRange.start, customSessionsDateRange.end, detailedStats?.sessionHistory]);
 
+  // Smart frequency logic for Lexi popup
+  const checkLexiPopupVisibility = useCallback(() => {
+    const today = new Date().toDateString();
+    const lastShown = localStorage.getItem('lexiPopupLastShown');
+    const lastInteraction = localStorage.getItem('lexiLastInteraction');
+    const closeCount = parseInt(localStorage.getItem('lexiPopupCloseCount') || '0');
+    const firstVisit = localStorage.getItem('lexiFirstVisit');
+    
+    // Show popup if:
+    // 1. First visit ever (no firstVisit flag)
+    // 2. Haven't seen today AND haven't closed it too many times (3+) AND haven't interacted recently (3+ days)
+    const shouldShow = !firstVisit || 
+                      (lastShown !== today && closeCount < 3 && 
+                       (!lastInteraction || (Date.now() - new Date(lastInteraction).getTime()) > (3 * 24 * 60 * 60 * 1000)));
+    
+    if (shouldShow) {
+      setShowLexiPopup(true);
+      if (!firstVisit) {
+        localStorage.setItem('lexiFirstVisit', 'true');
+      }
+    }
+  }, []);
+
+  const handleLexiPopupClose = useCallback(() => {
+    const today = new Date().toDateString();
+    const closeCount = parseInt(localStorage.getItem('lexiPopupCloseCount') || '0');
+    
+    localStorage.setItem('lexiPopupLastShown', today);
+    localStorage.setItem('lexiPopupCloseCount', (closeCount + 1).toString());
+    setShowLexiPopup(false);
+  }, []);
+
+  const handleLexiInteraction = useCallback(() => {
+    localStorage.setItem('lexiLastInteraction', new Date().toISOString());
+    setShowLexiPopup(false);
+  }, []);
+
+  // Auto-hide Lexi popup after 8 seconds
+  useEffect(() => {
+    if (showLexiPopup) {
+      const timer = setTimeout(() => {
+        handleLexiPopupClose();
+      }, 8000);
+      return () => clearTimeout(timer);
+    }
+  }, [showLexiPopup, handleLexiPopupClose]);
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -614,6 +661,9 @@ export default function Profile() {
       
       setProfile(userProfile);
       setLoading(false);
+      
+      // Check if should show Lexi popup
+      checkLexiPopupVisibility();
     } catch (error) {
         console.error("Profile fetch error:", error);
         setError(error instanceof Error ? error.message : "Failed to load profile");
@@ -825,9 +875,20 @@ Premium subscribers get exclusive themes, bonus gems, and priority support!`;
     else if (query.includes('scoring') || query.includes('points') || query.includes('how to score')) {
       response = `Here's how scoring works in WordFlect:
 
-The longer your words, the more points you get. Three-letter words give you 1 point, four-letter words give you 2 points, five-letter words give you 3 points, six-letter words give you 4 points, and seven or more letter words give you 5 or more points.
+🎯 **Letter-Based Scoring** (Scrabble-style):
+• Common letters (A, E, I, O, U, L, N, S, T, R): 2 points each
+• Medium letters (D, G): 4 points each  
+• Hard letters (B, C, M, P): 6 points each
+• Challenging letters (F, H, V, W, Y): 8 points each
+• Difficult letters (K): 10 points each
+• Rare letters (J, X): 16 points each
+• Very rare letters (Q, Z): 20 points each
 
-You can earn bonus multipliers too! Daily theme words give you double points, perfect games earn you bonus gems, and maintaining streaks gives you extra rewards.
+📏 **Word Length Bonus**: +2 points per letter (encourages longer words)
+
+🎨 **Theme Word Bonus**: Theme words get additional bonus points based on the theme's multiplier
+
+📊 **Example**: "CAT" = C(6) + A(2) + T(2) + length bonus(6) = 16 points + theme bonus
 
 You currently have ${profile.points.toLocaleString()} total points and ${profile.gems.toLocaleString()} gems!`;
     }
@@ -1538,6 +1599,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   };
 
   const openAiModal = () => {
+    handleLexiInteraction(); // Track interaction and hide popup
     setAiModalOpen(true);
     const welcomeMessage = `Hi! I'm Lexi, your AI WordFlect assistant. I can help you with gameplay, stats, customization, and even navigation. You can ask me to take you to the dashboard, sign you out, or open the WordFlect app. Try saying "How do I play?", "Take me to dashboard", or "Open app". Click the voice icon to enable audio, or use the text input to chat with me!`;
     const WELCOME_KEY = 'lexiWelcomeSpoken';
@@ -2342,6 +2404,48 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   </div>
                 </div>
               </button>
+              
+              {/* Lexi Helper Popup */}
+              {showLexiPopup && (
+                <div className="absolute top-0 right-0 transform translate-x-4 -translate-y-4 z-50 animate-bounce-in">
+                  <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-black border border-emerald-500/30 rounded-2xl p-6 shadow-2xl max-w-sm relative">
+                    {/* Close button */}
+                    <button
+                      onClick={handleLexiPopupClose}
+                      className="absolute top-3 right-3 w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors duration-200"
+                    >
+                      <span className="text-white font-bold text-lg leading-none">×</span>
+                    </button>
+                    
+                    {/* Content */}
+                    <div className="pr-8">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center">
+                          <span className="text-2xl">🤖</span>
+                        </div>
+                        <div>
+                          <h3 className="text-white font-bold text-lg">Meet Lexi!</h3>
+                          <p className="text-emerald-300 text-sm font-medium">Your AI Assistant</p>
+                        </div>
+                      </div>
+                      
+                      <p className="text-white/90 text-sm leading-relaxed mb-4">
+                        Ask me anything about your stats, gameplay tips, or navigation! I can help you understand your progress and guide you through WordFlect.
+                      </p>
+                      
+                      <div className="flex items-center gap-2 text-emerald-300 text-xs">
+                        <span>💡</span>
+                        <span>Try: "How many words did I find today?"</span>
+                      </div>
+                    </div>
+                    
+                    {/* Arrow pointing to Lexi button */}
+                    <div className="absolute bottom-0 right-8 transform translate-y-full">
+                      <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-slate-800"></div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
