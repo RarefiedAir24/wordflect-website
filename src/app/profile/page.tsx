@@ -749,6 +749,31 @@ export default function Profile() {
       console.log('❌ No profile, skipping time analytics fetch');
     }
   }, [profile]);
+
+  // Refresh time analytics data every 30 seconds to catch new games
+  useEffect(() => {
+    if (!profile) return;
+
+    const interval = setInterval(() => {
+      console.log('🔄 Auto-refreshing time analytics data...');
+      const fetchTimeAnalytics = async () => {
+        try {
+          const response = await apiService.getTimeAnalytics();
+          if (response && (response as Record<string, unknown>).analytics) {
+            const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
+            setTimeAnalytics(analytics);
+            console.log('✅ Time analytics data refreshed');
+          }
+        } catch (error) {
+          console.error('❌ Error refreshing time analytics:', error);
+        }
+      };
+      fetchTimeAnalytics();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [profile]);
+
   // Fetch theme analytics from backend API
   useEffect(() => {
     const fetchThemeAnalytics = async () => {
