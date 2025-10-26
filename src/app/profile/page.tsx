@@ -5184,22 +5184,6 @@ function Bar({ title, value, color, total }: { title: string; value: number; col
   );
 }
 
-function RadialProgress({ percent }: { percent: number }) {
-  const clamped = Math.max(0, Math.min(100, percent));
-  return (
-    <div className="relative grid place-items-center" style={{ width: 72, height: 72 }}>
-      <div
-        className="absolute inset-0 rounded-full"
-        style={{
-          background: `conic-gradient(#7c3aed ${clamped * 3.6}deg, #e5e7eb 0deg)`,
-        }}
-      />
-      <div className="absolute inset-2 rounded-full bg-white grid place-items-center">
-        <span className="text-sm font-bold text-blue-950">{`${clamped}%`}</span>
-      </div>
-    </div>
-  );
-}
 function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No new words', wordsPreFormatted = false }: { data: { date: Date; value: number; words?: string[] }[]; height?: number; color?: string; wordsEmptyText?: string; wordsPreFormatted?: boolean }) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
   // Selected point persists on click to show exact value even when axis ticks skip values
