@@ -482,6 +482,9 @@ export default function Profile() {
         // Build per-day session summaries for tooltip (time – words per session)
         try {
           const sessions = (detailedStats?.sessionHistory || []) as { startTime?: string; timestamp?: string; wordsFound?: number; words?: string[]; gamesPlayed?: number }[];
+          console.log('🔍 Session data for tooltip:', sessions.length, 'sessions');
+          console.log('🔍 Sample session:', sessions[0]);
+          
           const byDay = new Map<string, { time: string; count: number; games: number }[]>();
           sessions.forEach(s => {
             const start = new Date(s.startTime || s.timestamp || '');
@@ -495,13 +498,22 @@ export default function Profile() {
             arr.push({ time: `${hh}:${mm}`, count, games });
             byDay.set(k, arr);
           });
+          
+          console.log('🔍 Sessions by day:', byDay.size, 'days with sessions');
+          
           daysFromApi.forEach(day => {
             const k = `${day.date.getFullYear()}-${String(day.date.getMonth()+1).padStart(2,'0')}-${String(day.date.getDate()).padStart(2,'0')}`;
             const arr = byDay.get(k) || [];
             arr.sort((a,b) => a.time.localeCompare(b.time));
             day.words = arr.length ? arr.map(x => `${x.time} – ${x.count} words, ${x.games} game${x.games > 1 ? 's' : ''}`) : undefined;
+            
+            if (arr.length > 0) {
+              console.log(`🔍 Day ${k}: ${arr.length} sessions, words:`, day.words);
+            }
           });
-        } catch {}
+        } catch (error) {
+          console.error('🔍 Error processing session data for tooltip:', error);
+        }
         
         console.log('🟢 Processed session words days:', daysFromApi);
         console.log('🟢 Processed session words days length:', daysFromApi.length);
@@ -5339,7 +5351,13 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
                 
               // Format words with line breaks for better fit
               const formatWords = (wordList: string[]) => {
-                if (wordList.length === 0) return [wordsEmptyText];
+                if (wordList.length === 0) {
+                  // If no session data but we have words, show a generic message
+                  if (p.data.value > 0) {
+                    return [`${p.data.value} words found`];
+                  }
+                  return [wordsEmptyText];
+                }
                 if (wordsPreFormatted) return wordList;
                 if (wordList.length <= 3) return [wordList.join(', ')];
                 // Split into multiple lines for better fit
