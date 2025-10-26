@@ -4235,7 +4235,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     )}
                   </div>
                 </div>
-                <p className="text-lg font-bold text-amber-900">5:00 AM - 9:00 AM</p>
+                <p className="text-lg font-bold text-amber-900">05:00 - 09:00 UTC</p>
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-amber-700">Words Found:</span>
@@ -4329,7 +4329,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     )}
                   </div>
                 </div>
-                <p className="text-lg font-bold text-blue-900">10:00 AM - 12:00 PM</p>
+                <p className="text-lg font-bold text-blue-900">10:00 - 12:00 UTC</p>
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-blue-700">Words Found:</span>
@@ -4424,7 +4424,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     )}
                   </div>
                 </div>
-                <p className="text-lg font-bold text-green-900">1:00 PM - 5:00 PM</p>
+                <p className="text-lg font-bold text-green-900">13:00 - 17:00 UTC</p>
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-green-700">Words Found:</span>
