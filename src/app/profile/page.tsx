@@ -82,11 +82,6 @@ export default function Profile() {
     return Math.round((p.battleWins / total) * 100);
   };
 
-  const estimatedLevelProgress = (p: UserProfile) => {
-    const perLevel = 1000;
-    const remainder = p.points % perLevel;
-    return Math.round((remainder / perLevel) * 100);
-  };
 
   const longestRecentWord = (p: UserProfile) => {
     const words = p.allFoundWords.map(w => (typeof w === 'string' ? w : w.word));
@@ -2658,18 +2653,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         <MetricCard title="Flectcoins" value={profile.flectcoins.toLocaleString()} accent="from-amber-400 to-yellow-500" />
         <MetricCard title="Gems" value={profile.gems.toLocaleString()} accent="from-pink-400 to-rose-500" />
-        <div className="bg-white rounded-xl p-5 shadow relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50" />
-          <div className="relative">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-blue-950">Level Progress</h3>
-                <p className="text-sm text-blue-700">Level {profile.highestLevel}</p>
-              </div>
-              <RadialProgress percent={estimatedLevelProgress(profile)} />
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Deep Stats */}
