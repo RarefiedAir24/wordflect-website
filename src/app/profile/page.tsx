@@ -715,6 +715,8 @@ export default function Profile() {
           if (analytics.timePeriods) {
             Object.entries(analytics.timePeriods).forEach(([period, data]) => {
               console.log(`📊 ${period}:`, data);
+              console.log(`📊 ${period} gamesPlayed:`, (data as Record<string, unknown>)?.gamesPlayed);
+              console.log(`📊 ${period} wordCount:`, (data as Record<string, unknown>)?.wordCount);
             });
           }
           setTimeAnalytics(analytics);
@@ -1206,15 +1208,16 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
 • Early access to new features
 
 💰 **Pricing**:
-• Monthly: $4.99/month
-• Annual: $39.99/year (33% savings!)
-• Lifetime: $99.99 (one-time payment)
+• Basic: $1.99/month
+• Premium: $3.99/month (Most Popular!)
+• Pro: $5.99/month
+• Annual: $19.99, $39.99, $59.99 respectively (17% savings!)
 
 🎯 **Value Proposition**:
 • Save 2+ hours per month with unlimited games
 • Earn 2x rewards worth $10+ monthly
 • Exclusive content worth $15+ monthly
-• Total value: $25+ monthly for just $4.99!
+• Total value: $25+ monthly for just $3.99!
 
 💡 **Why Premium?**: Premium users find 3x more words, earn 2x more rewards, and get exclusive content that free users miss out on!`;
     }
@@ -1234,7 +1237,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
 • Flectcoins: $0.99 - $19.99
 • Gems: $1.99 - $49.99
 • Premium Frames: $2.99 - $9.99
-• Premium Subscription: $4.99/month
+• Premium Subscription: $3.99/month
 
 🔒 **Security**:
 • All payments processed securely
@@ -1244,7 +1247,7 @@ ${isPremium ? '🎉 **You are a Premium subscriber!**' : '💎 **Upgrade to Prem
 
 💎 **Premium Value**:
 • Monthly subscription costs less than a coffee
-• Annual subscription saves you $20/year
+• Annual subscription saves you $6-12/year
 • Lifetime option pays for itself in 2 years
 • Cancel anytime with no penalties
 
@@ -1751,11 +1754,14 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   // Helper function to get time period data
   const getTimePeriodData = (period: string) => {
     if (!timeAnalytics || !timeAnalytics.timePeriods) {
+      console.log('❌ No time analytics or timePeriods data available');
       return null;
     }
 
     // Backend returns timePeriods as an object with period keys, not an array
     const periodData = (timeAnalytics.timePeriods as Record<string, unknown>)[period];
+    
+    console.log(`🔍 Getting time period data for ${period}:`, periodData);
     
     if (periodData) {
       const data = periodData as Record<string, unknown>;
@@ -1764,6 +1770,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       const gamesPlayed = (data.gamesPlayed as number) || 0;
       const avgPerGame = gamesPlayed > 0 ? Math.round(wordsFound / gamesPlayed) : 0;
       const performance = Math.min(100, Math.round((wordsFound / 100) * 100)); // Scale to 100 max
+      
+      console.log(`📊 ${period} stats:`, { wordsFound, gamesPlayed, avgPerGame, performance });
       
       let status = 'No data';
       if (performance >= 80) status = '🏆 Peak performance!';
@@ -1781,6 +1789,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       };
     }
 
+    console.log(`❌ No data found for period ${period}`);
     return {
       wordsFound: 0,
       gamesPlayed: 0,
@@ -2421,7 +2430,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     <div className="pr-8">
                       <div className="flex items-center gap-3 mb-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center">
-                          <span className="text-2xl">🤖</span>
+                          <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                          </svg>
                         </div>
                         <div>
                           <h3 className="text-white font-bold text-lg">Meet Lexi!</h3>
