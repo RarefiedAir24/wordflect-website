@@ -4067,7 +4067,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">LATE NIGHT</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">12:00 AM - 4:00 AM</p>
+                  <p className="text-lg font-bold text-gray-500">00:00 - 04:00 UTC</p>
                   <div className="mt-3 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-indigo-700">Words Found:</span>
@@ -4139,7 +4139,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     )}
                   </div>
                 </div>
-                <p className="text-lg font-bold text-indigo-900">12:00 AM - 4:00 AM</p>
+                <p className="text-lg font-bold text-indigo-900">00:00 - 04:00 UTC</p>
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-indigo-700">Words Found:</span>
@@ -4186,7 +4186,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">EARLY MORNING</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">5:00 AM - 9:00 AM</p>
+                  <p className="text-lg font-bold text-gray-500">05:00 - 09:00 UTC</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -4280,7 +4280,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">LATE MORNING</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">10:00 AM - 12:00 PM</p>
+                  <p className="text-lg font-bold text-gray-500">10:00 - 12:00 UTC</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -4375,7 +4375,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">AFTERNOON</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">1:00 PM - 5:00 PM</p>
+                  <p className="text-lg font-bold text-gray-500">13:00 - 17:00 UTC</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -4470,7 +4470,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                     <span className="text-xs text-gray-500 font-semibold">EVENING</span>
                   </div>
-                  <p className="text-lg font-bold text-gray-500">6:00 PM - 11:00 PM</p>
+                  <p className="text-lg font-bold text-gray-500">18:00 - 23:00 UTC</p>
                   <div className="mt-3 text-center text-gray-500 text-sm">No data available</div>
                 </div>
               );
@@ -4519,7 +4519,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     )}
                   </div>
                 </div>
-                <p className="text-lg font-bold text-purple-900">6:00 PM - 11:00 PM</p>
+                <p className="text-lg font-bold text-purple-900">18:00 - 23:00 UTC</p>
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-purple-700">Words Found:</span>
@@ -4565,7 +4565,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               <span className="text-amber-800">
                 <strong>Peak Time:</strong> {(() => {
                   const periods = ['late-night', 'early-morning', 'late-morning', 'afternoon', 'evening'];
-                  const periodNames = ['12:00 AM - 4:00 AM', '5:00 AM - 9:00 AM', '10:00 AM - 12:00 PM', '1:00 PM - 5:00 PM', '6:00 PM - 11:00 PM'];
+                  const periodNames = ['00:00 - 04:00 UTC', '05:00 - 09:00 UTC', '10:00 - 12:00 UTC', '13:00 - 17:00 UTC', '18:00 - 23:00 UTC'];
                   let maxWords = 0;
                   let peakPeriod = 'No data';
                   
@@ -4637,11 +4637,11 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           <div className="space-y-3">
             {(() => {
               const periods = [
-                { key: 'late-night', label: '12AM-4AM', color: 'indigo' },
-                { key: 'early-morning', label: '5AM-9AM', color: 'amber' },
-                { key: 'late-morning', label: '10AM-12PM', color: 'blue' },
-                { key: 'afternoon', label: '1PM-5PM', color: 'green' },
-                { key: 'evening', label: '6PM-11PM', color: 'purple' }
+                { key: 'late-night', label: '00:00-04:00 UTC', color: 'indigo' },
+                { key: 'early-morning', label: '05:00-09:00 UTC', color: 'amber' },
+                { key: 'late-morning', label: '10:00-12:00 UTC', color: 'blue' },
+                { key: 'afternoon', label: '13:00-17:00 UTC', color: 'green' },
+                { key: 'evening', label: '18:00-23:00 UTC', color: 'purple' }
               ];
               
               return periods.map(period => {
