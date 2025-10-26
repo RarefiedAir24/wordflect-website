@@ -481,8 +481,8 @@ export default function Profile() {
 
         // Build per-day session summaries for tooltip (time – words per session)
         try {
-          const sessions = (detailedStats?.sessionHistory || []) as { startTime?: string; timestamp?: string; wordsFound?: number; words?: string[] }[];
-          const byDay = new Map<string, { time: string; count: number }[]>();
+          const sessions = (detailedStats?.sessionHistory || []) as { startTime?: string; timestamp?: string; wordsFound?: number; words?: string[]; gamesPlayed?: number }[];
+          const byDay = new Map<string, { time: string; count: number; games: number }[]>();
           sessions.forEach(s => {
             const start = new Date(s.startTime || s.timestamp || '');
             if (isNaN(start.getTime())) return;
@@ -490,15 +490,16 @@ export default function Profile() {
             const hh = String(start.getHours()).padStart(2, '0');
             const mm = String(start.getMinutes()).padStart(2, '0');
             const count = typeof s.wordsFound === 'number' ? s.wordsFound : (Array.isArray(s.words) ? s.words.length : 0);
+            const games = typeof s.gamesPlayed === 'number' ? s.gamesPlayed : 1; // Default to 1 game per session
             const arr = byDay.get(k) || [];
-            arr.push({ time: `${hh}:${mm}`, count });
+            arr.push({ time: `${hh}:${mm}`, count, games });
             byDay.set(k, arr);
           });
           daysFromApi.forEach(day => {
             const k = `${day.date.getFullYear()}-${String(day.date.getMonth()+1).padStart(2,'0')}-${String(day.date.getDate()).padStart(2,'0')}`;
             const arr = byDay.get(k) || [];
             arr.sort((a,b) => a.time.localeCompare(b.time));
-            day.words = arr.length ? arr.map(x => `${x.time} – ${x.count} words`) : undefined;
+            day.words = arr.length ? arr.map(x => `${x.time} – ${x.count} words, ${x.games} game${x.games > 1 ? 's' : ''}`) : undefined;
           });
         } catch {}
         
@@ -5326,8 +5327,15 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
                 const p = points[hoveredPoint];
                 const labelY = Math.max(16, p.y - 28);
                 const title = p.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                const valueLabel = `${p.data.value} words`;
                 const words = p.data.words || [];
+                
+                // Calculate total games for this day
+                const totalGames = words.reduce((total, session) => {
+                  const match = session.match(/(\d+) game/);
+                  return total + (match ? parseInt(match[1]) : 0);
+                }, 0);
+                const gamesLabel = totalGames > 0 ? `, ${totalGames} game${totalGames > 1 ? 's' : ''}` : '';
+                const valueLabel = `${p.data.value} words${gamesLabel}`;
                 
               // Format words with line breaks for better fit
               const formatWords = (wordList: string[]) => {
