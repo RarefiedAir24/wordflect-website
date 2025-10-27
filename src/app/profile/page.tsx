@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { apiService, UserProfile } from "@/services/api";
 import MissionResetCountdown from "@/components/MissionResetCountdown";
+import CalendarModal from "@/components/CalendarModal";
 
 // Types for theme day responses from backend (used in modal rendering)
 type ThemeDayWord = { word: string; length?: number; found?: boolean };
@@ -39,6 +40,21 @@ export default function Profile() {
   const [selectedThemeDay, setSelectedThemeDay] = useState<string | null>(null);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   // const [refreshing, setRefreshing] = useState(false); // Removed: no manual refresh in production
+  
+  // Calendar modal states
+  const [calendarModal, setCalendarModal] = useState<{
+    isOpen: boolean;
+    type: 'days-active' | 'current-streak' | 'best-streak' | null;
+    title: string;
+    data: { date: string; active: boolean }[];
+    startDate?: string;
+    endDate?: string;
+  }>({
+    isOpen: false,
+    type: null,
+    title: '',
+    data: []
+  });
   
   // Time period filter state
   const [timePeriodFilter, setTimePeriodFilter] = useState<string>('ALL');
@@ -1837,6 +1853,183 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     };
   };
 
+  // Calendar data calculation functions
+  const getDaysActiveData = () => {
+    if (!detailedStats?.sessionHistory) return [];
+    
+    const daySet = new Set<string>();
+    detailedStats.sessionHistory.forEach(session => {
+      const timestamp = session.startTime || session.timestamp;
+      if (timestamp) {
+        const date = new Date(timestamp);
+        const dayKey = `${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,'0')}-${String(date.getUTCDate()).padStart(2,'0')}`;
+        daySet.add(dayKey);
+      }
+    });
+    
+    // Generate calendar data for the last 12 months
+    const data: { date: string; active: boolean }[] = [];
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+    
+    for (let d = new Date(startDate); d <= now; d.setDate(d.getDate() + 1)) {
+      const dayKey = `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+      data.push({
+        date: dayKey,
+        active: daySet.has(dayKey)
+      });
+    }
+    
+    return data;
+  };
+  
+  const getCurrentStreakData = () => {
+    if (!detailedStats?.sessionHistory) return { data: [], startDate: undefined, endDate: undefined };
+    
+    const daySet = new Set<string>();
+    detailedStats.sessionHistory.forEach(session => {
+      const timestamp = session.startTime || session.timestamp;
+      if (timestamp) {
+        const date = new Date(timestamp);
+        const dayKey = `${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,'0')}-${String(date.getUTCDate()).padStart(2,'0')}`;
+        daySet.add(dayKey);
+      }
+    });
+    
+    const sortedDays = Array.from(daySet).sort();
+    if (sortedDays.length === 0) return { data: [], startDate: undefined, endDate: undefined };
+    
+    // Find current streak
+    const today = new Date();
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+    const todayKey = `${today.getUTCFullYear()}-${String(today.getUTCMonth()+1).padStart(2,'0')}-${String(today.getUTCDate()).padStart(2,'0')}`;
+    const yesterdayKey = `${yesterday.getUTCFullYear()}-${String(yesterday.getUTCMonth()+1).padStart(2,'0')}-${String(yesterday.getUTCDate()).padStart(2,'0')}`;
+    
+    const streakStart = sortedDays[sortedDays.length - 1];
+    let streakEnd = sortedDays[sortedDays.length - 1];
+    
+    // Check if streak is still active
+    if (sortedDays.includes(todayKey) || sortedDays.includes(yesterdayKey)) {
+      streakEnd = todayKey;
+    }
+    
+    // Generate calendar data for streak period
+    const data: { date: string; active: boolean }[] = [];
+    const startDate = new Date(streakStart);
+    const endDate = new Date(streakEnd);
+    
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const dayKey = `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+      data.push({
+        date: dayKey,
+        active: daySet.has(dayKey)
+      });
+    }
+    
+    return { data, startDate: streakStart, endDate: streakEnd };
+  };
+  
+  const getBestStreakData = () => {
+    if (!detailedStats?.sessionHistory) return { data: [], startDate: undefined, endDate: undefined };
+    
+    const daySet = new Set<string>();
+    detailedStats.sessionHistory.forEach(session => {
+      const timestamp = session.startTime || session.timestamp;
+      if (timestamp) {
+        const date = new Date(timestamp);
+        const dayKey = `${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,'0')}-${String(date.getUTCDate()).padStart(2,'0')}`;
+        daySet.add(dayKey);
+      }
+    });
+    
+    const sortedDays = Array.from(daySet).sort();
+    if (sortedDays.length === 0) return { data: [], startDate: undefined, endDate: undefined };
+    
+    // Find longest streak
+    let longestStreak = 0;
+    let longestStart = sortedDays[0];
+    let longestEnd = sortedDays[0];
+    let currentStreak = 1;
+    let currentStart = sortedDays[0];
+    
+    for (let i = 1; i < sortedDays.length; i++) {
+      const prevDate = new Date(sortedDays[i-1]);
+      const currDate = new Date(sortedDays[i]);
+      const diffDays = Math.floor((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 1) {
+        currentStreak++;
+      } else {
+        if (currentStreak > longestStreak) {
+          longestStreak = currentStreak;
+          longestStart = currentStart;
+          longestEnd = sortedDays[i-1];
+        }
+        currentStreak = 1;
+        currentStart = sortedDays[i];
+      }
+    }
+    
+    // Check final streak
+    if (currentStreak > longestStreak) {
+      longestStreak = currentStreak;
+      longestStart = currentStart;
+      longestEnd = sortedDays[sortedDays.length - 1];
+    }
+    
+    // Generate calendar data for longest streak period
+    const data: { date: string; active: boolean }[] = [];
+    const startDate = new Date(longestStart);
+    const endDate = new Date(longestEnd);
+    
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const dayKey = `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+      data.push({
+        date: dayKey,
+        active: daySet.has(dayKey)
+      });
+    }
+    
+    return { data, startDate: longestStart, endDate: longestEnd };
+  };
+  
+  const openCalendarModal = (type: 'days-active' | 'current-streak' | 'best-streak') => {
+    let title = '';
+    let data: { date: string; active: boolean }[] = [];
+    let startDate: string | undefined;
+    let endDate: string | undefined;
+    
+    switch (type) {
+      case 'days-active':
+        title = 'Days Active Calendar';
+        data = getDaysActiveData();
+        break;
+      case 'current-streak':
+        title = 'Current Streak Calendar';
+        const currentData = getCurrentStreakData();
+        data = currentData.data;
+        startDate = currentData.startDate;
+        endDate = currentData.endDate;
+        break;
+      case 'best-streak':
+        title = 'Best Streak Calendar';
+        const bestData = getBestStreakData();
+        data = bestData.data;
+        startDate = bestData.startDate;
+        endDate = bestData.endDate;
+        break;
+    }
+    
+    setCalendarModal({
+      isOpen: true,
+      type,
+      title,
+      data,
+      startDate,
+      endDate
+    });
+  };
+
   // Helper function to get theme data
   const getThemeData = (day: string) => {
     console.log('getThemeData called for day:', day);
@@ -2503,6 +2696,17 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       {/* Mission Reset Countdown */}
       <MissionResetCountdown variant="profile" className="mb-8" />
 
+      {/* Calendar Modal */}
+      <CalendarModal
+        isOpen={calendarModal.isOpen}
+        onClose={() => setCalendarModal((prev: typeof calendarModal) => ({ ...prev, isOpen: false }))}
+        type={calendarModal.type!}
+        title={calendarModal.title}
+        data={calendarModal.data}
+        startDate={calendarModal.startDate}
+        endDate={calendarModal.endDate}
+      />
+
       {/* AI Assistant Modal */}
       {aiModalOpen ? (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -3043,7 +3247,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </div>
 
           {/* Days Logged In */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+          <div 
+            className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+            onClick={() => openCalendarModal('days-active')}
+          >
             <div className="flex items-center justify-between mb-2">
               <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3059,7 +3266,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </div>
 
           {/* Current Streak */}
-          <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-4 border border-orange-200">
+          <div 
+            className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-4 border border-orange-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+            onClick={() => openCalendarModal('current-streak')}
+          >
             <div className="flex items-center justify-between mb-2">
               <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3075,7 +3285,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </div>
 
           {/* Longest Streak */}
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+          <div 
+            className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+            onClick={() => openCalendarModal('best-streak')}
+          >
             <div className="flex items-center justify-between mb-2">
               <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
