@@ -1855,10 +1855,28 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
   // Calendar data calculation functions
   const getDaysActiveData = () => {
-    if (!detailedStats?.sessionHistory) return [];
+    // Try to get sessions from detailedStats first, then fallback to timeAnalytics
+    let sessions: Session[] = [];
+    
+    if (detailedStats?.sessionHistory && detailedStats.sessionHistory.length > 0) {
+      sessions = detailedStats.sessionHistory;
+      console.log('🗓️ Using detailedStats.sessionHistory:', sessions.length, 'sessions');
+    } else if (timeAnalytics && (timeAnalytics as Record<string, unknown>).timePeriods) {
+      const timePeriods = (timeAnalytics as Record<string, unknown>).timePeriods as Record<string, unknown>;
+      Object.values(timePeriods).forEach(period => {
+        const periodSessions = (period as Record<string, unknown>)?.sessions as Session[] || [];
+        sessions.push(...periodSessions);
+      });
+      console.log('🗓️ Using timeAnalytics sessions:', sessions.length, 'sessions');
+    }
+    
+    if (sessions.length === 0) {
+      console.log('🗓️ No session data available for calendar');
+      return [];
+    }
     
     const daySet = new Set<string>();
-    detailedStats.sessionHistory.forEach(session => {
+    sessions.forEach(session => {
       const timestamp = session.startTime || session.timestamp;
       if (timestamp) {
         const date = new Date(timestamp);
@@ -1866,6 +1884,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         daySet.add(dayKey);
       }
     });
+    
+    console.log('🗓️ Found', daySet.size, 'unique active days');
     
     // Generate calendar data for the last 12 months
     const data: { date: string; active: boolean }[] = [];
@@ -1884,10 +1904,28 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   };
   
   const getCurrentStreakData = () => {
-    if (!detailedStats?.sessionHistory) return { data: [], startDate: undefined, endDate: undefined };
+    // Try to get sessions from detailedStats first, then fallback to timeAnalytics
+    let sessions: Session[] = [];
+    
+    if (detailedStats?.sessionHistory && detailedStats.sessionHistory.length > 0) {
+      sessions = detailedStats.sessionHistory;
+      console.log('🗓️ Current Streak: Using detailedStats.sessionHistory:', sessions.length, 'sessions');
+    } else if (timeAnalytics && (timeAnalytics as Record<string, unknown>).timePeriods) {
+      const timePeriods = (timeAnalytics as Record<string, unknown>).timePeriods as Record<string, unknown>;
+      Object.values(timePeriods).forEach(period => {
+        const periodSessions = (period as Record<string, unknown>)?.sessions as Session[] || [];
+        sessions.push(...periodSessions);
+      });
+      console.log('🗓️ Current Streak: Using timeAnalytics sessions:', sessions.length, 'sessions');
+    }
+    
+    if (sessions.length === 0) {
+      console.log('🗓️ Current Streak: No session data available');
+      return { data: [], startDate: undefined, endDate: undefined };
+    }
     
     const daySet = new Set<string>();
-    detailedStats.sessionHistory.forEach(session => {
+    sessions.forEach(session => {
       const timestamp = session.startTime || session.timestamp;
       if (timestamp) {
         const date = new Date(timestamp);
@@ -1930,10 +1968,28 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   };
   
   const getBestStreakData = () => {
-    if (!detailedStats?.sessionHistory) return { data: [], startDate: undefined, endDate: undefined };
+    // Try to get sessions from detailedStats first, then fallback to timeAnalytics
+    let sessions: Session[] = [];
+    
+    if (detailedStats?.sessionHistory && detailedStats.sessionHistory.length > 0) {
+      sessions = detailedStats.sessionHistory;
+      console.log('🗓️ Best Streak: Using detailedStats.sessionHistory:', sessions.length, 'sessions');
+    } else if (timeAnalytics && (timeAnalytics as Record<string, unknown>).timePeriods) {
+      const timePeriods = (timeAnalytics as Record<string, unknown>).timePeriods as Record<string, unknown>;
+      Object.values(timePeriods).forEach(period => {
+        const periodSessions = (period as Record<string, unknown>)?.sessions as Session[] || [];
+        sessions.push(...periodSessions);
+      });
+      console.log('🗓️ Best Streak: Using timeAnalytics sessions:', sessions.length, 'sessions');
+    }
+    
+    if (sessions.length === 0) {
+      console.log('🗓️ Best Streak: No session data available');
+      return { data: [], startDate: undefined, endDate: undefined };
+    }
     
     const daySet = new Set<string>();
-    detailedStats.sessionHistory.forEach(session => {
+    sessions.forEach(session => {
       const timestamp = session.startTime || session.timestamp;
       if (timestamp) {
         const date = new Date(timestamp);
@@ -1996,6 +2052,19 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   const openCalendarModal = (type: 'days-active' | 'current-streak' | 'best-streak') => {
     console.log('🗓️ Opening calendar modal for type:', type);
     console.log('🗓️ detailedStats?.sessionHistory:', detailedStats?.sessionHistory?.length, 'sessions');
+    console.log('🗓️ timeAnalytics:', timeAnalytics);
+    
+    // Check if we have session data from timeAnalytics
+    if (timeAnalytics && (timeAnalytics as Record<string, unknown>).timePeriods) {
+      const timePeriods = (timeAnalytics as Record<string, unknown>).timePeriods as Record<string, unknown>;
+      const allSessions: Session[] = [];
+      Object.values(timePeriods).forEach(period => {
+        const sessions = (period as Record<string, unknown>)?.sessions as Session[] || [];
+        allSessions.push(...sessions);
+      });
+      console.log('🗓️ Sessions from timeAnalytics:', allSessions.length, 'sessions');
+      console.log('🗓️ Sample session from timeAnalytics:', allSessions[0]);
+    }
     
     let title = '';
     let data: { date: string; active: boolean }[] = [];
