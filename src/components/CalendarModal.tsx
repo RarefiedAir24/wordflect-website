@@ -22,6 +22,10 @@ interface CalendarViewProps {
 const CalendarView: React.FC<CalendarViewProps> = ({ data, type, startDate, endDate }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
+  console.log('🗓️ CalendarView received data:', data.length, 'items');
+  console.log('🗓️ CalendarView active days:', data.filter(d => d.active).length);
+  console.log('🗓️ CalendarView data sample:', data.slice(0, 5));
+
   // Group data by month
   const dataByMonth = data.reduce((acc, item) => {
     const date = new Date(item.date);
@@ -65,7 +69,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({ data, type, startDate, endD
   const isDateActive = (day: number, monthData: { date: string; active: boolean }[]) => {
     const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const dayData = monthData.find(d => d.date === dateStr);
-    return dayData?.active || false;
+    const isActive = dayData?.active || false;
+    
+    if (isActive) {
+      console.log('🗓️ Found active day:', dateStr, 'in month data:', monthData.length, 'items');
+    }
+    
+    return isActive;
   };
 
   const isDateInRange = (day: number) => {

@@ -1862,7 +1862,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       const timestamp = session.startTime || session.timestamp;
       if (timestamp) {
         const date = new Date(timestamp);
-        const dayKey = `${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,'0')}-${String(date.getUTCDate()).padStart(2,'0')}`;
+        const dayKey = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
         daySet.add(dayKey);
       }
     });
@@ -1873,7 +1873,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     const startDate = new Date(now.getFullYear(), now.getMonth() - 11, 1);
     
     for (let d = new Date(startDate); d <= now; d.setDate(d.getDate() + 1)) {
-      const dayKey = `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+      const dayKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
       data.push({
         date: dayKey,
         active: daySet.has(dayKey)
@@ -1891,7 +1891,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       const timestamp = session.startTime || session.timestamp;
       if (timestamp) {
         const date = new Date(timestamp);
-        const dayKey = `${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,'0')}-${String(date.getUTCDate()).padStart(2,'0')}`;
+        const dayKey = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
         daySet.add(dayKey);
       }
     });
@@ -1902,8 +1902,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     // Find current streak
     const today = new Date();
     const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-    const todayKey = `${today.getUTCFullYear()}-${String(today.getUTCMonth()+1).padStart(2,'0')}-${String(today.getUTCDate()).padStart(2,'0')}`;
-    const yesterdayKey = `${yesterday.getUTCFullYear()}-${String(yesterday.getUTCMonth()+1).padStart(2,'0')}-${String(yesterday.getUTCDate()).padStart(2,'0')}`;
+    const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    const yesterdayKey = `${yesterday.getFullYear()}-${String(yesterday.getMonth()+1).padStart(2,'0')}-${String(yesterday.getDate()).padStart(2,'0')}`;
     
     const streakStart = sortedDays[sortedDays.length - 1];
     let streakEnd = sortedDays[sortedDays.length - 1];
@@ -1919,7 +1919,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     const endDate = new Date(streakEnd);
     
     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-      const dayKey = `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+      const dayKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
       data.push({
         date: dayKey,
         active: daySet.has(dayKey)
@@ -1937,7 +1937,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       const timestamp = session.startTime || session.timestamp;
       if (timestamp) {
         const date = new Date(timestamp);
-        const dayKey = `${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,'0')}-${String(date.getUTCDate()).padStart(2,'0')}`;
+        const dayKey = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
         daySet.add(dayKey);
       }
     });
@@ -1983,7 +1983,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     const endDate = new Date(longestEnd);
     
     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-      const dayKey = `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+      const dayKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
       data.push({
         date: dayKey,
         active: daySet.has(dayKey)
@@ -1994,6 +1994,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   };
   
   const openCalendarModal = (type: 'days-active' | 'current-streak' | 'best-streak') => {
+    console.log('🗓️ Opening calendar modal for type:', type);
+    console.log('🗓️ detailedStats?.sessionHistory:', detailedStats?.sessionHistory?.length, 'sessions');
+    
     let title = '';
     let data: { date: string; active: boolean }[] = [];
     let startDate: string | undefined;
@@ -2003,6 +2006,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       case 'days-active':
         title = 'Days Active Calendar';
         data = getDaysActiveData();
+        console.log('🗓️ Days Active data:', data.length, 'days, active:', data.filter(d => d.active).length);
         break;
       case 'current-streak':
         title = 'Current Streak Calendar';
@@ -2010,6 +2014,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         data = currentData.data;
         startDate = currentData.startDate;
         endDate = currentData.endDate;
+        console.log('🗓️ Current Streak data:', data.length, 'days, active:', data.filter(d => d.active).length);
+        console.log('🗓️ Current Streak dates:', startDate, 'to', endDate);
         break;
       case 'best-streak':
         title = 'Best Streak Calendar';
@@ -2017,8 +2023,12 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         data = bestData.data;
         startDate = bestData.startDate;
         endDate = bestData.endDate;
+        console.log('🗓️ Best Streak data:', data.length, 'days, active:', data.filter(d => d.active).length);
+        console.log('🗓️ Best Streak dates:', startDate, 'to', endDate);
         break;
     }
+    
+    console.log('🗓️ Final calendar data sample:', data.slice(0, 5));
     
     setCalendarModal({
       isOpen: true,
