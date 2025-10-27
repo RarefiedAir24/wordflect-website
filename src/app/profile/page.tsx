@@ -4037,6 +4037,52 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </div>
         </div>
         {/* Time Period Performance Overview */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">Performance by Time Period</h3>
+              <p className="text-sm text-gray-600">Your word-finding performance across different times of day</p>
+            </div>
+          </div>
+          
+          {/* Status Bar Legend */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4 border border-blue-200">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <h4 className="font-semibold text-blue-900">Status Bar Guide</h4>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🏆</span>
+                <span className="text-blue-800"><strong>Peak performance!</strong> (90-100%) - Your best time period</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-lg">📈</span>
+                <span className="text-blue-800"><strong>Strong performance</strong> (70-89%) - Very good performance</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-lg">📊</span>
+                <span className="text-blue-800"><strong>Good performance</strong> (50-69%) - Solid performance</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-lg">📉</span>
+                <span className="text-blue-800"><strong>Moderate performance</strong> (25-49%) - Decent performance</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🌱</span>
+                <span className="text-blue-800"><strong>Building momentum</strong> (1-24%) - Getting started</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-lg">😴</span>
+                <span className="text-blue-800"><strong>No activity</strong> (0%) - No words found</span>
+              </div>
+            </div>
+            <div className="mt-3 text-xs text-blue-700 italic">
+              💡 The percentage shows how each time period compares to your personal best performance
+            </div>
+          </div>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           {/* Late Night (12AM - 4AM) */}
           {(() => {
