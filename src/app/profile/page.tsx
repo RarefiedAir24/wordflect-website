@@ -1802,15 +1802,20 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       const wordsFound = (data.wordCount as number) || 0;
       const gamesPlayed = (data.gamesPlayed as number) || 0;
       const avgPerGame = gamesPlayed > 0 ? Math.round(wordsFound / gamesPlayed) : 0;
-      const performance = Math.min(100, Math.round((wordsFound / 100) * 100)); // Scale to 100 max
       
-      console.log(`📊 ${period} stats:`, { wordsFound, gamesPlayed, avgPerGame, performance });
+      // Calculate performance relative to personal best across all periods
+      const allPeriods = Object.values(timeAnalytics.timePeriods as Record<string, unknown>);
+      const maxWordsInAnyPeriod = Math.max(...allPeriods.map(p => (p as Record<string, unknown>).wordCount as number || 0));
+      const performance = maxWordsInAnyPeriod > 0 ? Math.round((wordsFound / maxWordsInAnyPeriod) * 100) : 0;
+      
+      console.log(`📊 ${period} stats:`, { wordsFound, gamesPlayed, avgPerGame, performance, maxWordsInAnyPeriod });
       
       let status = 'No data';
-      if (performance >= 80) status = '🏆 Peak performance!';
-      else if (performance >= 60) status = '📈 Good performance';
-      else if (performance >= 40) status = '📊 Average performance';
-      else if (performance > 0) status = '📉 Lower performance';
+      if (performance >= 90) status = '🏆 Peak performance!';
+      else if (performance >= 70) status = '📈 Strong performance';
+      else if (performance >= 50) status = '📊 Good performance';
+      else if (performance >= 25) status = '📉 Moderate performance';
+      else if (performance > 0) status = '🌱 Building momentum';
       else status = '😴 No activity';
 
       return {
