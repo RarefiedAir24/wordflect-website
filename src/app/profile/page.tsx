@@ -1827,15 +1827,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     return 'late-night'; // fallback
   };
 
-  // Helper function to get time period label
-  const getTimePeriodLabel = (period: string) => {
-    if (timeAnalytics?.timePeriods) {
-      const periodData = (timeAnalytics.timePeriods as Record<string, { label?: string }>)[period];
-      return periodData?.label || null;
-    }
-    return null;
-  };
-
   // Helper to render local AM/PM labels with :59 ends (no gaps)
   const getLocalAmPmLabel = (period: string) => {
     switch (period) {
