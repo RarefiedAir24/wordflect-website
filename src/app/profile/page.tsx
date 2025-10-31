@@ -2637,21 +2637,42 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           try {
             const prevAll = Array.isArray(prevDetails?.allThemeWords) ? (prevDetails!.allThemeWords as Array<string | { word?: string; found?: boolean }>) : [];
             const incomingAll = Array.isArray(incoming?.allThemeWords) ? (incoming!.allThemeWords as Array<string | { word?: string; found?: boolean }>) : [];
-            const prevFoundMap = new Map<string, boolean>();
+
+            // Build a found set from prior details, profile's today words, and any incoming progress/found lists
+            const foundSet = new Set<string>();
+            // From previous details
             prevAll.forEach(w => {
-              const word = typeof w === 'string' ? w : (w.word || '');
-              if (word) prevFoundMap.set(word.toLowerCase(), typeof w === 'object' ? !!w.found : false);
+              const word = (typeof w === 'string' ? w : (w.word || '')).trim().toLowerCase();
+              const wasFound = typeof w === 'object' ? !!w.found : false;
+              if (word && wasFound) foundSet.add(word);
             });
+            // From profile: themeWordsFoundToday (if available)
+            try {
+              const todays = (profile as unknown as { themeWordsFoundToday?: string[] })?.themeWordsFoundToday || [];
+              todays.forEach(w => {
+                const lw = (w || '').trim().toLowerCase();
+                if (lw) foundSet.add(lw);
+              });
+            } catch {}
+            // From incoming details: stats/progress lists
+            try {
+              const progress = (incoming as Record<string, unknown>)?.progress as { foundWords?: string[] } | undefined;
+              const progressFound = Array.isArray(progress?.foundWords) ? progress!.foundWords! : [];
+              progressFound.forEach(w => {
+                const lw = (w || '').trim().toLowerCase();
+                if (lw) foundSet.add(lw);
+              });
+            } catch {}
+
             if (incomingAll.length) {
               merged.allThemeWords = incomingAll.map(w => {
                 if (typeof w === 'string') {
-                  const lower = w.toLowerCase();
-                  const wasFound = prevFoundMap.get(lower) || false;
-                  return wasFound ? { word: w, found: true } : w;
+                  const lower = w.trim().toLowerCase();
+                  const isFound = foundSet.has(lower);
+                  return isFound ? { word: w, found: true } : w;
                 }
-                const word = (w.word || '').toLowerCase();
-                const wasFound = prevFoundMap.get(word) || false;
-                return { ...w, found: !!w.found || wasFound };
+                const lower = (w.word || '').trim().toLowerCase();
+                return { ...w, found: !!w.found || foundSet.has(lower) };
               });
             }
           } catch (mergeErr) {
