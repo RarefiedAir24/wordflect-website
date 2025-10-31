@@ -2925,19 +2925,33 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     Object.entries(ta.timePeriods).forEach(([key, p]) => {
       lines.push(`${key} (${p.label || ''}): words=${p.wordCount ?? 0}, games=${p.gamesPlayed ?? 0}, sessions=${p.sessions?.length ?? 0}`);
     });
-    lines.push('\n=== RECENT SESSIONS (up to 12) ===');
+    lines.push('\n=== RECENT SESSIONS (up to 12, real sessions only) ===');
     const allSessions = Object.values(ta.timePeriods).flatMap(p => p.sessions || []);
-    const recent = allSessions
+    // Filter out reconstructed sessions (identified by exact .000Z timestamps or reconstructed flag)
+    const realSessions = allSessions.filter(s => {
+      const ts = s.startTime || s.timestamp;
+      if (!ts) return false;
+      // Reconstructed sessions have .000Z (no milliseconds) and are exact times
+      // Real sessions have millisecond precision
+      const hasMs = ts.includes('.') && !ts.endsWith('.000Z');
+      const hasReconstructedFlag = (s as Record<string, unknown>).reconstructed === true;
+      return hasMs && !hasReconstructedFlag;
+    });
+    const recent = realSessions
       .map(s => ({ ts: new Date((s.startTime || s.timestamp) || ''), raw: s }))
       .filter(x => !isNaN(x.ts.getTime()))
       .sort((a,b) => b.ts.getTime() - a.ts.getTime())
       .slice(0, 12);
-    recent.forEach((r, idx) => {
-      const localHour = r.ts.getHours(); // Use local timezone for categorization
-      const period = localHour <= 3 ? 'late-night' : localHour <= 8 ? 'early-morning' : localHour <= 12 ? 'late-morning' : localHour <= 17 ? 'afternoon' : 'evening';
-      const localTime = r.ts.toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: 'numeric', hour12: true });
-      lines.push(`${idx+1}. ${r.ts.toISOString()} UTC (${localTime} EST/EDT) -> ${period} (local hour: ${localHour})`);
-    });
+    if (recent.length === 0) {
+      lines.push('No real sessions found (only reconstructed/estimated sessions available)');
+    } else {
+      recent.forEach((r, idx) => {
+        const localHour = r.ts.getHours(); // Use local timezone for categorization
+        const period = localHour <= 3 ? 'late-night' : localHour <= 8 ? 'early-morning' : localHour <= 12 ? 'late-morning' : localHour <= 17 ? 'afternoon' : 'evening';
+        const localTime = r.ts.toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: 'numeric', hour12: true });
+        lines.push(`${idx+1}. ${r.ts.toISOString()} UTC (${localTime} EST/EDT) -> ${period} (local hour: ${localHour})`);
+      });
+    }
     return lines.join('\n');
   } catch (e) {
     return `Error rendering analytics: ${String(e)}\n\nRaw API Response:\n${JSON.stringify(lastAnalyticsRaw, null, 2)}`;
