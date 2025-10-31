@@ -206,7 +206,7 @@ class ApiService {
     }
   }
 
-  async getTimeAnalytics(filters?: { period?: string; startDate?: string; endDate?: string }): Promise<unknown> {
+  async getTimeAnalytics(filters?: { period?: string; startDate?: string; endDate?: string; timezone?: string }): Promise<unknown> {
     try {
       // Build URL with query parameters
       let url = `${API_CONFIG.BASE_URL}/user/time/analytics`;
@@ -215,6 +215,21 @@ class ApiService {
       if (filters?.period) params.append('period', filters.period);
       if (filters?.startDate) params.append('startDate', filters.startDate);
       if (filters?.endDate) params.append('endDate', filters.endDate);
+      // Send user's timezone (defaults to America/New_York if not provided)
+      if (filters?.timezone) {
+        params.append('timezone', filters.timezone);
+      } else {
+        // Try to detect timezone, fallback to EST/EDT
+        try {
+          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          params.append('timezone', tz || 'America/New_York');
+        } catch {
+          params.append('timezone', 'America/New_York');
+        }
+      }
+      
+      // Add cache-busting timestamp
+      params.append('timestamp', Date.now().toString());
       
       if (params.toString()) {
         url += `?${params.toString()}`;
