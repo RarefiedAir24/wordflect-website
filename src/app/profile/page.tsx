@@ -2933,7 +2933,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       .sort((a,b) => b.ts.getTime() - a.ts.getTime())
       .slice(0, 12);
     recent.forEach((r, idx) => {
-      const utcHour = r.ts.getUTCHours();
       const localHour = r.ts.getHours(); // Use local timezone for categorization
       const period = localHour <= 3 ? 'late-night' : localHour <= 8 ? 'early-morning' : localHour <= 12 ? 'late-morning' : localHour <= 17 ? 'afternoon' : 'evening';
       const localTime = r.ts.toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: 'numeric', hour12: true });
