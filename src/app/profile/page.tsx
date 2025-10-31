@@ -2695,9 +2695,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         onClick={async () => { try { await apiService.signOut(); } catch {} ; router.push('/signin'); }}
         aria-label="Sign out"
         title="Sign out"
-        className="fixed top-4 right-4 z-[100] w-10 h-10 rounded-full border border-blue-200 bg-white/95 hover:bg-white shadow flex items-center justify-center"
+        className="fixed top-4 right-4 z-[100] w-10 h-10 rounded-full border border-red-300 bg-red-50 hover:bg-red-100 shadow flex items-center justify-center"
       >
-        <svg className="w-4 h-4 text-blue-900" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <svg className="w-4 h-4 text-red-700" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
         </svg>
       </button>
