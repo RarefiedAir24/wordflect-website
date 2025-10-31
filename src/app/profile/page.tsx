@@ -42,6 +42,11 @@ export default function Profile() {
   const [isRefreshingTimeAnalytics, setIsRefreshingTimeAnalytics] = useState(false);
   const [isInspectOpen, setIsInspectOpen] = useState(false);
   const [lastAnalyticsRaw, setLastAnalyticsRaw] = useState<unknown>(null);
+  useEffect(() => {
+    if (lastAnalyticsRaw !== null) {
+      console.log('🧪 Inspect raw analytics payload:', lastAnalyticsRaw);
+    }
+  }, [lastAnalyticsRaw]);
 
   // Keep linter happy and log modal visibility changes for debugging
   useEffect(() => {
@@ -4397,7 +4402,19 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 {isRefreshingTimeAnalytics ? 'Refreshing...' : 'Refresh'}
               </button>
               <button
-                onClick={() => setIsInspectOpen(true)}
+                onClick={async () => {
+                  setIsInspectOpen(true);
+                  try {
+                    const response = await apiService.getTimeAnalytics({ period: 'ALL' });
+                    setLastAnalyticsRaw(response);
+                    if (response && (response as Record<string, unknown>).analytics) {
+                      const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
+                      setTimeAnalytics(analytics);
+                    }
+                  } catch (e) {
+                    setLastAnalyticsRaw({ error: String(e) });
+                  }
+                }}
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 transition"
                 aria-label="Inspect analytics"
                 title="Inspect analytics"
