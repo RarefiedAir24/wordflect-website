@@ -41,6 +41,7 @@ export default function Profile() {
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isRefreshingTimeAnalytics, setIsRefreshingTimeAnalytics] = useState(false);
   const [isInspectOpen, setIsInspectOpen] = useState(false);
+  const [lastAnalyticsRaw, setLastAnalyticsRaw] = useState<unknown>(null);
 
   // Keep linter happy and log modal visibility changes for debugging
   useEffect(() => {
@@ -2684,6 +2685,17 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   }
   return (
     <div className="max-w-6xl mx-auto py-6 sm:py-8 md:py-10 px-3 sm:px-4">
+      {/* Fixed Logout floating button to guarantee visibility */}
+      <button
+        onClick={async () => { try { await apiService.signOut(); } catch {} ; router.push('/signin'); }}
+        aria-label="Sign out"
+        title="Sign out"
+        className="fixed top-4 right-4 z-[100] w-10 h-10 rounded-full border border-blue-200 bg-white/95 hover:bg-white shadow flex items-center justify-center"
+      >
+        <svg className="w-4 h-4 text-blue-900" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
+        </svg>
+      </button>
       {/* Hero Header */}
       <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 p-[3px] mb-6 sm:mb-8 shadow-xl sm:shadow-2xl sticky top-0 z-30">
         <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white/95 to-blue-50/95 text-blue-900 p-4 sm:p-6 md:p-8 backdrop-blur-sm">
