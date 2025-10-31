@@ -774,28 +774,42 @@ export default function Profile() {
     }
   }, [profile]);
 
-  // Refresh time analytics data every 30 seconds to catch new games
+  // Refresh time analytics periodically and on tab focus
   useEffect(() => {
     if (!profile) return;
 
-    const interval = setInterval(() => {
-      console.log('🔄 Auto-refreshing time analytics data...');
-      const fetchTimeAnalytics = async () => {
-        try {
-          const response = await apiService.getTimeAnalytics();
-          if (response && (response as Record<string, unknown>).analytics) {
-            const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
-            setTimeAnalytics(analytics);
-            console.log('✅ Time analytics data refreshed');
-          }
-        } catch (error) {
-          console.error('❌ Error refreshing time analytics:', error);
+    const refresh = async () => {
+      try {
+        console.log('🔄 Auto-refreshing time analytics data...');
+        const response = await apiService.getTimeAnalytics();
+        if (response && (response as Record<string, unknown>).analytics) {
+          const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
+          setTimeAnalytics(analytics);
+          console.log('✅ Time analytics data refreshed');
         }
-      };
-      fetchTimeAnalytics();
-    }, 30000); // 30 seconds
+      } catch (error) {
+        console.error('❌ Error refreshing time analytics:', error);
+      }
+    };
 
-    return () => clearInterval(interval);
+    const interval = setInterval(refresh, 20000); // 20 seconds
+    const onFocus = () => {
+      console.log('🔎 Tab focused — refreshing time analytics');
+      refresh();
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') onFocus();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, [profile]);
 
   // Fetch theme analytics from backend API
@@ -4334,6 +4348,30 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             <div>
               <h3 className="text-xl font-bold text-gray-900">Performance by Time Period</h3>
               <p className="text-sm text-gray-600">Your word-finding performance across different times of day</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={async () => {
+                  try {
+                    console.log('🔄 Manual refresh of time analytics...');
+                    const response = await apiService.getTimeAnalytics();
+                    if (response && (response as Record<string, unknown>).analytics) {
+                      const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
+                      setTimeAnalytics(analytics);
+                      console.log('✅ Time analytics manually refreshed');
+                    }
+                  } catch (e) {
+                    console.error('❌ Manual refresh failed', e);
+                  }
+                }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium text-blue-700 border border-blue-300 hover:bg-blue-50 transition"
+                aria-label="Refresh time analytics"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v6h6M20 20v-6h-6M5 19A9 9 0 0019 5l1 1M4 5l1-1A9 9 0 0119 19"/>
+                </svg>
+                Refresh
+              </button>
             </div>
           </div>
           
