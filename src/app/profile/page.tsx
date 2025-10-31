@@ -40,6 +40,7 @@ export default function Profile() {
   const [selectedThemeDay, setSelectedThemeDay] = useState<string | null>(null);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isRefreshingTimeAnalytics, setIsRefreshingTimeAnalytics] = useState(false);
+  const [isInspectOpen, setIsInspectOpen] = useState(false);
   // const [refreshing, setRefreshing] = useState(false); // Removed: no manual refresh in production
   
   // Calendar modal states
@@ -4377,6 +4378,17 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v6h6M20 20v-6h-6M5 19A9 9 0 0019 5l1 1M4 5l1-1A9 9 0 0119 19"/>
                 </svg>
                 {isRefreshingTimeAnalytics ? 'Refreshing...' : 'Refresh'}
+              </button>
+              <button
+                onClick={() => setIsInspectOpen(true)}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 transition"
+                aria-label="Inspect analytics"
+                title="Inspect analytics"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z" />
+                </svg>
+                Inspect
               </button>
             </div>
           </div>
