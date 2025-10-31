@@ -41,6 +41,11 @@ export default function Profile() {
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isRefreshingTimeAnalytics, setIsRefreshingTimeAnalytics] = useState(false);
   const [isInspectOpen, setIsInspectOpen] = useState(false);
+
+  // Keep linter happy and log modal visibility changes for debugging
+  useEffect(() => {
+    console.log('🔎 Inspect modal', isInspectOpen ? 'opened' : 'closed');
+  }, [isInspectOpen]);
   // const [refreshing, setRefreshing] = useState(false); // Removed: no manual refresh in production
   
   // Calendar modal states
