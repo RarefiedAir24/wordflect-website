@@ -1842,13 +1842,22 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     if (periodData) {
       const data = periodData as Record<string, unknown>;
       
-      const wordsFound = (data.wordCount as number) || 0;
+      const wordsFoundBackend = (data.wordCount as number) || 0;
       const gamesPlayed = (data.gamesPlayed as number) || 0;
+      // Client-side fallback: sum wordsFound from sessions to reflect latest games immediately
+      const sessions = Array.isArray((data as Record<string, unknown>).sessions) ? (data as Record<string, unknown>).sessions as Array<{ wordsFound?: number }> : [];
+      const sessionSum = sessions.reduce((sum, s) => sum + (typeof s?.wordsFound === 'number' ? s.wordsFound! : 0), 0);
+      const wordsFound = Math.max(wordsFoundBackend, sessionSum);
       const avgPerGame = gamesPlayed > 0 ? Math.round(wordsFound / gamesPlayed) : 0;
       
       // Calculate performance relative to personal best across all periods
       const allPeriods = Object.values(timeAnalytics.timePeriods as Record<string, unknown>);
-      const maxWordsInAnyPeriod = Math.max(...allPeriods.map(p => (p as Record<string, unknown>).wordCount as number || 0));
+      const maxWordsInAnyPeriod = Math.max(...allPeriods.map(p => {
+        const pd = p as Record<string, unknown>;
+        const w = (pd.wordCount as number) || 0;
+        const ss = Array.isArray(pd.sessions) ? (pd.sessions as Array<{ wordsFound?: number }>).reduce((sum, s) => sum + (s.wordsFound || 0), 0) : 0;
+        return Math.max(w, ss);
+      }));
       const performance = maxWordsInAnyPeriod > 0 ? Math.round((wordsFound / maxWordsInAnyPeriod) * 100) : 0;
       
       console.log(`📊 ${period} stats:`, { wordsFound, gamesPlayed, avgPerGame, performance, maxWordsInAnyPeriod });
