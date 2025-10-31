@@ -1861,11 +1861,13 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       const data = periodData as Record<string, unknown>;
       
       const wordsFoundBackend = (data.wordCount as number) || 0;
-      const gamesPlayed = (data.gamesPlayed as number) || 0;
-      // Client-side fallback: sum wordsFound from sessions to reflect latest games immediately
+      const gamesPlayedBackend = (data.gamesPlayed as number) || 0;
+      // Client-side fallback: sum wordsFound and count sessions to reflect latest games immediately
       const sessions = Array.isArray((data as Record<string, unknown>).sessions) ? (data as Record<string, unknown>).sessions as Array<{ wordsFound?: number }> : [];
       const sessionSum = sessions.reduce((sum, s) => sum + (typeof s?.wordsFound === 'number' ? s.wordsFound! : 0), 0);
+      const sessionCount = sessions.length;
       const wordsFound = Math.max(wordsFoundBackend, sessionSum);
+      const gamesPlayed = Math.max(gamesPlayedBackend, sessionCount); // Use session count as fallback
       const avgPerGame = gamesPlayed > 0 ? Math.round(wordsFound / gamesPlayed) : 0;
       
       // Calculate performance relative to personal best across all periods
