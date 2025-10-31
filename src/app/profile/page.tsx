@@ -2629,15 +2629,36 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       console.log('✅ Theme day details from backend:', data);
       
       if (data.success) {
-        // Store the complete theme data
+        // Store the complete theme data with a safe merge of found flags (never un-find a word)
         setThemeAnalytics(prev => {
-          const updated = {
-            ...prev,
-            [`${day}_themeDetails`]: data
-          };
-          console.log(`🎯 Updated themeAnalytics with complete details for ${day}`);
-          console.log(`🎯 New themeAnalytics keys:`, Object.keys(updated));
-          console.log(`🎯 Stored data for ${day}:`, data);
+          const prevDetails = (prev as Record<string, unknown> | null)?.[`${day}_themeDetails`] as Record<string, unknown> | undefined;
+          const incoming = data as Record<string, unknown>;
+          const merged: Record<string, unknown> = { ...incoming };
+          try {
+            const prevAll = Array.isArray(prevDetails?.allThemeWords) ? (prevDetails!.allThemeWords as Array<string | { word?: string; found?: boolean }>) : [];
+            const incomingAll = Array.isArray(incoming?.allThemeWords) ? (incoming!.allThemeWords as Array<string | { word?: string; found?: boolean }>) : [];
+            const prevFoundMap = new Map<string, boolean>();
+            prevAll.forEach(w => {
+              const word = typeof w === 'string' ? w : (w.word || '');
+              if (word) prevFoundMap.set(word.toLowerCase(), typeof w === 'object' ? !!w.found : false);
+            });
+            if (incomingAll.length) {
+              merged.allThemeWords = incomingAll.map(w => {
+                if (typeof w === 'string') {
+                  const lower = w.toLowerCase();
+                  const wasFound = prevFoundMap.get(lower) || false;
+                  return wasFound ? { word: w, found: true } : w;
+                }
+                const word = (w.word || '').toLowerCase();
+                const wasFound = prevFoundMap.get(word) || false;
+                return { ...w, found: !!w.found || wasFound };
+              });
+            }
+          } catch (mergeErr) {
+            console.warn('⚠️ Theme merge warning:', mergeErr);
+          }
+          const updated = { ...(prev || {}), [`${day}_themeDetails`]: merged } as Record<string, unknown>;
+          console.log(`🎯 Merged themeAnalytics for ${day}`);
           return updated;
         });
       } else {
