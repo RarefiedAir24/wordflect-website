@@ -805,7 +805,7 @@ export default function Profile() {
       }
     };
 
-    const interval = setInterval(refresh, 20000); // 20 seconds
+    const interval = setInterval(refresh, 5000); // 5 seconds - reduced for faster session updates
     const onFocus = () => {
       console.log('🔎 Tab focused — refreshing time analytics');
       refresh();
