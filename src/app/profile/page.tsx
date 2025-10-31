@@ -1868,6 +1868,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       const sessionCount = sessions.length;
       const wordsFound = Math.max(wordsFoundBackend, sessionSum);
       const gamesPlayed = Math.max(gamesPlayedBackend, sessionCount); // Use session count as fallback
+      console.log(`🔍 ${period} fallback: backend games=${gamesPlayedBackend}, sessions.length=${sessionCount}, using games=${gamesPlayed}`);
+      console.log(`🔍 ${period} fallback: backend words=${wordsFoundBackend}, sessionSum=${sessionSum}, using words=${wordsFound}`);
       const avgPerGame = gamesPlayed > 0 ? Math.round(wordsFound / gamesPlayed) : 0;
       
       // Calculate performance relative to personal best across all periods
