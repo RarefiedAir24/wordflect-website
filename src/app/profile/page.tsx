@@ -39,6 +39,7 @@ export default function Profile() {
   const [isLoadingThemeAnalytics, setIsLoadingThemeAnalytics] = useState(true);
   const [selectedThemeDay, setSelectedThemeDay] = useState<string | null>(null);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
+  const [isRefreshingTimeAnalytics, setIsRefreshingTimeAnalytics] = useState(false);
   // const [refreshing, setRefreshing] = useState(false); // Removed: no manual refresh in production
   
   // Calendar modal states
@@ -4352,9 +4353,11 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             <div className="flex items-center gap-3">
               <button
                 onClick={async () => {
+                  if (isRefreshingTimeAnalytics) return;
+                  setIsRefreshingTimeAnalytics(true);
                   try {
                     console.log('🔄 Manual refresh of time analytics...');
-                    const response = await apiService.getTimeAnalytics();
+                    const response = await apiService.getTimeAnalytics({ period: 'ALL' });
                     if (response && (response as Record<string, unknown>).analytics) {
                       const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
                       setTimeAnalytics(analytics);
@@ -4362,15 +4365,18 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     }
                   } catch (e) {
                     console.error('❌ Manual refresh failed', e);
+                  } finally {
+                    setIsRefreshingTimeAnalytics(false);
                   }
                 }}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium text-blue-700 border border-blue-300 hover:bg-blue-50 transition"
+                disabled={isRefreshingTimeAnalytics}
+                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium border transition ${isRefreshingTimeAnalytics ? 'text-gray-400 border-gray-300 cursor-not-allowed' : 'text-blue-700 border-blue-300 hover:bg-blue-50'}`}
                 aria-label="Refresh time analytics"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <svg className={`w-4 h-4 ${isRefreshingTimeAnalytics ? 'animate-spin' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v6h6M20 20v-6h-6M5 19A9 9 0 0019 5l1 1M4 5l1-1A9 9 0 0119 19"/>
                 </svg>
-                Refresh
+                {isRefreshingTimeAnalytics ? 'Refreshing...' : 'Refresh'}
               </button>
             </div>
           </div>
