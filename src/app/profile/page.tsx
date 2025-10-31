@@ -4687,9 +4687,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     )}
                   </div>
                 </div>
-                <p className="text-lg font-bold text-indigo-900">
-                  {periodData?.label || (timeAnalytics?.timePeriods as Record<string, { label?: string }>)?.['late-night']?.label || '00:00 - 03:59 EST/EDT'}
-                </p>
+                <p className="text-lg font-bold text-indigo-900">{getLocalAmPmLabel('late-night')}</p>
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-indigo-700">Words Found:</span>
