@@ -2691,16 +2691,24 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   return (
     <div className="max-w-6xl mx-auto py-6 sm:py-8 md:py-10 px-3 sm:px-4">
       {/* Fixed Logout floating button to guarantee visibility */}
-      <button
-        onClick={async () => { try { await apiService.signOut(); } catch {} ; router.push('/signin'); }}
-        aria-label="Sign out"
-        title="Sign out"
-        className="fixed top-4 right-4 z-[100] w-10 h-10 rounded-full border border-red-300 bg-red-50 hover:bg-red-100 shadow flex items-center justify-center"
-      >
-        <svg className="w-4 h-4 text-red-700" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
-        </svg>
-      </button>
+      <div className="fixed top-4 right-4 z-[100] group">
+        <button
+          onClick={async () => { try { await apiService.signOut(); } catch {} ; router.push('/signin'); }}
+          aria-label="Sign out"
+          className="w-10 h-10 rounded-full border-2 border-red-500 bg-red-400 hover:bg-red-500 shadow-lg flex items-center justify-center transition-all"
+        >
+          <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
+          </svg>
+        </button>
+        {/* Tooltip */}
+        <div className="absolute right-0 top-12 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <div className="bg-gray-900 text-white text-xs rounded py-1.5 px-2 whitespace-nowrap shadow-lg">
+            Sign out
+            <div className="absolute -top-1 right-3 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+          </div>
+        </div>
+      </div>
       {/* Hero Header */}
       <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 p-[3px] mb-6 sm:mb-8 shadow-xl sm:shadow-2xl sticky top-0 z-30">
         <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-white/95 to-blue-50/95 text-blue-900 p-4 sm:p-6 md:p-8 backdrop-blur-sm">
@@ -2823,6 +2831,52 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         startDate={calendarModal.startDate}
         endDate={calendarModal.endDate}
       />
+
+      {/* Inspect Analytics Modal */}
+      {isInspectOpen && (
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl w-full max-w-3xl max-h-[85vh] overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3 border-b">
+              <h3 className="text-lg font-bold text-gray-900">Inspect Time Analytics</h3>
+              <button onClick={() => setIsInspectOpen(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+            <div className="p-5 overflow-auto max-h-[70vh] text-sm">
+              <pre className="whitespace-pre-wrap break-words text-gray-800">{
+(() => {
+  try {
+    const ta = timeAnalytics as unknown as { timePeriods?: Record<string, { label?: string; wordCount?: number; gamesPlayed?: number; sessions?: { startTime?: string; timestamp?: string; duration?: number }[] }>, summary?: Record<string, unknown> };
+    if (!ta || !ta.timePeriods) {
+      return `No time analytics loaded.\n\nRaw API Response:\n${JSON.stringify(lastAnalyticsRaw, null, 2)}`;
+    }
+    const lines: string[] = [];
+    lines.push('=== SUMMARY ===');
+    lines.push(JSON.stringify(ta.summary || {}, null, 2));
+    lines.push('\n=== PER-PERIOD STATS ===');
+    Object.entries(ta.timePeriods).forEach(([key, p]) => {
+      lines.push(`${key} (${p.label || ''}): words=${p.wordCount ?? 0}, games=${p.gamesPlayed ?? 0}, sessions=${p.sessions?.length ?? 0}`);
+    });
+    lines.push('\n=== RECENT SESSIONS (up to 12) ===');
+    const allSessions = Object.values(ta.timePeriods).flatMap(p => p.sessions || []);
+    const recent = allSessions
+      .map(s => ({ ts: new Date((s.startTime || s.timestamp) || ''), raw: s }))
+      .filter(x => !isNaN(x.ts.getTime()))
+      .sort((a,b) => b.ts.getTime() - a.ts.getTime())
+      .slice(0, 12);
+    recent.forEach((r, idx) => {
+      const hour = r.ts.getUTCHours();
+      const period = hour <= 3 ? 'late-night' : hour <= 8 ? 'early-morning' : hour <= 12 ? 'late-morning' : hour <= 17 ? 'afternoon' : 'evening';
+      lines.push(`${idx+1}. ${r.ts.toISOString()} UTC -> ${period}`);
+    });
+    return lines.join('\n');
+  } catch (e) {
+    return `Error rendering analytics: ${String(e)}\n\nRaw API Response:\n${JSON.stringify(lastAnalyticsRaw, null, 2)}`;
+  }
+})()
+}</pre>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* AI Assistant Modal */}
       {aiModalOpen ? (
@@ -4403,15 +4457,23 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               </button>
               <button
                 onClick={async () => {
+                  console.log('🔎 Inspect button clicked');
                   setIsInspectOpen(true);
+                  setLastAnalyticsRaw({ status: 'loading...' });
                   try {
+                    console.log('🔎 Fetching time analytics for inspection...');
                     const response = await apiService.getTimeAnalytics({ period: 'ALL' });
+                    console.log('🔎 Inspect received response:', response);
                     setLastAnalyticsRaw(response);
                     if (response && (response as Record<string, unknown>).analytics) {
                       const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
+                      console.log('🔎 Setting timeAnalytics from inspect:', analytics);
                       setTimeAnalytics(analytics);
+                    } else {
+                      console.warn('🔎 No analytics in response:', response);
                     }
                   } catch (e) {
+                    console.error('🔎 Inspect error:', e);
                     setLastAnalyticsRaw({ error: String(e) });
                   }
                 }}
