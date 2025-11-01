@@ -3194,6 +3194,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           value={profile.flectcoins.toLocaleString()} 
           accent="from-amber-400 to-yellow-500"
           onClick={() => {
+            console.log('💰 Flectcoins card clicked!');
             setCurrencyModal({ isOpen: true, type: 'flectcoins' });
             fetchCurrencyHistory('flectcoins');
           }}
@@ -3203,6 +3204,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           value={profile.gems.toLocaleString()} 
           accent="from-pink-400 to-rose-500"
           onClick={() => {
+            console.log('💎 Gems card clicked!');
             setCurrencyModal({ isOpen: true, type: 'gems' });
             fetchCurrencyHistory('gems');
           }}
