@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 
 interface Transaction {
   id: string;
@@ -24,6 +24,8 @@ interface CurrencyHistoryModalProps {
   isLoading?: boolean;
 }
 
+type FilterType = 'all' | 'earned' | 'spent';
+
 const CurrencyHistoryModal: React.FC<CurrencyHistoryModalProps> = ({
   isOpen,
   onClose,
@@ -32,7 +34,17 @@ const CurrencyHistoryModal: React.FC<CurrencyHistoryModalProps> = ({
   summary,
   isLoading = false,
 }) => {
+  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  
   if (!isOpen) return null;
+  
+  // Filter transactions based on active filter
+  const filteredTransactions = useMemo(() => {
+    if (activeFilter === 'all') return transactions;
+    if (activeFilter === 'earned') return transactions.filter(t => t.amount > 0);
+    if (activeFilter === 'spent') return transactions.filter(t => t.amount < 0);
+    return transactions;
+  }, [transactions, activeFilter]);
 
   const formatDate = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -89,21 +101,57 @@ const CurrencyHistoryModal: React.FC<CurrencyHistoryModalProps> = ({
           </button>
         </div>
 
-        {/* Summary Cards */}
+        {/* Summary Cards with Filtering */}
         <div className="p-6 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
           <div className="grid grid-cols-3 gap-4">
-            <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-              <div className="text-sm text-green-700 font-medium">Earned</div>
+            <button
+              onClick={() => setActiveFilter(activeFilter === 'earned' ? 'all' : 'earned')}
+              className={`rounded-lg p-4 border transition-all hover:shadow-md ${
+                activeFilter === 'earned'
+                  ? 'bg-green-100 border-green-400 ring-2 ring-green-300'
+                  : 'bg-green-50 border-green-200 hover:bg-green-100'
+              }`}
+            >
+              <div className="text-sm text-green-700 font-medium flex items-center justify-between">
+                <span>Earned</span>
+                {activeFilter === 'earned' && (
+                  <span className="text-xs bg-green-200 px-2 py-0.5 rounded-full">Filtered</span>
+                )}
+              </div>
               <div className="text-2xl font-bold text-green-800">{summary.earned.toLocaleString()}</div>
-            </div>
-            <div className="bg-red-50 rounded-lg p-4 border border-red-200">
-              <div className="text-sm text-red-700 font-medium">Spent</div>
+            </button>
+            <button
+              onClick={() => setActiveFilter(activeFilter === 'spent' ? 'all' : 'spent')}
+              className={`rounded-lg p-4 border transition-all hover:shadow-md ${
+                activeFilter === 'spent'
+                  ? 'bg-red-100 border-red-400 ring-2 ring-red-300'
+                  : 'bg-red-50 border-red-200 hover:bg-red-100'
+              }`}
+            >
+              <div className="text-sm text-red-700 font-medium flex items-center justify-between">
+                <span>Spent</span>
+                {activeFilter === 'spent' && (
+                  <span className="text-xs bg-red-200 px-2 py-0.5 rounded-full">Filtered</span>
+                )}
+              </div>
               <div className="text-2xl font-bold text-red-800">{summary.spent.toLocaleString()}</div>
-            </div>
-            <div className={`bg-gradient-to-r ${currencyColor} rounded-lg p-4 text-white`}>
-              <div className="text-sm font-medium opacity-90">Net Balance</div>
+            </button>
+            <button
+              onClick={() => setActiveFilter('all')}
+              className={`rounded-lg p-4 border transition-all hover:shadow-md ${
+                activeFilter === 'all'
+                  ? `bg-gradient-to-r ${currencyColor} ring-2 ring-opacity-50`
+                  : `bg-gradient-to-r ${currencyColor} opacity-90 hover:opacity-100`
+              } text-white`}
+            >
+              <div className="text-sm font-medium opacity-90 flex items-center justify-between">
+                <span>Net Balance</span>
+                {activeFilter === 'all' && (
+                  <span className="text-xs bg-white bg-opacity-30 px-2 py-0.5 rounded-full">All</span>
+                )}
+              </div>
               <div className="text-2xl font-bold">{summary.net.toLocaleString()}</div>
-            </div>
+            </button>
           </div>
         </div>
 
@@ -113,15 +161,28 @@ const CurrencyHistoryModal: React.FC<CurrencyHistoryModalProps> = ({
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
             </div>
-          ) : transactions.length === 0 ? (
+          ) : filteredTransactions.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-4xl mb-4">📝</div>
-              <p className="text-gray-600 font-medium">No transactions yet</p>
-              <p className="text-sm text-gray-500 mt-2">Start playing to see your {currencyName.toLowerCase()} history!</p>
+              <div className="text-4xl mb-4">🔍</div>
+              <p className="text-gray-600 font-medium">No {activeFilter === 'earned' ? 'earnings' : 'spending'} found</p>
+              <p className="text-sm text-gray-500 mt-2">
+                {activeFilter === 'all' 
+                  ? `Start playing to see your ${currencyName.toLowerCase()} history!`
+                  : `No ${activeFilter === 'earned' ? 'earned' : 'spent'} ${currencyName.toLowerCase()} transactions match this filter.`
+                }
+              </p>
+              {activeFilter !== 'all' && (
+                <button
+                  onClick={() => setActiveFilter('all')}
+                  className="mt-4 text-sm text-blue-600 hover:text-blue-800 underline"
+                >
+                  Show all transactions
+                </button>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
-              {transactions.map((transaction) => {
+              {filteredTransactions.map((transaction) => {
                 const isEarned = transaction.amount > 0;
                 const absAmount = Math.abs(transaction.amount);
                 
