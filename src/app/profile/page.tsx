@@ -3445,12 +3445,24 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 level?: number;
                 score?: number;
               }>;
+              
+              // Debug: log session data
+              console.log('[Activity Snapshot] Sessions count:', sessions.length);
+              console.log('[Activity Snapshot] Sample session:', sessions[0]);
+              console.log('[Activity Snapshot] detailedStats exists:', !!detailedStats);
+              
               const recentGames = sessions.filter(s => {
                 const sessionTime = s.startTime || s.timestamp;
                 if (!sessionTime) return false;
                 const sessionDate = new Date(sessionTime);
-                return sessionDate >= oneDayAgo;
+                const isRecent = sessionDate >= oneDayAgo;
+                if (isRecent) {
+                  console.log('[Activity Snapshot] Recent game found:', sessionTime, sessionDate);
+                }
+                return isRecent;
               });
+              
+              console.log('[Activity Snapshot] Recent games count:', recentGames.length);
               
               // Get recent mission completions from transactionHistory (if available)
               const transactions = currencyHistory?.transactions || [];
