@@ -3,7 +3,6 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { apiService, UserProfile } from "@/services/api";
-import { API_CONFIG } from "@/config/api";
 import MissionResetCountdown from "@/components/MissionResetCountdown";
 import CalendarModal from "@/components/CalendarModal";
 import CurrencyHistoryModal from "@/components/CurrencyHistoryModal";
@@ -3522,15 +3521,11 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               
               console.log('[Activity Snapshot] Recent games count:', recentGames.length);
               
-              // Get theme words found today
-              const allFoundWords = profile?.allFoundWords || [];
-              const todayStr = new Date().toISOString().split('T')[0];
-              
-              // Get theme words from profile.themeWordsFoundToday (preferred) or extract from allFoundWords
+              // Get theme words found today from profile.themeWordsFoundToday
               const themeWordsFoundToday: Array<{ word: string }> = [];
-              let todaysThemeName = '';
+              const todaysThemeName = '';
               
-              // First, check profile.themeWordsFoundToday (most reliable source)
+              // Check profile.themeWordsFoundToday (most reliable source)
               if (profile && 'themeWordsFoundToday' in profile) {
                 const profileThemeWords = (profile as { themeWordsFoundToday?: Array<string | { word: string }> }).themeWordsFoundToday || [];
                 profileThemeWords.forEach(w => {
@@ -3539,13 +3534,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     themeWordsFoundToday.push({ word: word.toUpperCase() });
                   }
                 });
-              }
-              
-              // If no theme words from profile, try to infer from allFoundWords by date
-              // (This is a fallback - themeWordsFoundToday is preferred)
-              if (themeWordsFoundToday.length === 0) {
-                // We can't determine which words are theme words without knowing today's theme
-                // So we'll just show an empty state if profile.themeWordsFoundToday is empty
               }
               
               // Get recent mission completions from transactionHistory (if available)
