@@ -3460,16 +3460,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 return txnDate >= oneDayAgo;
               }).slice(0, 5); // Show up to 5 recent missions
               
-              // Check for level gains by comparing session levels
-              const levelGains: number[] = [];
-              recentGames.forEach(session => {
-                if (session.level && session.level > (profile?.highestLevel || 1) - 1) {
-                  // This is approximate - a session at level X might indicate reaching level X
-                  levelGains.push(session.level);
-                }
-              });
-              const newLevelReached = Math.max(...levelGains, profile?.highestLevel || 1) > (profile?.highestLevel || 1) - 1;
-              
               // Battle stats (cumulative, show recent activity count if we had battle history)
               const battlesPlayed = (profile?.battleWins || 0) + (profile?.battleLosses || 0);
               const battleWinRate = battlesPlayed > 0 
