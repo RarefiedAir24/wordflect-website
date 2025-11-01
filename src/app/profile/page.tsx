@@ -3522,13 +3522,11 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               console.log('[Activity Snapshot] Recent games count:', recentGames.length);
               
               // Get daily theme words found today from profile.themeWordsFoundToday
-              // But filter to only include words that were found TODAY (not from previous days)
+              // Filter to only include words that were found TODAY (not from previous days)
               const themeWordsFoundToday: Array<{ word: string }> = [];
               const todaysThemeName = '';
               
               try {
-                // Cross-reference themeWordsFoundToday with allFoundWords to see which were found TODAY
-                // This ensures we only count words found today, not from previous days (e.g., Friday's words)
                 const todayStr = new Date().toISOString().split('T')[0];
                 const allFoundWords = profile?.allFoundWords || [];
                 
@@ -3542,8 +3540,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   });
                 }
                 
-                // Cross-reference with allFoundWords to see which theme words were found TODAY
-                // This ensures we only count words found today, not from previous days
+                // Build set of words found today from allFoundWords (for validation)
                 const wordsFoundTodayFromAllWords = new Set<string>();
                 allFoundWords.forEach(entry => {
                   const word = typeof entry === 'string' ? entry : (entry.word || '');
@@ -3553,11 +3550,37 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   }
                 });
                 
-                // Only include theme words that were found today (according to allFoundWords with today's date)
+                // Include theme words that:
+                // 1. Are in profile.themeWordsFoundToday, AND
+                // 2. Are found in allFoundWords with today's date (if allFoundWords has date info)
+                // If allFoundWords doesn't have date info for some words, still include them from themeWordsFoundToday
                 profileThemeWords.forEach(word => {
-                  if (wordsFoundTodayFromAllWords.has(word) && !themeWordsFoundToday.find(t => t.word === word)) {
-                    themeWordsFoundToday.push({ word });
+                  const isInTodayWords = wordsFoundTodayFromAllWords.has(word);
+                  const hasAnyWordsWithDates = allFoundWords.some(entry => {
+                    const entryWord = typeof entry === 'string' ? entry : (entry.word || '');
+                    const entryDate = typeof entry === 'string' ? undefined : (entry.date || '');
+                    return entryWord && entryDate;
+                  });
+                  
+                  // If we have date information in allFoundWords, use it to filter
+                  // Otherwise, trust themeWordsFoundToday (backend should reset it daily)
+                  if (hasAnyWordsWithDates) {
+                    if (isInTodayWords && !themeWordsFoundToday.find(t => t.word === word)) {
+                      themeWordsFoundToday.push({ word });
+                    }
+                  } else {
+                    // No date info available, trust themeWordsFoundToday
+                    if (!themeWordsFoundToday.find(t => t.word === word)) {
+                      themeWordsFoundToday.push({ word });
+                    }
                   }
+                });
+                
+                console.log('[Activity Snapshot] Theme words:', {
+                  profileThemeWordsCount: profileThemeWords.length,
+                  wordsFoundTodayCount: wordsFoundTodayFromAllWords.size,
+                  filteredCount: themeWordsFoundToday.length,
+                  hasDateInfo: allFoundWords.some(e => typeof e === 'object' && e.date)
                 });
               } catch (error) {
                 console.warn('[Activity Snapshot] Error filtering theme words:', error);
