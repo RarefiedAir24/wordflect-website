@@ -3507,18 +3507,25 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 }
               }
               
-              // Mission completions - show specific missions
-              if (recentMissions.length > 0) {
-                // Get unique mission names (latest occurrence)
+              // Mission completions - separate daily/weekly from global accomplishments
+              const dailyWeeklyMissions = recentMissions.filter(m => 
+                (m.metadata?.period as string) !== 'global'
+              );
+              const globalMissions = recentMissions.filter(m => 
+                (m.metadata?.period as string) === 'global'
+              );
+              
+              // Daily/Weekly missions
+              if (dailyWeeklyMissions.length > 0) {
                 const missionNames = new Map<string, string>();
-                recentMissions.forEach(mission => {
+                dailyWeeklyMissions.forEach(mission => {
                   const missionTitle = (mission.metadata?.missionTitle as string) || 'Mission Completed';
                   if (!missionNames.has(missionTitle)) {
                     missionNames.set(missionTitle, missionTitle);
                   }
                 });
                 
-                if (recentMissions.length === 1) {
+                if (dailyWeeklyMissions.length === 1) {
                   activities.push({
                     label: 'Mission Completed',
                     value: missionNames.values().next().value || 'Mission',
@@ -3527,10 +3534,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 } else {
                   activities.push({
                     label: 'Missions Completed',
-                    value: `${recentMissions.length} missions`,
+                    value: `${dailyWeeklyMissions.length} missions`,
                     icon: '✅'
                   });
-                  // Show individual missions as sub-items
                   Array.from(missionNames.values()).slice(0, 3).forEach(missionName => {
                     activities.push({
                       label: '',
@@ -3545,6 +3551,68 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                       icon: ''
                     });
                   }
+                }
+              }
+              
+              // Global accomplishments (show all, even if older than 24h - they're rare achievements)
+              const allGlobalMissions = transactions.filter(t => {
+                if (t.reason !== 'mission_reward') return false;
+                return (t.metadata?.period as string) === 'global';
+              })
+              .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+              .slice(0, 5); // Show 5 most recent global accomplishments
+              
+              if (allGlobalMissions.length > 0) {
+                if (globalMissions.length > 0) {
+                  // Show newly completed global accomplishments
+                  activities.push({
+                    label: 'Global Accomplishment',
+                    value: globalMissions.length === 1 
+                      ? (globalMissions[0].metadata?.missionTitle as string) || 'Achievement'
+                      : `${globalMissions.length} achievements`,
+                    icon: '🏆'
+                  });
+                  
+                  if (globalMissions.length > 1) {
+                    globalMissions.slice(0, 3).forEach(mission => {
+                      const missionTitle = (mission.metadata?.missionTitle as string) || 'Achievement';
+                      const missionTime = new Date(mission.timestamp);
+                      const timeStr = missionTime.toLocaleTimeString('en-US', { 
+                        hour: 'numeric', 
+                        minute: '2-digit',
+                        hour12: true 
+                      });
+                      activities.push({
+                        label: '',
+                        value: `  • ${missionTitle} at ${timeStr}`,
+                        icon: '⭐'
+                      });
+                    });
+                    if (globalMissions.length > 3) {
+                      activities.push({
+                        label: '',
+                        value: `  +${globalMissions.length - 3} more`,
+                        icon: ''
+                      });
+                    }
+                  }
+                } else {
+                  // Show most recent global accomplishment even if not from last 24h
+                  const mostRecent = allGlobalMissions[0];
+                  const missionTitle = (mostRecent.metadata?.missionTitle as string) || 'Achievement';
+                  const missionTime = new Date(mostRecent.timestamp);
+                  const daysAgo = Math.floor((now.getTime() - missionTime.getTime()) / (1000 * 60 * 60 * 24));
+                  const timeStr = daysAgo === 0 
+                    ? missionTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+                    : daysAgo === 1 
+                      ? 'Yesterday' 
+                      : `${daysAgo} days ago`;
+                  
+                  activities.push({
+                    label: 'Recent Accomplishment',
+                    value: `${missionTitle} (${timeStr})`,
+                    icon: '🏆'
+                  });
                 }
               }
               
