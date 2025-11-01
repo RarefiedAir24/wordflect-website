@@ -751,12 +751,16 @@ export default function Profile() {
   
   // Fetch currency history function
   const fetchCurrencyHistory = useCallback(async (type: 'flectcoins' | 'gems') => {
+    console.log('💰 Fetching currency history for type:', type);
     setIsLoadingCurrencyHistory(true);
     try {
       const data = await apiService.getCurrencyHistory(type, 100);
+      console.log('💰 Currency history fetched:', data);
+      console.log('💰 Transactions count:', data.transactions?.length || 0);
+      console.log('💰 Summary:', data.summary);
       setCurrencyHistory(data);
     } catch (error) {
-      console.error('Failed to fetch currency history:', error);
+      console.error('❌ Failed to fetch currency history:', error);
       setCurrencyHistory(null);
     } finally {
       setIsLoadingCurrencyHistory(false);

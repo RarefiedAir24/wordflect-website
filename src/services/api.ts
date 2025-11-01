@@ -230,10 +230,13 @@ class ApiService {
         url += `?${params.toString()}`;
       }
       
+      console.log('💰 getCurrencyHistory - URL:', url);
       const response = await this.makeRequest(url, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
+      
+      console.log('💰 getCurrencyHistory - Response status:', response.status);
       
       if (!response.ok) {
         if (response.status === 401) {
@@ -241,10 +244,13 @@ class ApiService {
           throw new Error('Authentication failed. Please sign in again.');
         }
         const errorData = await response.json();
+        console.error('💰 getCurrencyHistory - Error response:', errorData);
         throw new Error(errorData.message || 'Failed to fetch currency history');
       }
       
-      return await response.json();
+      const data = await response.json();
+      console.log('💰 getCurrencyHistory - Success, data:', data);
+      return data;
     } catch (error) {
       console.error('Get currency history error:', error);
       throw error;
