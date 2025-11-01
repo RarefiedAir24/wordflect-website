@@ -5,6 +5,7 @@ import Image from "next/image";
 import { apiService, UserProfile } from "@/services/api";
 import MissionResetCountdown from "@/components/MissionResetCountdown";
 import CalendarModal from "@/components/CalendarModal";
+import CurrencyHistoryModal from "@/components/CurrencyHistoryModal";
 
 // Types for theme day responses from backend (used in modal rendering)
 type ThemeDayWord = { word: string; length?: number; found?: boolean };
@@ -75,6 +76,30 @@ export default function Profile() {
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
   const [aiModalOpen, setAiModalOpen] = useState(false);
+  
+  // Currency history modal state
+  const [currencyModal, setCurrencyModal] = useState<{
+    isOpen: boolean;
+    type: 'flectcoins' | 'gems' | null;
+  }>({
+    isOpen: false,
+    type: null,
+  });
+  const [currencyHistory, setCurrencyHistory] = useState<{
+    transactions: Array<{
+      id: string;
+      type: 'flectcoins' | 'gems';
+      amount: number;
+      reason: string;
+      timestamp: string;
+      metadata?: Record<string, unknown>;
+    }>;
+    summary: {
+      flectcoins: { earned: number; spent: number; net: number };
+      gems: { earned: number; spent: number; net: number };
+    };
+  } | null>(null);
+  const [isLoadingCurrencyHistory, setIsLoadingCurrencyHistory] = useState(false);
   const aiInputRef = useRef<HTMLInputElement | null>(null);
   const [aiQuery, setAiQuery] = useState('');
   const [showLexiPopup, setShowLexiPopup] = useState(false);
@@ -723,6 +748,21 @@ export default function Profile() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [router, fetchProfile]);
+  
+  // Fetch currency history function
+  const fetchCurrencyHistory = useCallback(async (type: 'flectcoins' | 'gems') => {
+    setIsLoadingCurrencyHistory(true);
+    try {
+      const data = await apiService.getCurrencyHistory(type, 100);
+      setCurrencyHistory(data);
+    } catch (error) {
+      console.error('Failed to fetch currency history:', error);
+      setCurrencyHistory(null);
+    } finally {
+      setIsLoadingCurrencyHistory(false);
+    }
+  }, []);
+  
   // Generate time analytics from existing data
   useEffect(() => {
     console.log('🔄 Time analytics useEffect triggered, profile:', !!profile);
@@ -3145,8 +3185,24 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-        <MetricCard title="Flectcoins" value={profile.flectcoins.toLocaleString()} accent="from-amber-400 to-yellow-500" />
-        <MetricCard title="Gems" value={profile.gems.toLocaleString()} accent="from-pink-400 to-rose-500" />
+        <MetricCard 
+          title="Flectcoins" 
+          value={profile.flectcoins.toLocaleString()} 
+          accent="from-amber-400 to-yellow-500"
+          onClick={() => {
+            setCurrencyModal({ isOpen: true, type: 'flectcoins' });
+            fetchCurrencyHistory('flectcoins');
+          }}
+        />
+        <MetricCard 
+          title="Gems" 
+          value={profile.gems.toLocaleString()} 
+          accent="from-pink-400 to-rose-500"
+          onClick={() => {
+            setCurrencyModal({ isOpen: true, type: 'gems' });
+            fetchCurrencyHistory('gems');
+          }}
+        />
       </div>
 
       {/* Deep Stats */}
@@ -5799,18 +5855,68 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         </div>
         );
       })()}
+      
+      {/* Currency History Modal */}
+      {currencyModal.isOpen && currencyModal.type && (
+        <CurrencyHistoryModal
+          isOpen={currencyModal.isOpen}
+          onClose={() => setCurrencyModal({ isOpen: false, type: null })}
+          currencyType={currencyModal.type}
+          transactions={currencyHistory?.transactions.filter(t => t.type === currencyModal.type) || []}
+          summary={
+            currencyModal.type === 'flectcoins'
+              ? {
+                  earned: currencyHistory?.summary.flectcoins.earned || 0,
+                  spent: currencyHistory?.summary.flectcoins.spent || 0,
+                  net: currencyHistory?.summary.flectcoins.net || 0,
+                }
+              : {
+                  earned: currencyHistory?.summary.gems.earned || 0,
+                  spent: currencyHistory?.summary.gems.spent || 0,
+                  net: currencyHistory?.summary.gems.net || 0,
+                }
+          }
+          isLoading={isLoadingCurrencyHistory}
+        />
+      )}
     </div>
   );
 }
 
 // UI Subcomponents
-function MetricCard({ title, value, accent }: { title: string; value: string | number; accent: string }) {
+function MetricCard({ 
+  title, 
+  value, 
+  accent, 
+  onClick 
+}: { 
+  title: string; 
+  value: string | number; 
+  accent: string;
+  onClick?: () => void;
+}) {
   return (
-    <div className="relative overflow-hidden rounded-xl p-5 shadow bg-white">
+    <div 
+      className={`relative overflow-hidden rounded-xl p-5 shadow bg-white ${
+        onClick ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''
+      }`}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      } : undefined}
+    >
       <div className={`absolute inset-0 opacity-20 bg-gradient-to-br ${accent}`} />
       <div className="relative">
         <p className="text-sm text-blue-700">{title}</p>
         <p className="mt-1 text-2xl font-extrabold text-blue-950">{value}</p>
+        {onClick && (
+          <p className="text-xs text-blue-600 mt-2 opacity-75">Click to view history</p>
+        )}
       </div>
     </div>
   );

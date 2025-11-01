@@ -206,6 +206,51 @@ class ApiService {
     }
   }
 
+  async getCurrencyHistory(type?: 'flectcoins' | 'gems' | 'all', limit?: number): Promise<{
+    transactions: Array<{
+      id: string;
+      type: 'flectcoins' | 'gems';
+      amount: number;
+      reason: string;
+      timestamp: string;
+      metadata?: Record<string, unknown>;
+    }>;
+    summary: {
+      flectcoins: { earned: number; spent: number; net: number };
+      gems: { earned: number; spent: number; net: number };
+    };
+    total: number;
+  }> {
+    try {
+      let url = `${API_CONFIG.BASE_URL}/user/currency/history`;
+      const params = new URLSearchParams();
+      if (type) params.append('type', type);
+      if (limit) params.append('limit', limit.toString());
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      
+      const response = await this.makeRequest(url, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          await this.signOut();
+          throw new Error('Authentication failed. Please sign in again.');
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch currency history');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Get currency history error:', error);
+      throw error;
+    }
+  }
+
   async getTimeAnalytics(filters?: { period?: string; startDate?: string; endDate?: string; timezone?: string }): Promise<unknown> {
     try {
       // Build URL with query parameters
