@@ -3521,73 +3521,19 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               
               console.log('[Activity Snapshot] Recent games count:', recentGames.length);
               
-              // Get daily theme words found today from profile.themeWordsFoundToday
-              // Filter to only include words that were found TODAY (not from previous days)
+              // Get recent daily theme words from profile.themeWordsFoundToday
               const themeWordsFoundToday: Array<{ word: string }> = [];
               const todaysThemeName = '';
               
-              try {
-                const todayStr = new Date().toISOString().split('T')[0];
-                const allFoundWords = profile?.allFoundWords || [];
-                
-                // Get words from profile.themeWordsFoundToday
-                const profileThemeWords: string[] = [];
-                if (profile && 'themeWordsFoundToday' in profile) {
-                  const rawThemeWords = (profile as { themeWordsFoundToday?: Array<string | { word: string }> }).themeWordsFoundToday || [];
-                  rawThemeWords.forEach(w => {
-                    const word = typeof w === 'string' ? w : w.word;
-                    if (word) profileThemeWords.push(word.toUpperCase());
-                  });
-                }
-                
-                // Build set of words found today from allFoundWords (for validation)
-                const wordsFoundTodayFromAllWords = new Set<string>();
-                allFoundWords.forEach(entry => {
-                  const word = typeof entry === 'string' ? entry : (entry.word || '');
-                  const wordDate = typeof entry === 'string' ? undefined : (entry.date || '');
-                  if (wordDate && wordDate === todayStr && word) {
-                    wordsFoundTodayFromAllWords.add(word.toUpperCase());
+              // Get words from profile.themeWordsFoundToday (simplified - just show what's there)
+              if (profile && 'themeWordsFoundToday' in profile) {
+                const rawThemeWords = (profile as { themeWordsFoundToday?: Array<string | { word: string }> }).themeWordsFoundToday || [];
+                rawThemeWords.forEach(w => {
+                  const word = typeof w === 'string' ? w : w.word;
+                  if (word && !themeWordsFoundToday.find(t => t.word === word.toUpperCase())) {
+                    themeWordsFoundToday.push({ word: word.toUpperCase() });
                   }
                 });
-                
-                // Check if allFoundWords has date information
-                const hasDateInfo = allFoundWords.some(entry => {
-                  const entryWord = typeof entry === 'string' ? entry : (entry.word || '');
-                  const entryDate = typeof entry === 'string' ? undefined : (entry.date || '');
-                  return entryWord && entryDate;
-                });
-                
-                // Include theme words based on available data:
-                // - If allFoundWords has date info: only include words found today (filter out Friday's words)
-                // - If no date info: include all words from themeWordsFoundToday (trust backend daily reset)
-                profileThemeWords.forEach(word => {
-                  const isInTodayWords = wordsFoundTodayFromAllWords.has(word);
-                  
-                  if (hasDateInfo) {
-                    // We have date info - only show words found today (filters out Friday's words)
-                    if (isInTodayWords && !themeWordsFoundToday.find(t => t.word === word)) {
-                      themeWordsFoundToday.push({ word });
-                    }
-                  } else {
-                    // No date info available - trust themeWordsFoundToday (backend should reset daily)
-                    // Show all words from themeWordsFoundToday
-                    if (!themeWordsFoundToday.find(t => t.word === word)) {
-                      themeWordsFoundToday.push({ word });
-                    }
-                  }
-                });
-                
-                console.log('[Activity Snapshot] Theme words debug:', {
-                  profileThemeWordsCount: profileThemeWords.length,
-                  profileThemeWords: profileThemeWords.slice(0, 5),
-                  wordsFoundTodayCount: wordsFoundTodayFromAllWords.size,
-                  wordsFoundToday: Array.from(wordsFoundTodayFromAllWords).slice(0, 5),
-                  filteredCount: themeWordsFoundToday.length,
-                  hasDateInfo,
-                  finalThemeWords: themeWordsFoundToday.map(t => t.word).slice(0, 5)
-                });
-              } catch (error) {
-                console.warn('[Activity Snapshot] Error filtering theme words:', error);
               }
               
               // Get recent mission completions from transactionHistory (if available)
@@ -3690,14 +3636,14 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 }
               }
               
-              // Daily theme words found today
+              // Recent found daily theme words
               if (themeWordsFoundToday.length > 0) {
                 // Sort alphabetically since we don't have timestamps
                 const sortedThemeWords = [...themeWordsFoundToday].sort((a, b) => a.word.localeCompare(b.word));
                 
                 activities.push({
-                  label: 'Daily Theme Words',
-                  value: `${themeWordsFoundToday.length} found today${todaysThemeName ? ` (${todaysThemeName})` : ''}`,
+                  label: 'Recent Found Daily Theme Words',
+                  value: `${themeWordsFoundToday.length}${todaysThemeName ? ` (${todaysThemeName})` : ''}`,
                   icon: '🎯'
                 });
                 
