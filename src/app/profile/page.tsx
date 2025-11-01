@@ -3,6 +3,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { apiService, UserProfile } from "@/services/api";
+import { API_CONFIG } from "@/config/api";
 import MissionResetCountdown from "@/components/MissionResetCountdown";
 import CalendarModal from "@/components/CalendarModal";
 import CurrencyHistoryModal from "@/components/CurrencyHistoryModal";
@@ -3521,6 +3522,32 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               
               console.log('[Activity Snapshot] Recent games count:', recentGames.length);
               
+              // Get theme words found today
+              const allFoundWords = profile?.allFoundWords || [];
+              const todayStr = new Date().toISOString().split('T')[0];
+              
+              // Get theme words from profile.themeWordsFoundToday (preferred) or extract from allFoundWords
+              const themeWordsFoundToday: Array<{ word: string }> = [];
+              let todaysThemeName = '';
+              
+              // First, check profile.themeWordsFoundToday (most reliable source)
+              if (profile && 'themeWordsFoundToday' in profile) {
+                const profileThemeWords = (profile as { themeWordsFoundToday?: Array<string | { word: string }> }).themeWordsFoundToday || [];
+                profileThemeWords.forEach(w => {
+                  const word = typeof w === 'string' ? w : w.word;
+                  if (word && !themeWordsFoundToday.find(t => t.word === word.toUpperCase())) {
+                    themeWordsFoundToday.push({ word: word.toUpperCase() });
+                  }
+                });
+              }
+              
+              // If no theme words from profile, try to infer from allFoundWords by date
+              // (This is a fallback - themeWordsFoundToday is preferred)
+              if (themeWordsFoundToday.length === 0) {
+                // We can't determine which words are theme words without knowing today's theme
+                // So we'll just show an empty state if profile.themeWordsFoundToday is empty
+              }
+              
               // Get recent mission completions from transactionHistory (if available)
               const transactions = currencyHistory?.transactions || [];
               const recentMissions = transactions.filter(t => {
@@ -3617,6 +3644,39 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     label: 'Games Played',
                     value: 'No games yet',
                     icon: '🎮'
+                  });
+                }
+              }
+              
+              // Theme words found today
+              if (themeWordsFoundToday.length > 0) {
+                const sortedThemeWords = [...themeWordsFoundToday].sort((a, b) => {
+                  // Sort by timestamp if available, otherwise by word
+                  const timeA = a.timestamp ? new Date(a.timestamp).getTime() : (a.time ? new Date(a.time).getTime() : 0);
+                  const timeB = b.timestamp ? new Date(b.timestamp).getTime() : (b.time ? new Date(b.time).getTime() : 0);
+                  return timeB - timeA; // Most recent first
+                });
+                
+                activities.push({
+                  label: 'Theme Words Found',
+                  value: `${themeWordsFoundToday.length} ${todaysThemeName ? `(${todaysThemeName})` : ''}`,
+                  icon: '🎯'
+                });
+                
+                // Show individual theme words (up to 5 most recent)
+                sortedThemeWords.slice(0, 5).forEach((entry, idx) => {
+                  activities.push({
+                    label: '',
+                    value: `  • ${entry.word}`,
+                    icon: '⭐'
+                  });
+                });
+                
+                if (themeWordsFoundToday.length > 5) {
+                  activities.push({
+                    label: '',
+                    value: `  +${themeWordsFoundToday.length - 5} more`,
+                    icon: ''
                   });
                 }
               }
