@@ -3479,8 +3479,23 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   console.warn('[Activity Snapshot] Invalid session timestamp:', sessionTime);
                   return false;
                 }
-                // Check if within last 24 hours (compare timestamps, not dates)
+                
+                // Filter out reconstructed sessions - they have exact .000Z timestamps (no milliseconds)
+                // Real sessions have millisecond precision
+                const isReconstructed = sessionTime.endsWith('.000Z') && sessionTime.includes('T') && sessionTime.split('T')[1].split('.')[0].match(/^\d{2}:\d{2}:(00|10|20|30|40|50)$/);
+                if (isReconstructed) {
+                  return false; // Skip reconstructed sessions
+                }
+                
+                // Don't show future times - filter out any session that's more than 1 hour in the future
                 const sessionTimestamp = sessionDate.getTime();
+                const oneHourFromNow = now.getTime() + (60 * 60 * 1000);
+                if (sessionTimestamp > oneHourFromNow) {
+                  console.warn('[Activity Snapshot] Skipping future session:', sessionTime, 'local:', sessionDate.toLocaleString());
+                  return false;
+                }
+                
+                // Check if within last 24 hours (compare timestamps, not dates)
                 const oneDayAgoTimestamp = oneDayAgo.getTime();
                 const isRecent = sessionTimestamp >= oneDayAgoTimestamp;
                 
