@@ -3474,9 +3474,32 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 const sessionTime = s.startTime || s.timestamp;
                 if (!sessionTime) return false;
                 const sessionDate = new Date(sessionTime);
-                const isRecent = sessionDate >= oneDayAgo;
+                // Validate date
+                if (isNaN(sessionDate.getTime())) {
+                  console.warn('[Activity Snapshot] Invalid session timestamp:', sessionTime);
+                  return false;
+                }
+                // Check if within last 24 hours (compare timestamps, not dates)
+                const sessionTimestamp = sessionDate.getTime();
+                const oneDayAgoTimestamp = oneDayAgo.getTime();
+                const isRecent = sessionTimestamp >= oneDayAgoTimestamp;
+                
+                // Debug log for timezone issues
                 if (isRecent) {
-                  console.log('[Activity Snapshot] Recent game found:', sessionTime, sessionDate);
+                  const localTimeStr = sessionDate.toLocaleString('en-US', {
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                  });
+                  console.log('[Activity Snapshot] Recent game found:', {
+                    raw: sessionTime,
+                    parsed: sessionDate.toISOString(),
+                    local: localTimeStr,
+                    timestamp: sessionTimestamp,
+                    oneDayAgo: oneDayAgoTimestamp,
+                    diffHours: (now.getTime() - sessionTimestamp) / (1000 * 60 * 60)
+                  });
                 }
                 return isRecent;
               });
@@ -3524,13 +3547,31 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                       console.warn('[Activity Snapshot] Invalid game timestamp:', sessionTime);
                       return;
                     }
-                    // Format time in user's local timezone
-                    const timeStr = gameTime.toLocaleTimeString('en-US', { 
+                    // Format time in user's local timezone with date if needed
+                    const now = new Date();
+                    const gameDate = gameTime;
+                    const isToday = gameDate.toDateString() === now.toDateString();
+                    const isYesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toDateString() === gameDate.toDateString();
+                    
+                    let timeStr = gameTime.toLocaleTimeString('en-US', { 
                       hour: 'numeric', 
                       minute: '2-digit',
                       hour12: true,
                       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
                     });
+                    
+                    // Add date context if not today
+                    if (isYesterday) {
+                      timeStr = `Yesterday ${timeStr}`;
+                    } else if (!isToday) {
+                      const dateStr = gameTime.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                      });
+                      timeStr = `${dateStr} ${timeStr}`;
+                    }
+                    
                     activities.push({
                       label: '',
                       value: `  • ${timeStr}`,
