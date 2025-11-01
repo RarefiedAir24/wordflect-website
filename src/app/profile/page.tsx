@@ -3438,13 +3438,32 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               const now = new Date();
               const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
               
-              // Get recent games from sessionHistory
-              const sessions = (detailedStats?.sessionHistory || []) as Array<{ 
+              // Get recent games from sessionHistory or timeAnalytics as fallback
+              let sessions = (detailedStats?.sessionHistory || []) as Array<{ 
                 startTime?: string; 
                 timestamp?: string; 
                 level?: number;
                 score?: number;
               }>;
+              
+              // Fallback: get sessions from timeAnalytics if sessionHistory is empty
+              if (sessions.length === 0 && timeAnalytics && (timeAnalytics as Record<string, unknown>).timePeriods) {
+                const timePeriods = (timeAnalytics as Record<string, unknown>).timePeriods as Record<string, { sessions?: Array<{ startTime?: string; timestamp?: string }> }>;
+                const allSessions: Array<{ startTime?: string; timestamp?: string }> = [];
+                Object.values(timePeriods).forEach(period => {
+                  if (period?.sessions && Array.isArray(period.sessions)) {
+                    allSessions.push(...period.sessions);
+                  }
+                });
+                // Remove duplicates by timestamp
+                const uniqueSessions = Array.from(new Map(
+                  allSessions
+                    .filter(s => s.startTime || s.timestamp)
+                    .map(s => [s.startTime || s.timestamp || '', s])
+                ).values());
+                sessions = uniqueSessions;
+                console.log('[Activity Snapshot] Using timeAnalytics sessions:', sessions.length);
+              }
               
               // Debug: log session data
               console.log('[Activity Snapshot] Sessions count:', sessions.length);
