@@ -3468,13 +3468,43 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               
               const activities: Array<{ label: string; value: string; icon: string }> = [];
               
-              // Recent games
+              // Recent games - show with timestamps
               if (recentGames.length > 0) {
                 activities.push({
-                  label: 'Games Played',
+                  label: 'Recent Games',
                   value: `${recentGames.length} in last 24h`,
                   icon: '🎮'
                 });
+                
+                // Show individual games with timestamps (up to 3 most recent)
+                recentGames
+                  .sort((a, b) => {
+                    const timeA = new Date(a.startTime || a.timestamp || 0).getTime();
+                    const timeB = new Date(b.startTime || b.timestamp || 0).getTime();
+                    return timeB - timeA; // Most recent first
+                  })
+                  .slice(0, 3)
+                  .forEach(game => {
+                    const gameTime = new Date(game.startTime || game.timestamp || '');
+                    const timeStr = gameTime.toLocaleTimeString('en-US', { 
+                      hour: 'numeric', 
+                      minute: '2-digit',
+                      hour12: true 
+                    });
+                    activities.push({
+                      label: '',
+                      value: `  • ${timeStr}`,
+                      icon: '🕐'
+                    });
+                  });
+                
+                if (recentGames.length > 3) {
+                  activities.push({
+                    label: '',
+                    value: `  +${recentGames.length - 3} more`,
+                    icon: ''
+                  });
+                }
               }
               
               // Mission completions - show specific missions
