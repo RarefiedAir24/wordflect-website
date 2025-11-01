@@ -3570,6 +3570,82 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 });
               }
               
+              // Subscription status
+              const isPremium = (profile as { isPremium?: boolean }).isPremium || false;
+              const subscriptionTier = (profile as { subscriptionTier?: string }).subscriptionTier;
+              const subscriptionEndDate = (profile as { subscriptionEndDate?: string }).subscriptionEndDate;
+              
+              if (isPremium && subscriptionEndDate) {
+                const endDate = new Date(subscriptionEndDate);
+                const now = new Date();
+                const daysRemaining = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                
+                if (daysRemaining > 0) {
+                  const tierName = subscriptionTier || 'Premium';
+                  activities.push({
+                    label: 'Subscription',
+                    value: `${tierName} (${daysRemaining} days left)`,
+                    icon: '💎'
+                  });
+                }
+              }
+              
+              // Recent purchases from transaction history
+              const purchaseTransactions = transactions.filter(t => {
+                const txnDate = new Date(t.timestamp);
+                if (txnDate < oneDayAgo) return false;
+                // Check for purchase-related reasons (not just powerups, but actual purchases)
+                // We'll show powerup purchases as purchases too
+                const purchaseReasons = ['subscription_purchase', 'gems_purchase', 'flectcoins_purchase', 'frame_purchase', 'background_purchase'];
+                return purchaseReasons.includes(t.reason) || 
+                       (t.amount < 0 && ['hint_purchase', 'shuffle_purchase', 'freeze_purchase', 'time_extension_purchase'].includes(t.reason));
+              }).slice(0, 5);
+              
+              if (purchaseTransactions.length > 0) {
+                activities.push({
+                  label: 'Recent Purchases',
+                  value: `${purchaseTransactions.length} in last 24h`,
+                  icon: '💳'
+                });
+                
+                // Show individual purchases
+                purchaseTransactions.slice(0, 3).forEach(purchase => {
+                  const purchaseTime = new Date(purchase.timestamp);
+                  const timeStr = purchaseTime.toLocaleTimeString('en-US', { 
+                    hour: 'numeric', 
+                    minute: '2-digit',
+                    hour12: true 
+                  });
+                  
+                  let purchaseName = '';
+                  if (purchase.reason === 'subscription_purchase') {
+                    purchaseName = 'Subscription';
+                  } else if (purchase.reason === 'gems_purchase') {
+                    purchaseName = `Gems (${Math.abs(purchase.amount)})`;
+                  } else if (purchase.reason === 'flectcoins_purchase') {
+                    purchaseName = `Flectcoins (${Math.abs(purchase.amount)})`;
+                  } else if (purchase.reason.includes('_purchase')) {
+                    purchaseName = purchase.reason.replace('_purchase', '').replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                  } else {
+                    purchaseName = 'Purchase';
+                  }
+                  
+                  activities.push({
+                    label: '',
+                    value: `  • ${purchaseName} at ${timeStr}`,
+                    icon: '🛒'
+                  });
+                });
+                
+                if (purchaseTransactions.length > 3) {
+                  activities.push({
+                    label: '',
+                    value: `  +${purchaseTransactions.length - 3} more`,
+                    icon: ''
+                  });
+                }
+              }
+              
               return (
                 <div className="space-y-2.5">
                   {activities.map((activity, idx) => (
