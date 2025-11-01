@@ -3521,11 +3521,11 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               
               console.log('[Activity Snapshot] Recent games count:', recentGames.length);
               
-              // Get theme words found today from profile.themeWordsFoundToday
+              // Get daily theme words found today from profile.themeWordsFoundToday
               const themeWordsFoundToday: Array<{ word: string }> = [];
               const todaysThemeName = '';
               
-              // Check profile.themeWordsFoundToday (most reliable source)
+              // Check profile.themeWordsFoundToday (most reliable source for daily theme words)
               if (profile && 'themeWordsFoundToday' in profile) {
                 const profileThemeWords = (profile as { themeWordsFoundToday?: Array<string | { word: string }> }).themeWordsFoundToday || [];
                 profileThemeWords.forEach(w => {
@@ -3636,14 +3636,14 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 }
               }
               
-              // Theme words found today
+              // Daily theme words found today
               if (themeWordsFoundToday.length > 0) {
                 // Sort alphabetically since we don't have timestamps
                 const sortedThemeWords = [...themeWordsFoundToday].sort((a, b) => a.word.localeCompare(b.word));
                 
                 activities.push({
-                  label: 'Theme Words Found',
-                  value: `${themeWordsFoundToday.length} today${todaysThemeName ? ` (${todaysThemeName})` : ''}`,
+                  label: 'Daily Theme Words',
+                  value: `${themeWordsFoundToday.length} found today${todaysThemeName ? ` (${todaysThemeName})` : ''}`,
                   icon: '🎯'
                 });
                 
