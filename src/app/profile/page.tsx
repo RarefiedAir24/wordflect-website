@@ -3468,10 +3468,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               
               const activities: Array<{ label: string; value: string; icon: string }> = [];
               
-              // Recent games - show with timestamps
+              // Recent games - always show, even if 0
               if (recentGames.length > 0) {
                 activities.push({
-                  label: 'Recent Games',
+                  label: 'Games Played',
                   value: `${recentGames.length} in last 24h`,
                   icon: '🎮'
                 });
@@ -3503,6 +3503,24 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     label: '',
                     value: `  +${recentGames.length - 3} more`,
                     icon: ''
+                  });
+                }
+              } else {
+                // Show games played even if 0, but check if we have any games at all
+                const totalSessions = sessions.length;
+                if (totalSessions > 0) {
+                  // User has played games, but none in last 24h
+                  activities.push({
+                    label: 'Games Played',
+                    value: '0 in last 24h',
+                    icon: '🎮'
+                  });
+                } else {
+                  // No session history available or user hasn't played yet
+                  activities.push({
+                    label: 'Games Played',
+                    value: 'No games yet',
+                    icon: '🎮'
                   });
                 }
               }
