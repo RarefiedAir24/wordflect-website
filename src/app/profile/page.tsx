@@ -3516,11 +3516,20 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   })
                   .slice(0, 3)
                   .forEach(game => {
-                    const gameTime = new Date(game.startTime || game.timestamp || '');
+                    const sessionTime = game.startTime || game.timestamp;
+                    if (!sessionTime) return;
+                    const gameTime = new Date(sessionTime);
+                    // Check if date is valid
+                    if (isNaN(gameTime.getTime())) {
+                      console.warn('[Activity Snapshot] Invalid game timestamp:', sessionTime);
+                      return;
+                    }
+                    // Format time in user's local timezone
                     const timeStr = gameTime.toLocaleTimeString('en-US', { 
                       hour: 'numeric', 
                       minute: '2-digit',
-                      hour12: true 
+                      hour12: true,
+                      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
                     });
                     activities.push({
                       label: '',
