@@ -3522,18 +3522,64 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               console.log('[Activity Snapshot] Recent games count:', recentGames.length);
               
               // Get daily theme words found today from profile.themeWordsFoundToday
+              // But filter to only include words that are in TODAY'S theme word list
               const themeWordsFoundToday: Array<{ word: string }> = [];
-              const todaysThemeName = '';
+              let todaysThemeName = '';
+              let todaysThemeWords: string[] = [];
               
-              // Check profile.themeWordsFoundToday (most reliable source for daily theme words)
-              if (profile && 'themeWordsFoundToday' in profile) {
-                const profileThemeWords = (profile as { themeWordsFoundToday?: Array<string | { word: string }> }).themeWordsFoundToday || [];
-                profileThemeWords.forEach(w => {
-                  const word = typeof w === 'string' ? w : w.word;
-                  if (word && !themeWordsFoundToday.find(t => t.word === word.toUpperCase())) {
-                    themeWordsFoundToday.push({ word: word.toUpperCase() });
+              // Get today's theme words from themeAnalytics if available, or use a helper
+              // We need to filter themeWordsFoundToday to only include words in today's theme
+              try {
+                // Try to get today's theme from historicalThemeData if available (from theme day modal)
+                // Or we can calculate it using the same logic as mobile app
+                const now = new Date();
+                const dayOfWeek = now.toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  timeZone: 'UTC' 
+                }).toLowerCase();
+                
+                // Get theme from themeAnalytics if available
+                if (themeAnalytics && typeof themeAnalytics === 'object') {
+                  const analytics = themeAnalytics as Record<string, unknown>;
+                  // Look for today's theme name and words in analytics
+                  // Analytics structure varies, so we'll use a fallback
+                }
+                
+                // For now, we'll filter by checking if words exist in profile.themeWordsFoundToday
+                // and cross-reference with allFoundWords to see if they were found today
+                // Better: fetch today's theme from API endpoint
+                const todayStr = new Date().toISOString().split('T')[0];
+                const allFoundWords = profile?.allFoundWords || [];
+                
+                // Get words from profile.themeWordsFoundToday
+                const profileThemeWords: string[] = [];
+                if (profile && 'themeWordsFoundToday' in profile) {
+                  const rawThemeWords = (profile as { themeWordsFoundToday?: Array<string | { word: string }> }).themeWordsFoundToday || [];
+                  rawThemeWords.forEach(w => {
+                    const word = typeof w === 'string' ? w : w.word;
+                    if (word) profileThemeWords.push(word.toUpperCase());
+                  });
+                }
+                
+                // Cross-reference with allFoundWords to see which theme words were found TODAY
+                // This ensures we only count words found today, not from previous days
+                const wordsFoundTodayFromAllWords = new Set<string>();
+                allFoundWords.forEach(entry => {
+                  const word = typeof entry === 'string' ? entry : (entry.word || '');
+                  const wordDate = typeof entry === 'string' ? undefined : (entry.date || '');
+                  if (wordDate && wordDate === todayStr && word) {
+                    wordsFoundTodayFromAllWords.add(word.toUpperCase());
                   }
                 });
+                
+                // Only include theme words that were found today (according to allFoundWords with today's date)
+                profileThemeWords.forEach(word => {
+                  if (wordsFoundTodayFromAllWords.has(word) && !themeWordsFoundToday.find(t => t.word === word)) {
+                    themeWordsFoundToday.push({ word });
+                  }
+                });
+              } catch (error) {
+                console.warn('[Activity Snapshot] Error filtering theme words:', error);
               }
               
               // Get recent mission completions from transactionHistory (if available)
