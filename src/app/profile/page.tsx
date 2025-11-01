@@ -3590,15 +3590,21 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 }
               }
               
-              // Recent purchases from transaction history
+              // Recent purchases from transaction history (real money only, not flectcoin spending)
               const purchaseTransactions = transactions.filter(t => {
                 const txnDate = new Date(t.timestamp);
                 if (txnDate < oneDayAgo) return false;
-                // Check for purchase-related reasons (not just powerups, but actual purchases)
-                // We'll show powerup purchases as purchases too
-                const purchaseReasons = ['subscription_purchase', 'gems_purchase', 'flectcoins_purchase', 'frame_purchase', 'background_purchase'];
-                return purchaseReasons.includes(t.reason) || 
-                       (t.amount < 0 && ['hint_purchase', 'shuffle_purchase', 'freeze_purchase', 'time_extension_purchase'].includes(t.reason));
+                // Only show actual cash purchases: subscriptions, gems, flectcoins, frames, backgrounds
+                // Exclude powerup purchases (hint_purchase, shuffle_purchase, etc.) - those are flectcoin spending, not cash purchases
+                const cashPurchaseReasons = [
+                  'subscription_purchase',
+                  'subscription_renewal',
+                  'gems_purchase',
+                  'flectcoins_purchase',
+                  'frame_purchase',
+                  'background_purchase'
+                ];
+                return cashPurchaseReasons.includes(t.reason);
               }).slice(0, 5);
               
               if (purchaseTransactions.length > 0) {
