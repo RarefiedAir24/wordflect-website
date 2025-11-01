@@ -3550,37 +3550,41 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   }
                 });
                 
-                // Include theme words that:
-                // 1. Are in profile.themeWordsFoundToday, AND
-                // 2. Are found in allFoundWords with today's date (if allFoundWords has date info)
-                // If allFoundWords doesn't have date info for some words, still include them from themeWordsFoundToday
+                // Check if allFoundWords has date information
+                const hasDateInfo = allFoundWords.some(entry => {
+                  const entryWord = typeof entry === 'string' ? entry : (entry.word || '');
+                  const entryDate = typeof entry === 'string' ? undefined : (entry.date || '');
+                  return entryWord && entryDate;
+                });
+                
+                // Include theme words based on available data:
+                // - If allFoundWords has date info: only include words found today (filter out Friday's words)
+                // - If no date info: include all words from themeWordsFoundToday (trust backend daily reset)
                 profileThemeWords.forEach(word => {
                   const isInTodayWords = wordsFoundTodayFromAllWords.has(word);
-                  const hasAnyWordsWithDates = allFoundWords.some(entry => {
-                    const entryWord = typeof entry === 'string' ? entry : (entry.word || '');
-                    const entryDate = typeof entry === 'string' ? undefined : (entry.date || '');
-                    return entryWord && entryDate;
-                  });
                   
-                  // If we have date information in allFoundWords, use it to filter
-                  // Otherwise, trust themeWordsFoundToday (backend should reset it daily)
-                  if (hasAnyWordsWithDates) {
+                  if (hasDateInfo) {
+                    // We have date info - only show words found today (filters out Friday's words)
                     if (isInTodayWords && !themeWordsFoundToday.find(t => t.word === word)) {
                       themeWordsFoundToday.push({ word });
                     }
                   } else {
-                    // No date info available, trust themeWordsFoundToday
+                    // No date info available - trust themeWordsFoundToday (backend should reset daily)
+                    // Show all words from themeWordsFoundToday
                     if (!themeWordsFoundToday.find(t => t.word === word)) {
                       themeWordsFoundToday.push({ word });
                     }
                   }
                 });
                 
-                console.log('[Activity Snapshot] Theme words:', {
+                console.log('[Activity Snapshot] Theme words debug:', {
                   profileThemeWordsCount: profileThemeWords.length,
+                  profileThemeWords: profileThemeWords.slice(0, 5),
                   wordsFoundTodayCount: wordsFoundTodayFromAllWords.size,
+                  wordsFoundToday: Array.from(wordsFoundTodayFromAllWords).slice(0, 5),
                   filteredCount: themeWordsFoundToday.length,
-                  hasDateInfo: allFoundWords.some(e => typeof e === 'object' && e.date)
+                  hasDateInfo,
+                  finalThemeWords: themeWordsFoundToday.map(t => t.word).slice(0, 5)
                 });
               } catch (error) {
                 console.warn('[Activity Snapshot] Error filtering theme words:', error);
