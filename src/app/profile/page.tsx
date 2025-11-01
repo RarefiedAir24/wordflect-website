@@ -3477,13 +3477,45 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 });
               }
               
-              // Mission completions
+              // Mission completions - show specific missions
               if (recentMissions.length > 0) {
-                activities.push({
-                  label: 'Missions Completed',
-                  value: `${recentMissions.length} in last 24h`,
-                  icon: '✅'
+                // Get unique mission names (latest occurrence)
+                const missionNames = new Map<string, string>();
+                recentMissions.forEach(mission => {
+                  const missionTitle = (mission.metadata?.missionTitle as string) || 'Mission Completed';
+                  if (!missionNames.has(missionTitle)) {
+                    missionNames.set(missionTitle, missionTitle);
+                  }
                 });
+                
+                if (recentMissions.length === 1) {
+                  activities.push({
+                    label: 'Mission Completed',
+                    value: missionNames.values().next().value || 'Mission',
+                    icon: '✅'
+                  });
+                } else {
+                  activities.push({
+                    label: 'Missions Completed',
+                    value: `${recentMissions.length} missions`,
+                    icon: '✅'
+                  });
+                  // Show individual missions as sub-items
+                  Array.from(missionNames.values()).slice(0, 3).forEach(missionName => {
+                    activities.push({
+                      label: '',
+                      value: `  • ${missionName}`,
+                      icon: '🎯'
+                    });
+                  });
+                  if (missionNames.size > 3) {
+                    activities.push({
+                      label: '',
+                      value: `  +${missionNames.size - 3} more`,
+                      icon: ''
+                    });
+                  }
+                }
               }
               
               // Level
