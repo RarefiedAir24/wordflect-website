@@ -4503,32 +4503,32 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
               <div className="space-y-1">
                 <div className="font-medium text-blue-800">Late Night</div>
-                <div className="text-blue-600">00:00–04:00 UTC</div>
-                <div className="text-blue-500">Example (US Eastern): 7PM–11PM EST / 8PM–12AM EDT (prev day)</div>
+                <div className="text-blue-600">12:00 AM–3:59 AM</div>
+                <div className="text-blue-500">Your local time</div>
               </div>
               <div className="space-y-1">
                 <div className="font-medium text-blue-800">Early Morning</div>
-                <div className="text-blue-600">05:00–09:00 UTC</div>
-                <div className="text-blue-500">Example (US Eastern): 12AM–4AM EST / 1AM–5AM EDT</div>
+                <div className="text-blue-600">4:00 AM–8:59 AM</div>
+                <div className="text-blue-500">Your local time</div>
               </div>
               <div className="space-y-1">
                 <div className="font-medium text-blue-800">Late Morning</div>
-                <div className="text-blue-600">10:00–12:00 UTC</div>
-                <div className="text-blue-500">Example (US Eastern): 5AM–7AM EST / 6AM–8AM EDT</div>
+                <div className="text-blue-600">9:00 AM–12:59 PM</div>
+                <div className="text-blue-500">Your local time</div>
               </div>
               <div className="space-y-1">
                 <div className="font-medium text-blue-800">Afternoon</div>
-                <div className="text-blue-600">13:00–17:00 UTC</div>
-                <div className="text-blue-500">Example (US Eastern): 8AM–12PM EST / 9AM–1PM EDT</div>
+                <div className="text-blue-600">1:00 PM–5:59 PM</div>
+                <div className="text-blue-500">Your local time</div>
               </div>
               <div className="space-y-1">
                 <div className="font-medium text-blue-800">Evening</div>
-                <div className="text-blue-600">18:00–23:00 UTC</div>
-                <div className="text-blue-500">Example (US Eastern): 1PM–6PM EST / 2PM–7PM EDT</div>
+                <div className="text-blue-600">6:00 PM–11:59 PM</div>
+                <div className="text-blue-500">Your local time</div>
               </div>
               <div className="space-y-1">
                 <div className="text-blue-500 text-xs italic">
-                  Times are in UTC for consistency. Local equivalents vary by timezone and daylight saving.
+                  All times shown are based on your local timezone. The timezone abbreviation on each card (EST/EDT, PST/PDT, CST/CDT, etc.) indicates your local time zone.
                 </div>
               </div>
             </div>
@@ -4541,6 +4541,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               <h3 className="text-xl font-bold text-gray-900">Performance by Time Period</h3>
               <p className="text-sm text-gray-600">Your word-finding performance across different times of day</p>
             </div>
+            {/* Refresh and Inspect buttons hidden for production */}
+            {false && (
             <div className="flex items-center gap-3">
               <button
                 onClick={async () => {
@@ -4601,6 +4603,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 Inspect
               </button>
             </div>
+            )}
           </div>
           
           {/* Status Bar Legend */}
