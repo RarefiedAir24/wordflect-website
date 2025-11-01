@@ -5267,16 +5267,22 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           <div className="space-y-3">
             {(() => {
               const periods = [
-                { key: 'late-night', label: '00:00-03:59 UTC', color: 'indigo' },
-                { key: 'early-morning', label: '04:00-08:59 UTC', color: 'amber' },
-                { key: 'late-morning', label: '09:00-12:59 UTC', color: 'blue' },
-                { key: 'afternoon', label: '13:00-17:59 UTC', color: 'green' },
-                { key: 'evening', label: '18:00-23:59 UTC', color: 'purple' }
+                { key: 'late-night', color: 'indigo' },
+                { key: 'early-morning', color: 'amber' },
+                { key: 'late-morning', color: 'blue' },
+                { key: 'afternoon', color: 'green' },
+                { key: 'evening', color: 'purple' }
               ];
               
               return periods.map(period => {
                 const data = getTimePeriodData(period.key);
                 if (!data) return null;
+                
+                // Get label from backend data and convert to AM/PM format
+                const backendPeriodData = (timeAnalytics?.timePeriods as Record<string, { label?: string }> | undefined)?.[period.key];
+                const backendLabel = backendPeriodData?.label || '';
+                const localLabel = backendLabel ? convertLabelToAmPm(backendLabel) : '';
+                
                 const maxWords = Math.max(...periods.map(p => {
                   const pData = getTimePeriodData(p.key);
                   return pData ? pData.wordsFound : 0;
@@ -5285,7 +5291,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 
                 return (
                   <div key={period.key} className="flex items-center gap-3">
-                    <div className="w-20 text-xs text-gray-600">{period.label}</div>
+                    <div className="w-32 text-xs text-gray-600">{localLabel || `${period.key}`}</div>
                     <div className="flex-1 bg-gray-200 rounded-full h-4">
                       <div 
                         className={`bg-${period.color}-500 h-4 rounded-full flex items-center justify-end pr-2`} 
