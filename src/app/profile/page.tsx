@@ -749,7 +749,7 @@ export default function Profile() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [router, fetchProfile]);
   
-  // Fetch currency history function
+  // Fetch currency history function - trigger Vercel deployment
   const fetchCurrencyHistory = useCallback(async (type: 'flectcoins' | 'gems') => {
     console.log('💰 Fetching currency history for type:', type);
     setIsLoadingCurrencyHistory(true);
