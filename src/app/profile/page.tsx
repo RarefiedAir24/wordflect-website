@@ -3650,21 +3650,17 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               
               // Theme words found today
               if (themeWordsFoundToday.length > 0) {
-                const sortedThemeWords = [...themeWordsFoundToday].sort((a, b) => {
-                  // Sort by timestamp if available, otherwise by word
-                  const timeA = a.timestamp ? new Date(a.timestamp).getTime() : (a.time ? new Date(a.time).getTime() : 0);
-                  const timeB = b.timestamp ? new Date(b.timestamp).getTime() : (b.time ? new Date(b.time).getTime() : 0);
-                  return timeB - timeA; // Most recent first
-                });
+                // Sort alphabetically since we don't have timestamps
+                const sortedThemeWords = [...themeWordsFoundToday].sort((a, b) => a.word.localeCompare(b.word));
                 
                 activities.push({
                   label: 'Theme Words Found',
-                  value: `${themeWordsFoundToday.length} ${todaysThemeName ? `(${todaysThemeName})` : ''}`,
+                  value: `${themeWordsFoundToday.length} today${todaysThemeName ? ` (${todaysThemeName})` : ''}`,
                   icon: '🎯'
                 });
                 
-                // Show individual theme words (up to 5 most recent)
-                sortedThemeWords.slice(0, 5).forEach((entry, idx) => {
+                // Show individual theme words (up to 5)
+                sortedThemeWords.slice(0, 5).forEach((entry) => {
                   activities.push({
                     label: '',
                     value: `  • ${entry.word}`,
