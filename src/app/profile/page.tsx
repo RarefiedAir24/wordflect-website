@@ -766,6 +766,15 @@ export default function Profile() {
       setIsLoadingCurrencyHistory(false);
     }
   }, []);
+
+  // Load flectcoins history on mount to enable mission completion tracking in Activity Snapshot
+  useEffect(() => {
+    if (profile && apiService.isAuthenticated() && !currencyHistory) {
+      fetchCurrencyHistory('flectcoins').catch(err => {
+        console.error('Failed to load currency history for Activity Snapshot:', err);
+      });
+    }
+  }, [profile, currencyHistory, fetchCurrencyHistory]);
   
   // Generate time analytics from existing data
   useEffect(() => {
@@ -3421,12 +3430,108 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </div>
           <div>
               <h3 className="font-bold text-lg text-blue-950">Activity Snapshot</h3>
-              <p className="text-xs text-blue-700">Quick overview of your current status</p>
+              <p className="text-xs text-blue-700">Your recent activity overview</p>
             </div>
           </div>
           <div className="space-y-2 text-sm text-blue-900">
-            <div className="flex items-center justify-between"><span>Leaderboard Placements</span><span className="font-semibold">{profile.leaderboardPlacements}</span></div>
-            <div className="flex items-center justify-between"><span>Current Level</span><span className="font-semibold">{profile.highestLevel}</span></div>
+            {(() => {
+              const now = new Date();
+              const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+              
+              // Get recent games from sessionHistory
+              const sessions = (detailedStats?.sessionHistory || []) as Array<{ 
+                startTime?: string; 
+                timestamp?: string; 
+                level?: number;
+                score?: number;
+              }>;
+              const recentGames = sessions.filter(s => {
+                const sessionTime = s.startTime || s.timestamp;
+                if (!sessionTime) return false;
+                const sessionDate = new Date(sessionTime);
+                return sessionDate >= oneDayAgo;
+              });
+              
+              // Get recent mission completions from transactionHistory (if available)
+              const transactions = currencyHistory?.transactions || [];
+              const recentMissions = transactions.filter(t => {
+                if (t.reason !== 'mission_reward') return false;
+                const txnDate = new Date(t.timestamp);
+                return txnDate >= oneDayAgo;
+              }).slice(0, 5); // Show up to 5 recent missions
+              
+              // Check for level gains by comparing session levels
+              const levelGains: number[] = [];
+              recentGames.forEach(session => {
+                if (session.level && session.level > (profile?.highestLevel || 1) - 1) {
+                  // This is approximate - a session at level X might indicate reaching level X
+                  levelGains.push(session.level);
+                }
+              });
+              const newLevelReached = Math.max(...levelGains, profile?.highestLevel || 1) > (profile?.highestLevel || 1) - 1;
+              
+              // Battle stats (cumulative, show recent activity count if we had battle history)
+              const battlesPlayed = (profile?.battleWins || 0) + (profile?.battleLosses || 0);
+              const battleWinRate = battlesPlayed > 0 
+                ? Math.round(((profile?.battleWins || 0) / battlesPlayed) * 100) 
+                : 0;
+              
+              const activities: Array<{ label: string; value: string; icon: string }> = [];
+              
+              // Recent games
+              if (recentGames.length > 0) {
+                activities.push({
+                  label: 'Games Played',
+                  value: `${recentGames.length} in last 24h`,
+                  icon: '🎮'
+                });
+              }
+              
+              // Mission completions
+              if (recentMissions.length > 0) {
+                activities.push({
+                  label: 'Missions Completed',
+                  value: `${recentMissions.length} in last 24h`,
+                  icon: '✅'
+                });
+              }
+              
+              // Level
+              activities.push({
+                label: 'Current Level',
+                value: `${profile?.highestLevel || 1}`,
+                icon: '📈'
+              });
+              
+              // Battle stats
+              if (battlesPlayed > 0) {
+                activities.push({
+                  label: 'Battle Record',
+                  value: `${profile?.battleWins || 0}W - ${profile?.battleLosses || 0}L (${battleWinRate}% win rate)`,
+                  icon: '⚔️'
+                });
+              } else {
+                activities.push({
+                  label: 'Battles Played',
+                  value: '0',
+                  icon: '⚔️'
+                });
+              }
+              
+              return (
+                <div className="space-y-2.5">
+                  {activities.map((activity, idx) => (
+                    <div key={idx} className="flex items-center justify-between py-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">{activity.icon}</span>
+                        <span>{activity.label}</span>
+                      </div>
+                      <span className="font-semibold text-blue-950">{activity.value}</span>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>
