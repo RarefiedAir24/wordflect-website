@@ -36,15 +36,15 @@ const CurrencyHistoryModal: React.FC<CurrencyHistoryModalProps> = ({
 }) => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   
-  if (!isOpen) return null;
-  
-  // Filter transactions based on active filter
+  // Filter transactions based on active filter (must be before early return)
   const filteredTransactions = useMemo(() => {
     if (activeFilter === 'all') return transactions;
     if (activeFilter === 'earned') return transactions.filter(t => t.amount > 0);
     if (activeFilter === 'spent') return transactions.filter(t => t.amount < 0);
     return transactions;
   }, [transactions, activeFilter]);
+  
+  if (!isOpen) return null;
 
   const formatDate = (timestamp: string) => {
     const date = new Date(timestamp);
