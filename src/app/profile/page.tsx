@@ -109,25 +109,6 @@ export default function Profile() {
   const [speechSupported, setSpeechSupported] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   
-  // Historical theme analytics state
-  const [selectedHistoricalDate, setSelectedHistoricalDate] = useState<string>('');
-  const [historicalThemeData, setHistoricalThemeData] = useState<{
-    theme?: {
-      name: string;
-      words: string[];
-    };
-    stats?: {
-      totalThemeWordsFound: number;
-      completionRate: number;
-      isCompleted: boolean;
-    };
-    allThemeWords?: Array<{
-      word: string;
-      found: boolean;
-    }>;
-  } | null>(null);
-  const [loadingHistoricalData, setLoadingHistoricalData] = useState(false);
-  const [historicalError, setHistoricalError] = useState<string | null>(null);
 
   // Derived UI helpers
   const winRate = (p: UserProfile) => {
@@ -2497,39 +2478,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     }
     return undefined;
   };
-  // Fetch historical theme data for a specific date
-  const fetchHistoricalThemeData = async (date: string) => {
-    setLoadingHistoricalData(true);
-    setHistoricalError(null);
-    
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await fetch(`/api/proxy-theme-day?date=${date}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch theme data: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('Historical theme data:', data);
-      setHistoricalThemeData(data);
-    } catch (err) {
-      console.error('Error fetching historical theme data:', err);
-      setHistoricalError(err instanceof Error ? err.message : 'Failed to fetch theme data');
-      setHistoricalThemeData(null);
-    } finally {
-      setLoadingHistoricalData(false);
-    }
-  };
   const getThemePerformanceSummary = () => {
     if (!profile || !profile.allFoundWords || profile.allFoundWords.length === 0) {
       return {
@@ -4719,15 +4667,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               </div>
               <h4 className="font-semibold text-violet-900">Theme Performance Summary</h4>
             </div>
-            <a
-              href="/theme-history"
-              className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-violet-700 bg-violet-100 hover:bg-violet-200 rounded-lg transition-colors duration-200"
-            >
-              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              View History
-            </a>
           </div>
           {(() => {
             const summary = getThemePerformanceSummary();
@@ -4755,243 +4694,74 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             );
           })()}
         </div>
-        {/* Historical Theme Analytics */}
+        {/* Achievement Highlights */}
         <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center">
+            <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
               <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
               </svg>
             </div>
-            <h4 className="font-semibold text-gray-900">Historical Theme Performance</h4>
+            <h4 className="font-semibold text-gray-900">Achievement Highlights</h4>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Date Picker */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Date
-              </label>
-              <input
-                type="date"
-                value={selectedHistoricalDate}
-                max={new Date().toISOString().split('T')[0]}
-                min={new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                onChange={(e) => {
-                  if (e.target.value) {
-                    setSelectedHistoricalDate(e.target.value);
-                    fetchHistoricalThemeData(e.target.value);
-                  }
-                }}
-              />
-            </div>
-            
-            {/* Quick Date Buttons */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Quick Select
-              </label>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => {
-                    const today = new Date().toISOString().split('T')[0];
-                    setSelectedHistoricalDate(today);
-                    fetchHistoricalThemeData(today);
-                  }}
-                  className="px-3 py-1 text-xs bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition-colors"
-                >
-                  Today
-                </button>
-                <button
-                  onClick={() => {
-                    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                    setSelectedHistoricalDate(yesterday);
-                    fetchHistoricalThemeData(yesterday);
-                  }}
-                  className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
-                >
-                  Yesterday
-                </button>
-                <button
-                  onClick={() => {
-                    const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                    setSelectedHistoricalDate(lastWeek);
-                    fetchHistoricalThemeData(lastWeek);
-                  }}
-                  className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
-                >
-                  Last Week
-                </button>
-                <button
-                  onClick={() => {
-                    const lastMonth = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                    setSelectedHistoricalDate(lastMonth);
-                    fetchHistoricalThemeData(lastMonth);
-                  }}
-                  className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
-                >
-                  Last Month
-                </button>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Longest Word Found */}
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-blue-700">Longest Word</span>
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div className="text-2xl font-bold text-blue-900">
+                {profile?.allFoundWords && profile.allFoundWords.length > 0
+                  ? Math.max(...profile.allFoundWords.map((w: string | { word: string }) => {
+                      const word = typeof w === 'string' ? w : w.word;
+                      return word ? word.length : 0;
+                    }))
+                  : '—'}
+              </div>
+              <div className="text-xs text-blue-600 mt-1">
+                {profile?.allFoundWords && profile.allFoundWords.length > 0
+                  ? profile.allFoundWords
+                      .map((w: string | { word: string }) => typeof w === 'string' ? w : w.word)
+                      .filter((w: string | undefined) => w && w.length === Math.max(...profile.allFoundWords.map((w: string | { word: string }) => {
+                        const word = typeof w === 'string' ? w : w.word;
+                        return word ? word.length : 0;
+                      })))
+                      [0]?.toUpperCase() || 'No words yet'
+                  : 'letters'}
               </div>
             </div>
-          </div>
-          
-          {/* Historical Data Display */}
-          <div className="mt-4">
-            {loadingHistoricalData && (
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                  <span className="ml-3 text-blue-700">Loading theme data...</span>
-                </div>
+
+            {/* Best Game Score */}
+            <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-green-700">Best Score</span>
+                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
               </div>
-            )}
-
-            {historicalError && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800">Error loading theme data</h3>
-                    <div className="mt-2 text-sm text-red-700">{historicalError}</div>
-                  </div>
-                </div>
+              <div className="text-2xl font-bold text-green-900">
+                {profile?.topScore || 0}
               </div>
-            )}
+              <div className="text-xs text-green-600 mt-1">points in a single game</div>
+            </div>
 
-            {historicalThemeData && !loadingHistoricalData && (
-              <div className="space-y-4">
-                {/* Header Info */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {new Date(selectedHistoricalDate).toLocaleDateString('en-US', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {historicalThemeData.theme?.name || 'Unknown Theme'}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                        (historicalThemeData.stats?.completionRate || 0) >= 100 
-                          ? 'text-green-600 bg-green-100' 
-                          : (historicalThemeData.stats?.completionRate || 0) >= 75
-                          ? 'text-blue-600 bg-blue-100'
-                          : (historicalThemeData.stats?.completionRate || 0) >= 50
-                          ? 'text-yellow-600 bg-yellow-100'
-                          : 'text-red-600 bg-red-100'
-                      }`}>
-                        {historicalThemeData.stats?.completionRate || 0}% Complete
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Progress Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-blue-600">
-                      {historicalThemeData.stats?.totalThemeWordsFound || 0}
-                    </div>
-                    <div className="text-sm text-gray-600">Words Found</div>
-                  </div>
-                  <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-green-600">
-                      {historicalThemeData.theme?.words?.length || 20}
-                    </div>
-                    <div className="text-sm text-gray-600">Total Words</div>
-                  </div>
-                  <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <div className="text-2xl font-bold text-purple-600">
-                      {historicalThemeData.stats?.isCompleted ? '✅' : '⏳'}
-                    </div>
-                    <div className="text-sm text-gray-600">Status</div>
-                  </div>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">Progress</span>
-                    <span className="text-sm text-gray-600">
-                      {historicalThemeData.stats?.totalThemeWordsFound || 0} / {historicalThemeData.theme?.words?.length || 20}
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div
-                      className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-300"
-                      style={{ width: `${historicalThemeData.stats?.completionRate || 0}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                {/* Theme Words Grid */}
-                {historicalThemeData.allThemeWords && (
-                  <div className="bg-white border border-gray-200 rounded-lg p-4">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Theme Words</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2">
-                      {historicalThemeData.allThemeWords.map((wordData: { word: string; found: boolean }, index: number) => (
-                        <div
-                          key={index}
-                          className={`p-3 rounded-lg text-center text-sm font-medium transition-colors ${
-                            wordData.found
-                              ? 'bg-green-100 text-green-800 border border-green-200'
-                              : 'bg-gray-100 text-gray-600 border border-gray-200'
-                          }`}
-                        >
-                          <div className="flex items-center justify-center">
-                            {wordData.found && (
-                              <svg className="w-4 h-4 mr-1 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                            {wordData.word}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Summary */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="text-lg font-semibold text-blue-900 mb-2">Performance Summary</h4>
-                  <div className="text-sm text-blue-800">
-                    {historicalThemeData.stats?.isCompleted ? (
-                      <p>🎉 Congratulations! You completed the {historicalThemeData.theme?.name} theme on {new Date(selectedHistoricalDate).toLocaleDateString()}!</p>
-                    ) : (
-                      <p>
-                        You found {historicalThemeData.stats?.totalThemeWordsFound || 0} out of {historicalThemeData.theme?.words?.length || 20} words 
-                        ({historicalThemeData.stats?.completionRate || 0}% complete) for the {historicalThemeData.theme?.name} theme.
-                      </p>
-                    )}
-                  </div>
-                </div>
+            {/* Total Games Played */}
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-purple-700">Games Played</span>
+                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
               </div>
-            )}
-
-            {!selectedHistoricalDate && !loadingHistoricalData && !historicalError && (
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <div className="text-center text-gray-600">
-                  <svg className="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <p className="text-sm">Select a date to view historical theme performance</p>
-                  <p className="text-xs text-gray-500 mt-1">View your daily theme progress for any past date</p>
-                </div>
+              <div className="text-2xl font-bold text-purple-900">
+                {profile?.gamesPlayed || 0}
               </div>
-            )}
+              <div className="text-xs text-purple-600 mt-1">total games completed</div>
+            </div>
           </div>
         </div>
 
