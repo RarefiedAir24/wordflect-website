@@ -27,13 +27,21 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
     const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     
-    // Extract all components using UTC methods
-    // Extract year from UTC ISO string (YYYY-MM-DD) for absolute consistency
+    // Extract all components using UTC methods for absolute consistency
+    // Extract directly from UTC ISO string to avoid any timezone conversion
     const utcIsoString = date.toISOString(); // e.g., "2025-11-02T00:00:00.000Z"
     const year = parseInt(utcIsoString.substring(0, 4), 10);
+    const month = parseInt(utcIsoString.substring(5, 7), 10); // 1-12
+    const day = parseInt(utcIsoString.substring(8, 10), 10); // 1-31
+    
+    // Calculate day of week from the UTC date object
     const weekday = weekdays[date.getUTCDay()];
-    const monthName = months[date.getUTCMonth()];
-    const day = date.getUTCDate();
+    const monthName = months[month - 1]; // month is 1-12, array is 0-indexed
+    
+    console.log('🔍 formatDate - Input date:', date.toISOString());
+    console.log('🔍 formatDate - Extracted YYYY-MM-DD:', `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+    console.log('🔍 formatDate - UTC Day of week index:', date.getUTCDay(), '→', weekday);
+    console.log('🔍 formatDate - Result:', `${weekday}, ${monthName} ${day}, ${year}`);
     
     return `${weekday}, ${monthName} ${day}, ${year}`;
   };
@@ -117,7 +125,13 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
           <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-          {selectedDateObj ? formatDate(selectedDateObj) : 'Select a date'}
+          {selectedDateObj ? (() => {
+            const formatted = formatDate(selectedDateObj);
+            console.log('📅 Button display - selectedDate prop:', selectedDate);
+            console.log('📅 Button display - selectedDateObj:', selectedDateObj.toISOString());
+            console.log('📅 Button display - formatted result:', formatted);
+            return formatted;
+          })() : 'Select a date'}
         </span>
         <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
