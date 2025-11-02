@@ -74,24 +74,35 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
   };
 
   const goToToday = () => {
-    // Get today's date in UTC to match backend date calculations
+    // Get today's date in UTC - extract directly from ISO string to avoid any timezone issues
     const now = new Date();
-    const utcYear = now.getUTCFullYear();
-    const utcMonth = now.getUTCMonth();
-    const utcDay = now.getUTCDate();
-    const today = new Date(Date.UTC(utcYear, utcMonth, utcDay));
+    const utcIsoString = now.toISOString(); // e.g., "2025-11-02T20:30:00.000Z"
+    const todayString = utcIsoString.substring(0, 10); // "2025-11-02"
+    
+    // Parse the date string to create a UTC date object for display
+    const [year, month, day] = todayString.split('-').map(Number);
+    const today = new Date(Date.UTC(year, month - 1, day));
+    
     console.log('🗓️ goToToday - Current time (local):', now.toString());
     console.log('🗓️ goToToday - Current time (UTC):', now.toUTCString());
-    console.log('🗓️ goToToday - UTC components:', { year: utcYear, month: utcMonth, day: utcDay });
+    console.log('🗓️ goToToday - Extracted today string:', todayString);
     console.log('🗓️ goToToday - Created UTC date:', today.toISOString());
-    console.log('🗓️ goToToday - Date string will be:', today.toISOString().substring(0, 10));
+    
     handleDateChange(today);
   };
 
   const goToYesterday = () => {
-    // Get yesterday's date in UTC
+    // Get yesterday's date in UTC - extract from ISO string and subtract one day
     const now = new Date();
-    const yesterday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
+    const utcIsoString = now.toISOString();
+    const todayString = utcIsoString.substring(0, 10);
+    const [year, month, day] = todayString.split('-').map(Number);
+    
+    // Create a date for today, then subtract one day
+    const today = new Date(Date.UTC(year, month - 1, day));
+    const yesterday = new Date(today);
+    yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+    
     handleDateChange(yesterday);
   };
 
