@@ -4805,7 +4805,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           {(() => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const periodData = getTimePeriodData('late-night') as any;
-            console.log('🔄 Rendering late-night card with data:', periodData, 'for filter:', timePeriodFilter);
+            console.log('🔄 Rendering late-night card with data:', periodData);
             if (!periodData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
