@@ -4720,6 +4720,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           <div>
             <h3 className="font-bold text-xl text-blue-950">Performance by Time Period</h3>
             <p className="text-sm text-blue-700">Discover when your brain performs at its peak</p>
+            <p className="text-sm text-gray-600 mt-2">Your word-finding performance across different times of day</p>
           </div>
         </div>
         {/* Time Period Filter */}
@@ -4809,56 +4810,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           )}
         </div>
 
-        {/* Time Period Reference */}
-        <div className="mb-4">
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
-            <div className="font-semibold mb-3 flex items-center">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Time Period Reference
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
-              <div className="space-y-1">
-                <div className="font-medium text-blue-800">Late Night</div>
-                <div className="text-blue-600">12:00 AM–3:59 AM</div>
-                <div className="text-blue-500">Your local time</div>
-              </div>
-              <div className="space-y-1">
-                <div className="font-medium text-blue-800">Early Morning</div>
-                <div className="text-blue-600">4:00 AM–8:59 AM</div>
-                <div className="text-blue-500">Your local time</div>
-              </div>
-              <div className="space-y-1">
-                <div className="font-medium text-blue-800">Late Morning</div>
-                <div className="text-blue-600">9:00 AM–12:59 PM</div>
-                <div className="text-blue-500">Your local time</div>
-              </div>
-              <div className="space-y-1">
-                <div className="font-medium text-blue-800">Afternoon</div>
-                <div className="text-blue-600">1:00 PM–5:59 PM</div>
-                <div className="text-blue-500">Your local time</div>
-              </div>
-              <div className="space-y-1">
-                <div className="font-medium text-blue-800">Evening</div>
-                <div className="text-blue-600">6:00 PM–11:59 PM</div>
-                <div className="text-blue-500">Your local time</div>
-              </div>
-              <div className="space-y-1">
-                <div className="text-blue-500 text-xs italic">
-                  All times shown are based on your local timezone. The timezone abbreviation on each card (EST/EDT, PST/PDT, CST/CDT, etc.) indicates your local time zone.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
         {/* Time Period Performance Overview */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-xl font-bold text-gray-900">Performance by Time Period</h3>
-              <p className="text-sm text-gray-600">Your word-finding performance across different times of day</p>
-            </div>
             {/* Refresh and Inspect buttons hidden for production */}
             {false && (
             <div className="flex items-center gap-3">
