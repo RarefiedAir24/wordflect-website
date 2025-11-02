@@ -71,7 +71,7 @@ export default function Profile() {
   });
   
   // Time period filter state
-  const [timePeriodFilter, setTimePeriodFilter] = useState<string>('ALL');
+  const [timePeriodFilter, setTimePeriodFilter] = useState<string>('all');
   const [showCustomDateRange, setShowCustomDateRange] = useState(false);
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
@@ -769,13 +769,32 @@ export default function Profile() {
       }
 
       console.log('🎯 Starting time analytics fetch for profile:', profile.id);
+      console.log('🎯 Current time period filter:', timePeriodFilter);
 
       try {
         console.log('🎯 Fetching time analytics from backend API...');
         console.log('🔐 Is authenticated:', apiService.isAuthenticated());
         console.log('🔐 Token expired:', apiService.isTokenExpired());
         
-        const response = await apiService.getTimeAnalytics();
+        // Map frontend filter values to backend period values
+        let filters: { period?: string; startDate?: string; endDate?: string } = {};
+        
+        if (timePeriodFilter === 'custom' && customStartDate && customEndDate) {
+          filters = {
+            period: 'custom',
+            startDate: customStartDate,
+            endDate: customEndDate
+          };
+        } else if (timePeriodFilter === 'L7') {
+          filters = { period: '7d' };
+        } else if (timePeriodFilter === 'L30') {
+          filters = { period: '30d' };
+        } else if (timePeriodFilter === 'all' || timePeriodFilter === 'ALL') {
+          filters = { period: 'all' };
+        }
+        
+        console.log('🎯 Fetching with filters:', filters);
+        const response = await apiService.getTimeAnalytics(filters);
         console.log('✅ Backend time analytics response:', response);
         
         if (response && (response as Record<string, unknown>).analytics) {
@@ -819,7 +838,7 @@ export default function Profile() {
     } else {
       console.log('❌ No profile, skipping time analytics fetch');
     }
-  }, [profile]);
+  }, [profile, timePeriodFilter, customStartDate, customEndDate]);
 
   // Refresh time analytics periodically and on tab focus
   useEffect(() => {
@@ -828,7 +847,24 @@ export default function Profile() {
     const refresh = async () => {
       try {
         console.log('🔄 Auto-refreshing time analytics data...');
-        const response = await apiService.getTimeAnalytics();
+        // Use the current filter state for refresh
+        let filters: { period?: string; startDate?: string; endDate?: string } = {};
+        
+        if (timePeriodFilter === 'custom' && customStartDate && customEndDate) {
+          filters = {
+            period: 'custom',
+            startDate: customStartDate,
+            endDate: customEndDate
+          };
+        } else if (timePeriodFilter === 'L7') {
+          filters = { period: '7d' };
+        } else if (timePeriodFilter === 'L30') {
+          filters = { period: '30d' };
+        } else if (timePeriodFilter === 'all' || timePeriodFilter === 'ALL') {
+          filters = { period: 'all' };
+        }
+        
+        const response = await apiService.getTimeAnalytics(filters);
         if (response && (response as Record<string, unknown>).analytics) {
           const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
           setTimeAnalytics(analytics);
@@ -857,7 +893,7 @@ export default function Profile() {
       window.removeEventListener('focus', onFocus);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [profile]);
+  }, [profile, timePeriodFilter, customStartDate, customEndDate]);
 
   // Fetch theme analytics from backend API
   useEffect(() => {
@@ -2647,28 +2683,15 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
   };
 
   // Handle time period filter change
-  const handleTimePeriodFilter = async (period: string) => {
+  const handleTimePeriodFilter = (period: string) => {
     console.log(`🕐 Changing time period filter to: ${period}`);
     setTimePeriodFilter(period);
     setShowCustomDateRange(false);
-    
-    // Fetch time analytics with the new filter
-    try {
-      const filters = period === 'ALL' ? {} : { period };
-      const response = await apiService.getTimeAnalytics(filters);
-      console.log('✅ Filtered time analytics response:', response);
-      
-      if (response && (response as Record<string, unknown>).analytics) {
-        const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
-        setTimeAnalytics(analytics);
-      }
-    } catch (error) {
-      console.error('❌ Error fetching filtered time analytics:', error);
-    }
+    // The useEffect will automatically refetch with the new filter
   };
 
   // Handle custom date range
-  const handleCustomDateRange = async () => {
+  const handleCustomDateRange = () => {
     if (!customStartDate || !customEndDate) {
       alert('Please select both start and end dates');
       return;
@@ -2676,23 +2699,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     
     console.log(`🕐 Applying custom date range: ${customStartDate} to ${customEndDate}`);
     setTimePeriodFilter('custom');
-    
-    try {
-      const filters = { 
-        period: 'custom',
-        startDate: customStartDate,
-        endDate: customEndDate
-      };
-      const response = await apiService.getTimeAnalytics(filters);
-      console.log('✅ Custom date range time analytics response:', response);
-      
-      if (response && (response as Record<string, unknown>).analytics) {
-        const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
-        setTimeAnalytics(analytics);
-      }
-    } catch (error) {
-      console.error('❌ Error fetching custom date range time analytics:', error);
-    }
+    // The useEffect will automatically refetch with the custom date range
   };
 
   // Handle theme day click
@@ -4736,9 +4743,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 Last 30 Days
               </button>
               <button
-                onClick={() => handleTimePeriodFilter('ALL')}
+                onClick={() => handleTimePeriodFilter('all')}
                 className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  timePeriodFilter === 'ALL' 
+                  timePeriodFilter === 'all' 
                     ? 'bg-blue-500 text-white' 
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
