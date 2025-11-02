@@ -58,36 +58,43 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
   };
 
   const goToToday = () => {
-    const today = new Date();
+    // Get today's date in UTC to match backend date calculations
+    const now = new Date();
+    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
     handleDateChange(today);
   };
 
   const goToYesterday = () => {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
+    // Get yesterday's date in UTC
+    const now = new Date();
+    const yesterday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
     handleDateChange(yesterday);
   };
 
   const goToLastWeek = () => {
-    const lastWeek = new Date();
-    lastWeek.setDate(lastWeek.getDate() - 7);
+    // Get last week's date in UTC (7 days ago)
+    const now = new Date();
+    const lastWeek = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 7));
     handleDateChange(lastWeek);
   };
 
   const goToLastMonth = () => {
-    const lastMonth = new Date();
-    lastMonth.setMonth(lastMonth.getMonth() - 1);
+    // Get last month's date in UTC
+    const now = new Date();
+    const lastMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, now.getUTCDate()));
     handleDateChange(lastMonth);
   };
 
   const getMaxDate = () => {
-    return new Date(); // Today is the maximum date
+    // Today in UTC
+    const now = new Date();
+    return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
   };
 
   const getMinDate = () => {
-    const minDate = new Date();
-    minDate.setFullYear(minDate.getFullYear() - 1); // 1 year ago
-    return minDate;
+    // 1 year ago in UTC
+    const now = new Date();
+    return new Date(Date.UTC(now.getUTCFullYear() - 1, now.getUTCMonth(), now.getUTCDate()));
   };
 
   return (
@@ -149,7 +156,10 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
                 value={selectedDateObj ? selectedDateObj.toISOString().split('T')[0] : ''}
                 onChange={(e) => {
                   if (e.target.value) {
-                    handleDateChange(new Date(e.target.value));
+                    // Parse YYYY-MM-DD as UTC to avoid timezone issues
+                    const [year, month, day] = e.target.value.split('-').map(Number);
+                    const date = new Date(Date.UTC(year, month - 1, day));
+                    handleDateChange(date);
                   }
                 }}
                 max={getMaxDate().toISOString().split('T')[0]}
