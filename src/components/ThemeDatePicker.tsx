@@ -53,6 +53,8 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
     const month = String(date.getUTCMonth() + 1).padStart(2, '0');
     const day = String(date.getUTCDate()).padStart(2, '0');
     const dateString = `${year}-${month}-${day}`;
+    console.log('📅 handleDateChange - Date object:', date.toISOString());
+    console.log('📅 handleDateChange - Date string sent:', dateString);
     onDateSelect(dateString);
     setIsOpen(false);
   };
@@ -61,6 +63,8 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
     // Get today's date in UTC to match backend date calculations
     const now = new Date();
     const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    console.log('🗓️ goToToday - Current UTC time:', now.toUTCString());
+    console.log('🗓️ goToToday - UTC date object:', today.toISOString());
     handleDateChange(today);
   };
 

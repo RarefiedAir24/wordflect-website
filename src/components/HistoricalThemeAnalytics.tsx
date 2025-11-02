@@ -54,6 +54,9 @@ export default function HistoricalThemeAnalytics({ className }: HistoricalThemeA
 
       const data = await response.json();
       console.log('Historical theme data:', data);
+      console.log('📅 Date requested:', date);
+      console.log('📅 Date received from backend:', data.date);
+      console.log('📅 Date will be formatted as:', data.date ? formatDate(data.date) : 'N/A');
       setThemeData(data);
     } catch (err) {
       console.error('Error fetching historical theme data:', err);
