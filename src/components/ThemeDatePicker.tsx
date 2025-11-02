@@ -59,15 +59,15 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
 
   const handleDateChange = (date: Date) => {
     setSelectedDateObj(date);
-    // Use UTC date components to create YYYY-MM-DD string to avoid timezone issues
-    // Extract year from UTC ISO string for consistency
-    const utcIsoString = date.toISOString();
-    const year = parseInt(utcIsoString.substring(0, 4), 10);
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
+    // Extract ALL components from UTC ISO string for absolute consistency
+    // This ensures the date string matches exactly what the backend expects
+    const utcIsoString = date.toISOString(); // e.g., "2025-11-02T00:00:00.000Z"
+    const year = utcIsoString.substring(0, 4);
+    const month = utcIsoString.substring(5, 7);
+    const day = utcIsoString.substring(8, 10);
     const dateString = `${year}-${month}-${day}`;
     console.log('📅 handleDateChange - Date object:', date.toISOString());
-    console.log('📅 handleDateChange - Date string sent:', dateString);
+    console.log('📅 handleDateChange - Extracted YYYY-MM-DD from ISO:', dateString);
     console.log('📅 handleDateChange - Formatted display will be:', formatDate(date));
     onDateSelect(dateString);
     setIsOpen(false);
@@ -76,9 +76,15 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
   const goToToday = () => {
     // Get today's date in UTC to match backend date calculations
     const now = new Date();
-    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-    console.log('🗓️ goToToday - Current UTC time:', now.toUTCString());
-    console.log('🗓️ goToToday - UTC date object:', today.toISOString());
+    const utcYear = now.getUTCFullYear();
+    const utcMonth = now.getUTCMonth();
+    const utcDay = now.getUTCDate();
+    const today = new Date(Date.UTC(utcYear, utcMonth, utcDay));
+    console.log('🗓️ goToToday - Current time (local):', now.toString());
+    console.log('🗓️ goToToday - Current time (UTC):', now.toUTCString());
+    console.log('🗓️ goToToday - UTC components:', { year: utcYear, month: utcMonth, day: utcDay });
+    console.log('🗓️ goToToday - Created UTC date:', today.toISOString());
+    console.log('🗓️ goToToday - Date string will be:', today.toISOString().substring(0, 10));
     handleDateChange(today);
   };
 
