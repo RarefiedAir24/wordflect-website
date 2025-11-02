@@ -175,8 +175,7 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
                   Selected: {formatDateShort(selectedDateObj)}
                 </div>
                 <div className="text-xs text-blue-700 mt-1">
-                  {selectedDateObj.toLocaleDateString('en-US', { weekday: 'long' })} • 
-                  {selectedDateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  {formatDate(selectedDateObj)} • UTC
                 </div>
               </div>
             )}
