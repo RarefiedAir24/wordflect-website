@@ -4800,7 +4800,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6" key={`time-periods-${timePeriodFilter}-${customStartDate}-${customEndDate}`}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           {/* Late Night (12AM - 4AM) */}
           {(() => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
