@@ -776,25 +776,10 @@ export default function Profile() {
         console.log('🔐 Is authenticated:', apiService.isAuthenticated());
         console.log('🔐 Token expired:', apiService.isTokenExpired());
         
-        // Map frontend filter values to backend period values
-        // Backend expects: 'L7', 'L30', 'ALL', or 'custom' (with startDate/endDate)
-        let filters: { period?: string; startDate?: string; endDate?: string } = {};
+        // Always fetch "All Time" data
+        const filters = { period: 'ALL' };
         
-        if (timePeriodFilter === 'custom' && customStartDate && customEndDate) {
-          filters = {
-            period: 'custom',
-            startDate: customStartDate,
-            endDate: customEndDate
-          };
-        } else if (timePeriodFilter === 'L7') {
-          filters = { period: 'L7' };
-        } else if (timePeriodFilter === 'L30') {
-          filters = { period: 'L30' };
-        } else if (timePeriodFilter === 'all' || timePeriodFilter === 'ALL') {
-          filters = { period: 'ALL' };
-        }
-        
-        console.log('🎯 Fetching with filters:', filters);
+        console.log('🎯 Fetching time analytics (All Time):', filters);
         const response = await apiService.getTimeAnalytics(filters);
         console.log('✅ Backend time analytics response:', response);
         
@@ -812,7 +797,7 @@ export default function Profile() {
               console.log(`📊 ${period} sessions count:`, Array.isArray(periodData?.sessions) ? periodData.sessions.length : 0);
             });
           }
-          console.log('🔄 Setting timeAnalytics state with filtered data for period:', timePeriodFilter);
+          console.log('🔄 Setting timeAnalytics state with All Time data');
           setTimeAnalytics(analytics);
         } else {
           console.warn('⚠️ No analytics data in backend response');
@@ -842,7 +827,7 @@ export default function Profile() {
     } else {
       console.log('❌ No profile, skipping time analytics fetch');
     }
-  }, [profile, timePeriodFilter, customStartDate, customEndDate]);
+  }, [profile]);
 
   // Refresh time analytics periodically and on tab focus
   useEffect(() => {
@@ -850,24 +835,9 @@ export default function Profile() {
 
     const refresh = async () => {
       try {
-        console.log('🔄 Auto-refreshing time analytics data...');
-        // Use the current filter state for refresh
-        // Backend expects: 'L7', 'L30', 'ALL', or 'custom' (with startDate/endDate)
-        let filters: { period?: string; startDate?: string; endDate?: string } = {};
-        
-        if (timePeriodFilter === 'custom' && customStartDate && customEndDate) {
-          filters = {
-            period: 'custom',
-            startDate: customStartDate,
-            endDate: customEndDate
-          };
-        } else if (timePeriodFilter === 'L7') {
-          filters = { period: 'L7' };
-        } else if (timePeriodFilter === 'L30') {
-          filters = { period: 'L30' };
-        } else if (timePeriodFilter === 'all' || timePeriodFilter === 'ALL') {
-          filters = { period: 'ALL' };
-        }
+        console.log('🔄 Auto-refreshing time analytics data (All Time)...');
+        // Always use "All Time" data
+        const filters = { period: 'ALL' };
         
         const response = await apiService.getTimeAnalytics(filters);
         if (response && (response as Record<string, unknown>).analytics) {
@@ -4722,92 +4692,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             <p className="text-sm text-blue-700">Discover when your brain performs at its peak</p>
             <p className="text-sm text-gray-600 mt-2">Your word-finding performance across different times of day</p>
           </div>
-        </div>
-        {/* Time Period Filter */}
-        <div className="mb-6">
-          <div className="flex flex-wrap items-center gap-4 mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Performance by Time Period</h3>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => handleTimePeriodFilter('L7')}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  timePeriodFilter === 'L7' 
-                    ? 'bg-blue-500 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Last 7 Days
-              </button>
-              <button
-                onClick={() => handleTimePeriodFilter('L30')}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  timePeriodFilter === 'L30' 
-                    ? 'bg-blue-500 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Last 30 Days
-              </button>
-              <button
-                onClick={() => handleTimePeriodFilter('all')}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  timePeriodFilter === 'all' 
-                    ? 'bg-blue-500 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                All Time
-              </button>
-              <button
-                onClick={() => setShowCustomDateRange(!showCustomDateRange)}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  showCustomDateRange 
-                    ? 'bg-green-500 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Custom Range
-              </button>
-            </div>
-          </div>
-          
-          {/* Custom Date Range Picker */}
-          {showCustomDateRange && (
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <div className="flex flex-wrap items-center gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                  <input
-                    type="date"
-                    value={customStartDate}
-                    onChange={(e) => setCustomStartDate(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                  <input
-                    type="date"
-                    value={customEndDate}
-                    onChange={(e) => setCustomEndDate(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <button
-                  onClick={handleCustomDateRange}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-                >
-                  Apply Range
-                </button>
-                <button
-                  onClick={() => setShowCustomDateRange(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Time Period Performance Overview */}
