@@ -37,11 +37,12 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
   };
 
   const formatDateShort = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+    // Use UTC methods to avoid timezone shifting
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthName = months[date.getUTCMonth()];
+    const day = date.getUTCDate();
+    const year = date.getUTCFullYear();
+    return `${monthName} ${day}, ${year}`;
   };
 
   const handleDateChange = (date: Date) => {
