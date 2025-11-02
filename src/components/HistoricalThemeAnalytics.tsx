@@ -75,13 +75,19 @@ export default function HistoricalThemeAnalytics({ className }: HistoricalThemeA
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    // Parse date string as UTC to avoid timezone shifting
+    // dateString is in format YYYY-MM-DD (UTC date)
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    
+    // Format using UTC methods to ensure correct day of week
+    const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    const weekday = weekdays[date.getUTCDay()];
+    const monthName = months[date.getUTCMonth()];
+    
+    return `${weekday}, ${monthName} ${day}, ${year}`;
   };
 
   const getCompletionColor = (completionRate: number) => {

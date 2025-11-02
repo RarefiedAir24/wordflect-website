@@ -14,17 +14,26 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
 
   useEffect(() => {
     if (selectedDate) {
-      setSelectedDateObj(new Date(selectedDate));
+      // Parse YYYY-MM-DD as UTC to avoid timezone issues
+      const [year, month, day] = selectedDate.split('-').map(Number);
+      const date = new Date(Date.UTC(year, month - 1, day));
+      setSelectedDateObj(date);
     }
   }, [selectedDate]);
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    // Use UTC methods to avoid timezone shifting
+    // The date string (YYYY-MM-DD) represents a UTC date
+    const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    // If date was created from a YYYY-MM-DD string, use UTC methods
+    const weekday = weekdays[date.getUTCDay()];
+    const monthName = months[date.getUTCMonth()];
+    const day = date.getUTCDate();
+    const year = date.getUTCFullYear();
+    
+    return `${weekday}, ${monthName} ${day}, ${year}`;
   };
 
   const formatDateShort = (date: Date) => {
@@ -37,7 +46,12 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
 
   const handleDateChange = (date: Date) => {
     setSelectedDateObj(date);
-    const dateString = date.toISOString().split('T')[0];
+    // Use UTC date components to create YYYY-MM-DD string to avoid timezone issues
+    // This ensures the selected local date is correctly represented as a UTC date
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const dateString = `${year}-${month}-${day}`;
     onDateSelect(dateString);
     setIsOpen(false);
   };
