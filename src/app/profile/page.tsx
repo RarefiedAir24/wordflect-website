@@ -777,6 +777,7 @@ export default function Profile() {
         console.log('🔐 Token expired:', apiService.isTokenExpired());
         
         // Map frontend filter values to backend period values
+        // Backend expects: 'L7', 'L30', 'ALL', or 'custom' (with startDate/endDate)
         let filters: { period?: string; startDate?: string; endDate?: string } = {};
         
         if (timePeriodFilter === 'custom' && customStartDate && customEndDate) {
@@ -786,11 +787,11 @@ export default function Profile() {
             endDate: customEndDate
           };
         } else if (timePeriodFilter === 'L7') {
-          filters = { period: '7d' };
+          filters = { period: 'L7' };
         } else if (timePeriodFilter === 'L30') {
-          filters = { period: '30d' };
+          filters = { period: 'L30' };
         } else if (timePeriodFilter === 'all' || timePeriodFilter === 'ALL') {
-          filters = { period: 'all' };
+          filters = { period: 'ALL' };
         }
         
         console.log('🎯 Fetching with filters:', filters);
@@ -804,11 +805,14 @@ export default function Profile() {
           console.log('📊 Time periods keys:', Object.keys(analytics.timePeriods || {}));
           if (analytics.timePeriods) {
             Object.entries(analytics.timePeriods).forEach(([period, data]) => {
-              console.log(`📊 ${period}:`, data);
-              console.log(`📊 ${period} gamesPlayed:`, (data as Record<string, unknown>)?.gamesPlayed);
-              console.log(`📊 ${period} wordCount:`, (data as Record<string, unknown>)?.wordCount);
+              const periodData = data as Record<string, unknown>;
+              console.log(`📊 ${period}:`, periodData);
+              console.log(`📊 ${period} gamesPlayed:`, periodData?.gamesPlayed);
+              console.log(`📊 ${period} wordCount:`, periodData?.wordCount);
+              console.log(`📊 ${period} sessions count:`, Array.isArray(periodData?.sessions) ? periodData.sessions.length : 0);
             });
           }
+          console.log('🔄 Setting timeAnalytics state with filtered data for period:', timePeriodFilter);
           setTimeAnalytics(analytics);
         } else {
           console.warn('⚠️ No analytics data in backend response');
@@ -848,6 +852,7 @@ export default function Profile() {
       try {
         console.log('🔄 Auto-refreshing time analytics data...');
         // Use the current filter state for refresh
+        // Backend expects: 'L7', 'L30', 'ALL', or 'custom' (with startDate/endDate)
         let filters: { period?: string; startDate?: string; endDate?: string } = {};
         
         if (timePeriodFilter === 'custom' && customStartDate && customEndDate) {
@@ -857,11 +862,11 @@ export default function Profile() {
             endDate: customEndDate
           };
         } else if (timePeriodFilter === 'L7') {
-          filters = { period: '7d' };
+          filters = { period: 'L7' };
         } else if (timePeriodFilter === 'L30') {
-          filters = { period: '30d' };
+          filters = { period: 'L30' };
         } else if (timePeriodFilter === 'all' || timePeriodFilter === 'ALL') {
-          filters = { period: 'all' };
+          filters = { period: 'ALL' };
         }
         
         const response = await apiService.getTimeAnalytics(filters);
@@ -4957,11 +4962,12 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6" key={`time-periods-${timePeriodFilter}-${customStartDate}-${customEndDate}`}>
           {/* Late Night (12AM - 4AM) */}
           {(() => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const periodData = getTimePeriodData('late-night') as any;
+            console.log('🔄 Rendering late-night card with data:', periodData, 'for filter:', timePeriodFilter);
             if (!periodData) {
               return (
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
