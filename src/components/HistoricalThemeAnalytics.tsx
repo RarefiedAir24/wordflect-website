@@ -26,7 +26,15 @@ interface HistoricalThemeAnalyticsProps {
 }
 
 export default function HistoricalThemeAnalytics({ className }: HistoricalThemeAnalyticsProps) {
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  // Initialize with today's UTC date to ensure consistency with backend
+  const getTodayUTC = () => {
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(now.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  const [selectedDate, setSelectedDate] = useState<string>(getTodayUTC());
   const [themeData, setThemeData] = useState<HistoricalThemeData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
