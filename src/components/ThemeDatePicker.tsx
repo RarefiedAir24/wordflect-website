@@ -27,11 +27,13 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
     const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     
-    // If date was created from a YYYY-MM-DD string, use UTC methods
+    // Extract all components using UTC methods
+    // Extract year from UTC ISO string (YYYY-MM-DD) for absolute consistency
+    const utcIsoString = date.toISOString(); // e.g., "2025-11-02T00:00:00.000Z"
+    const year = parseInt(utcIsoString.substring(0, 4), 10);
     const weekday = weekdays[date.getUTCDay()];
     const monthName = months[date.getUTCMonth()];
     const day = date.getUTCDate();
-    const year = date.getUTCFullYear();
     
     return `${weekday}, ${monthName} ${day}, ${year}`;
   };
@@ -39,22 +41,26 @@ export default function ThemeDatePicker({ onDateSelect, selectedDate, className 
   const formatDateShort = (date: Date) => {
     // Use UTC methods to avoid timezone shifting
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    // Extract year from UTC ISO string for absolute consistency
+    const utcIsoString = date.toISOString();
+    const year = parseInt(utcIsoString.substring(0, 4), 10);
     const monthName = months[date.getUTCMonth()];
     const day = date.getUTCDate();
-    const year = date.getUTCFullYear();
     return `${monthName} ${day}, ${year}`;
   };
 
   const handleDateChange = (date: Date) => {
     setSelectedDateObj(date);
     // Use UTC date components to create YYYY-MM-DD string to avoid timezone issues
-    // This ensures the selected local date is correctly represented as a UTC date
-    const year = date.getUTCFullYear();
+    // Extract year from UTC ISO string for consistency
+    const utcIsoString = date.toISOString();
+    const year = parseInt(utcIsoString.substring(0, 4), 10);
     const month = String(date.getUTCMonth() + 1).padStart(2, '0');
     const day = String(date.getUTCDate()).padStart(2, '0');
     const dateString = `${year}-${month}-${day}`;
     console.log('📅 handleDateChange - Date object:', date.toISOString());
     console.log('📅 handleDateChange - Date string sent:', dateString);
+    console.log('📅 handleDateChange - Formatted display will be:', formatDate(date));
     onDateSelect(dateString);
     setIsOpen(false);
   };
