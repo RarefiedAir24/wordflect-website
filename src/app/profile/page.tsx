@@ -70,11 +70,6 @@ export default function Profile() {
     data: []
   });
   
-  // Time period filter state
-  const [timePeriodFilter, setTimePeriodFilter] = useState<string>('all');
-  const [showCustomDateRange, setShowCustomDateRange] = useState(false);
-  const [customStartDate, setCustomStartDate] = useState('');
-  const [customEndDate, setCustomEndDate] = useState('');
   const [aiModalOpen, setAiModalOpen] = useState(false);
   
   // Currency history modal state
@@ -769,7 +764,6 @@ export default function Profile() {
       }
 
       console.log('🎯 Starting time analytics fetch for profile:', profile.id);
-      console.log('🎯 Current time period filter:', timePeriodFilter);
 
       try {
         console.log('🎯 Fetching time analytics from backend API...');
@@ -868,7 +862,7 @@ export default function Profile() {
       window.removeEventListener('focus', onFocus);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [profile, timePeriodFilter, customStartDate, customEndDate]);
+  }, [profile]);
 
   // Fetch theme analytics from backend API
   useEffect(() => {
@@ -2657,25 +2651,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     console.log(`🕐 Time period modal opened for: ${period}`);
   };
 
-  // Handle time period filter change
-  const handleTimePeriodFilter = (period: string) => {
-    console.log(`🕐 Changing time period filter to: ${period}`);
-    setTimePeriodFilter(period);
-    setShowCustomDateRange(false);
-    // The useEffect will automatically refetch with the new filter
-  };
-
-  // Handle custom date range
-  const handleCustomDateRange = () => {
-    if (!customStartDate || !customEndDate) {
-      alert('Please select both start and end dates');
-      return;
-    }
-    
-    console.log(`🕐 Applying custom date range: ${customStartDate} to ${customEndDate}`);
-    setTimePeriodFilter('custom');
-    // The useEffect will automatically refetch with the custom date range
-  };
 
   // Handle theme day click
   const handleThemeDayClick = async (day: string) => {
