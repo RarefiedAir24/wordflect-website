@@ -71,6 +71,17 @@ const CalendarView: React.FC<CalendarViewProps> = ({ data, type, startDate, endD
     const dayData = monthData.find(d => d.date === dateStr);
     const isActive = dayData?.active || false;
     
+    // For streak types, if the day exists in the data array, it's part of the streak
+    // (the data generation now includes all consecutive days in the streak range)
+    if (type === 'current-streak' || type === 'best-streak') {
+      if (dayData !== undefined) {
+        // Day is in the data array, meaning it's part of the streak
+        return true;
+      }
+      return false;
+    }
+    
+    // For days-active, only mark days that actually have sessions
     if (isActive) {
       console.log('🗓️ Found active day:', dateStr, 'in month data:', monthData.length, 'items');
     }

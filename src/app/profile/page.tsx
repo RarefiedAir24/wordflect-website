@@ -2080,24 +2080,65 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
     const yesterdayKey = `${yesterday.getFullYear()}-${String(yesterday.getMonth()+1).padStart(2,'0')}-${String(yesterday.getDate()).padStart(2,'0')}`;
     
-    const streakStart = sortedDays[sortedDays.length - 1];
+    // Find the actual consecutive streak by walking backwards from today
     let streakEnd = sortedDays[sortedDays.length - 1];
+    let streakStart = streakEnd;
     
-    // Check if streak is still active
-    if (sortedDays.includes(todayKey) || sortedDays.includes(yesterdayKey)) {
-      streakEnd = todayKey;
+    // Check if streak is still active (includes today or yesterday)
+    if (!sortedDays.includes(todayKey) && !sortedDays.includes(yesterdayKey)) {
+      // Streak is not active, find the last consecutive sequence
+      streakEnd = sortedDays[sortedDays.length - 1];
+      streakStart = streakEnd;
+      
+      // Walk backwards to find consecutive days
+      for (let i = sortedDays.length - 2; i >= 0; i--) {
+        const prevDate = new Date(sortedDays[i]);
+        const currDate = new Date(streakStart);
+        const diffDays = Math.floor((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) {
+          streakStart = sortedDays[i];
+        } else {
+          break;
+        }
+      }
+    } else {
+      // Streak is active, include today if needed
+      if (sortedDays.includes(todayKey)) {
+        streakEnd = todayKey;
+      } else if (sortedDays.includes(yesterdayKey)) {
+        streakEnd = todayKey; // Include today even if no session yet
+      }
+      
+      streakStart = sortedDays[sortedDays.length - 1];
+      
+      // Walk backwards to find consecutive days
+      for (let i = sortedDays.length - 2; i >= 0; i--) {
+        const prevDate = new Date(sortedDays[i]);
+        const currDate = new Date(streakStart);
+        const diffDays = Math.floor((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) {
+          streakStart = sortedDays[i];
+        } else {
+          break;
+        }
+      }
     }
     
     // Generate calendar data for streak period
+    // Mark ALL consecutive days in the streak range as active
     const data: { date: string; active: boolean }[] = [];
-    const startDate = new Date(streakStart);
-    const endDate = new Date(streakEnd);
+    const startDateObj = new Date(streakStart + 'T00:00:00');
+    const endDateObj = new Date(streakEnd + 'T00:00:00');
     
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    // Generate all days in the streak range
+    for (let d = new Date(startDateObj); d <= endDateObj; d.setDate(d.getDate() + 1)) {
       const dayKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      // For current streak, mark ALL consecutive days as active
       data.push({
         date: dayKey,
-        active: daySet.has(dayKey)
+        active: true // All days in streak range are active
       });
     }
     
@@ -2171,15 +2212,21 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     }
     
     // Generate calendar data for longest streak period
+    // Mark ALL consecutive days in the streak as active
     const data: { date: string; active: boolean }[] = [];
     const startDate = new Date(longestStart);
     const endDate = new Date(longestEnd);
     
+    // Get all days in the longest streak range
+    const sortedDaysInStreak = sortedDays.filter(day => day >= longestStart && day <= longestEnd);
+    
+    // Generate all days in range, marking as active if they're in the consecutive streak
     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
       const dayKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      // For streak, mark ALL days in the range as active (they should be consecutive)
       data.push({
         date: dayKey,
-        active: daySet.has(dayKey)
+        active: sortedDaysInStreak.includes(dayKey)
       });
     }
     
@@ -3521,17 +3568,49 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               
               console.log('[Activity Snapshot] Recent games count:', recentGames.length);
               
-              // Get recent daily theme words from profile.themeWordsFoundToday
+              // Get recent daily theme words - filter to only TODAY's words
               const themeWordsFoundToday: Array<{ word: string }> = [];
               const todaysThemeName = '';
               
-              // Get words from profile.themeWordsFoundToday (simplified - just show what's there)
+              // Calculate today's date string (UTC to match backend)
+              const today = new Date();
+              const todayString = today.toISOString().split('T')[0]; // YYYY-MM-DD
+              
+              // Filter themeWordsFoundToday by checking allFoundWords for TODAY's date
               if (profile && 'themeWordsFoundToday' in profile) {
                 const rawThemeWords = (profile as { themeWordsFoundToday?: Array<string | { word: string }> }).themeWordsFoundToday || [];
+                const allFoundWords = profile.allFoundWords || [];
+                
                 rawThemeWords.forEach(w => {
                   const word = typeof w === 'string' ? w : w.word;
-                  if (word && !themeWordsFoundToday.find(t => t.word === word.toUpperCase())) {
-                    themeWordsFoundToday.push({ word: word.toUpperCase() });
+                  if (!word) return;
+                  
+                  const wordUpper = word.toUpperCase();
+                  
+                  // Check if this word was found TODAY by looking in allFoundWords
+                  const foundInAllWords = allFoundWords.find(entry => {
+                    let entryWord: string;
+                    if (typeof entry === 'string') {
+                      entryWord = entry;
+                    } else if (entry && typeof entry === 'object' && typeof entry.word === 'string') {
+                      entryWord = entry.word;
+                    } else {
+                      return false;
+                    }
+                    
+                    if (entryWord.toUpperCase() !== wordUpper) return false;
+                    
+                    // Check if the date matches today
+                    if (typeof entry === 'object' && entry.date) {
+                      const wordDate = new Date(entry.date).toISOString().split('T')[0];
+                      return wordDate === todayString;
+                    }
+                    return false;
+                  });
+                  
+                  // Only include if found TODAY
+                  if (foundInAllWords && !themeWordsFoundToday.find(t => t.word === wordUpper)) {
+                    themeWordsFoundToday.push({ word: wordUpper });
                   }
                 });
               }
