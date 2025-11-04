@@ -924,11 +924,27 @@ export default function PlayGame() {
 
       console.log('📊 Sending game stats to backend:', gameStats);
 
-      // Update user stats first
-      await apiService.updateUserStats(gameStats);
-      console.log('✅ User stats updated successfully');
+      // Update user stats first - use response to immediately update flectcoins/gems
+      const statsResponse = await apiService.updateUserStats(gameStats);
+      console.log('✅ User stats updated successfully:', statsResponse);
 
-      // Do NOT update local flectcoins state here
+      // Immediately update flectcoins and gems from response (no delay, no race conditions)
+      if (statsResponse && typeof statsResponse === 'object' && 'flectcoins' in statsResponse) {
+        const responseData = statsResponse as { flectcoins?: number; gems?: number };
+        if (responseData.flectcoins !== undefined) {
+          setFlectcoins(responseData.flectcoins);
+          console.log(`💰 Immediately updated flectcoins to: ${responseData.flectcoins}`);
+        }
+        if (responseData.gems !== undefined) {
+          setGems(responseData.gems);
+          console.log(`💎 Immediately updated gems to: ${responseData.gems}`);
+        }
+        
+        // Trigger profile refresh in other tabs/windows (if profile page is open)
+        window.dispatchEvent(new CustomEvent('wordflect-stats-updated', { 
+          detail: { flectcoins: responseData.flectcoins, gems: responseData.gems } 
+        }));
+      }
 
       console.log('🎯 Checking missions for completion...', missions);
 

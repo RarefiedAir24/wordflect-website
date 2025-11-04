@@ -721,8 +721,24 @@ export default function Profile() {
       }
     };
 
+    // Listen for stats updates from game page (immediate refresh, no delay)
+    const handleStatsUpdate = () => {
+      console.log('📊 Stats updated event received - refreshing profile immediately');
+      if (apiService.isAuthenticated()) {
+        // Add small delay to ensure backend has processed the update
+        setTimeout(() => {
+          fetchProfile();
+        }, 100);
+      }
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('wordflect-stats-updated', handleStatsUpdate);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('wordflect-stats-updated', handleStatsUpdate);
+    };
   }, [router, fetchProfile]);
   
   // Fetch currency history function - trigger Vercel deployment
