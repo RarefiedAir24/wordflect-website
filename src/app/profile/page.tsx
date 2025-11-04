@@ -29,6 +29,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
+  const statsUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [historyRange, setHistoryRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("30d");
   const [sessionsRange, setSessionsRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("30d");
   const [customHistoryDateRange, setCustomHistoryDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
@@ -722,13 +723,20 @@ export default function Profile() {
     };
 
     // Listen for stats updates from game page (immediate refresh, no delay)
+    // Use debouncing to prevent rapid-fire requests if multiple games completed quickly
     const handleStatsUpdate = () => {
-      console.log('📊 Stats updated event received - refreshing profile immediately');
+      console.log('📊 Stats updated event received - refreshing profile');
       if (apiService.isAuthenticated()) {
-        // Add small delay to ensure backend has processed the update
-        setTimeout(() => {
+        // Clear any pending refresh
+        if (statsUpdateTimeoutRef.current) {
+          clearTimeout(statsUpdateTimeoutRef.current);
+        }
+        // Debounce: Wait 500ms to batch multiple rapid updates, then refresh
+        // This prevents excessive API calls if user plays multiple games quickly
+        statsUpdateTimeoutRef.current = setTimeout(() => {
           fetchProfile();
-        }, 100);
+          statsUpdateTimeoutRef.current = null;
+        }, 500);
       }
     };
 
@@ -738,6 +746,11 @@ export default function Profile() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('wordflect-stats-updated', handleStatsUpdate);
+      // Clean up debounce timer
+      if (statsUpdateTimeoutRef.current) {
+        clearTimeout(statsUpdateTimeoutRef.current);
+        statsUpdateTimeoutRef.current = null;
+      }
     };
   }, [router, fetchProfile]);
   
