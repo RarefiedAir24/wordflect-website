@@ -4,9 +4,16 @@ const API_BASE_URL = 'https://fo0rh1w8m9.execute-api.us-east-2.amazonaws.com/pro
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('📤 Proxy: Forwarding profile request to:', `${API_BASE_URL}/user/profile`);
+    // Forward query parameters (e.g., cache-busting _t parameter) to backend
+    const searchParams = request.nextUrl.searchParams;
+    const queryString = searchParams.toString();
+    const backendUrl = queryString 
+      ? `${API_BASE_URL}/user/profile?${queryString}`
+      : `${API_BASE_URL}/user/profile`;
     
-    const response = await fetch(`${API_BASE_URL}/user/profile`, {
+    console.log('📤 Proxy: Forwarding profile request to:', backendUrl);
+    
+    const response = await fetch(backendUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

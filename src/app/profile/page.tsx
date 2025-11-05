@@ -733,8 +733,25 @@ export default function Profile() {
         }
         // Debounce: Wait 500ms to batch multiple rapid updates, then refresh
         // This prevents excessive API calls if user plays multiple games quickly
-        statsUpdateTimeoutRef.current = setTimeout(() => {
-          fetchProfile();
+        // Use cache-busting to bypass API Gateway cache for fresh data
+        statsUpdateTimeoutRef.current = setTimeout(async () => {
+          try {
+            if (!apiService.isAuthenticated()) {
+              return;
+            }
+            // Use cache-busting to bypass API Gateway cache (60s TTL) for immediate fresh data
+            const userProfile = await apiService.getUserProfile(true);
+            setProfile(userProfile);
+            setLoading(false);
+            checkLexiPopupVisibility();
+          } catch (error) {
+            console.error("Profile fetch error (stats update):", error);
+            setError(error instanceof Error ? error.message : "Failed to load profile");
+            if (error instanceof Error && error.message.includes("Authentication failed")) {
+              router.push("/signin");
+            }
+            setLoading(false);
+          }
           statsUpdateTimeoutRef.current = null;
         }, 500);
       }

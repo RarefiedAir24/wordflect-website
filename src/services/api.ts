@@ -460,9 +460,17 @@ class ApiService {
     }
   }
 
-  async getUserProfile(): Promise<UserProfile> {
+  async getUserProfile(cacheBust?: boolean): Promise<UserProfile> {
     try {
-      const response = await this.makeRequest(buildApiUrl(API_CONFIG.ENDPOINTS.USER_PROFILE), {
+      let url = buildApiUrl(API_CONFIG.ENDPOINTS.USER_PROFILE);
+      
+      // Add cache-busting query parameter to bypass API Gateway cache when needed
+      if (cacheBust) {
+        const separator = url.includes('?') ? '&' : '?';
+        url += `${separator}_t=${Date.now()}`;
+      }
+      
+      const response = await this.makeRequest(url, {
         method: 'GET',
         headers: this.getAuthHeaders()
       });
