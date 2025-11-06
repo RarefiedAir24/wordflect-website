@@ -73,6 +73,17 @@ export default function Profile() {
   
   const [aiModalOpen, setAiModalOpen] = useState(false);
   
+  // Longest word of the day modal state
+  const [longWordModal, setLongWordModal] = useState<{
+    isOpen: boolean;
+    word: string;
+    date: string | null;
+  }>({
+    isOpen: false,
+    word: '',
+    date: null,
+  });
+  
   // Currency history modal state
   const [currencyModal, setCurrencyModal] = useState<{
     isOpen: boolean;
@@ -3580,7 +3591,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 ? Math.round(((profile?.battleWins || 0) / battlesPlayed) * 100) 
                 : 0;
               
-              const activities: Array<{ label: string; value: string; icon: string }> = [];
+              const activities: Array<{ label: string; value: string; icon: string; onClick?: () => void; clickable?: boolean }> = [];
               
               // Recent games - always show, even if 0
               if (recentGames.length > 0) {
@@ -3691,6 +3702,41 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     label: '',
                     value: `  +${themeWordsFoundToday.length - 5} more`,
                     icon: ''
+                  });
+                }
+              }
+              
+              // Longest word of the day (found today)
+              const todayWords = (profile.allFoundWords || []).filter(entry => {
+                if (typeof entry === 'string') return false;
+                if (!entry || typeof entry !== 'object') return false;
+                if (!entry.date) return false;
+                const entryDate = new Date(entry.date);
+                if (isNaN(entryDate.getTime())) return false;
+                const entryDateStr = entryDate.toISOString().split('T')[0];
+                return entryDateStr === todayString;
+              }) as Array<{ word: string; date: string }>;
+              
+              if (todayWords.length > 0) {
+                const longestToday = todayWords.reduce((longest, entry) => {
+                  const word = entry?.word || '';
+                  const longestWord = longest?.word || '';
+                  return word.length > longestWord.length ? entry : longest;
+                }, null as { word: string; date: string } | null);
+                
+                if (longestToday && longestToday.word) {
+                  activities.push({
+                    label: 'Long Word of the Day',
+                    value: longestToday.word,
+                    icon: '📝',
+                    onClick: () => {
+                      setLongWordModal({
+                        isOpen: true,
+                        word: longestToday.word,
+                        date: longestToday.date || null,
+                      });
+                    },
+                    clickable: true
                   });
                 }
               }
@@ -3910,15 +3956,23 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               
               return (
                 <div className="space-y-2.5">
-                  {activities.map((activity, idx) => (
-                    <div key={idx} className="flex items-center justify-between py-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base">{activity.icon}</span>
-                        <span>{activity.label}</span>
-                      </div>
-                      <span className="font-semibold text-blue-950">{activity.value}</span>
-                    </div>
-                  ))}
+                  {activities.map((activity, idx) => {
+                    const isClickable = activity.clickable && activity.onClick;
+                    const Component = isClickable ? 'button' : 'div';
+                    return (
+                      <Component
+                        key={idx}
+                        onClick={isClickable ? activity.onClick : undefined}
+                        className={`flex items-center justify-between py-1 w-full ${isClickable ? 'cursor-pointer hover:bg-blue-50 rounded px-2 -mx-2 transition-colors' : ''}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-base">{activity.icon}</span>
+                          <span>{activity.label}</span>
+                        </div>
+                        <span className={`font-semibold text-blue-950 ${isClickable ? 'underline decoration-dotted' : ''}`}>{activity.value}</span>
+                      </Component>
+                    );
+                  })}
                 </div>
               );
             })()}
@@ -6000,6 +6054,55 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           }
           isLoading={isLoadingCurrencyHistory}
         />
+      )}
+
+      {/* Longest Word of the Day Modal */}
+      {longWordModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Long Word of the Day</h3>
+              <button
+                onClick={() => setLongWordModal({ isOpen: false, word: '', date: null })}
+                className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-600 mb-2">Word</p>
+                <p className="text-2xl font-bold text-blue-950">{longWordModal.word}</p>
+              </div>
+              {longWordModal.date && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">Found Date & Time</p>
+                  <p className="text-lg text-gray-900">
+                    {new Date(longWordModal.date).toLocaleString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true,
+                      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                    })}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    UTC: {new Date(longWordModal.date).toISOString()}
+                  </p>
+                </div>
+              )}
+              {!longWordModal.date && (
+                <div>
+                  <p className="text-sm text-gray-500">Date information not available</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
