@@ -120,6 +120,15 @@ export default function Profile() {
     isOpen: false,
     filter: 'all',
   });
+  
+  // Battle history modal state
+  const [battleModal, setBattleModal] = useState<{
+    isOpen: boolean;
+    filter: 'all' | 'wins' | 'losses';
+  }>({
+    isOpen: false,
+    filter: 'all',
+  });
   const [currencyHistory, setCurrencyHistory] = useState<{
     transactions: Array<{
       id: string;
@@ -3436,8 +3445,24 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 <span className="text-sm text-blue-700">{winRate(profile)}% win rate</span>
               </div>
               <div className="mt-4 flex items-end gap-3 h-24">
-                <Bar title="Wins" value={profile.battleWins} color="bg-emerald-500" total={Math.max(profile.battleWins, profile.battleLosses, 1)} />
-                <Bar title="Losses" value={profile.battleLosses} color="bg-rose-500" total={Math.max(profile.battleWins, profile.battleLosses, 1)} />
+                <Bar 
+                  title="Wins" 
+                  value={profile.battleWins} 
+                  color="bg-emerald-500" 
+                  total={Math.max(profile.battleWins, profile.battleLosses, 1)} 
+                  onClick={() => {
+                    setBattleModal({ isOpen: true, filter: 'wins' });
+                  }}
+                />
+                <Bar 
+                  title="Losses" 
+                  value={profile.battleLosses} 
+                  color="bg-rose-500" 
+                  total={Math.max(profile.battleWins, profile.battleLosses, 1)} 
+                  onClick={() => {
+                    setBattleModal({ isOpen: true, filter: 'losses' });
+                  }}
+                />
               </div>
             </div>
             <div className="rounded-lg border border-blue-100 p-4">
@@ -6626,6 +6651,173 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                             )}
                             <p className="text-xs text-gray-400 mt-1">
                               UTC: {new Date(placement.date).toISOString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Battle History Modal */}
+      {battleModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Battle History</h3>
+              <button
+                onClick={() => setBattleModal({ isOpen: false, filter: 'all' })}
+                className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Filter Buttons */}
+            <div className="flex gap-2 mb-6 flex-wrap">
+              <button
+                onClick={() => setBattleModal({ ...battleModal, filter: 'all' })}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  battleModal.filter === 'all'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                All Battles
+              </button>
+              <button
+                onClick={() => setBattleModal({ ...battleModal, filter: 'wins' })}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                  battleModal.filter === 'wins'
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                }`}
+              >
+                🏆 Wins ({profile.battleWins})
+              </button>
+              <button
+                onClick={() => setBattleModal({ ...battleModal, filter: 'losses' })}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                  battleModal.filter === 'losses'
+                    ? 'bg-rose-500 text-white'
+                    : 'bg-rose-50 text-rose-700 hover:bg-rose-100'
+                }`}
+              >
+                ❌ Losses ({profile.battleLosses})
+              </button>
+            </div>
+
+            {/* Battle History List */}
+            <div className="space-y-3">
+              {(() => {
+                const battles: Array<{
+                  result: 'win' | 'loss';
+                  opponentId: string;
+                  opponentUsername: string;
+                  myScore: number;
+                  opponentScore: number;
+                  date: string;
+                  battleId: string;
+                }> = profile.battleHistory || [];
+                
+                // Filter battles based on current filter
+                let filteredBattles = battles;
+                if (battleModal.filter === 'wins') {
+                  filteredBattles = battles.filter((b: { result: 'win' | 'loss' }) => b.result === 'win');
+                } else if (battleModal.filter === 'losses') {
+                  filteredBattles = battles.filter((b: { result: 'win' | 'loss' }) => b.result === 'loss');
+                }
+                
+                // Sort by date (most recent first)
+                filteredBattles = [...filteredBattles].sort((a, b) => {
+                  return new Date(b.date).getTime() - new Date(a.date).getTime();
+                });
+
+                if (filteredBattles.length === 0) {
+                  return (
+                    <div className="text-center py-12">
+                      {battles.length === 0 ? (
+                        <>
+                          <div className="text-6xl mb-4">⚔️</div>
+                          <p className="text-lg font-semibold text-gray-700 mb-2">Battle History Not Available</p>
+                          <p className="text-sm text-gray-500 mb-4">
+                            Battle history tracking requires backend support. Currently, only total counts are available.
+                          </p>
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
+                            <p className="text-sm text-blue-900 font-medium mb-2">Current Totals:</p>
+                            <div className="space-y-1 text-sm text-blue-700">
+                              <p>🏆 Wins: {profile.battleWins}</p>
+                              <p>❌ Losses: {profile.battleLosses}</p>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-4xl mb-4">
+                            {battleModal.filter === 'wins' ? '🏆' : battleModal.filter === 'losses' ? '❌' : '⚔️'}
+                          </div>
+                          <p className="text-lg font-semibold text-gray-700">No battles found for this filter</p>
+                        </>
+                      )}
+                    </div>
+                  );
+                }
+
+                return filteredBattles.map((battle: {
+                  result: 'win' | 'loss';
+                  opponentId: string;
+                  opponentUsername: string;
+                  myScore: number;
+                  opponentScore: number;
+                  date: string;
+                  battleId: string;
+                }, index: number) => {
+                  const isWin = battle.result === 'win';
+                  const resultEmoji = isWin ? '🏆' : '❌';
+                  const resultLabel = isWin ? 'Win' : 'Loss';
+                  const textColorClass = isWin ? 'text-emerald-700' : 'text-rose-700';
+                  const emojiColorClass = isWin ? 'text-emerald-500' : 'text-rose-500';
+                  
+                  return (
+                    <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className={`text-3xl ${emojiColorClass}`}>
+                            {resultEmoji}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`font-bold text-lg ${textColorClass}`}>
+                                {resultLabel}
+                              </span>
+                              <span className="text-sm text-gray-600">vs</span>
+                              <span className="font-semibold text-gray-900">{battle.opponentUsername}</span>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-gray-600">
+                              <span className="font-medium">Your Score: <span className={`font-bold ${textColorClass}`}>{battle.myScore.toLocaleString()}</span></span>
+                              <span>•</span>
+                              <span>Opponent: <span className="font-medium">{battle.opponentScore.toLocaleString()}</span></span>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-2">
+                              {new Date(battle.date).toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true,
+                                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                              })}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              UTC: {new Date(battle.date).toISOString()}
                             </p>
                           </div>
                         </div>

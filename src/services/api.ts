@@ -68,6 +68,15 @@ export interface UserProfile {
     periodLabel?: string;
     score?: number;
   }>;
+  battleHistory?: Array<{
+    result: 'win' | 'loss';
+    opponentId: string;
+    opponentUsername: string;
+    myScore: number;
+    opponentScore: number;
+    date: string;
+    battleId: string;
+  }>;
 }
 
 class ApiService {
