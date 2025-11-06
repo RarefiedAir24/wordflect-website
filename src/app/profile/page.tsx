@@ -3456,7 +3456,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 {/* Title and win rate */}
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-bold text-lg text-gray-900">Battle Performance</h4>
-                  <span className="text-sm font-semibold text-emerald-600">{winRate(profile)}% win rate</span>
+                  <div className="flex flex-col items-end">
+                    <span className="text-xl font-bold text-emerald-600">{winRate(profile)}%</span>
+                    <span className="text-xs font-medium text-gray-500">Win Rate</span>
+                  </div>
                 </div>
                 
                 {/* Bars */}
@@ -3500,7 +3503,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 {/* Title and total */}
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-bold text-lg text-gray-900">Leaderboard Podiums</h4>
-                  <span className="text-sm font-semibold text-amber-600">Total {(profile.firstPlaceFinishes + profile.secondPlaceFinishes + profile.thirdPlaceFinishes).toLocaleString()}</span>
+                  <div className="flex flex-col items-end">
+                    <span className="text-xl font-bold text-amber-600">{(profile.firstPlaceFinishes + profile.secondPlaceFinishes + profile.thirdPlaceFinishes).toLocaleString()}</span>
+                    <span className="text-xs font-medium text-gray-500">Total</span>
+                  </div>
                 </div>
                 
                 {/* Bars */}
