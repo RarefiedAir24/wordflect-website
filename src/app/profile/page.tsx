@@ -88,6 +88,21 @@ export default function Profile() {
     history: [],
   });
   
+  // Top score modal state
+  const [topScoreModal, setTopScoreModal] = useState<{
+    isOpen: boolean;
+    score: number;
+    date: string | null;
+    title: string;
+    history?: Array<{ score: number; date: string; replacedBy?: number; replacedDate?: string }>;
+  }>({
+    isOpen: false,
+    score: 0,
+    date: null,
+    title: '',
+    history: [],
+  });
+  
   // Currency history modal state
   const [currencyModal, setCurrencyModal] = useState<{
     isOpen: boolean;
@@ -3249,7 +3264,74 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <MiniStat title="Games Played" value={profile.gamesPlayed.toLocaleString()} subtitle="Lifetime" />
-            <MiniStat title="Top Score" value={profile.topScore.toLocaleString()} subtitle="Best single game" />
+            <MiniStat 
+              title="Top Score" 
+              value={profile.topScore.toLocaleString()} 
+              subtitle="Best single game"
+              clickable={!!profile.topScore && profile.topScore > 0}
+              onClick={() => {
+                // Calculate top score history from sessionHistory
+                const sessionHistory = profile.sessionHistory || [];
+                
+                // Filter and sort sessions by startTime (chronologically)
+                const sortedSessions = sessionHistory
+                  .filter((session: { score?: number; startTime?: string }) => 
+                    session && session.score != null && session.startTime
+                  )
+                  .sort((a: { startTime?: string }, b: { startTime?: string }) => {
+                    const dateA = new Date(a.startTime || '').getTime();
+                    const dateB = new Date(b.startTime || '').getTime();
+                    return dateA - dateB;
+                  });
+                
+                // Find the earliest session with the current top score to get its date
+                // (the first time they achieved this score)
+                const maxScore = Math.max(
+                  ...sortedSessions.map((s: { score?: number }) => s.score || 0), 
+                  profile.topScore || 0
+                );
+                const topScoreSession = sortedSessions.find((session: { score?: number }) => 
+                  session.score === maxScore
+                );
+                
+                // Calculate top score history by processing sessions chronologically
+                const history: Array<{ score: number; date: string; replacedBy?: number; replacedDate?: string }> = [];
+                
+                let currentTopScore = 0;
+                let currentTopScoreDate = '';
+                
+                // Process sessions chronologically to track when top score changed
+                sortedSessions.forEach((session: { score?: number; startTime?: string; endTime?: string }) => {
+                  const score = session.score || 0;
+                  const sessionDate = session.startTime || session.endTime || '';
+                  
+                  if (!sessionDate || score <= 0) return;
+                  
+                  // If this score is higher than current top score, it becomes the new top score
+                  if (score > currentTopScore) {
+                    // If we had a previous top score, record it in history
+                    if (currentTopScore > 0) {
+                      history.push({
+                        score: currentTopScore,
+                        date: currentTopScoreDate,
+                        replacedBy: score,
+                        replacedDate: sessionDate,
+                      });
+                    }
+                    currentTopScore = score;
+                    currentTopScoreDate = sessionDate;
+                  }
+                });
+                
+                setTopScoreModal({
+                  isOpen: true,
+                  score: profile.topScore,
+                  date: topScoreSession?.startTime || (topScoreSession as { endTime?: string })?.endTime || null,
+                  title: 'Top Score (All Time)',
+                  history: history.reverse(), // Reverse to show most recent first
+                });
+              }}
+            />
             <MiniStat 
               title="Longest Word" 
               value={profile.longestWord || longestRecentWord(profile) || "None"} 
@@ -6203,6 +6285,104 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                             <p className="text-gray-500">
                               <span className="font-medium">Replaced by:</span>{' '}
                               <span className="font-semibold text-blue-950">{record.replacedBy}</span>{' '}
+                              on{' '}
+                              {new Date(record.replacedDate).toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true,
+                                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                              })}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Top Score Modal */}
+      {topScoreModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">{topScoreModal.title || 'Top Score'}</h3>
+              <button
+                onClick={() => setTopScoreModal({ isOpen: false, score: 0, date: null, title: '', history: [] })}
+                className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-600 mb-2">Current Top Score</p>
+                <p className="text-2xl font-bold text-blue-950">{topScoreModal.score.toLocaleString()}</p>
+              </div>
+              {topScoreModal.date && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">Achieved Date & Time</p>
+                  <p className="text-lg text-gray-900">
+                    {new Date(topScoreModal.date).toLocaleString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true,
+                      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                    })}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    UTC: {new Date(topScoreModal.date).toISOString()}
+                  </p>
+                </div>
+              )}
+              {!topScoreModal.date && (
+                <div>
+                  <p className="text-sm text-gray-500">Date information not available</p>
+                </div>
+              )}
+              
+              {/* Previous Records History */}
+              {topScoreModal.history && topScoreModal.history.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <p className="text-sm font-semibold text-gray-700 mb-3">Previous Records</p>
+                  <div className="space-y-3">
+                    {topScoreModal.history.map((record, index) => (
+                      <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <p className="text-lg font-bold text-gray-900">{record.score.toLocaleString()}</p>
+                            <p className="text-sm text-gray-600 mt-1">points</p>
+                          </div>
+                        </div>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <p>
+                            <span className="font-medium">Achieved:</span>{' '}
+                            {new Date(record.date).toLocaleString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true,
+                              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                            })}
+                          </p>
+                          {record.replacedBy != null && record.replacedDate && (
+                            <p className="text-gray-500">
+                              <span className="font-medium">Replaced by:</span>{' '}
+                              <span className="font-semibold text-blue-950">{record.replacedBy.toLocaleString()}</span>{' '}
                               on{' '}
                               {new Date(record.replacedDate).toLocaleString('en-US', {
                                 year: 'numeric',
