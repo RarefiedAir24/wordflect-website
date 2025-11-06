@@ -3439,65 +3439,100 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             />
           </div>
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-lg border border-blue-100 p-4">
-              <div className="flex items-center justify-between">
-                <h4 className="font-semibold text-blue-950">Battle Performance</h4>
-                <span className="text-sm text-blue-700">{winRate(profile)}% win rate</span>
-              </div>
-              <div className="mt-4 flex items-end gap-3 h-24">
-                <Bar 
-                  title="Wins" 
-                  value={profile.battleWins} 
-                  color="bg-emerald-500" 
-                  total={Math.max(profile.battleWins, profile.battleLosses, 1)} 
-                  onClick={() => {
-                    setBattleModal({ isOpen: true, filter: 'wins' });
-                  }}
-                />
-                <Bar 
-                  title="Losses" 
-                  value={profile.battleLosses} 
-                  color="bg-rose-500" 
-                  total={Math.max(profile.battleWins, profile.battleLosses, 1)} 
-                  onClick={() => {
-                    setBattleModal({ isOpen: true, filter: 'losses' });
-                  }}
-                />
+            {/* Battle Performance - Premium Style */}
+            <div className="relative overflow-hidden rounded-xl bg-white shadow-lg border border-gray-100 p-6 transition-all duration-300">
+              {/* Gradient background accent */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-10 rounded-bl-full" />
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-emerald-500 to-teal-600 opacity-5 rounded-tr-full" />
+              
+              <div className="relative z-10">
+                {/* Icon with gradient background */}
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-4 shadow-md">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                
+                {/* Title and win rate */}
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="font-bold text-lg text-gray-900">Battle Performance</h4>
+                  <span className="text-sm font-semibold text-emerald-600">{winRate(profile)}% win rate</span>
+                </div>
+                
+                {/* Bars */}
+                <div className="flex items-end gap-3 h-24">
+                  <Bar 
+                    title="Wins" 
+                    value={profile.battleWins} 
+                    color="bg-emerald-500" 
+                    total={Math.max(profile.battleWins, profile.battleLosses, 1)} 
+                    onClick={() => {
+                      setBattleModal({ isOpen: true, filter: 'wins' });
+                    }}
+                  />
+                  <Bar 
+                    title="Losses" 
+                    value={profile.battleLosses} 
+                    color="bg-rose-500" 
+                    total={Math.max(profile.battleWins, profile.battleLosses, 1)} 
+                    onClick={() => {
+                      setBattleModal({ isOpen: true, filter: 'losses' });
+                    }}
+                  />
+                </div>
               </div>
             </div>
-            <div className="rounded-lg border border-blue-100 p-4">
-              <div className="flex items-center justify-between">
-                <h4 className="font-semibold text-blue-950">Leaderboard Podiums</h4>
-                <span className="text-sm text-blue-700">Total {(profile.firstPlaceFinishes + profile.secondPlaceFinishes + profile.thirdPlaceFinishes).toLocaleString()}</span>
-              </div>
-              <div className="mt-4 flex items-end gap-3 h-24">
-                <Bar 
-                  title="🥇" 
-                  value={profile.firstPlaceFinishes} 
-                  color="bg-amber-500" 
-                  total={Math.max(profile.firstPlaceFinishes, profile.secondPlaceFinishes, profile.thirdPlaceFinishes, 1)} 
-                  onClick={() => {
-                    setLeaderboardModal({ isOpen: true, filter: 'gold' });
-                  }}
-                />
-                <Bar 
-                  title="🥈" 
-                  value={profile.secondPlaceFinishes} 
-                  color="bg-gray-400" 
-                  total={Math.max(profile.firstPlaceFinishes, profile.secondPlaceFinishes, profile.thirdPlaceFinishes, 1)} 
-                  onClick={() => {
-                    setLeaderboardModal({ isOpen: true, filter: 'silver' });
-                  }}
-                />
-                <Bar 
-                  title="🥉" 
-                  value={profile.thirdPlaceFinishes} 
-                  color="bg-orange-500" 
-                  total={Math.max(profile.firstPlaceFinishes, profile.secondPlaceFinishes, profile.thirdPlaceFinishes, 1)} 
-                  onClick={() => {
-                    setLeaderboardModal({ isOpen: true, filter: 'bronze' });
-                  }}
-                />
+            
+            {/* Leaderboard Podiums - Premium Style */}
+            <div className="relative overflow-hidden rounded-xl bg-white shadow-lg border border-gray-100 p-6 transition-all duration-300">
+              {/* Gradient background accent */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-500 to-yellow-600 opacity-10 rounded-bl-full" />
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-amber-500 to-yellow-600 opacity-5 rounded-tr-full" />
+              
+              <div className="relative z-10">
+                {/* Icon with gradient background */}
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-600 mb-4 shadow-md">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                  </svg>
+                </div>
+                
+                {/* Title and total */}
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="font-bold text-lg text-gray-900">Leaderboard Podiums</h4>
+                  <span className="text-sm font-semibold text-amber-600">Total {(profile.firstPlaceFinishes + profile.secondPlaceFinishes + profile.thirdPlaceFinishes).toLocaleString()}</span>
+                </div>
+                
+                {/* Bars */}
+                <div className="flex items-end gap-3 h-24">
+                  <Bar 
+                    title="🥇" 
+                    value={profile.firstPlaceFinishes} 
+                    color="bg-amber-500" 
+                    total={Math.max(profile.firstPlaceFinishes, profile.secondPlaceFinishes, profile.thirdPlaceFinishes, 1)} 
+                    onClick={() => {
+                      setLeaderboardModal({ isOpen: true, filter: 'gold' });
+                    }}
+                  />
+                  <Bar 
+                    title="🥈" 
+                    value={profile.secondPlaceFinishes} 
+                    color="bg-gray-400" 
+                    total={Math.max(profile.firstPlaceFinishes, profile.secondPlaceFinishes, profile.thirdPlaceFinishes, 1)} 
+                    onClick={() => {
+                      setLeaderboardModal({ isOpen: true, filter: 'silver' });
+                    }}
+                  />
+                  <Bar 
+                    title="🥉" 
+                    value={profile.thirdPlaceFinishes} 
+                    color="bg-orange-500" 
+                    total={Math.max(profile.firstPlaceFinishes, profile.secondPlaceFinishes, profile.thirdPlaceFinishes, 1)} 
+                    onClick={() => {
+                      setLeaderboardModal({ isOpen: true, filter: 'bronze' });
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
