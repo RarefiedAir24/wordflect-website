@@ -79,11 +79,13 @@ export default function Profile() {
     word: string;
     date: string | null;
     title: string;
+    history?: Array<{ word: string; date: string; replacedBy?: string; replacedDate?: string }>;
   }>({
     isOpen: false,
     word: '',
     date: null,
     title: '',
+    history: [],
   });
   
   // Currency history modal state
@@ -3257,8 +3259,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 // Find the longest word entry from allFoundWords to get its date
                 const allWords = (profile.allFoundWords || []).filter(entry => {
                   if (typeof entry === 'string') return false;
-                  return entry && entry.word;
-                }) as Array<{ word: string; date?: string }>;
+                  return entry && entry.word && entry.date;
+                }) as Array<{ word: string; date: string }>;
                 
                 const longestWordValue = profile.longestWord || longestRecentWord(profile);
                 if (!longestWordValue || longestWordValue === "None") return;
@@ -3268,11 +3270,48 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   entry.word && entry.word.toUpperCase() === longestWordValue.toUpperCase()
                 );
                 
+                // Calculate longest word history by processing words chronologically
+                const history: Array<{ word: string; date: string; replacedBy?: string; replacedDate?: string }> = [];
+                
+                // Sort all words by date (chronologically)
+                const sortedWords = [...allWords].sort((a, b) => {
+                  const dateA = new Date(a.date).getTime();
+                  const dateB = new Date(b.date).getTime();
+                  return dateA - dateB;
+                });
+                
+                let currentLongest = '';
+                let currentLongestDate = '';
+                
+                // Process words chronologically to track when longest word changed
+                sortedWords.forEach(entry => {
+                  const word = entry.word || '';
+                  const entryDate = entry.date;
+                  
+                  if (!word || !entryDate) return;
+                  
+                  // If this word is longer than current longest, it becomes the new longest
+                  if (word.length > currentLongest.length) {
+                    // If we had a previous longest word, record it in history
+                    if (currentLongest) {
+                      history.push({
+                        word: currentLongest,
+                        date: currentLongestDate,
+                        replacedBy: word,
+                        replacedDate: entryDate,
+                      });
+                    }
+                    currentLongest = word;
+                    currentLongestDate = entryDate;
+                  }
+                });
+                
                 setLongWordModal({
                   isOpen: true,
                   word: longestWordValue,
                   date: longestEntry?.date || null,
                   title: 'Longest Word (All Time)',
+                  history: history.reverse(), // Reverse to show most recent first
                 });
               }}
             />
@@ -3764,6 +3803,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                         word: longestToday.word,
                         date: longestToday.date || null,
                         title: 'Long Word of the Day',
+                        history: [], // No history for daily longest word
                       });
                     },
                     clickable: true
@@ -6089,11 +6129,11 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       {/* Longest Word Modal (All Time or Today) */}
       {longWordModal.isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-gray-900">{longWordModal.title || 'Longest Word'}</h3>
               <button
-                onClick={() => setLongWordModal({ isOpen: false, word: '', date: null, title: '' })}
+                onClick={() => setLongWordModal({ isOpen: false, word: '', date: null, title: '', history: [] })}
                 className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -6103,7 +6143,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             </div>
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-gray-600 mb-2">Word</p>
+                <p className="text-sm text-gray-600 mb-2">Current Longest Word</p>
                 <p className="text-2xl font-bold text-blue-950">{longWordModal.word}</p>
               </div>
               {longWordModal.date && (
@@ -6128,6 +6168,57 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               {!longWordModal.date && (
                 <div>
                   <p className="text-sm text-gray-500">Date information not available</p>
+                </div>
+              )}
+              
+              {/* Previous Records History */}
+              {longWordModal.history && longWordModal.history.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <p className="text-sm font-semibold text-gray-700 mb-3">Previous Records</p>
+                  <div className="space-y-3">
+                    {longWordModal.history.map((record, index) => (
+                      <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <p className="text-lg font-bold text-gray-900">{record.word}</p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {record.word.length} {record.word.length === 1 ? 'letter' : 'letters'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <p>
+                            <span className="font-medium">Found:</span>{' '}
+                            {new Date(record.date).toLocaleString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true,
+                              timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                            })}
+                          </p>
+                          {record.replacedBy && record.replacedDate && (
+                            <p className="text-gray-500">
+                              <span className="font-medium">Replaced by:</span>{' '}
+                              <span className="font-semibold text-blue-950">{record.replacedBy}</span>{' '}
+                              on{' '}
+                              {new Date(record.replacedDate).toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true,
+                                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                              })}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
