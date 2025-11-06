@@ -3263,11 +3263,27 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <MiniStat title="Games Played" value={profile.gamesPlayed.toLocaleString()} subtitle="Lifetime" />
-            <MiniStat 
-              title="Top Score" 
-              value={profile.topScore.toLocaleString()} 
+            <PremiumStat
+              title="Games Played"
+              value={profile.gamesPlayed.toLocaleString()}
+              subtitle="Lifetime"
+              icon={
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              }
+              gradient="from-blue-500 to-indigo-600"
+            />
+            <PremiumStat
+              title="Top Score"
+              value={profile.topScore.toLocaleString()}
               subtitle="Best single game"
+              icon={
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              }
+              gradient="from-emerald-500 to-teal-600"
               clickable={!!profile.topScore && profile.topScore > 0}
               onClick={() => {
                 // Calculate top score history from sessionHistory
@@ -3332,10 +3348,16 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 });
               }}
             />
-            <MiniStat 
-              title="Longest Word" 
-              value={profile.longestWord || longestRecentWord(profile) || "None"} 
+            <PremiumStat
+              title="Longest Word"
+              value={profile.longestWord || longestRecentWord(profile) || "None"}
               subtitle="Record"
+              icon={
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              }
+              gradient="from-purple-500 to-pink-600"
               clickable={!!(profile.longestWord || longestRecentWord(profile))}
               onClick={() => {
                 // Find the longest word entry from allFoundWords to get its date
@@ -6445,6 +6467,83 @@ function MetricCard({
         )}
       </div>
     </div>
+  );
+}
+
+function PremiumStat({ 
+  title, 
+  value, 
+  subtitle, 
+  icon,
+  gradient,
+  onClick, 
+  clickable 
+}: { 
+  title: string; 
+  value: string | number; 
+  subtitle?: string;
+  icon: React.ReactNode;
+  gradient: string;
+  onClick?: () => void;
+  clickable?: boolean;
+}) {
+  const Component = clickable && onClick ? 'button' : 'div';
+  return (
+    <Component
+      onClick={clickable && onClick ? onClick : undefined}
+      className={`relative overflow-hidden rounded-xl bg-white shadow-lg border border-gray-100 p-6 transition-all duration-300 ${
+        clickable && onClick 
+          ? 'cursor-pointer hover:shadow-xl hover:scale-[1.02] hover:border-gray-200' 
+          : ''
+      }`}
+      role={clickable && onClick ? 'button' : undefined}
+      tabIndex={clickable && onClick ? 0 : undefined}
+      onKeyDown={clickable && onClick ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      } : undefined}
+    >
+      {/* Gradient background accent */}
+      <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${gradient} opacity-10 rounded-bl-full`} />
+      
+      <div className="relative z-10">
+        {/* Icon with gradient background */}
+        <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} mb-4 shadow-md`}>
+          <div className="text-white">
+            {icon}
+          </div>
+        </div>
+        
+        {/* Title */}
+        <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
+        
+        {/* Value */}
+        <p className={`text-3xl font-extrabold text-gray-900 mb-1 ${clickable && onClick ? 'group-hover:text-gray-950' : ''}`}>
+          {value}
+        </p>
+        
+        {/* Subtitle */}
+        {subtitle && (
+          <p className="text-xs text-gray-500 font-medium">{subtitle}</p>
+        )}
+        
+        {/* Click hint for interactive stats */}
+        {clickable && onClick && (
+          <div className="mt-3 flex items-center gap-1 text-xs text-gray-400">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <span>View history</span>
+          </div>
+        )}
+      </div>
+      
+      {/* Decorative corner accent */}
+      <div className={`absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr ${gradient} opacity-5 rounded-tr-full`} />
+    </Component>
   );
 }
 
