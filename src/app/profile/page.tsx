@@ -73,15 +73,17 @@ export default function Profile() {
   
   const [aiModalOpen, setAiModalOpen] = useState(false);
   
-  // Longest word of the day modal state
+  // Longest word modal state (for both all-time and today's longest)
   const [longWordModal, setLongWordModal] = useState<{
     isOpen: boolean;
     word: string;
     date: string | null;
+    title: string;
   }>({
     isOpen: false,
     word: '',
     date: null,
+    title: '',
   });
   
   // Currency history modal state
@@ -3246,7 +3248,34 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <MiniStat title="Games Played" value={profile.gamesPlayed.toLocaleString()} subtitle="Lifetime" />
             <MiniStat title="Top Score" value={profile.topScore.toLocaleString()} subtitle="Best single game" />
-            <MiniStat title="Longest Word" value={profile.longestWord || longestRecentWord(profile) || "None"} subtitle="Record" />
+            <MiniStat 
+              title="Longest Word" 
+              value={profile.longestWord || longestRecentWord(profile) || "None"} 
+              subtitle="Record"
+              clickable={!!(profile.longestWord || longestRecentWord(profile))}
+              onClick={() => {
+                // Find the longest word entry from allFoundWords to get its date
+                const allWords = (profile.allFoundWords || []).filter(entry => {
+                  if (typeof entry === 'string') return false;
+                  return entry && entry.word;
+                }) as Array<{ word: string; date?: string }>;
+                
+                const longestWordValue = profile.longestWord || longestRecentWord(profile);
+                if (!longestWordValue || longestWordValue === "None") return;
+                
+                // Find the entry matching the longest word
+                const longestEntry = allWords.find(entry => 
+                  entry.word && entry.word.toUpperCase() === longestWordValue.toUpperCase()
+                );
+                
+                setLongWordModal({
+                  isOpen: true,
+                  word: longestWordValue,
+                  date: longestEntry?.date || null,
+                  title: 'Longest Word (All Time)',
+                });
+              }}
+            />
           </div>
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-lg border border-blue-100 p-4">
@@ -3734,6 +3763,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                         isOpen: true,
                         word: longestToday.word,
                         date: longestToday.date || null,
+                        title: 'Long Word of the Day',
                       });
                     },
                     clickable: true
@@ -6056,14 +6086,14 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         />
       )}
 
-      {/* Longest Word of the Day Modal */}
+      {/* Longest Word Modal (All Time or Today) */}
       {longWordModal.isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-gray-900">Long Word of the Day</h3>
+              <h3 className="text-xl font-bold text-gray-900">{longWordModal.title || 'Longest Word'}</h3>
               <button
-                onClick={() => setLongWordModal({ isOpen: false, word: '', date: null })}
+                onClick={() => setLongWordModal({ isOpen: false, word: '', date: null, title: '' })}
                 className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -6147,13 +6177,17 @@ function MetricCard({
   );
 }
 
-function MiniStat({ title, value, subtitle }: { title: string; value: string | number; subtitle?: string }) {
+function MiniStat({ title, value, subtitle, onClick, clickable }: { title: string; value: string | number; subtitle?: string; onClick?: () => void; clickable?: boolean }) {
+  const Component = clickable && onClick ? 'button' : 'div';
   return (
-    <div className="rounded-lg border border-blue-100 p-4">
+    <Component
+      onClick={clickable && onClick ? onClick : undefined}
+      className={`rounded-lg border border-blue-100 p-4 ${clickable && onClick ? 'cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-colors' : ''}`}
+    >
       <p className="text-sm text-blue-700">{title}</p>
-      <p className="mt-1 text-xl font-bold text-blue-950">{value}</p>
+      <p className={`mt-1 text-xl font-bold text-blue-950 ${clickable && onClick ? 'underline decoration-dotted' : ''}`}>{value}</p>
       {subtitle && <p className="text-xs text-blue-600">{subtitle}</p>}
-    </div>
+    </Component>
   );
 }
 
