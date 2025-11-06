@@ -111,6 +111,15 @@ export default function Profile() {
     isOpen: false,
     type: null,
   });
+  
+  // Leaderboard placements modal state
+  const [leaderboardModal, setLeaderboardModal] = useState<{
+    isOpen: boolean;
+    filter: 'all' | 'gold' | 'silver' | 'bronze';
+  }>({
+    isOpen: false,
+    filter: 'all',
+  });
   const [currencyHistory, setCurrencyHistory] = useState<{
     transactions: Array<{
       id: string;
@@ -3437,9 +3446,33 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 <span className="text-sm text-blue-700">Total {(profile.firstPlaceFinishes + profile.secondPlaceFinishes + profile.thirdPlaceFinishes).toLocaleString()}</span>
               </div>
               <div className="mt-4 flex items-end gap-3 h-24">
-                <Bar title="🥇" value={profile.firstPlaceFinishes} color="bg-amber-500" total={Math.max(profile.firstPlaceFinishes, profile.secondPlaceFinishes, profile.thirdPlaceFinishes, 1)} />
-                <Bar title="🥈" value={profile.secondPlaceFinishes} color="bg-gray-400" total={Math.max(profile.firstPlaceFinishes, profile.secondPlaceFinishes, profile.thirdPlaceFinishes, 1)} />
-                <Bar title="🥉" value={profile.thirdPlaceFinishes} color="bg-orange-500" total={Math.max(profile.firstPlaceFinishes, profile.secondPlaceFinishes, profile.thirdPlaceFinishes, 1)} />
+                <Bar 
+                  title="🥇" 
+                  value={profile.firstPlaceFinishes} 
+                  color="bg-amber-500" 
+                  total={Math.max(profile.firstPlaceFinishes, profile.secondPlaceFinishes, profile.thirdPlaceFinishes, 1)} 
+                  onClick={() => {
+                    setLeaderboardModal({ isOpen: true, filter: 'gold' });
+                  }}
+                />
+                <Bar 
+                  title="🥈" 
+                  value={profile.secondPlaceFinishes} 
+                  color="bg-gray-400" 
+                  total={Math.max(profile.firstPlaceFinishes, profile.secondPlaceFinishes, profile.thirdPlaceFinishes, 1)} 
+                  onClick={() => {
+                    setLeaderboardModal({ isOpen: true, filter: 'silver' });
+                  }}
+                />
+                <Bar 
+                  title="🥉" 
+                  value={profile.thirdPlaceFinishes} 
+                  color="bg-orange-500" 
+                  total={Math.max(profile.firstPlaceFinishes, profile.secondPlaceFinishes, profile.thirdPlaceFinishes, 1)} 
+                  onClick={() => {
+                    setLeaderboardModal({ isOpen: true, filter: 'bronze' });
+                  }}
+                />
               </div>
             </div>
           </div>
@@ -6427,6 +6460,184 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </div>
         </div>
       )}
+
+      {/* Leaderboard Placements Modal */}
+      {leaderboardModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Leaderboard Placements</h3>
+              <button
+                onClick={() => setLeaderboardModal({ isOpen: false, filter: 'all' })}
+                className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Filter Buttons */}
+            <div className="flex gap-2 mb-6 flex-wrap">
+              <button
+                onClick={() => setLeaderboardModal({ ...leaderboardModal, filter: 'all' })}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  leaderboardModal.filter === 'all'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                All Placements
+              </button>
+              <button
+                onClick={() => setLeaderboardModal({ ...leaderboardModal, filter: 'gold' })}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                  leaderboardModal.filter === 'gold'
+                    ? 'bg-amber-500 text-white'
+                    : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                }`}
+              >
+                🥇 Gold ({profile.firstPlaceFinishes})
+              </button>
+              <button
+                onClick={() => setLeaderboardModal({ ...leaderboardModal, filter: 'silver' })}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                  leaderboardModal.filter === 'silver'
+                    ? 'bg-gray-400 text-white'
+                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                🥈 Silver ({profile.secondPlaceFinishes})
+              </button>
+              <button
+                onClick={() => setLeaderboardModal({ ...leaderboardModal, filter: 'bronze' })}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                  leaderboardModal.filter === 'bronze'
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-orange-50 text-orange-700 hover:bg-orange-100'
+                }`}
+              >
+                🥉 Bronze ({profile.thirdPlaceFinishes})
+              </button>
+            </div>
+
+            {/* Placements List */}
+            <div className="space-y-3">
+              {(() => {
+                const placements: Array<{
+                  placement: 1 | 2 | 3;
+                  date: string;
+                  period: 'daily' | 'weekly' | 'monthly';
+                  periodLabel?: string;
+                  score?: number;
+                }> = profile.leaderboardPlacementHistory || [];
+                
+                // Filter placements based on current filter
+                let filteredPlacements = placements;
+                if (leaderboardModal.filter === 'gold') {
+                  filteredPlacements = placements.filter((p: { placement: 1 | 2 | 3 }) => p.placement === 1);
+                } else if (leaderboardModal.filter === 'silver') {
+                  filteredPlacements = placements.filter((p: { placement: 1 | 2 | 3 }) => p.placement === 2);
+                } else if (leaderboardModal.filter === 'bronze') {
+                  filteredPlacements = placements.filter((p: { placement: 1 | 2 | 3 }) => p.placement === 3);
+                }
+                
+                // Sort by date (most recent first)
+                filteredPlacements = [...filteredPlacements].sort((a, b) => {
+                  return new Date(b.date).getTime() - new Date(a.date).getTime();
+                });
+
+                if (filteredPlacements.length === 0) {
+                  return (
+                    <div className="text-center py-12">
+                      {placements.length === 0 ? (
+                        <>
+                          <div className="text-6xl mb-4">📊</div>
+                          <p className="text-lg font-semibold text-gray-700 mb-2">Detailed History Not Available</p>
+                          <p className="text-sm text-gray-500 mb-4">
+                            Placement history tracking requires backend support. Currently, only total counts are available.
+                          </p>
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
+                            <p className="text-sm text-blue-900 font-medium mb-2">Current Totals:</p>
+                            <div className="space-y-1 text-sm text-blue-700">
+                              <p>🥇 Gold (1st Place): {profile.firstPlaceFinishes}</p>
+                              <p>🥈 Silver (2nd Place): {profile.secondPlaceFinishes}</p>
+                              <p>🥉 Bronze (3rd Place): {profile.thirdPlaceFinishes}</p>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-4xl mb-4">
+                            {leaderboardModal.filter === 'gold' ? '🥇' : leaderboardModal.filter === 'silver' ? '🥈' : leaderboardModal.filter === 'bronze' ? '🥉' : '📊'}
+                          </div>
+                          <p className="text-lg font-semibold text-gray-700">No placements found for this filter</p>
+                        </>
+                      )}
+                    </div>
+                  );
+                }
+
+                return filteredPlacements.map((placement: {
+                  placement: 1 | 2 | 3;
+                  date: string;
+                  period: 'daily' | 'weekly' | 'monthly';
+                  periodLabel?: string;
+                  score?: number;
+                }, index: number) => {
+                  const placementEmoji = placement.placement === 1 ? '🥇' : placement.placement === 2 ? '🥈' : '🥉';
+                  const placementLabel = placement.placement === 1 ? 'Gold' : placement.placement === 2 ? 'Silver' : 'Bronze';
+                  const textColorClass = placement.placement === 1 ? 'text-amber-700' : placement.placement === 2 ? 'text-gray-700' : 'text-orange-700';
+                  const emojiColorClass = placement.placement === 1 ? 'text-amber-500' : placement.placement === 2 ? 'text-gray-400' : 'text-orange-500';
+                  
+                  return (
+                    <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className={`text-3xl ${emojiColorClass}`}>
+                            {placementEmoji}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`font-bold text-lg ${textColorClass}`}>
+                                {placementLabel} Place
+                              </span>
+                              {placement.periodLabel && (
+                                <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                                  {placement.periodLabel}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600">
+                              {new Date(placement.date).toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true,
+                                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                              })}
+                            </p>
+                            {placement.score != null && (
+                              <p className="text-xs text-gray-500 mt-1">
+                                Score: {placement.score.toLocaleString()}
+                              </p>
+                            )}
+                            <p className="text-xs text-gray-400 mt-1">
+                              UTC: {new Date(placement.date).toISOString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -6561,14 +6772,26 @@ function MiniStat({ title, value, subtitle, onClick, clickable }: { title: strin
   );
 }
 
-function Bar({ title, value, color, total }: { title: string; value: number; color: string; total: number }) {
+function Bar({ title, value, color, total, onClick }: { title: string; value: number; color: string; total: number; onClick?: () => void }) {
   const height = total > 0 ? Math.max(6, Math.round((value / total) * 100)) : 6;
+  const Component = onClick ? 'button' : 'div';
   return (
-    <div className="flex flex-col items-center justify-end h-full min-w-[48px]">
-      <div className={`w-8 ${color} rounded-t`} style={{ height: `${height}%` }} />
+    <Component
+      onClick={onClick}
+      className={`flex flex-col items-center justify-end h-full min-w-[48px] ${onClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      } : undefined}
+    >
+      <div className={`w-8 ${color} rounded-t transition-all ${onClick ? 'hover:shadow-md' : ''}`} style={{ height: `${height}%` }} />
       <div className="mt-2 text-xs text-blue-900 font-semibold">{title}</div>
       <div className="text-[11px] text-blue-700">{value}</div>
-    </div>
+    </Component>
   );
 }
 

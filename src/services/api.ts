@@ -61,6 +61,13 @@ export interface UserProfile {
     level?: number;
     wordsFound?: number;
   }>;
+  leaderboardPlacementHistory?: Array<{
+    placement: 1 | 2 | 3;
+    date: string;
+    period: 'daily' | 'weekly' | 'monthly';
+    periodLabel?: string;
+    score?: number;
+  }>;
 }
 
 class ApiService {
