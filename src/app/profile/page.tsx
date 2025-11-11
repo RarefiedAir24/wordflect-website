@@ -2427,6 +2427,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       };
     }
     // Fallback: use pre-fetched themeWords list + stored progress to populate card without opening modal
+    // ONLY use this if we have data for THIS specific day
     const words = (themeAnalytics as Record<string, unknown>)[`${day}_themeWords`] as string[] | undefined;
     const prog = getProgressFor(day);
     console.log(`getThemeData - ${day} fallback words:`, words);
@@ -2445,79 +2446,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       };
     }
 
-    // Check if we have theme words data from the theme day API (prioritize this over old analytics)
-    const themeWords = (themeAnalytics[`${day}_themeWords`] as string[]) || [];
-    if (themeWords.length > 0) {
-      console.log(`🎯 Using NEW theme words data for ${day}`);
-      console.log(`Found theme words for ${day}:`, themeWords);
-      
-      // Check user's profile for found words that match this theme AND were found on the specific day
-      const userFoundWords = profile?.allFoundWords || [];
-      
-      // Calculate the date for the selected day using UTC to match mobile app
-      const today = new Date();
-      const dayOfWeek = today.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
-      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-      const selectedDayIndex = dayNames.indexOf(day);
-      
-      // Calculate the date for the selected day (this week) using UTC
-      // Find Monday of the current week (week starts on Monday)
-      const mondayOfWeek = new Date(today);
-      // If today is Sunday (0), go back 6 days to get Monday. Otherwise, go back (dayOfWeek - 1) days
-      const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-      mondayOfWeek.setUTCDate(today.getUTCDate() - daysFromMonday);
-      mondayOfWeek.setUTCHours(0, 0, 0, 0);
-      
-      // Calculate the selected day from Monday of the current week
-      // selectedDayIndex: 0=Sunday, 1=Monday, 2=Tuesday, etc.
-      // For Monday-Sunday week, we need: Monday=0, Tuesday=1, ..., Sunday=6
-      const daysFromMondayToSelected = selectedDayIndex === 0 ? 6 : selectedDayIndex - 1;
-      const selectedDate = new Date(mondayOfWeek);
-      selectedDate.setUTCDate(mondayOfWeek.getUTCDate() + daysFromMondayToSelected);
-      const selectedDateString = selectedDate.toISOString().split('T')[0];
-      
-      console.log(`🎯 DEBUG: Today is ${today.toISOString().split('T')[0]} (UTC day ${dayOfWeek})`);
-      console.log(`🎯 DEBUG: Selected day is ${day} (index ${selectedDayIndex})`);
-      console.log(`🎯 DEBUG: Monday of current week: ${mondayOfWeek.toISOString().split('T')[0]}`);
-      console.log(`🎯 DEBUG: Days from Monday to selected day: ${daysFromMondayToSelected}`);
-      console.log(`🎯 DEBUG: Calculated selected date: ${selectedDateString}`);
-      console.log(`Looking for words found on ${selectedDateString} (${day})`);
-      
-      // Filter words found on the specific day
-      const wordsFoundOnSelectedDay = userFoundWords.filter(userWord => {
-        if (typeof userWord === 'string') return false; // Skip old format without dates
-        if (userWord.date) {
-          const wordDate = new Date(userWord.date).toISOString().split('T')[0];
-          return wordDate === selectedDateString;
-        }
-        return false;
-      });
-      
-      console.log(`🎯 DEBUG: Total user found words: ${userFoundWords.length}`);
-      console.log(`🎯 DEBUG: Sample user words with dates:`, userFoundWords.slice(0, 5).map(w => typeof w === 'string' ? w : `${w.word} (${w.date})`));
-      console.log(`Words found on ${selectedDateString}:`, wordsFoundOnSelectedDay.map(w => typeof w === 'string' ? w : w.word));
-      
-      // Check which theme words were found on the specific day
-      const foundThemeWords = themeWords.filter(themeWord => 
-        wordsFoundOnSelectedDay.some(userWord => {
-          const word = typeof userWord === 'string' ? userWord : userWord.word;
-          return word && word.toUpperCase() === themeWord.toUpperCase();
-        })
-      );
-      
-      console.log(`Found ${foundThemeWords.length} theme words on ${day}:`, foundThemeWords);
-      console.log(`🎯 DEBUG: themeWords:`, themeWords);
-      console.log(`🎯 DEBUG: wordsFoundOnSelectedDay:`, wordsFoundOnSelectedDay);
-      console.log(`🎯 DEBUG: foundThemeWords:`, foundThemeWords);
-      
-      return {
-        wordsFound: foundThemeWords.length,
-        totalWords: themeWords.length,
-        completionPercent: themeWords.length > 0 ? Math.round((foundThemeWords.length / themeWords.length) * 100) : 0,
-        words: themeWords,
-        foundWords: foundThemeWords
-      };
-    }
+    // If we don't have data for this specific day, return null so card shows "tap to load"
+    console.log(`getThemeData - ${day} has no data, returning null`);
+    return null;
 
     // Fallback to old theme analytics data if new theme words are not available
     if (themeAnalytics.themeAnalytics && (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName]) {
