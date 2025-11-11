@@ -2846,14 +2846,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           const incoming = data as Record<string, unknown>;
           const merged: Record<string, unknown> = { ...incoming };
           try {
-            const prevAll = Array.isArray(prevDetails?.allThemeWords) ? (prevDetails!.allThemeWords as Array<string | { word?: string; found?: boolean }>) : [];
             const incomingAll = Array.isArray(incoming?.allThemeWords) ? (incoming!.allThemeWords as Array<string | { word?: string; found?: boolean }>) : [];
 
-            // Build a found set from incoming backend data ONLY (trust the backend)
-            // Don't merge with previous data or profile data - the backend is the source of truth
-            const foundSet = new Set<string>();
-            
-            // ONLY use incoming backend data - it already has the correct found flags
+            // Trust the backend completely - use found flags directly from backend response
             // The backend filters out stale data, so we should trust it completely
             if (incomingAll.length) {
               // Use the found flags directly from the backend response
