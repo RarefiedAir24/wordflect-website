@@ -479,6 +479,25 @@ class ApiService {
           console.log('🔐 API SERVICE: Delayed verification - User still there:', !!delayedUser);
           console.log('🔐 API SERVICE: Delayed verification - All keys:', Object.keys(localStorage));
         }, 50);
+        
+        // Call loginEvent endpoint to update login streak
+        if (data.user?.id) {
+          try {
+            console.log('🔐 API SERVICE: Calling loginEvent to update streak...');
+            await this.makeRequest(buildApiUrl('/user/login-event'), {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${data.token}`
+              },
+              body: JSON.stringify({ id: data.user.id })
+            });
+            console.log('🔐 API SERVICE: Login event processed successfully');
+          } catch (loginEventError) {
+            // Don't fail sign-in if loginEvent fails, just log it
+            console.warn('🔐 API SERVICE: Login event failed (non-critical):', loginEventError);
+          }
+        }
       } else {
         console.warn('🔐 API SERVICE: Window is undefined, cannot store in localStorage');
       }
