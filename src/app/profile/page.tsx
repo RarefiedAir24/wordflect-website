@@ -2765,7 +2765,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     console.log(`🎯 Modal opened for day: ${day}`);
     
     try {
-      // Calculate the date for the selected day
+      // Calculate the date for the selected day (this week only)
       // Use UTC date to match mobile app theme schedule
       const today = new Date();
       const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
@@ -2773,22 +2773,25 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
       const selectedDayIndex = dayNames.indexOf(day);
       
-      // Calculate the date for the selected day
-      // If it's the current day and we have no data, try the previous week
-      let daysUntilSelectedDay = selectedDayIndex - dayOfWeek;
+      // Find Monday of the current week (week starts on Monday)
+      const mondayOfWeek = new Date(utcDate);
+      // If today is Sunday (0), go back 6 days to get Monday. Otherwise, go back (dayOfWeek - 1) days
+      const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      mondayOfWeek.setUTCDate(utcDate.getUTCDate() - daysFromMonday);
+      mondayOfWeek.setUTCHours(0, 0, 0, 0);
       
-      // If the selected day is in the future (next week), go back to previous week
-      if (daysUntilSelectedDay > 0) {
-        daysUntilSelectedDay -= 7; // Go back one week
-      }
-      
-      const selectedDate = new Date(utcDate);
-      selectedDate.setUTCDate(utcDate.getUTCDate() + daysUntilSelectedDay);
+      // Calculate the selected day from Monday of the current week
+      // selectedDayIndex: 0=Sunday, 1=Monday, 2=Tuesday, etc.
+      // For Monday-Sunday week, we need: Monday=0, Tuesday=1, ..., Sunday=6
+      const daysFromMondayToSelected = selectedDayIndex === 0 ? 6 : selectedDayIndex - 1;
+      const selectedDate = new Date(mondayOfWeek);
+      selectedDate.setUTCDate(mondayOfWeek.getUTCDate() + daysFromMondayToSelected);
       const selectedDateString = selectedDate.toISOString().split('T')[0];
       
       console.log(`🎯 DEBUG: Today is ${utcDate.toISOString().split('T')[0]} (UTC day ${dayOfWeek})`);
       console.log(`🎯 DEBUG: Selected day is ${day} (index ${selectedDayIndex})`);
-      console.log(`🎯 DEBUG: Days until selected day: ${daysUntilSelectedDay}`);
+      console.log(`🎯 DEBUG: Monday of current week: ${mondayOfWeek.toISOString().split('T')[0]}`);
+      console.log(`🎯 DEBUG: Days from Monday to selected day: ${daysFromMondayToSelected}`);
       console.log(`🎯 DEBUG: Calculated selected date: ${selectedDateString}`);
       
       // Fetch complete theme details for this specific day and date (direct backend call)
