@@ -2842,7 +2842,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       if (data.success) {
         // Store the complete theme data with a safe merge of found flags (never un-find a word)
         setThemeAnalytics(prev => {
-          const prevDetails = (prev as Record<string, unknown> | null)?.[`${day}_themeDetails`] as Record<string, unknown> | undefined;
           const incoming = data as Record<string, unknown>;
           const merged: Record<string, unknown> = { ...incoming };
           try {
