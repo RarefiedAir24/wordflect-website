@@ -2851,20 +2851,25 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
             // Build a found set from prior details, profile's today words, and any incoming progress/found lists
             const foundSet = new Set<string>();
-            // From previous details
+            // From previous details (only if they're for the same date)
             prevAll.forEach(w => {
               const word = (typeof w === 'string' ? w : (w.word || '')).trim().toLowerCase();
               const wasFound = typeof w === 'object' ? !!w.found : false;
               if (word && wasFound) foundSet.add(word);
             });
-            // From profile: themeWordsFoundToday (if available)
-            try {
-              const todays = (profile as unknown as { themeWordsFoundToday?: string[] })?.themeWordsFoundToday || [];
-              todays.forEach(w => {
-                const lw = (w || '').trim().toLowerCase();
-                if (lw) foundSet.add(lw);
-              });
-            } catch {}
+            // From profile: themeWordsFoundToday (ONLY if this is today's date)
+            // Check if the incoming data is for today
+            const incomingDate = (incoming as { date?: string })?.date;
+            const todayString = new Date().toISOString().split('T')[0];
+            if (incomingDate === todayString) {
+              try {
+                const todays = (profile as unknown as { themeWordsFoundToday?: string[] })?.themeWordsFoundToday || [];
+                todays.forEach(w => {
+                  const lw = (w || '').trim().toLowerCase();
+                  if (lw) foundSet.add(lw);
+                });
+              } catch {}
+            }
             // From incoming details: stats/progress lists
             try {
               const progress = (incoming as Record<string, unknown>)?.progress as { foundWords?: string[] } | undefined;
