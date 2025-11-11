@@ -2572,6 +2572,36 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       console.log(`🎯 getProgressFor(${day}): themeAnalytics is null`);
       return undefined;
     }
+    
+    // First, check if we have theme details from backend API (most accurate)
+    const detailsKey = `${day}_themeDetails`;
+    const details = ta[detailsKey] as ThemeDayResponse | undefined;
+    if (details && details.theme && Array.isArray(details.theme.words)) {
+      console.log(`🎯 getProgressFor(${day}): Using themeDetails from backend`);
+      const totalWords = details.theme.words.length;
+      
+      // Extract found count from allThemeWords (with found flags) or stats/progress
+      let found = 0;
+      if (Array.isArray(details.allThemeWords)) {
+        found = details.allThemeWords.filter(w => {
+          if (typeof w === 'string') return false;
+          return !!w.found;
+        }).length;
+      } else if (typeof details.stats?.totalThemeWordsFound === 'number') {
+        found = details.stats.totalThemeWordsFound;
+      } else if (Array.isArray(details.progress?.foundWords)) {
+        found = details.progress!.foundWords!.length;
+      }
+      
+      // Store theme words for card display
+      if (!ta[`${day}_themeWords`]) {
+        ta[`${day}_themeWords`] = details.theme.words;
+      }
+      
+      return { found, total: totalWords };
+    }
+    
+    // Fallback: check for stored progress
     const key = `${day}_progress`;
     const value = ta[key];
     console.log(`🎯 getProgressFor(${day}): key=${key}, value=`, value);
@@ -2848,7 +2878,16 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           } catch (mergeErr) {
             console.warn('⚠️ Theme merge warning:', mergeErr);
           }
+          // Also store theme words for card display
+          if (merged.theme && Array.isArray((merged.theme as { words?: string[] }).words)) {
+            merged[`${day}_themeWords`] = (merged.theme as { words: string[] }).words;
+          }
+          
           const updated = { ...(prev || {}), [`${day}_themeDetails`]: merged } as Record<string, unknown>;
+          // Also store theme words at the root level for getProgressFor
+          if (merged.theme && Array.isArray((merged.theme as { words?: string[] }).words)) {
+            updated[`${day}_themeWords`] = (merged.theme as { words: string[] }).words;
+          }
           console.log(`🎯 Merged themeAnalytics for ${day}`);
           return updated;
         });
