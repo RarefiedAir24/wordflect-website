@@ -2825,15 +2825,17 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       
       if (calculatedDayName !== day) {
         console.error(`❌ DATE MISMATCH: Selected ${day} but calculated date ${selectedDateString} is ${calculatedDayName}!`);
-        console.error(`❌ Fixing: recalculating for correct day...`);
-        // The calculation was wrong, so we need to find the date that actually matches the selected day
-        // Find the date in the current week that matches the selected day
+        console.error(`❌ Original calculation: selectedDayIndex=${selectedDayIndex}, daysFromMondayToSelected=${daysFromMondayToSelected}`);
+        // Recalculate correctly - find the date in the current week that matches the selected day
         for (let i = 0; i < 7; i++) {
           const testDate = new Date(mondayOfWeek);
           testDate.setUTCDate(mondayOfWeek.getUTCDate() + i);
-          if (dayNames[testDate.getUTCDay()] === day) {
+          testDate.setUTCHours(0, 0, 0, 0);
+          const testDayIndex = testDate.getUTCDay();
+          const testDayName = dayNames[testDayIndex];
+          if (testDayName === day) {
             finalDateString = testDate.toISOString().split('T')[0];
-            console.error(`❌ Using corrected date: ${finalDateString} for ${day}`);
+            console.error(`❌ Using corrected date: ${finalDateString} for ${day} (verified as ${testDayName})`);
             break;
           }
         }
@@ -2912,7 +2914,11 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           if (merged.theme && Array.isArray((merged.theme as { words?: string[] }).words)) {
             updated[`${day}_themeWords`] = (merged.theme as { words: string[] }).words;
           }
-          console.log(`🎯 Merged themeAnalytics for ${day}`);
+          console.log(`🎯 Merged themeAnalytics for ${day}:`, {
+            themeName: (merged.theme as { name?: string })?.name,
+            wordsCount: Array.isArray((merged.theme as { words?: string[] })?.words) ? (merged.theme as { words: string[] }).words.length : 0,
+            firstWords: Array.isArray((merged.theme as { words?: string[] })?.words) ? (merged.theme as { words: string[] }).words.slice(0, 3) : []
+          });
           return updated;
         });
       } else {
