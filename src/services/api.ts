@@ -360,12 +360,17 @@ class ApiService {
 
   async getThemeDayStatistics(date: string): Promise<unknown> {
     try {
+      console.log('🔍🔍🔍 getThemeDayStatistics CALLED with date:', date);
+      console.log('🔍🔍🔍 Date type:', typeof date);
+      console.log('🔍🔍🔍 Date value:', JSON.stringify(date));
       const endpoint = buildApiUrl(API_CONFIG.ENDPOINTS.USER_THEME_DAY);
       console.log('🔍 getThemeDayStatistics - endpoint:', endpoint);
       console.log('🔍 getThemeDayStatistics - API_CONFIG.ENDPOINTS.USER_THEME_DAY:', API_CONFIG.ENDPOINTS.USER_THEME_DAY);
       const url = new URL(endpoint, window.location.origin);
       url.searchParams.set('date', date);
-      console.log('🔍 getThemeDayStatistics - final URL:', url.toString());
+      console.log('🔍🔍🔍 getThemeDayStatistics - Setting date param to:', date);
+      console.log('🔍🔍🔍 getThemeDayStatistics - URL after setting param:', url.toString());
+      console.log('🔍🔍🔍 getThemeDayStatistics - URL searchParams.get("date"):', url.searchParams.get('date'));
       const response = await this.makeRequest(url.toString(), {
         method: 'GET',
         headers: this.getAuthHeaders(),
