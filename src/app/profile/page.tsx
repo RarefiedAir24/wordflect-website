@@ -2797,8 +2797,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     try {
       // Calculate the date for the selected day (this week only)
       // Use UTC date to match mobile app theme schedule
-      const today = new Date();
-      const utcDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+      const now = new Date();
+      const utcDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0));
       const dayOfWeek = utcDate.getUTCDay(); // 0 = Sunday, 1 = Monday, etc.
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
       const selectedDayIndex = dayNames.indexOf(day);
