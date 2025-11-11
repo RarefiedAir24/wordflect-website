@@ -2726,15 +2726,17 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       selectedDate.setUTCDate(mondayOfWeek.getUTCDate() + daysFromMondayToSelected);
       const selectedDateString = selectedDate.toISOString().split('T')[0];
       
-      // Verify the calculated date matches the selected day
+      // ALWAYS verify and correct the date to ensure it matches the selected day
       const calculatedDayIndex = selectedDate.getUTCDay();
       const calculatedDayName = dayNames[calculatedDayIndex];
       let finalDateString = selectedDateString;
       
+      // If the calculated date doesn't match the selected day, find the correct date
       if (calculatedDayName !== day) {
         console.error(`❌ DATE MISMATCH: Selected ${day} but calculated date ${selectedDateString} is ${calculatedDayName}!`);
         console.error(`❌ Original calculation: selectedDayIndex=${selectedDayIndex}, daysFromMondayToSelected=${daysFromMondayToSelected}`);
-        // Recalculate correctly - find the date in the current week that matches the selected day
+        // Find the correct date in the current week that matches the selected day
+        let foundCorrectDate = false;
         for (let i = 0; i < 7; i++) {
           const testDate = new Date(mondayOfWeek);
           testDate.setUTCDate(mondayOfWeek.getUTCDate() + i);
@@ -2743,8 +2745,33 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           const testDayName = dayNames[testDayIndex];
           if (testDayName === day) {
             finalDateString = testDate.toISOString().split('T')[0];
-            console.error(`❌ Using corrected date: ${finalDateString} for ${day} (verified as ${testDayName})`);
+            console.error(`✅ Using corrected date: ${finalDateString} for ${day} (verified as ${testDayName})`);
+            foundCorrectDate = true;
             break;
+          }
+        }
+        if (!foundCorrectDate) {
+          console.error(`❌ CRITICAL: Could not find correct date for ${day} in current week!`);
+        }
+      } else {
+        // Double-check by verifying the final date one more time
+        const verifyDate = new Date(finalDateString + 'T00:00:00.000Z');
+        const verifyDayIndex = verifyDate.getUTCDay();
+        const verifyDayName = dayNames[verifyDayIndex];
+        if (verifyDayName !== day) {
+          console.error(`❌ VERIFICATION FAILED: Final date ${finalDateString} is ${verifyDayName}, not ${day}!`);
+          // Force recalculation
+          for (let i = 0; i < 7; i++) {
+            const testDate = new Date(mondayOfWeek);
+            testDate.setUTCDate(mondayOfWeek.getUTCDate() + i);
+            testDate.setUTCHours(0, 0, 0, 0);
+            const testDayIndex = testDate.getUTCDay();
+            const testDayName = dayNames[testDayIndex];
+            if (testDayName === day) {
+              finalDateString = testDate.toISOString().split('T')[0];
+              console.error(`✅ Force-corrected to: ${finalDateString} for ${day}`);
+              break;
+            }
           }
         }
       }
@@ -2755,6 +2782,15 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       console.log(`🎯 DEBUG: Days from Monday to selected day: ${daysFromMondayToSelected}`);
       console.log(`🎯 DEBUG: Calculated selected date: ${selectedDateString} (verifies as ${calculatedDayName})`);
       console.log(`🎯 DEBUG: Final date to use: ${finalDateString}`);
+      
+      // Final verification before making the API call
+      const finalVerifyDate = new Date(finalDateString + 'T00:00:00.000Z');
+      const finalVerifyDay = dayNames[finalVerifyDate.getUTCDay()];
+      if (finalVerifyDay !== day) {
+        console.error(`❌ CRITICAL ERROR: Final date ${finalDateString} does not match ${day}! It is ${finalVerifyDay}!`);
+      } else {
+        console.log(`✅ VERIFIED: Final date ${finalDateString} correctly matches ${day}`);
+      }
       
       // Fetch complete theme details for this specific day and date (direct backend call)
       console.log(`🎯 Fetching theme for ${day} with date: ${finalDateString}`);
