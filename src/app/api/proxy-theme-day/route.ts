@@ -31,9 +31,16 @@ export async function GET(request: NextRequest) {
     };
     if (authHeader) headers['Authorization'] = authHeader;
 
-    const response = await fetch(targetUrl, {
+    // Add cache-busting query parameter to prevent API Gateway caching
+    const cacheBuster = `&_t=${Date.now()}`;
+    const finalUrl = targetUrl.includes('?') ? `${targetUrl}${cacheBuster}` : `${targetUrl}?${cacheBuster.substring(1)}`;
+    
+    console.log('📤📤📤 Theme Day Proxy: Final URL with cache buster:', finalUrl);
+    
+    const response = await fetch(finalUrl, {
       method: 'GET',
-      headers
+      headers,
+      cache: 'no-store'
     });
 
     console.log('📥 Theme Day Proxy: Response status:', response.status);
