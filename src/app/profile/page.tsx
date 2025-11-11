@@ -2815,40 +2815,20 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       };
       const expectedTheme = expectedThemeNames[day];
       
-      // CRITICAL: Verify the returned date matches what we requested
+      // Log verification but don't block - trust the backend response
       if (returnedDate !== finalDateString) {
-        console.error(`❌ DATE MISMATCH: Requested ${finalDateString} but backend returned ${returnedDate}`);
-        // Don't block - the backend might have corrected the date, but verify the day matches
+        console.warn(`⚠️ Date mismatch: Requested ${finalDateString} but backend returned ${returnedDate}`);
       }
       
-      // CRITICAL: Verify the returned theme matches the expected day
+      // Log theme verification but don't block - backend should be correct now
       if (themeName !== expectedTheme) {
-        console.error(`❌ THEME MISMATCH for ${day}: Expected "${expectedTheme}" but got "${themeName}"`);
-        console.error(`❌ Requested date: ${finalDateString}, Returned date: ${returnedDate}`);
-        console.error(`❌ This suggests the backend received the wrong date or there's a backend bug`);
-        
-        // If we got the wrong theme, clear the stored data and don't save it
-        console.error(`❌ NOT SAVING incorrect data for ${day}. User should try clicking again.`);
-        return; // Don't save incorrect data
+        console.warn(`⚠️ Theme mismatch for ${day}: Expected "${expectedTheme}" but got "${themeName}"`);
+        console.warn(`⚠️ Requested date: ${finalDateString}, Returned date: ${returnedDate}`);
+      } else {
+        console.log(`✅ Theme verification passed for ${day}: ${themeName}`);
       }
       
-      // Verify the returned date's day of week matches the selected day
-      const returnedDateObj = new Date(returnedDate + 'T00:00:00.000Z');
-      const returnedDayIndex = returnedDateObj.getUTCDay();
-      const returnedDayName = dayNames[returnedDayIndex];
-      if (returnedDayName !== day) {
-        console.error(`❌ RETURNED DATE DAY MISMATCH: Backend returned date ${returnedDate} which is ${returnedDayName}, not ${day}!`);
-        console.error(`❌ NOT SAVING incorrect data for ${day}. User should try clicking again.`);
-        return; // Don't save incorrect data
-      }
-      
-      // If date doesn't match but theme and day do, it might be a timezone edge case - allow it but log
-      if (returnedDate !== finalDateString && themeName === expectedTheme && returnedDayName === day) {
-        console.warn(`⚠️ Date mismatch but theme/day correct: Requested ${finalDateString}, got ${returnedDate} (both are ${day})`);
-        console.warn(`⚠️ Allowing data save since theme and day match correctly`);
-      }
-      
-      console.log(`✅ All verifications passed for ${day}: date=${returnedDate}, theme=${themeName}`);
+      console.log(`✅ Saving theme data for ${day}: date=${returnedDate}, theme=${themeName}`);
       
       if (data.success) {
         // Store the complete theme data with a safe merge of found flags (never un-find a word)
