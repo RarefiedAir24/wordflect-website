@@ -2449,29 +2449,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
     // If we don't have data for this specific day, return null so card shows "tap to load"
     console.log(`getThemeData - ${day} has no data, returning null`);
     return null;
-
-    // Fallback to old theme analytics data if new theme words are not available
-    if (themeAnalytics.themeAnalytics && (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName]) {
-      // Backend structure: themeAnalytics.themeAnalytics[themeName]
-      const themeData = (themeAnalytics.themeAnalytics as Record<string, unknown>)[themeName] as Record<string, unknown>;
-      console.log(`🎯 Using OLD analytics data for ${themeName}:`, themeData);
-      
-      const wordsFound = (themeData.totalWordsFound as number) || 0;
-      const totalWords = (themeData.totalPossibleWords as number) || 20;
-      const foundWords = (themeData.wordsFound as Array<{word: string, date: string}>) || [];
-      const completionPercent = totalWords > 0 ? Math.round((wordsFound / totalWords) * 100) : 0;
-
-      return {
-        wordsFound,
-        totalWords,
-        completionPercent,
-        words: [], // We don't have the full word list in this response
-        foundWords: foundWords.map(w => w.word)
-      };
-    }
-
-    console.log('No theme data found for:', themeName);
-    return null;
   };
 
   const getThemeName = (day: string) => {
