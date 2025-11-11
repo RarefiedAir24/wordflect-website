@@ -2852,7 +2852,26 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       console.log(`🎯 Fetching theme for ${day} with date: ${finalDateString}`);
       const data = await apiService.getThemeDayStatistics(finalDateString) as Record<string, unknown>;
       console.log(`✅ Theme day details from backend for ${day}:`, data);
-      console.log(`✅ Theme words returned for ${day}:`, (data as { theme?: { words?: string[] } })?.theme?.words?.slice(0, 5));
+      const themeWords = (data as { theme?: { words?: string[] } })?.theme?.words || [];
+      const themeName = (data as { theme?: { name?: string } })?.theme?.name || 'Unknown';
+      console.log(`✅ Theme name returned for ${day}: ${themeName}`);
+      console.log(`✅ Theme words returned for ${day} (${themeWords.length} words):`, themeWords.slice(0, 5));
+      
+      // Verify the backend returned the correct theme for this day
+      const expectedThemeNames: Record<string, string> = {
+        monday: 'Food & Drinks',
+        tuesday: 'Common Nouns',
+        wednesday: 'Nature',
+        thursday: 'Adjectives',
+        friday: 'Animals',
+        saturday: 'Colors',
+        sunday: 'Actions'
+      };
+      const expectedTheme = expectedThemeNames[day];
+      if (themeName !== expectedTheme) {
+        console.error(`❌ THEME MISMATCH for ${day}: Expected "${expectedTheme}" but got "${themeName}"`);
+        console.error(`❌ This suggests the date ${finalDateString} is wrong for ${day}`);
+      }
       
       if (data.success) {
         // Store the complete theme data with a safe merge of found flags (never un-find a word)
