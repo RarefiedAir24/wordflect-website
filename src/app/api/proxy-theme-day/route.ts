@@ -16,9 +16,12 @@ export async function GET(request: NextRequest) {
     // Extract Authorization header explicitly
     const authHeader = request.headers.get('authorization');
 
-    console.log('📤 Theme Day Proxy: Forwarding request to:', targetUrl);
-    console.log('📤 Theme Day Proxy: Date parameter:', date);
-    console.log('📤 Theme Day Proxy: Auth header present:', !!authHeader);
+    console.log('📤📤📤 Theme Day Proxy: Received request');
+    console.log('📤📤📤 Theme Day Proxy: Full request URL:', request.url);
+    console.log('📤📤📤 Theme Day Proxy: Search params:', Object.fromEntries(searchParams.entries()));
+    console.log('📤📤📤 Theme Day Proxy: Date parameter extracted:', date);
+    console.log('📤📤📤 Theme Day Proxy: Forwarding request to:', targetUrl);
+    console.log('📤📤📤 Theme Day Proxy: Auth header present:', !!authHeader);
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -47,6 +50,13 @@ export async function GET(request: NextRequest) {
     }
     
     const data = await response.json();
+    console.log('📥📥📥 Theme Day Proxy: Backend response received');
+    console.log('📥📥📥 Theme Day Proxy: Response date:', data.date);
+    console.log('📥📥📥 Theme Day Proxy: Response theme name:', data.theme?.name);
+    console.log('📥📥📥 Theme Day Proxy: Requested date was:', date);
+    if (data.date !== date) {
+      console.error('❌❌❌ PROXY DATE MISMATCH: Requested', date, 'but backend returned', data.date);
+    }
     console.log('📥 Theme Day Proxy: Success response data:', JSON.stringify(data, null, 2));
     
     return NextResponse.json(data, { status: response.status, headers: { 'Cache-Control': 'no-store' } });
