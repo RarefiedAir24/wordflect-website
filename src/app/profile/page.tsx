@@ -2849,50 +2849,26 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             const prevAll = Array.isArray(prevDetails?.allThemeWords) ? (prevDetails!.allThemeWords as Array<string | { word?: string; found?: boolean }>) : [];
             const incomingAll = Array.isArray(incoming?.allThemeWords) ? (incoming!.allThemeWords as Array<string | { word?: string; found?: boolean }>) : [];
 
-            // Build a found set from prior details, profile's today words, and any incoming progress/found lists
+            // Build a found set from incoming backend data ONLY (trust the backend)
+            // Don't merge with previous data or profile data - the backend is the source of truth
             const foundSet = new Set<string>();
-            // From previous details (ONLY if they're for the same date)
-            const incomingDate = (incoming as { date?: string })?.date;
-            const prevDate = (prevDetails as { date?: string })?.date;
-            if (prevDate === incomingDate && prevDate) {
-              // Only merge previous found words if dates match
-              prevAll.forEach(w => {
-                const word = (typeof w === 'string' ? w : (w.word || '')).trim().toLowerCase();
-                const wasFound = typeof w === 'object' ? !!w.found : false;
-                if (word && wasFound) foundSet.add(word);
-              });
-            }
-            // From profile: themeWordsFoundToday (ONLY if this is today's date)
-            // Check if the incoming data is for today
-            const todayString = new Date().toISOString().split('T')[0];
-            if (incomingDate === todayString) {
-              try {
-                const todays = (profile as unknown as { themeWordsFoundToday?: string[] })?.themeWordsFoundToday || [];
-                todays.forEach(w => {
-                  const lw = (w || '').trim().toLowerCase();
-                  if (lw) foundSet.add(lw);
-                });
-              } catch {}
-            }
-            // From incoming details: stats/progress lists
-            try {
-              const progress = (incoming as Record<string, unknown>)?.progress as { foundWords?: string[] } | undefined;
-              const progressFound = Array.isArray(progress?.foundWords) ? progress!.foundWords! : [];
-              progressFound.forEach(w => {
-                const lw = (w || '').trim().toLowerCase();
-                if (lw) foundSet.add(lw);
-              });
-            } catch {}
-
+            
+            // ONLY use incoming backend data - it already has the correct found flags
+            // The backend filters out stale data, so we should trust it completely
             if (incomingAll.length) {
+              // Use the found flags directly from the backend response
               merged.allThemeWords = incomingAll.map(w => {
                 if (typeof w === 'string') {
+                  // If it's a string, check if backend marked it as found in stats
                   const lower = w.trim().toLowerCase();
-                  const isFound = foundSet.has(lower);
-                  return isFound ? { word: w, found: true } : w;
+                  const statsFound = (incoming as { stats?: { totalThemeWordsFound?: number; wordsFound?: string[] } })?.stats;
+                  const isFound = Array.isArray(statsFound?.wordsFound) 
+                    ? statsFound!.wordsFound!.some(fw => (fw || '').trim().toLowerCase() === lower)
+                    : false;
+                  return isFound ? { word: w, found: true } : { word: w, found: false };
                 }
-                const lower = (w.word || '').trim().toLowerCase();
-                return { ...w, found: !!w.found || foundSet.has(lower) };
+                // If it's an object, use the found flag from backend (backend is source of truth)
+                return { ...w, found: !!w.found };
               });
             }
           } catch (mergeErr) {
