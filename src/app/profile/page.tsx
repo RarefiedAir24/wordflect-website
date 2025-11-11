@@ -2794,8 +2794,15 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       
       // Fetch complete theme details for this specific day and date (direct backend call)
       console.log(`🎯 Fetching theme for ${day} with date: ${finalDateString}`);
-      const data = await apiService.getThemeDayStatistics(finalDateString) as Record<string, unknown>;
-      console.log(`✅ Theme day details from backend for ${day}:`, data);
+      let data: Record<string, unknown>;
+      try {
+        data = await apiService.getThemeDayStatistics(finalDateString) as Record<string, unknown>;
+        console.log(`✅ Theme day details from backend for ${day}:`, data);
+      } catch (apiError) {
+        console.error(`❌ API call failed for ${day} with date ${finalDateString}:`, apiError);
+        console.error(`❌ Error details:`, apiError instanceof Error ? apiError.message : String(apiError));
+        throw apiError; // Re-throw to be caught by outer catch
+      }
       const themeWords = (data as { theme?: { words?: string[] } })?.theme?.words || [];
       const themeName = (data as { theme?: { name?: string } })?.theme?.name || 'Unknown';
       const returnedDate = (data as { date?: string })?.date || 'unknown';
@@ -2829,6 +2836,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       }
       
       console.log(`✅ Saving theme data for ${day}: date=${returnedDate}, theme=${themeName}`);
+      console.log(`✅ Data success flag:`, data.success);
+      console.log(`✅ Data keys:`, Object.keys(data));
       
       if (data.success) {
         // Store the complete theme data with a safe merge of found flags (never un-find a word)
@@ -2898,10 +2907,18 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           return updated;
         });
       } else {
-        console.log('❌ No theme data in response');
+        console.error(`❌ No theme data in response for ${day}. Response:`, data);
+        console.error(`❌ Response structure:`, {
+          hasSuccess: 'success' in data,
+          successValue: data.success,
+          hasTheme: 'theme' in data,
+          hasDate: 'date' in data,
+          allKeys: Object.keys(data)
+        });
       }
     } catch (error) {
-      console.error('❌ Error fetching theme day details:', error);
+      console.error(`❌ Error fetching theme day details for ${day}:`, error);
+      console.error(`❌ Error stack:`, error instanceof Error ? error.stack : 'No stack trace');
       
       // If authentication failed, show a message to the user
       if (error instanceof Error && error.message.includes('Authentication failed')) {
@@ -2911,6 +2928,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       
       // For other errors, show a fallback message
       console.log('⚠️ Using fallback theme words due to API error');
+      // Don't return here - let the modal stay open so user can see the error
     }
   };
 
