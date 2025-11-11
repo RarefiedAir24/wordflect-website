@@ -368,8 +368,10 @@ export default function Profile() {
 
     const totalPlayTimeMinutes = detailedStats?.totalPlayTimeMinutes ?? profile?.totalPlayTimeMinutes ?? totalMinFromSessions ?? undefined;
     const daysLoggedIn = detailedStats?.daysLoggedIn ?? profile?.daysLoggedIn ?? daysActiveFromSessions ?? undefined;
-    const currentStreakDays = detailedStats?.currentStreakDays ?? profile?.currentStreakDays ?? (sortedDays.length ? current : undefined);
-    const longestStreakDays = detailedStats?.longestStreakDays ?? profile?.longestStreakDays ?? (sortedDays.length ? longest : undefined);
+    // Current streak should be based on game sessions, not login dates
+    // Only use calculated streak from sessions, don't fall back to login streak
+    const currentStreakDays = detailedStats?.currentStreakDays ?? (sortedDays.length ? current : undefined);
+    const longestStreakDays = detailedStats?.longestStreakDays ?? (sortedDays.length ? longest : undefined);
     const lastLoginAt = detailedStats?.lastLoginAt ?? profile?.lastLoginAt ?? (lastLoginFromSessions ? lastLoginFromSessions.toISOString() : undefined);
     const avgSessionMinutes = (() => {
       if (totalPlayTimeMinutes && profile?.gamesPlayed) return Math.round(totalPlayTimeMinutes / profile.gamesPlayed);
