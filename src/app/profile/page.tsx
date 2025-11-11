@@ -2818,6 +2818,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       // CRITICAL: Verify the returned date matches what we requested
       if (returnedDate !== finalDateString) {
         console.error(`❌ DATE MISMATCH: Requested ${finalDateString} but backend returned ${returnedDate}`);
+        // Don't block - the backend might have corrected the date, but verify the day matches
       }
       
       // CRITICAL: Verify the returned theme matches the expected day
@@ -2839,6 +2840,12 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         console.error(`❌ RETURNED DATE DAY MISMATCH: Backend returned date ${returnedDate} which is ${returnedDayName}, not ${day}!`);
         console.error(`❌ NOT SAVING incorrect data for ${day}. User should try clicking again.`);
         return; // Don't save incorrect data
+      }
+      
+      // If date doesn't match but theme and day do, it might be a timezone edge case - allow it but log
+      if (returnedDate !== finalDateString && themeName === expectedTheme && returnedDayName === day) {
+        console.warn(`⚠️ Date mismatch but theme/day correct: Requested ${finalDateString}, got ${returnedDate} (both are ${day})`);
+        console.warn(`⚠️ Allowing data save since theme and day match correctly`);
       }
       
       console.log(`✅ All verifications passed for ${day}: date=${returnedDate}, theme=${themeName}`);
