@@ -2818,15 +2818,37 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       selectedDate.setUTCDate(mondayOfWeek.getUTCDate() + daysFromMondayToSelected);
       const selectedDateString = selectedDate.toISOString().split('T')[0];
       
+      // Verify the calculated date matches the selected day
+      const calculatedDayIndex = selectedDate.getUTCDay();
+      const calculatedDayName = dayNames[calculatedDayIndex];
+      let finalDateString = selectedDateString;
+      
+      if (calculatedDayName !== day) {
+        console.error(`❌ DATE MISMATCH: Selected ${day} but calculated date ${selectedDateString} is ${calculatedDayName}!`);
+        console.error(`❌ Fixing: recalculating for correct day...`);
+        // The calculation was wrong, so we need to find the date that actually matches the selected day
+        // Find the date in the current week that matches the selected day
+        for (let i = 0; i < 7; i++) {
+          const testDate = new Date(mondayOfWeek);
+          testDate.setUTCDate(mondayOfWeek.getUTCDate() + i);
+          if (dayNames[testDate.getUTCDay()] === day) {
+            finalDateString = testDate.toISOString().split('T')[0];
+            console.error(`❌ Using corrected date: ${finalDateString} for ${day}`);
+            break;
+          }
+        }
+      }
+      
       console.log(`🎯 DEBUG: Today is ${utcDate.toISOString().split('T')[0]} (UTC day ${dayOfWeek})`);
       console.log(`🎯 DEBUG: Selected day is ${day} (index ${selectedDayIndex})`);
       console.log(`🎯 DEBUG: Monday of current week: ${mondayOfWeek.toISOString().split('T')[0]}`);
       console.log(`🎯 DEBUG: Days from Monday to selected day: ${daysFromMondayToSelected}`);
-      console.log(`🎯 DEBUG: Calculated selected date: ${selectedDateString}`);
+      console.log(`🎯 DEBUG: Calculated selected date: ${selectedDateString} (verifies as ${calculatedDayName})`);
+      console.log(`🎯 DEBUG: Final date to use: ${finalDateString}`);
       
       // Fetch complete theme details for this specific day and date (direct backend call)
-      console.log(`🎯 Fetching theme for ${day} with date: ${selectedDateString}`);
-      const data = await apiService.getThemeDayStatistics(selectedDateString) as Record<string, unknown>;
+      console.log(`🎯 Fetching theme for ${day} with date: ${finalDateString}`);
+      const data = await apiService.getThemeDayStatistics(finalDateString) as Record<string, unknown>;
       console.log(`✅ Theme day details from backend for ${day}:`, data);
       console.log(`✅ Theme words returned for ${day}:`, (data as { theme?: { words?: string[] } })?.theme?.words?.slice(0, 5));
       
