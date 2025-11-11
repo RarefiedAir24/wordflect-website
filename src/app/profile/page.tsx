@@ -2461,14 +2461,25 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       const selectedDayIndex = dayNames.indexOf(day);
       
       // Calculate the date for the selected day (this week) using UTC
-      const daysUntilSelectedDay = selectedDayIndex - dayOfWeek;
-      const selectedDate = new Date(today);
-      selectedDate.setUTCDate(today.getUTCDate() + daysUntilSelectedDay);
+      // Find Monday of the current week (week starts on Monday)
+      const mondayOfWeek = new Date(today);
+      // If today is Sunday (0), go back 6 days to get Monday. Otherwise, go back (dayOfWeek - 1) days
+      const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      mondayOfWeek.setUTCDate(today.getUTCDate() - daysFromMonday);
+      mondayOfWeek.setUTCHours(0, 0, 0, 0);
+      
+      // Calculate the selected day from Monday of the current week
+      // selectedDayIndex: 0=Sunday, 1=Monday, 2=Tuesday, etc.
+      // For Monday-Sunday week, we need: Monday=0, Tuesday=1, ..., Sunday=6
+      const daysFromMondayToSelected = selectedDayIndex === 0 ? 6 : selectedDayIndex - 1;
+      const selectedDate = new Date(mondayOfWeek);
+      selectedDate.setUTCDate(mondayOfWeek.getUTCDate() + daysFromMondayToSelected);
       const selectedDateString = selectedDate.toISOString().split('T')[0];
       
       console.log(`🎯 DEBUG: Today is ${today.toISOString().split('T')[0]} (UTC day ${dayOfWeek})`);
       console.log(`🎯 DEBUG: Selected day is ${day} (index ${selectedDayIndex})`);
-      console.log(`🎯 DEBUG: Days until selected day: ${daysUntilSelectedDay}`);
+      console.log(`🎯 DEBUG: Monday of current week: ${mondayOfWeek.toISOString().split('T')[0]}`);
+      console.log(`🎯 DEBUG: Days from Monday to selected day: ${daysFromMondayToSelected}`);
       console.log(`🎯 DEBUG: Calculated selected date: ${selectedDateString}`);
       console.log(`Looking for words found on ${selectedDateString} (${day})`);
       
