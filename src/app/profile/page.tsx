@@ -7318,7 +7318,7 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
   const isMobile = containerWidth < 768;
   const leftMargin = isMobile ? 45 : 60;
   const rightMargin = isMobile ? 15 : 30;
-  const topMargin = 20;
+  const topMargin = 30; // Increased to ensure Y-axis labels and tooltips fit
   const bottomMargin = isMobile ? 50 : 40; // Space for date labels (HTML labels below SVG)
   
   // Calculate chart area width - ensure minimum width to prevent squishing
@@ -7336,13 +7336,16 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
   const pointSpacing = data.length > 1 ? chartAreaWidth / (data.length - 1) : 0;
   const points = data.map((d, i) => {
     const x = leftMargin + (i * pointSpacing);
-    const y = topMargin + chartHeight - ((d.value / max) * chartHeight);
+    // Ensure 0 is at the bottom of the chart area (not cut off)
+    const chartBottom = topMargin + chartHeight;
+    const y = chartBottom - ((d.value / max) * chartHeight);
     return { x, y, data: d, index: i };
   });
 
   // Create path strings for the line and area
+  const chartBottom = topMargin + chartHeight;
   const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
-  const areaPath = `${linePath} L ${points[points.length - 1].x} ${topMargin + chartHeight} L ${points[0].x} ${topMargin + chartHeight} Z`;
+  const areaPath = `${linePath} L ${points[points.length - 1].x} ${chartBottom} L ${points[0].x} ${chartBottom} Z`;
 
   // Date label interval - show more labels for shorter ranges
   const dateLabelInterval = data.length <= 7 
@@ -7415,7 +7418,9 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
             {/* Y-axis labels */}
             {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
               const value = Math.round(max * ratio);
-              const y = topMargin + chartHeight - (ratio * chartHeight);
+              // Calculate Y position ensuring 0 is at the bottom and visible
+              const chartBottom = topMargin + chartHeight;
+              const y = chartBottom - (ratio * chartHeight);
               return (
                 <text
                   key={ratio}
@@ -7468,12 +7473,21 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
             if (pointIndex === null) return null;
             const point = points[pointIndex];
             
+            // Calculate tooltip position - ensure it stays within bounds
+            const tooltipHeight = 100; // Approximate tooltip height
+            const tooltipAboveY = point.y - tooltipHeight - 10;
+            const tooltipBelowY = point.y + 20;
+            const minTop = 5; // Minimum distance from top
+            
+            // Position tooltip above point if there's room, otherwise below
+            const tooltipY = tooltipAboveY >= minTop ? tooltipAboveY : tooltipBelowY;
+            
             return (
               <div
                 className="absolute z-20 bg-gray-900 text-white rounded-lg p-2 shadow-xl pointer-events-none"
                 style={{
                   left: `${point.x}px`,
-                  top: `${point.y - 80}px`,
+                  top: `${tooltipY}px`,
                   transform: 'translateX(-50%)',
                   fontSize: '11px',
                   maxWidth: '200px',
