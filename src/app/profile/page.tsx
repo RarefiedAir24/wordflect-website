@@ -3646,10 +3646,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         </div>
       </div>
 
-      {/* Words & Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Historical & Sparkline */}
-        <div className="bg-white rounded-xl p-5 shadow lg:col-span-2">
+      {/* History Graph */}
+      <div className="bg-white rounded-xl p-5 shadow mb-6">
           {/* Header Section */}
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
@@ -3783,8 +3781,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             <MiniStat title="Avg/Day" value={historyMetrics.avgPerDay} />
             <MiniStat title="Avg Length" value={historyMetrics.avgLength.toFixed(1)} />
           </div>
-        </div>
+      </div>
 
+      {/* Words & Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Activity Snapshot */}
         <div className="bg-white rounded-xl p-5 shadow">
           <div className="flex items-center gap-3 mb-4">
