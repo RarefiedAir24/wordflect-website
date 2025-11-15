@@ -7321,17 +7321,21 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
   const topMargin = 20;
   const bottomMargin = isMobile ? 50 : 40; // Space for date labels (HTML labels below SVG)
   
-  // Fixed spacing per data point for consistent rendering
+  // Calculate chart area width - ensure minimum width to prevent squishing
+  const minChartAreaWidth = containerWidth - leftMargin - rightMargin - (isMobile ? 20 : 40);
   const spacingPerPoint = isMobile ? 20 : 24;
-  const chartAreaWidth = data.length * spacingPerPoint;
+  const calculatedChartAreaWidth = data.length * spacingPerPoint;
+  // Use the larger of calculated width or minimum width to prevent collapsing
+  const chartAreaWidth = Math.max(minChartAreaWidth, calculatedChartAreaWidth);
   const svgWidth = chartAreaWidth + leftMargin + rightMargin;
   const chartHeight = height - topMargin - bottomMargin;
   
   const max = Math.max(1, ...data.map(d => d.value));
 
-  // Calculate points for the line
+  // Calculate points for the line - distribute evenly across chart area width
+  const pointSpacing = data.length > 1 ? chartAreaWidth / (data.length - 1) : 0;
   const points = data.map((d, i) => {
-    const x = (i * spacingPerPoint) + leftMargin;
+    const x = leftMargin + (i * pointSpacing);
     const y = topMargin + chartHeight - ((d.value / max) * chartHeight);
     return { x, y, data: d, index: i };
   });
@@ -7495,7 +7499,7 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
 
           {/* HTML Date Labels - positioned below SVG */}
           <div 
-            className="absolute w-full"
+            className="absolute"
             style={{ 
               top: `${height - bottomMargin}px`, 
               height: `${bottomMargin}px`,
@@ -7507,7 +7511,8 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
               const showLabel = i % dateLabelInterval === 0 || i === data.length - 1;
               if (!showLabel) return null;
               
-              const labelX = (i * spacingPerPoint) + (spacingPerPoint / 2);
+              // Position label at the same x position as the data point (relative to container)
+              const labelX = i * pointSpacing;
               
               return (
                 <div
