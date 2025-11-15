@@ -7306,13 +7306,13 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
   
-  const chartHeight = height - 80; // Much more space for labels
-  const leftMargin = 80; // Slightly reduced to free up width
-  const rightMargin = 30;
-  const topMargin = 60; // extra headroom for hover labels
-  const bottomMargin = 60; // More space for X labels
   // Use container width on mobile, but ensure minimum width for readability
   const isMobile = containerWidth < 768;
+  const chartHeight = height - 80; // Much more space for labels
+  const leftMargin = isMobile ? 55 : 80; // More space for Y-axis labels to prevent squishing
+  const rightMargin = 30;
+  const topMargin = 60; // extra headroom for hover labels
+  const bottomMargin = isMobile ? 80 : 60; // More space for X labels on mobile
   // On mobile, use more spacing per data point to prevent squishing (20px instead of 10px)
   // On desktop, use 10px per data point
   const spacingPerPoint = isMobile ? 20 : 10;
@@ -7352,16 +7352,22 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
     // Toggle selection if clicking the same point
     setSelectedPoint(prev => (prev === index ? null : index));
   };
+  // Calculate effective height to include space for rotated date labels on mobile
+  const effectiveHeight = isMobile ? height + 30 : height;
+  // Add extra space on left for Y-axis labels (they extend left with textAnchor="end")
+  const leftPadding = 20;
+  const effectiveWidth = width + leftPadding;
+  
   return (
     <div className="w-full bg-white rounded-lg p-4 border border-gray-200" ref={containerRef}>
-      <div className="w-full overflow-x-auto overflow-y-visible" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div className="w-full overflow-x-auto overflow-y-visible" style={{ WebkitOverflowScrolling: 'touch', paddingBottom: isMobile ? '30px' : '0' }}>
         <svg 
-          width={width}
-          height={height}
-          viewBox={`0 0 ${width} ${height}`}
+          width={effectiveWidth}
+          height={effectiveHeight}
+          viewBox={`-${leftPadding} 0 ${effectiveWidth} ${effectiveHeight}`}
           preserveAspectRatio="none"
           className="block cursor-pointer"
-          style={{ minWidth: `${width}px` }}
+          style={{ minWidth: `${effectiveWidth}px` }}
           onMouseLeave={handlePointLeave}
           onClick={() => {
             // Clicking the background clears selection
@@ -7568,16 +7574,19 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
           const dateText = isMobile 
             ? d.date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }) // Shorter format on mobile
             : d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          // Calculate Y position to ensure labels are visible within SVG bounds
+          // On mobile, position labels within the extended SVG height to accommodate rotation
+          const labelY = isMobile ? height - 15 : chartHeight + 25;
           return (
             <g key={i}>
               <text 
                 x={x} 
-                y={chartHeight + (isMobile ? 35 : 25)} 
+                y={labelY} 
                 textAnchor="middle" 
                 className="fill-gray-700 font-semibold"
                 fontSize={isMobile ? "11" : "12"}
-                transform={isMobile ? `rotate(-45 ${x} ${chartHeight + 35})` : undefined}
-                style={isMobile ? { transformOrigin: `${x}px ${chartHeight + 35}px` } : undefined}
+                transform={isMobile ? `rotate(-45 ${x} ${labelY})` : undefined}
+                style={isMobile ? { transformOrigin: `${x}px ${labelY}px` } : undefined}
               >
                 {dateText}
               </text>
@@ -7610,11 +7619,11 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
                 {/* Grid line removed to prevent tooltip interference */}
                 {/* Label */}
                 <text 
-                  x={leftMargin - 15} 
+                  x={leftMargin - (isMobile ? 10 : 15)} 
                   y={y + 5} 
                   textAnchor="end" 
                   className="fill-gray-700 font-semibold"
-                  fontSize="12"
+                  fontSize={isMobile ? "11" : "12"}
                 >
                   {value}
                 </text>
