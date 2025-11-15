@@ -7319,6 +7319,7 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
   const leftMargin = isMobile ? 45 : 60;
   const rightMargin = isMobile ? 15 : 30;
   const topMargin = 30; // Increased to ensure Y-axis labels and tooltips fit
+  const bottomAxisMargin = 25; // Space at bottom of SVG for Y-axis labels and baseline (0 line)
   const bottomMargin = isMobile ? 50 : 40; // Space for date labels (HTML labels below SVG)
   
   // Calculate chart area width - ensure minimum width to prevent squishing
@@ -7328,22 +7329,23 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
   // Use the larger of calculated width or minimum width to prevent collapsing
   const chartAreaWidth = Math.max(minChartAreaWidth, calculatedChartAreaWidth);
   const svgWidth = chartAreaWidth + leftMargin + rightMargin;
-  const chartHeight = height - topMargin - bottomMargin;
+  // Chart height accounts for top margin and bottom axis margin (for Y-axis labels)
+  const chartHeight = height - topMargin - bottomAxisMargin - bottomMargin;
   
   const max = Math.max(1, ...data.map(d => d.value));
 
   // Calculate points for the line - distribute evenly across chart area width
   const pointSpacing = data.length > 1 ? chartAreaWidth / (data.length - 1) : 0;
+  // Chart bottom is within SVG, accounting for bottom axis margin
+  const chartBottom = topMargin + chartHeight;
   const points = data.map((d, i) => {
     const x = leftMargin + (i * pointSpacing);
     // Ensure 0 is at the bottom of the chart area (not cut off)
-    const chartBottom = topMargin + chartHeight;
     const y = chartBottom - ((d.value / max) * chartHeight);
     return { x, y, data: d, index: i };
   });
 
   // Create path strings for the line and area
-  const chartBottom = topMargin + chartHeight;
   const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
   const areaPath = `${linePath} L ${points[points.length - 1].x} ${chartBottom} L ${points[0].x} ${chartBottom} Z`;
 
@@ -7385,6 +7387,8 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
             height={height - bottomMargin}
             className="block"
             style={{ minWidth: `${svgWidth}px` }}
+            viewBox={`0 0 ${svgWidth} ${height - bottomMargin}`}
+            preserveAspectRatio="none"
           >
             <defs>
               <linearGradient id={`areaGradient-${color.replace('#', '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
@@ -7419,13 +7423,17 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
             {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
               const value = Math.round(max * ratio);
               // Calculate Y position ensuring 0 is at the bottom and visible
-              const chartBottom = topMargin + chartHeight;
-              const y = chartBottom - (ratio * chartHeight);
+              // SVG height is (height - bottomMargin), chartBottom is at (height - bottomAxisMargin - bottomMargin)
+              // Position 0 label at the bottom of the SVG with some padding
+              const svgHeight = height - bottomMargin;
+              const y = ratio === 0 
+                ? svgHeight - 5  // Position 0 label near bottom of SVG, fully visible
+                : chartBottom - (ratio * chartHeight) + 4;
               return (
                 <text
                   key={ratio}
                   x={leftMargin - 10}
-                  y={y + 4}
+                  y={y}
                   textAnchor="end"
                   className="fill-gray-700 font-semibold"
                   fontSize={isMobile ? "10" : "11"}
