@@ -3465,116 +3465,142 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* Deep Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-        <div className="bg-white rounded-xl p-5 shadow lg:col-span-2">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-bold text-xl text-blue-950">Game & Battle</h3>
-              <p className="text-sm text-blue-700">Track your gaming performance and battle statistics</p>
+        {/* Games and Top Score - Side by Side */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:col-span-2">
+          {/* Games Card */}
+          <div className="relative overflow-hidden rounded-xl bg-white shadow-lg border border-gray-100 p-4">
+            {/* Gradient background accent */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 opacity-10 rounded-bl-full" />
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h3 className="font-bold text-base text-blue-950">Games</h3>
+              </div>
+              
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-600">Games Played</p>
+                  <p className="text-2xl font-extrabold text-gray-900">{profile.gamesPlayed.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Lifetime</p>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <PremiumStat
-              title="Games Played"
-              value={profile.gamesPlayed.toLocaleString()}
-              subtitle="Lifetime"
-              icon={
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              }
-              gradient="from-blue-500 to-indigo-600"
-            />
-            <PremiumStat
-              title="Top Score"
-              value={profile.topScore.toLocaleString()}
-              subtitle="Best single game"
-              icon={
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              }
-              gradient="from-emerald-500 to-teal-600"
-              clickable={!!profile.topScore && profile.topScore > 0}
-              onClick={() => {
-                // Calculate top score history from sessionHistory
-                const sessionHistory = profile.sessionHistory || [];
-                
-                // Filter and sort sessions by startTime (chronologically)
-                const sortedSessions = sessionHistory
-                  .filter((session: { score?: number; startTime?: string }) => 
-                    session && session.score != null && session.startTime
-                  )
-                  .sort((a: { startTime?: string }, b: { startTime?: string }) => {
-                    const dateA = new Date(a.startTime || '').getTime();
-                    const dateB = new Date(b.startTime || '').getTime();
-                    return dateA - dateB;
-                  });
-                
-                // Find the earliest session with the current top score to get its date
-                // (the first time they achieved this score)
-                const maxScore = Math.max(
-                  ...sortedSessions.map((s: { score?: number }) => s.score || 0), 
-                  profile.topScore || 0
-                );
-                const topScoreSession = sortedSessions.find((session: { score?: number }) => 
-                  session.score === maxScore
-                );
-                
-                // Calculate top score history by processing sessions chronologically
-                const history: Array<{ score: number; date: string; replacedBy?: number; replacedDate?: string }> = [];
-                
-                let currentTopScore = 0;
-                let currentTopScoreDate = '';
-                
-                // Process sessions chronologically to track when top score changed
-                sortedSessions.forEach((session: { score?: number; startTime?: string; endTime?: string }) => {
-                  const score = session.score || 0;
-                  const sessionDate = session.startTime || session.endTime || '';
-                  
-                  if (!sessionDate || score <= 0) return;
-                  
-                  // If this score is higher than current top score, it becomes the new top score
-                  if (score > currentTopScore) {
-                    // If we had a previous top score, record it in history
-                    if (currentTopScore > 0) {
-                      history.push({
-                        score: currentTopScore,
-                        date: currentTopScoreDate,
-                        replacedBy: score,
-                        replacedDate: sessionDate,
+          
+          {/* Top Score Card - Reduced size */}
+          <div className="relative overflow-hidden rounded-xl bg-white shadow-lg border border-gray-100 p-4">
+            {/* Gradient background accent */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-10 rounded-bl-full" />
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center shadow-md">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs font-medium text-gray-600">Top Score</p>
+                  <p className="text-2xl font-extrabold text-gray-900">{profile.topScore.toLocaleString()}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Best single game</p>
+                </div>
+              </div>
+              {!!profile.topScore && profile.topScore > 0 && (
+                <button
+                  onClick={() => {
+                    // Calculate top score history from sessionHistory
+                    const sessionHistory = profile.sessionHistory || [];
+                    
+                    // Filter and sort sessions by startTime (chronologically)
+                    const sortedSessions = sessionHistory
+                      .filter((session: { score?: number; startTime?: string }) => 
+                        session && session.score != null && session.startTime
+                      )
+                      .sort((a: { startTime?: string }, b: { startTime?: string }) => {
+                        const dateA = new Date(a.startTime || '').getTime();
+                        const dateB = new Date(b.startTime || '').getTime();
+                        return dateA - dateB;
                       });
-                    }
-                    currentTopScore = score;
-                    currentTopScoreDate = sessionDate;
-                  }
-                });
-                
-                setTopScoreModal({
-                  isOpen: true,
-                  score: profile.topScore,
-                  date: topScoreSession?.startTime || (topScoreSession as { endTime?: string })?.endTime || null,
-                  title: 'Top Score (All Time)',
-                  history: history.reverse(), // Reverse to show most recent first
-                });
-              }}
-            />
-            <PremiumStat
-              title="Longest Word"
-              value={profile.longestWord || longestRecentWord(profile) || "None"}
-              subtitle="Record"
-              icon={
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              }
-              gradient="from-purple-500 to-pink-600"
-              clickable={!!(profile.longestWord || longestRecentWord(profile))}
-              onClick={() => {
+                    
+                    // Find the earliest session with the current top score to get its date
+                    // (the first time they achieved this score)
+                    const maxScore = Math.max(
+                      ...sortedSessions.map((s: { score?: number }) => s.score || 0), 
+                      profile.topScore || 0
+                    );
+                    const topScoreSession = sortedSessions.find((session: { score?: number }) => 
+                      session.score === maxScore
+                    );
+                    
+                    // Calculate top score history by processing sessions chronologically
+                    const history: Array<{ score: number; date: string; replacedBy?: number; replacedDate?: string }> = [];
+                    
+                    let currentTopScore = 0;
+                    let currentTopScoreDate = '';
+                    
+                    // Process sessions chronologically to track when top score changed
+                    sortedSessions.forEach((session: { score?: number; startTime?: string; endTime?: string }) => {
+                      const score = session.score || 0;
+                      const sessionDate = session.startTime || session.endTime || '';
+                      
+                      if (!sessionDate || score <= 0) return;
+                      
+                      // If this score is higher than current top score, it becomes the new top score
+                      if (score > currentTopScore) {
+                        // If we had a previous top score, record it in history
+                        if (currentTopScore > 0) {
+                          history.push({
+                            score: currentTopScore,
+                            date: currentTopScoreDate,
+                            replacedBy: score,
+                            replacedDate: sessionDate,
+                          });
+                        }
+                        currentTopScore = score;
+                        currentTopScoreDate = sessionDate;
+                      }
+                    });
+                    
+                    setTopScoreModal({
+                      isOpen: true,
+                      score: profile.topScore,
+                      date: topScoreSession?.startTime || (topScoreSession as { endTime?: string })?.endTime || null,
+                      title: 'Top Score (All Time)',
+                      history: history.reverse(), // Reverse to show most recent first
+                    });
+                  }}
+                  className="mt-2 text-xs text-emerald-600 hover:text-emerald-700 font-medium cursor-pointer"
+                >
+                  Click to view history
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        {/* Longest Word Card */}
+        <PremiumStat
+            title="Longest Word"
+            value={profile.longestWord || longestRecentWord(profile) || "None"}
+            subtitle="Record"
+            icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            }
+            gradient="from-purple-500 to-pink-600"
+            clickable={!!(profile.longestWord || longestRecentWord(profile))}
+            onClick={() => {
                 // Find the longest word entry from allFoundWords to get its date
                 const allWords = (profile.allFoundWords || []).filter(entry => {
                   if (typeof entry === 'string') return false;
@@ -3634,9 +3660,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 });
               }}
             />
-          </div>
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Battle Performance - Premium Style */}
+        
+        {/* Battle Performance and Leaderboard Podiums */}
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 lg:col-span-3">
+          {/* Battle Performance - Premium Style */}
             <div className="relative overflow-hidden rounded-xl bg-white shadow-lg border border-gray-100 p-6 transition-all duration-300">
               {/* Gradient background accent */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-10 rounded-bl-full z-0" />
@@ -3744,10 +3771,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               </div>
             </div>
           </div>
-        </div>
+      </div>
 
-        {/* AI Insights */}
-        <div className="bg-white rounded-xl p-5 shadow">
+      {/* AI Insights */}
+      <div className="bg-white rounded-xl p-5 shadow">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
