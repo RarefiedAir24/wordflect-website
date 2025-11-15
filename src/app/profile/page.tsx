@@ -486,8 +486,10 @@ export default function Profile() {
         } else {
           // Filter by range client-side as fallback
           const now = new Date();
+          // Normalize now to start of today for comparison
+          const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
           const start = (() => {
-            const d = new Date(now);
+            const d = new Date(nowStart);
             if (historyRange === '7d') { d.setDate(d.getDate() - 6); return d; }
             if (historyRange === '30d') { d.setDate(d.getDate() - 29); return d; }
             if (historyRange === '90d') { d.setDate(d.getDate() - 89); return d; }
@@ -496,9 +498,12 @@ export default function Profile() {
             return new Date(0);
           })();
           filteredDays = finalDays.filter(d => {
-            const dataDate = new Date(d.date);
-            return dataDate >= start && dataDate <= now;
+            // Normalize data date to start of day for comparison
+            const dataDate = d.date instanceof Date ? d.date : new Date(d.date);
+            const dataDateStart = new Date(dataDate.getFullYear(), dataDate.getMonth(), dataDate.getDate());
+            return dataDateStart >= start && dataDateStart <= nowStart;
           });
+          console.log(`📊 History filtering: range=${historyRange}, before=${finalDays.length}, after=${filteredDays.length}, start=${start.toISOString().split('T')[0]}, end=${nowStart.toISOString().split('T')[0]}`);
         }
         setHistoryDays(filteredDays.length ? filteredDays : null);
       } catch (error) {
@@ -627,8 +632,10 @@ export default function Profile() {
         } else {
           // Filter by range client-side as fallback
           const now = new Date();
+          // Normalize now to start of today for comparison
+          const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
           const start = (() => {
-            const d = new Date(now);
+            const d = new Date(nowStart);
             if (sessionsRange === '7d') { d.setDate(d.getDate() - 6); return d; }
             if (sessionsRange === '30d') { d.setDate(d.getDate() - 29); return d; }
             if (sessionsRange === '90d') { d.setDate(d.getDate() - 89); return d; }
@@ -637,9 +644,12 @@ export default function Profile() {
             return new Date(0);
           })();
           filteredData = daysFromApi.filter(d => {
-            const dataDate = new Date(d.date);
-            return dataDate >= start && dataDate <= now;
+            // Normalize data date to start of day for comparison
+            const dataDate = d.date instanceof Date ? d.date : new Date(d.date);
+            const dataDateStart = new Date(dataDate.getFullYear(), dataDate.getMonth(), dataDate.getDate());
+            return dataDateStart >= start && dataDateStart <= nowStart;
           });
+          console.log(`📊 Session words filtering: range=${sessionsRange}, before=${daysFromApi.length}, after=${filteredData.length}, start=${start.toISOString().split('T')[0]}, end=${nowStart.toISOString().split('T')[0]}`);
         }
         
         console.log('🟢 Setting session words days, length:', filteredData.length);
