@@ -4485,7 +4485,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               })()}
             </p>
           </div>
-          <Sparkline data={(historyDays && historyDays.length > 0) ? historyDays : aggregated(profile).days} height={260} color="#4f46e5" wordsEmptyText="No new words" />
+          <BarChart data={(historyDays && historyDays.length > 0) ? historyDays : aggregated(profile).days} height={260} color="#4f46e5" wordsEmptyText="No new words" />
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
             <MiniStat title="Words (found)" value={profile.allFoundWords.length.toLocaleString()} />
             <MiniStat title="Avg/Day" value={historyMetrics.avgPerDay} />
@@ -4624,7 +4624,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </p>
         </div>
         
-        <Sparkline data={sessionWordsDays || []} height={260} color="#10b981" wordsEmptyText="No games recorded" wordsPreFormatted={true} />
+        <BarChart data={sessionWordsDays || []} height={260} color="#10b981" wordsEmptyText="No games recorded" wordsPreFormatted={true} />
         <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
           <MiniStat title="Session Words" value={sessionWordsDays ? sessionWordsDays.reduce((sum, day) => sum + day.value, 0).toLocaleString() : '0'} />
           <MiniStat title="Avg/Day" value={sessionWordsDays && sessionWordsDays.length > 0 ? Math.round(sessionWordsDays.reduce((sum, day) => sum + day.value, 0) / sessionWordsDays.length * 10) / 10 : 0} />
@@ -7632,6 +7632,186 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
           });
         })()}
       </svg>
+      </div>
+    </div>
+  );
+}
+
+function BarChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No new words', wordsPreFormatted = false }: { data: { date: Date; value: number; words?: string[] }[]; height?: number; color?: string; wordsEmptyText?: string; wordsPreFormatted?: boolean }) {
+  const [hoveredBar, setHoveredBar] = useState<number | null>(null);
+  const [selectedBar, setSelectedBar] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(1024);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full bg-white rounded-lg p-4 border border-gray-200" ref={containerRef}>
+        <div className="flex items-center justify-center h-48 text-gray-500">
+          <p>{wordsEmptyText}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const isMobile = containerWidth < 768;
+  const chartHeight = height - 100; // Space for labels
+  const leftMargin = isMobile ? 40 : 60;
+  const rightMargin = isMobile ? 10 : 20;
+  const topMargin = 20;
+  const bottomMargin = isMobile ? 50 : 40; // Space for date labels
+  
+  // Bar width and spacing
+  const availableWidth = containerWidth - leftMargin - rightMargin - (isMobile ? 20 : 40);
+  const barSpacing = isMobile ? 2 : 4;
+  const barWidth = Math.max(4, Math.min(isMobile ? 8 : 12, (availableWidth / data.length) - barSpacing));
+  const totalBarWidth = barWidth + barSpacing;
+  
+  const max = Math.max(1, ...data.map(d => d.value));
+  const chartAreaHeight = chartHeight - topMargin - bottomMargin;
+
+  // Show fewer date labels on mobile to avoid crowding
+  const dateLabelInterval = isMobile ? Math.max(1, Math.floor(data.length / 5)) : Math.max(1, Math.floor(data.length / 10));
+
+  const formatWords = (wordList: string[]) => {
+    if (wordList.length === 0) {
+      if (max > 0) {
+        return [`${max} words found`];
+      }
+      return [wordsEmptyText];
+    }
+    if (wordsPreFormatted) return wordList;
+    if (wordList.length <= 3) return [wordList.join(', ')];
+    const words = wordList.slice(0, 6);
+    const lines: string[] = [];
+    for (let i = 0; i < words.length; i += 3) {
+      const lineWords = words.slice(i, i + 3);
+      lines.push(lineWords.join(', '));
+    }
+    if (wordList.length > 6) {
+      lines[lines.length - 1] += ` and ${wordList.length - 6} more`;
+    }
+    return lines;
+  };
+
+  return (
+    <div className="w-full bg-white rounded-lg p-4 border border-gray-200" ref={containerRef}>
+      <div className="w-full overflow-x-auto overflow-y-visible" style={{ WebkitOverflowScrolling: 'touch', paddingBottom: isMobile ? '40px' : '20px' }}>
+        <div className="relative" style={{ minWidth: `${leftMargin + (data.length * totalBarWidth) + rightMargin}px`, height: `${height}px` }}>
+          {/* Y-axis labels */}
+          <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between" style={{ width: `${leftMargin}px`, paddingTop: `${topMargin}px`, paddingBottom: `${bottomMargin}px` }}>
+            {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+              const value = Math.round(max * ratio);
+              return (
+                <div key={ratio} className="text-xs font-semibold text-gray-700 text-right pr-2" style={{ fontSize: isMobile ? '10px' : '11px' }}>
+                  {value}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Chart area */}
+          <div className="absolute" style={{ left: `${leftMargin}px`, right: `${rightMargin}px`, top: `${topMargin}px`, bottom: `${bottomMargin}px` }}>
+            <div className="relative w-full h-full flex items-end gap-0">
+              {data.map((d, i) => {
+                const barHeight = max > 0 ? (d.value / max) * 100 : 0;
+                const isHovered = hoveredBar === i;
+                const isSelected = selectedBar === i;
+                const showTooltip = isHovered || isSelected;
+
+                return (
+                  <div
+                    key={i}
+                    className="relative flex flex-col items-center group cursor-pointer"
+                    style={{ width: `${totalBarWidth}px`, minWidth: `${barWidth}px` }}
+                    onMouseEnter={() => setHoveredBar(i)}
+                    onMouseLeave={() => setHoveredBar(null)}
+                    onClick={() => setSelectedBar(prev => prev === i ? null : i)}
+                  >
+                    {/* Tooltip */}
+                    {showTooltip && (
+                      <div
+                        className="absolute z-20 bg-gray-900 text-white rounded-lg p-2 shadow-xl pointer-events-none"
+                        style={{
+                          bottom: `calc(${barHeight}% + ${isMobile ? '45px' : '35px'})`,
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          whiteSpace: 'nowrap',
+                          fontSize: '11px',
+                          maxWidth: '200px',
+                        }}
+                      >
+                        <div className="text-blue-300 font-semibold mb-1">
+                          {d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
+                        <div className="text-white font-bold mb-1">
+                          {d.value} {wordsPreFormatted ? 'words' : 'words'}
+                        </div>
+                        {d.words && d.words.length > 0 && (
+                          <div className="text-gray-300 text-xs mt-1 border-t border-gray-700 pt-1">
+                            {formatWords(d.words).map((line, idx) => (
+                              <div key={idx}>{line}</div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Bar */}
+                    <div
+                      className="rounded-t transition-all"
+                      style={{
+                        width: `${barWidth}px`,
+                        height: `${barHeight}%`,
+                        backgroundColor: color,
+                        opacity: isHovered || isSelected ? 1 : 0.8,
+                        minHeight: d.value > 0 ? '2px' : '0',
+                        boxShadow: isHovered || isSelected ? `0 4px 8px rgba(0,0,0,0.2)` : 'none',
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Date labels - positioned below chart area to ensure visibility */}
+          <div className="absolute" style={{ left: `${leftMargin}px`, right: `${rightMargin}px`, top: `${height - bottomMargin + 5}px`, height: `${bottomMargin - 5}px` }}>
+            <div className="relative w-full h-full flex">
+              {data.map((d, i) => {
+                const showLabel = i % dateLabelInterval === 0 || i === data.length - 1;
+                if (!showLabel) return null;
+                
+                return (
+                  <div
+                    key={i}
+                    className="absolute text-xs font-semibold text-gray-700"
+                    style={{
+                      left: `${(i * totalBarWidth) + (barWidth / 2)}px`,
+                      transform: 'translateX(-50%)',
+                      fontSize: isMobile ? '9px' : '10px',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {isMobile
+                      ? d.date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
+                      : d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
