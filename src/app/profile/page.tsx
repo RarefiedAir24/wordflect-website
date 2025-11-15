@@ -3663,7 +3663,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 </div>
                 
                 {/* Bars */}
-                <div className="flex items-end gap-3" style={{ height: '160px' }}>
+                <div className="flex items-end justify-center gap-3" style={{ height: '160px' }}>
                   <Bar 
                     title="Wins" 
                     value={profile.battleWins} 
@@ -3712,7 +3712,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 </div>
                 
                 {/* Bars */}
-                <div className="flex items-end gap-3" style={{ height: '160px' }}>
+                <div className="flex items-end justify-center gap-3" style={{ height: '160px' }}>
                   <Bar 
                     title="🥇" 
                     value={profile.firstPlaceFinishes} 
