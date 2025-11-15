@@ -7147,10 +7147,38 @@ function MetricCard({
   accent: string;
   onClick?: () => void;
 }) {
+  // Get icon based on title
+  const getIcon = () => {
+    if (title.toLowerCase().includes('flectcoin')) {
+      return (
+        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      );
+    } else if (title.toLowerCase().includes('gem')) {
+      return (
+        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+        </svg>
+      );
+    }
+    return null;
+  };
+
+  // Extract gradient colors for icon background
+  const getIconGradient = () => {
+    if (title.toLowerCase().includes('flectcoin')) {
+      return 'from-amber-500 to-yellow-600';
+    } else if (title.toLowerCase().includes('gem')) {
+      return 'from-pink-500 to-rose-600';
+    }
+    return 'from-blue-500 to-indigo-600';
+  };
+
   return (
     <div 
-      className={`relative overflow-hidden rounded-xl p-5 shadow bg-white ${
-        onClick ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''
+      className={`relative overflow-hidden rounded-xl bg-white shadow-lg border border-gray-100 p-4 ${
+        onClick ? 'cursor-pointer hover:shadow-xl transition-all' : ''
       }`}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
@@ -7162,13 +7190,29 @@ function MetricCard({
         }
       } : undefined}
     >
-      <div className={`absolute inset-0 opacity-20 bg-gradient-to-br ${accent}`} />
-      <div className="relative">
-        <p className="text-sm text-blue-700">{title}</p>
-        <p className="mt-1 text-2xl font-extrabold text-blue-950">{value}</p>
-        {onClick && (
-          <p className="text-xs text-blue-600 mt-2 opacity-75">Click to view history</p>
-        )}
+      {/* Gradient background accent */}
+      <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${accent} opacity-10 rounded-bl-full`} />
+      
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 mb-3">
+          <div className={`w-8 h-8 bg-gradient-to-r ${getIconGradient()} rounded-full flex items-center justify-center`}>
+            {getIcon()}
+          </div>
+          <h3 className="font-bold text-base text-blue-950">{title}</h3>
+        </div>
+        
+        <div className="flex items-center gap-3 mb-2">
+          <div className={`w-8 h-8 bg-gradient-to-br ${getIconGradient()} rounded-lg flex items-center justify-center shadow-md`}>
+            {getIcon()}
+          </div>
+          <div className="flex-1">
+            <p className="text-xs font-medium text-gray-600">Balance</p>
+            <p className="text-2xl font-extrabold text-gray-900">{value}</p>
+            {onClick && (
+              <p className="text-xs text-gray-500 mt-0.5">Click to view history</p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
