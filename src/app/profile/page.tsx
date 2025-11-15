@@ -509,8 +509,25 @@ export default function Profile() {
           });
           console.log(`Client-side filter: ${finalDays.length} → ${filteredDays.length} days`);
           console.log(`Date range: ${start.toISOString().split('T')[0]} to ${nowStart.toISOString().split('T')[0]}`);
+          
+          // Check if we have enough data to cover the requested range
+          const expectedDays = historyRange === '7d' ? 7 : historyRange === '30d' ? 30 : historyRange === '90d' ? 90 : historyRange === '1y' ? 365 : 0;
+          const hasEnoughData = filteredDays.length > 0 && (
+            historyRange === 'all' || 
+            historyRange === 'custom' ||
+            (filteredDays[0].date <= start && filteredDays[filteredDays.length - 1].date >= nowStart)
+          );
+          
+          if (!hasEnoughData && expectedDays > 0 && filteredDays.length < expectedDays * 0.5) {
+            // API didn't return enough data - fall back to aggregated function
+            console.warn(`⚠️ API only returned ${filteredDays.length} days, but need ~${expectedDays} days. Falling back to aggregated profile data...`);
+            filteredDays = []; // Set to empty so it falls back to aggregated(profile).days
+          }
+          
           if (filteredDays.length > 0) {
             console.log(`First date: ${filteredDays[0].date.toISOString().split('T')[0]}, Last date: ${filteredDays[filteredDays.length - 1].date.toISOString().split('T')[0]}`);
+          } else if (historyRange !== 'all' && historyRange !== 'custom') {
+            console.log(`Using aggregated profile data (will be filtered by aggregated function)`);
           } else {
             console.warn(`⚠️ No data in range! Check if dates are correct.`);
           }
@@ -640,6 +657,70 @@ export default function Profile() {
           });
           console.log(`Client-side filter: ${daysFromApi.length} → ${filteredData.length} days`);
           console.log(`Date range: ${start.toISOString().split('T')[0]} to ${nowStart.toISOString().split('T')[0]}`);
+          
+          // Check if we have enough data to cover the requested range
+          const expectedDays = sessionsRange === '7d' ? 7 : sessionsRange === '30d' ? 30 : sessionsRange === '90d' ? 90 : sessionsRange === '1y' ? 365 : 0;
+          const hasEnoughData = filteredData.length > 0 && (
+            sessionsRange === 'all' || 
+            sessionsRange === 'custom' ||
+            (filteredData[0].date <= start && filteredData[filteredData.length - 1].date >= nowStart)
+          );
+          
+          if (!hasEnoughData && expectedDays > 0 && filteredData.length < expectedDays * 0.5) {
+            // API didn't return enough data - build from session history
+            console.warn(`⚠️ API only returned ${filteredData.length} days, but need ~${expectedDays} days. Building from session history...`);
+            
+            const sessions = (detailedStats?.sessionHistory || []) as Array<{ 
+              startTime?: string; 
+              timestamp?: string; 
+              wordsFound?: number;
+              words?: string[];
+            }>;
+            
+            if (sessions.length > 0) {
+              // Build per-day totals from session history
+              const dayMap = new Map<string, { date: Date; value: number; words?: string[] }>();
+              
+              sessions.forEach(s => {
+                const sessionTime = s.startTime || s.timestamp;
+                if (!sessionTime) return;
+                const sessionDate = new Date(sessionTime);
+                if (isNaN(sessionDate.getTime())) return;
+                
+                const dayKey = `${sessionDate.getFullYear()}-${String(sessionDate.getMonth()+1).padStart(2,'0')}-${String(sessionDate.getDate()).padStart(2,'0')}`;
+                const dayDate = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
+                
+                // Check if within range
+                const dayDateStart = new Date(dayDate.getFullYear(), dayDate.getMonth(), dayDate.getDate());
+                if (dayDateStart < start || dayDateStart > nowStart) return;
+                
+                if (!dayMap.has(dayKey)) {
+                  dayMap.set(dayKey, { date: dayDate, value: 0, words: [] });
+                }
+                const day = dayMap.get(dayKey)!;
+                const wordCount = typeof s.wordsFound === 'number' ? s.wordsFound : (Array.isArray(s.words) ? s.words.length : 0);
+                day.value += wordCount;
+              });
+              
+              // Fill in missing days with 0 values
+              const filledDays: Array<{ date: Date; value: number; words?: string[] }> = [];
+              const cursor = new Date(start);
+              while (cursor <= nowStart) {
+                const dayKey = `${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;
+                const existing = dayMap.get(dayKey);
+                filledDays.push(existing || { 
+                  date: new Date(cursor), 
+                  value: 0,
+                  words: []
+                });
+                cursor.setDate(cursor.getDate() + 1);
+              }
+              
+              filteredData = filledDays;
+              console.log(`✅ Built ${filteredData.length} days from session history`);
+            }
+          }
+          
           if (filteredData.length > 0) {
             console.log(`First date: ${filteredData[0].date.toISOString().split('T')[0]}, Last date: ${filteredData[filteredData.length - 1].date.toISOString().split('T')[0]}`);
           } else {
