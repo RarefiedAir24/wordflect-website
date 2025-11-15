@@ -410,19 +410,17 @@ export default function Profile() {
         if (!apiService.isAuthenticated()) return;
 
         // Map UI range to backend range param
-        const mapRange = (r: typeof historyRange): string | undefined => {
+        // NOTE: Backend API seems to only return 7 days regardless of range parameter
+        // So we fetch 'all' for ranges > 7d and filter client-side
+        const mapRange = (r: typeof historyRange): string => {
           if (r === '7d') return '7d';
-          if (r === '30d') return '30d';
-          if (r === '90d') return '90d';
-          if (r === '1y') return '1y';
-          if (r === 'all') return 'all';
-          if (r === 'custom') return 'all';
-          return undefined;
+          // For all other ranges, fetch 'all' and filter client-side since API doesn't respect range
+          return 'all';
         };
 
         const mappedRange = mapRange(historyRange);
         console.group(`📊 HISTORY GRAPH - Range Changed: ${historyRange.toUpperCase()}`);
-        console.log(`API Request: range=${mappedRange}`);
+        console.log(`API Request: range=${mappedRange} (fetching all data for client-side filtering)`);
         const res = await apiService.getUserHistory({ range: mappedRange });
         console.log(`API Response: ${Array.isArray(res.days) ? res.days.length : 0} days received`);
         const daysFromApi = Array.isArray(res.days) ? res.days.map(d => {
@@ -543,19 +541,17 @@ export default function Profile() {
         }
 
         // Map UI range to backend range param
-        const mapRange = (r: typeof sessionsRange): string | undefined => {
+        // NOTE: Backend API seems to only return 7 days regardless of range parameter
+        // So we fetch 'all' for ranges > 7d and filter client-side
+        const mapRange = (r: typeof sessionsRange): string => {
           if (r === '7d') return '7d';
-          if (r === '30d') return '30d';
-          if (r === '90d') return '90d';
-          if (r === '1y') return '1y';
-          if (r === 'all') return 'all';
-          if (r === 'custom') return 'all'; // Custom range fetches all and filters client-side
-          return undefined;
+          // For all other ranges, fetch 'all' and filter client-side since API doesn't respect range
+          return 'all';
         };
 
         const mappedRange = mapRange(sessionsRange);
         console.group(`🟢 GAMES HISTORY GRAPH - Range Changed: ${sessionsRange.toUpperCase()}`);
-        console.log(`API Request: range=${mappedRange}`);
+        console.log(`API Request: range=${mappedRange} (fetching all data for client-side filtering)`);
         
         const res = await apiService.getUserSessionWords({ range: mappedRange });
         console.log(`API Response: ${Array.isArray(res.days) ? res.days.length : 0} days received`);
