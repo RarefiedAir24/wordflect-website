@@ -3660,9 +3660,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 });
               }}
             />
-        
-        {/* Battle Performance and Leaderboard Podiums */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 lg:col-span-3">
+      </div>
+      
+      {/* Battle Performance and Leaderboard Podiums */}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
           {/* Battle Performance - Premium Style */}
             <div className="relative overflow-hidden rounded-xl bg-white shadow-lg border border-gray-100 p-6 transition-all duration-300">
               {/* Gradient background accent */}
@@ -3771,8 +3772,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               </div>
             </div>
           </div>
-      </div>
-
+      
       {/* AI Insights */}
       <div className="bg-white rounded-xl p-5 shadow">
           <div className="flex items-center gap-3 mb-4">
