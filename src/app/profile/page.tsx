@@ -474,17 +474,33 @@ export default function Profile() {
 
         const finalDays = reconciled;
 
+        // Filter by date range client-side as well (in case backend doesn't respect range)
+        let filteredDays = finalDays;
         if (historyRange === 'custom' && customHistoryDateRange.start && customHistoryDateRange.end) {
           const startDate = new Date(customHistoryDateRange.start + 'T00:00:00');
           const endDate = new Date(customHistoryDateRange.end + 'T23:59:59');
-          const filtered = finalDays.filter(d => {
+          filteredDays = finalDays.filter(d => {
             const dataDate = new Date(d.date);
             return dataDate >= startDate && dataDate <= endDate;
           });
-          setHistoryDays(filtered.length ? filtered : null);
         } else {
-          setHistoryDays(finalDays.length ? finalDays : null);
+          // Filter by range client-side as fallback
+          const now = new Date();
+          const start = (() => {
+            const d = new Date(now);
+            if (historyRange === '7d') { d.setDate(d.getDate() - 6); return d; }
+            if (historyRange === '30d') { d.setDate(d.getDate() - 29); return d; }
+            if (historyRange === '90d') { d.setDate(d.getDate() - 89); return d; }
+            if (historyRange === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
+            if (historyRange === 'all') return new Date(0);
+            return new Date(0);
+          })();
+          filteredDays = finalDays.filter(d => {
+            const dataDate = new Date(d.date);
+            return dataDate >= start && dataDate <= now;
+          });
         }
+        setHistoryDays(filteredDays.length ? filteredDays : null);
       } catch (error) {
         console.warn('Falling back to client aggregation for history:', error);
         setHistoryDays(null);
@@ -598,32 +614,36 @@ export default function Profile() {
         console.log('🟢 Today check - last day date:', daysFromApi[daysFromApi.length - 1]?.date);
         console.log('🟢 Today check - last day value:', daysFromApi[daysFromApi.length - 1]?.value);
         
-        // For custom range, filter client-side after getting all data
+        // Filter by date range client-side (in case backend doesn't respect range)
+        let filteredData = daysFromApi;
         if (sessionsRange === "custom" && customSessionsDateRange.start && customSessionsDateRange.end) {
           const startDate = new Date(customSessionsDateRange.start + 'T00:00:00');
           const endDate = new Date(customSessionsDateRange.end + 'T23:59:59');
           
-          const filteredData = daysFromApi.filter(d => {
+          filteredData = daysFromApi.filter(d => {
             const dataDate = new Date(d.date);
             return dataDate >= startDate && dataDate <= endDate;
           });
-          
-          // Data is already processed with Date objects
-          const processedFilteredData = filteredData;
-          
-          console.log('🟢 Filtered session words data:', processedFilteredData);
-          console.log('🟢 Setting filtered session words days, length:', processedFilteredData.length);
-          setSessionWordsDays(processedFilteredData);
         } else {
-        console.log('🟢 Setting session words days:', daysFromApi);
-        console.log('🟢 Setting session words days, length:', daysFromApi.length);
-        console.log('🟢 Setting session words days, first few:', daysFromApi.slice(0, 3));
-        setSessionWordsDays(daysFromApi);
-        console.log('🟢 Session words days state set, checking in next tick...');
-        setTimeout(() => {
-          console.log('🟢 Session words days state after set:', daysFromApi);
-        }, 100);
+          // Filter by range client-side as fallback
+          const now = new Date();
+          const start = (() => {
+            const d = new Date(now);
+            if (sessionsRange === '7d') { d.setDate(d.getDate() - 6); return d; }
+            if (sessionsRange === '30d') { d.setDate(d.getDate() - 29); return d; }
+            if (sessionsRange === '90d') { d.setDate(d.getDate() - 89); return d; }
+            if (sessionsRange === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
+            if (sessionsRange === 'all') return new Date(0);
+            return new Date(0);
+          })();
+          filteredData = daysFromApi.filter(d => {
+            const dataDate = new Date(d.date);
+            return dataDate >= start && dataDate <= now;
+          });
         }
+        
+        console.log('🟢 Setting session words days, length:', filteredData.length);
+        setSessionWordsDays(filteredData.length ? filteredData : null);
       } catch (error) {
         console.error('🟢 Session words error:', error);
         console.warn('Falling back to client aggregation for session words:', error);
@@ -4319,7 +4339,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       </div>
 
       {/* Game Words History */}
-      <div className="mt-8 bg-white rounded-xl p-6 shadow-lg border border-green-100">
+      <div className="mt-8 bg-white rounded-xl p-5 shadow-lg border border-green-100">
         {/* Header Section */}
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
