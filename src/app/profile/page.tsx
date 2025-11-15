@@ -3518,65 +3518,70 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               {!!profile.topScore && profile.topScore > 0 && (
                 <button
                   onClick={() => {
-                    // Calculate top score history from sessionHistory
+                    // Calculate top score history - show current top score + next 2 highest scores
                     const sessionHistory = profile.sessionHistory || [];
                     
-                    // Filter and sort sessions by startTime (chronologically)
-                    const sortedSessions = sessionHistory
-                      .filter((session: { score?: number; startTime?: string }) => 
-                        session && session.score != null && session.startTime
-                      )
-                      .sort((a: { startTime?: string }, b: { startTime?: string }) => {
-                        const dateA = new Date(a.startTime || '').getTime();
-                        const dateB = new Date(b.startTime || '').getTime();
-                        return dateA - dateB;
+                    // Filter sessions with valid scores and dates
+                    const validSessions = sessionHistory
+                      .filter((session: { score?: number; startTime?: string; endTime?: string }) => {
+                        const score = session.score || 0;
+                        const date = session.startTime || session.endTime || '';
+                        return score > 0 && date;
                       });
                     
-                    // Find the earliest session with the current top score to get its date
-                    // (the first time they achieved this score)
-                    const maxScore = Math.max(
-                      ...sortedSessions.map((s: { score?: number }) => s.score || 0), 
-                      profile.topScore || 0
-                    );
-                    const topScoreSession = sortedSessions.find((session: { score?: number }) => 
-                      session.score === maxScore
-                    );
+                    // Create a map of unique scores to their earliest achievement date
+                    const scoreToDateMap = new Map<number, string>();
                     
-                    // Calculate top score history by processing sessions chronologically
-                    const history: Array<{ score: number; date: string; replacedBy?: number; replacedDate?: string }> = [];
-                    
-                    let currentTopScore = 0;
-                    let currentTopScoreDate = '';
-                    
-                    // Process sessions chronologically to track when top score changed
-                    sortedSessions.forEach((session: { score?: number; startTime?: string; endTime?: string }) => {
+                    validSessions.forEach((session: { score?: number; startTime?: string; endTime?: string }) => {
                       const score = session.score || 0;
-                      const sessionDate = session.startTime || session.endTime || '';
+                      const date = session.startTime || session.endTime || '';
                       
-                      if (!sessionDate || score <= 0) return;
-                      
-                      // If this score is higher than current top score, it becomes the new top score
-                      if (score > currentTopScore) {
-                        // If we had a previous top score, record it in history
-                        if (currentTopScore > 0) {
-                          history.push({
-                            score: currentTopScore,
-                            date: currentTopScoreDate,
-                            replacedBy: score,
-                            replacedDate: sessionDate,
-                          });
+                      if (!scoreToDateMap.has(score)) {
+                        // First time we see this score, record it
+                        scoreToDateMap.set(score, date);
+                      } else {
+                        // If we've seen this score before, keep the earliest date
+                        const existingDate = scoreToDateMap.get(score) || '';
+                        if (date && existingDate && new Date(date).getTime() < new Date(existingDate).getTime()) {
+                          scoreToDateMap.set(score, date);
                         }
-                        currentTopScore = score;
-                        currentTopScoreDate = sessionDate;
                       }
                     });
                     
+                    // Get all unique scores and sort in descending order
+                    const uniqueScores = Array.from(scoreToDateMap.keys()).sort((a, b) => b - a);
+                    
+                    // Get the current top score (should be the first one, but use profile.topScore as source of truth)
+                    const currentTopScore = profile.topScore || (uniqueScores.length > 0 ? uniqueScores[0] : 0);
+                    
+                    // Find the date for the current top score
+                    let topScoreDate = scoreToDateMap.get(currentTopScore) || null;
+                    
+                    // Fallback: if top score not in map, search validSessions directly
+                    if (!topScoreDate) {
+                      const topScoreSession = validSessions.find((session: { score?: number }) => 
+                        session.score === currentTopScore
+                      );
+                      topScoreDate = topScoreSession?.startTime || (topScoreSession as { endTime?: string })?.endTime || null;
+                    }
+                    
+                    // Get the next 2 highest scores (excluding the current top score)
+                    const nextHighestScores = uniqueScores
+                      .filter(score => score < currentTopScore)
+                      .slice(0, 2)
+                      .map(score => ({
+                        score,
+                        date: scoreToDateMap.get(score) || '',
+                        replacedBy: undefined,
+                        replacedDate: undefined,
+                      }));
+                    
                     setTopScoreModal({
                       isOpen: true,
-                      score: profile.topScore,
-                      date: topScoreSession?.startTime || (topScoreSession as { endTime?: string })?.endTime || null,
+                      score: currentTopScore,
+                      date: topScoreDate,
                       title: 'Top Score (All Time)',
-                      history: history.reverse(), // Reverse to show most recent first
+                      history: nextHighestScores, // Show next 2 highest scores
                     });
                   }}
                   className="mt-2 text-xs text-emerald-600 hover:text-emerald-700 font-medium cursor-pointer"
@@ -6729,10 +6734,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 </div>
               )}
               
-              {/* Previous Records History */}
+              {/* Next Highest Scores */}
               {topScoreModal.history && topScoreModal.history.length > 0 && (
                 <div className="mt-6 pt-6 border-t border-gray-200">
-                  <p className="text-sm font-semibold text-gray-700 mb-3">Previous Records</p>
+                  <p className="text-sm font-semibold text-gray-700 mb-3">Next Highest Scores</p>
                   <div className="space-y-3">
                     {topScoreModal.history.map((record, index) => (
                       <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -7308,11 +7313,15 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
   const bottomMargin = 60; // More space for X labels
   // Use container width on mobile, but ensure minimum width for readability
   const isMobile = containerWidth < 768;
-  const calculatedWidth = data.length * 10 + leftMargin + rightMargin;
-  // Calculate width: on desktop, use container width for proper scaling
-  // On mobile, use calculated width but cap at container width
+  // On mobile, use more spacing per data point to prevent squishing (20px instead of 10px)
+  // On desktop, use 10px per data point
+  const spacingPerPoint = isMobile ? 20 : 10;
+  const calculatedWidth = data.length * spacingPerPoint + leftMargin + rightMargin;
+  // Calculate width: on mobile, ensure minimum width to prevent squishing
+  // On desktop, use container width for proper scaling
+  const minWidth = isMobile ? Math.max(containerWidth, calculatedWidth) : containerWidth - 40;
   const width = isMobile 
-    ? Math.min(containerWidth - 40, calculatedWidth) // On mobile, use container width minus padding
+    ? Math.max(minWidth, calculatedWidth) // On mobile, use the larger of container width or calculated width
     : Math.max(containerWidth - 40, Math.min(1200, Math.max(600, calculatedWidth))); // On desktop, use container width for proper scaling
   const max = Math.max(1, ...data.map(d => d.value));
   
@@ -7326,8 +7335,8 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
   const area = `${leftMargin},${chartHeight-bottomMargin} ${pointsString} ${width-rightMargin},${chartHeight-bottomMargin}`;
   
   // Generate date labels (show fewer labels on mobile to avoid crowding)
-  // On mobile, show max 4 labels; on desktop, show up to 6
-  const maxLabels = isMobile ? 4 : 6;
+  // On mobile, show max 3 labels for better spacing; on desktop, show up to 6
+  const maxLabels = isMobile ? 3 : 6;
   const labelInterval = Math.max(1, Math.floor(data.length / maxLabels));
   const dateLabels = data.filter((_, i) => i % labelInterval === 0 || i === data.length - 1);
   
@@ -7345,14 +7354,14 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
   };
   return (
     <div className="w-full bg-white rounded-lg p-4 border border-gray-200" ref={containerRef}>
-      <div className="w-full overflow-x-auto overflow-y-visible">
+      <div className="w-full overflow-x-auto overflow-y-visible" style={{ WebkitOverflowScrolling: 'touch' }}>
         <svg 
-          width="100%"
+          width={width}
           height={height}
           viewBox={`0 0 ${width} ${height}`}
-          preserveAspectRatio="xMidYMid meet"
+          preserveAspectRatio="none"
           className="block cursor-pointer"
-          style={{ minWidth: isMobile ? `${width}px` : 'auto' }}
+          style={{ minWidth: `${width}px` }}
           onMouseLeave={handlePointLeave}
           onClick={() => {
             // Clicking the background clears selection
@@ -7563,11 +7572,12 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
             <g key={i}>
               <text 
                 x={x} 
-                y={chartHeight + (isMobile ? 20 : 25)} 
+                y={chartHeight + (isMobile ? 35 : 25)} 
                 textAnchor="middle" 
                 className="fill-gray-700 font-semibold"
-                fontSize={isMobile ? "10" : "12"}
-                transform={isMobile ? `rotate(-45 ${x} ${chartHeight + 20})` : undefined}
+                fontSize={isMobile ? "11" : "12"}
+                transform={isMobile ? `rotate(-45 ${x} ${chartHeight + 35})` : undefined}
+                style={isMobile ? { transformOrigin: `${x}px ${chartHeight + 35}px` } : undefined}
               >
                 {dateText}
               </text>
