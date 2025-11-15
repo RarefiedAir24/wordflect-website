@@ -30,8 +30,8 @@ export default function Profile() {
   const [error, setError] = useState("");
   const router = useRouter();
   const statsUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [historyRange, setHistoryRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("30d");
-  const [sessionsRange, setSessionsRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("30d");
+  const [historyRange, setHistoryRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("7d");
+  const [sessionsRange, setSessionsRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("7d");
   const [customHistoryDateRange, setCustomHistoryDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
   const [customSessionsDateRange, setCustomSessionsDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
@@ -7136,12 +7136,11 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
   // Use container width on mobile, but ensure minimum width for readability
   const isMobile = containerWidth < 768;
   const calculatedWidth = data.length * 10 + leftMargin + rightMargin;
-  // Calculate width: use calculated width based on data, but ensure it fits the container
-  // On desktop, use calculated width (capped at reasonable max) so viewBox matches actual chart
-  // On mobile, cap at container width
+  // Calculate width: on desktop, use container width for proper scaling
+  // On mobile, use calculated width but cap at container width
   const width = isMobile 
     ? Math.min(containerWidth - 40, calculatedWidth) // On mobile, use container width minus padding
-    : Math.min(1024, Math.max(520, calculatedWidth)); // On desktop, use calculated width for proper viewBox
+    : Math.max(containerWidth - 40, Math.min(1200, Math.max(600, calculatedWidth))); // On desktop, use container width for proper scaling
   const max = Math.max(1, ...data.map(d => d.value));
   
   const points = data.map((d, i) => {
@@ -7153,8 +7152,10 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
   const pointsString = points.map(p => `${p.x},${p.y}`).join(' ');
   const area = `${leftMargin},${chartHeight-bottomMargin} ${pointsString} ${width-rightMargin},${chartHeight-bottomMargin}`;
   
-  // Generate date labels (show every nth date to avoid crowding)
-  const labelInterval = Math.max(1, Math.floor(data.length / 6));
+  // Generate date labels (show fewer labels on mobile to avoid crowding)
+  // On mobile, show max 4 labels; on desktop, show up to 6
+  const maxLabels = isMobile ? 4 : 6;
+  const labelInterval = Math.max(1, Math.floor(data.length / maxLabels));
   const dateLabels = data.filter((_, i) => i % labelInterval === 0 || i === data.length - 1);
   
   const handlePointHover = (index: number) => {
@@ -7378,20 +7379,24 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
           )}
         </g>
         
-        {/* Date labels - Better spacing and larger font */}
+        {/* Date labels - Better spacing, smaller/rotated on mobile */}
         {dateLabels.map((d, i) => {
           const originalIndex = data.findIndex(item => item.date.getTime() === d.date.getTime());
           const x = (originalIndex / Math.max(1, data.length - 1)) * (width - leftMargin - rightMargin) + leftMargin;
+          const dateText = isMobile 
+            ? d.date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' }) // Shorter format on mobile
+            : d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
           return (
             <g key={i}>
               <text 
                 x={x} 
-                y={chartHeight + 25} 
+                y={chartHeight + (isMobile ? 20 : 25)} 
                 textAnchor="middle" 
                 className="fill-gray-700 font-semibold"
-                fontSize="12"
+                fontSize={isMobile ? "10" : "12"}
+                transform={isMobile ? `rotate(-45 ${x} ${chartHeight + 20})` : undefined}
               >
-                {d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                {dateText}
               </text>
             </g>
           );
