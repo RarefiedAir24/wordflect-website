@@ -3635,7 +3635,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               <p className="text-xs text-blue-700">On-device tips generated from your recent performance</p>
             </div>
           </div>
-          <ul className="space-y-2">
+          <ul className="space-y-2 mb-6">
             {generateInsights(profile).map((tip, idx) => (
               <li key={idx} className="flex gap-2">
                 <span className="mt-1 h-2 w-2 rounded-full bg-purple-500" />
@@ -3643,162 +3643,21 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               </li>
             ))}
           </ul>
-        </div>
-      </div>
-
-      {/* History Graph */}
-      <div className="bg-white rounded-xl p-5 shadow mb-6">
-          {/* Header Section */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-xl text-blue-950">History</h3>
-              <p className="text-sm text-blue-700">View your new word discovery trends over time</p>
-              <p className="text-xs text-blue-600 mt-1">Note: Shows only newly discovered words (never found before). Historical total equals your total unique words.</p>
-            </div>
-          </div>
           
-          {/* Date Range Filter Row */}
-          <div className="mb-4">
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-2 px-2 sm:overflow-x-visible sm:pb-0 sm:mx-0">
-              {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
-                <button key={r} onClick={() => setHistoryRange(r)} className={`px-3 py-1.5 rounded text-sm border whitespace-nowrap flex-shrink-0 font-medium transition-colors ${historyRange===r? 'bg-blue-600 text-white border-blue-600':'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'}`}>
-                  {r.toUpperCase()}
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          {/* Legend */}
-          <div className="mb-4 text-xs text-blue-900/80 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-            <span className="inline-flex items-center gap-1">
-              <span className="inline-block w-3 h-3 rounded-sm bg-indigo-500"></span>
-              <span>History: first-time (unique) words per day</span>
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <span className="inline-block w-3 h-3 rounded-sm bg-gray-300"></span>
-              <span>Tooltip lists new words; count is unique-first only</span>
-            </span>
-          </div>
-          
-          {/* Custom Date Range Picker */}
-          {historyRange === "custom" && (
-            <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="flex items-center gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-blue-700 mb-1">Start Date</label>
-                    <input 
-                      type="date" 
-                      value={customHistoryDateRange.start}
-                      onChange={(e) => setCustomHistoryDateRange(prev => ({ ...prev, start: e.target.value }))}
-                      max={new Date().toISOString().split('T')[0]}
-                      className="px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
-                    />
+          {/* Activity Snapshot */}
+          <div className="border-t border-gray-200 pt-6 mt-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
               </div>
-                <div>
-                  <label className="block text-sm font-medium text-blue-700 mb-1">End Date</label>
-                  <input 
-                    type="date" 
-                    value={customHistoryDateRange.end}
-                    onChange={(e) => setCustomHistoryDateRange(prev => ({ ...prev, end: e.target.value }))}
-                    max={new Date().toISOString().split('T')[0]}
-                    className="px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
-                  />
-                </div>
-                <div className="flex items-end">
-                  <button 
-                    onClick={() => {
-                      if (customHistoryDateRange.start && customHistoryDateRange.end) {
-                        const startDate = new Date(customHistoryDateRange.start);
-                        const endDate = new Date(customHistoryDateRange.end);
-                        
-                        // Validate dates
-                        if (startDate > endDate) {
-                          alert('Start date must be before end date');
-                          return;
-                        }
-                        const now = new Date();
-                        if (endDate > now) {
-                          alert('End date cannot be in the future');
-                          return;
-                        }
-                        
-                        console.log('Custom range selected:', customHistoryDateRange);
-                        // The useEffect will trigger when customDateRange changes
-                      }
-                    }}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
-                  >
-                    Apply
-                  </button>
-                </div>
+              <div>
+                <h3 className="font-bold text-lg text-blue-950">Activity Snapshot</h3>
+                <p className="text-xs text-blue-700">Your recent activity overview</p>
               </div>
-              </div>
-            )}
-          
-          {/* Date Range Display */}
-          <div className="mb-4 text-center">
-            <p className="text-sm text-blue-600 font-medium">
-              {(() => {
-                if (historyRange === "custom" && customHistoryDateRange.start && customHistoryDateRange.end) {
-                  const startDate = new Date(customHistoryDateRange.start).toLocaleDateString();
-                  const endDate = new Date(customHistoryDateRange.end).toLocaleDateString();
-                  return `Custom Range: ${startDate} - ${endDate}`;
-                } else if (historyRange === "7d") {
-                  const endDate = new Date();
-                  const startDate = new Date();
-                  startDate.setDate(endDate.getDate() - 7);
-                  return `Last 7 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
-                } else if (historyRange === "30d") {
-                  const endDate = new Date();
-                  const startDate = new Date();
-                  startDate.setDate(endDate.getDate() - 30);
-                  return `Last 30 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
-                } else if (historyRange === "90d") {
-                  const endDate = new Date();
-                  const startDate = new Date();
-                  startDate.setDate(endDate.getDate() - 90);
-                  return `Last 90 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
-                } else if (historyRange === "1y") {
-                  const endDate = new Date();
-                  const startDate = new Date();
-                  startDate.setFullYear(endDate.getFullYear() - 1);
-                  return `Last Year: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
-                } else if (historyRange === "all") {
-                  return "All Time Data";
-                }
-                return "Select a date range";
-              })()}
-            </p>
-          </div>
-          <Sparkline data={(historyDays && historyDays.length > 0) ? historyDays : aggregated(profile).days} height={260} color="#4f46e5" wordsEmptyText="No new words" />
-          <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-            <MiniStat title="Words (found)" value={profile.allFoundWords.length.toLocaleString()} />
-            <MiniStat title="Avg/Day" value={historyMetrics.avgPerDay} />
-            <MiniStat title="Avg Length" value={historyMetrics.avgLength.toFixed(1)} />
-          </div>
-      </div>
-
-      {/* Words & Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Activity Snapshot */}
-        <div className="bg-white rounded-xl p-5 shadow">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-          </div>
-          <div>
-              <h3 className="font-bold text-lg text-blue-950">Activity Snapshot</h3>
-              <p className="text-xs text-blue-700">Your recent activity overview</p>
             </div>
-          </div>
-          <div className="space-y-2 text-sm text-blue-900">
+            <div className="space-y-2 text-sm text-blue-900">
             {(() => {
               const now = new Date();
               const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -4334,8 +4193,146 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 </div>
               );
             })()}
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* History Graph */}
+      <div className="bg-white rounded-xl p-5 shadow mb-6">
+        {/* Header Section */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h3 className="font-bold text-xl text-blue-950">History</h3>
+            <p className="text-sm text-blue-700">View your new word discovery trends over time</p>
+            <p className="text-xs text-blue-600 mt-1">Note: Shows only newly discovered words (never found before). Historical total equals your total unique words.</p>
+          </div>
+        </div>
+        
+        {/* Date Range Filter Row */}
+        <div className="mb-4">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-2 px-2 sm:overflow-x-visible sm:pb-0 sm:mx-0">
+            {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
+              <button key={r} onClick={() => setHistoryRange(r)} className={`px-3 py-1.5 rounded text-sm border whitespace-nowrap flex-shrink-0 font-medium transition-colors ${historyRange===r? 'bg-blue-600 text-white border-blue-600':'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'}`}>
+                {r.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        {/* Legend */}
+        <div className="mb-4 text-xs text-blue-900/80 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <span className="inline-flex items-center gap-1">
+            <span className="inline-block w-3 h-3 rounded-sm bg-indigo-500"></span>
+            <span>History: first-time (unique) words per day</span>
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="inline-block w-3 h-3 rounded-sm bg-gray-300"></span>
+            <span>Tooltip lists new words; count is unique-first only</span>
+          </span>
+        </div>
+        
+        {/* Custom Date Range Picker */}
+        {historyRange === "custom" && (
+          <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center gap-4">
+              <div>
+                <label className="block text-sm font-medium text-blue-700 mb-1">Start Date</label>
+                  <input 
+                    type="date" 
+                    value={customHistoryDateRange.start}
+                    onChange={(e) => setCustomHistoryDateRange(prev => ({ ...prev, start: e.target.value }))}
+                    max={new Date().toISOString().split('T')[0]}
+                    className="px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+                  />
+              </div>
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 mb-1">End Date</label>
+                  <input 
+                    type="date" 
+                    value={customHistoryDateRange.end}
+                    onChange={(e) => setCustomHistoryDateRange(prev => ({ ...prev, end: e.target.value }))}
+                    max={new Date().toISOString().split('T')[0]}
+                    className="px-3 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+                  />
+                </div>
+                <div className="flex items-end">
+                  <button 
+                    onClick={() => {
+                      if (customHistoryDateRange.start && customHistoryDateRange.end) {
+                        const startDate = new Date(customHistoryDateRange.start);
+                        const endDate = new Date(customHistoryDateRange.end);
+                        
+                        // Validate dates
+                        if (startDate > endDate) {
+                          alert('Start date must be before end date');
+                          return;
+                        }
+                        const now = new Date();
+                        if (endDate > now) {
+                          alert('End date cannot be in the future');
+                          return;
+                        }
+                        
+                        console.log('Custom range selected:', customHistoryDateRange);
+                        // The useEffect will trigger when customDateRange changes
+                      }
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+              </div>
+            )}
+          
+          {/* Date Range Display */}
+          <div className="mb-4 text-center">
+            <p className="text-sm text-blue-600 font-medium">
+              {(() => {
+                if (historyRange === "custom" && customHistoryDateRange.start && customHistoryDateRange.end) {
+                  const startDate = new Date(customHistoryDateRange.start).toLocaleDateString();
+                  const endDate = new Date(customHistoryDateRange.end).toLocaleDateString();
+                  return `Custom Range: ${startDate} - ${endDate}`;
+                } else if (historyRange === "7d") {
+                  const endDate = new Date();
+                  const startDate = new Date();
+                  startDate.setDate(endDate.getDate() - 7);
+                  return `Last 7 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+                } else if (historyRange === "30d") {
+                  const endDate = new Date();
+                  const startDate = new Date();
+                  startDate.setDate(endDate.getDate() - 30);
+                  return `Last 30 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+                } else if (historyRange === "90d") {
+                  const endDate = new Date();
+                  const startDate = new Date();
+                  startDate.setDate(endDate.getDate() - 90);
+                  return `Last 90 Days: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+                } else if (historyRange === "1y") {
+                  const endDate = new Date();
+                  const startDate = new Date();
+                  startDate.setFullYear(endDate.getFullYear() - 1);
+                  return `Last Year: ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+                } else if (historyRange === "all") {
+                  return "All Time Data";
+                }
+                return "Select a date range";
+              })()}
+            </p>
+          </div>
+          <Sparkline data={(historyDays && historyDays.length > 0) ? historyDays : aggregated(profile).days} height={260} color="#4f46e5" wordsEmptyText="No new words" />
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+            <MiniStat title="Words (found)" value={profile.allFoundWords.length.toLocaleString()} />
+            <MiniStat title="Avg/Day" value={historyMetrics.avgPerDay} />
+            <MiniStat title="Avg Length" value={historyMetrics.avgLength.toFixed(1)} />
+          </div>
       </div>
 
       {/* Game Words History */}
