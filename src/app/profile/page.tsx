@@ -660,22 +660,49 @@ export default function Profile() {
           
           // Check if we have enough data to cover the requested range
           const expectedDays = sessionsRange === '7d' ? 7 : sessionsRange === '30d' ? 30 : sessionsRange === '90d' ? 90 : sessionsRange === '1y' ? 365 : 0;
+          const firstDate = filteredData.length > 0 ? filteredData[0].date : null;
+          const lastDate = filteredData.length > 0 ? filteredData[filteredData.length - 1].date : null;
           const hasEnoughData = filteredData.length > 0 && (
             sessionsRange === 'all' || 
             sessionsRange === 'custom' ||
-            (filteredData[0].date <= start && filteredData[filteredData.length - 1].date >= nowStart)
+            (firstDate && lastDate && firstDate <= start && lastDate >= nowStart)
           );
+          
+          console.log(`Data check: filteredData.length=${filteredData.length}, expectedDays=${expectedDays}, hasEnoughData=${hasEnoughData}`);
+          console.log(`Date range check: firstDate=${firstDate?.toISOString().split('T')[0]}, start=${start.toISOString().split('T')[0]}, lastDate=${lastDate?.toISOString().split('T')[0]}, end=${nowStart.toISOString().split('T')[0]}`);
           
           if (!hasEnoughData && expectedDays > 0 && filteredData.length < expectedDays * 0.5) {
             // API didn't return enough data - build from session history
             console.warn(`⚠️ API only returned ${filteredData.length} days, but need ~${expectedDays} days. Building from session history...`);
             
-            const sessions = (detailedStats?.sessionHistory || []) as Array<{ 
+            // Try to get sessions from detailedStats or timeAnalytics
+            let sessions = (detailedStats?.sessionHistory || []) as Array<{ 
               startTime?: string; 
               timestamp?: string; 
               wordsFound?: number;
               words?: string[];
             }>;
+            
+            // Fallback to timeAnalytics if detailedStats doesn't have session history
+            if (sessions.length === 0 && timeAnalytics && (timeAnalytics as Record<string, unknown>).timePeriods) {
+              console.log(`Using timeAnalytics as fallback for session history`);
+              const timePeriods = (timeAnalytics as Record<string, unknown>).timePeriods as Record<string, { sessions?: Array<{ startTime?: string; timestamp?: string; wordsFound?: number; words?: string[] }> }>;
+              const allSessions: Array<{ startTime?: string; timestamp?: string; wordsFound?: number; words?: string[] }> = [];
+              Object.values(timePeriods).forEach(period => {
+                if (period?.sessions && Array.isArray(period.sessions)) {
+                  allSessions.push(...period.sessions);
+                }
+              });
+              // Remove duplicates by timestamp
+              const uniqueSessions = Array.from(new Map(
+                allSessions
+                  .filter(s => s.startTime || s.timestamp)
+                  .map(s => [s.startTime || s.timestamp || '', s])
+              ).values());
+              sessions = uniqueSessions;
+            }
+            
+            console.log(`Session history available: ${sessions.length} sessions`);
             
             if (sessions.length > 0) {
               // Build per-day totals from session history
@@ -718,7 +745,11 @@ export default function Profile() {
               
               filteredData = filledDays;
               console.log(`✅ Built ${filteredData.length} days from session history`);
+            } else {
+              console.warn(`⚠️ No session history available to build data from`);
             }
+          } else {
+            console.log(`✓ API returned sufficient data (${filteredData.length} days)`);
           }
           
           if (filteredData.length > 0) {
@@ -739,7 +770,7 @@ export default function Profile() {
       }
     };
     loadSessionWords();
-  }, [sessionsRange, customSessionsDateRange.start, customSessionsDateRange.end, detailedStats?.sessionHistory]);
+  }, [sessionsRange, customSessionsDateRange.start, customSessionsDateRange.end, detailedStats?.sessionHistory, timeAnalytics]);
 
   // Smart frequency logic for Lexi popup
   const checkLexiPopupVisibility = useCallback(() => {
