@@ -3809,8 +3809,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               </div>
             </div>
             <div className="space-y-2 text-sm text-blue-900">
-            {(() => {
-              const now = new Date();
+              {(() => {
+                const now = new Date();
               const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
               
               // Get recent games from sessionHistory or timeAnalytics as fallback
@@ -4346,7 +4346,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             })()}
             </div>
           </div>
-        </div>
       </div>
 
       {/* History Graph */}
