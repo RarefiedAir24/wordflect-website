@@ -7316,21 +7316,32 @@ function BarChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No 
   }
 
   const isMobile = containerWidth < 768;
-  const leftMargin = isMobile ? 40 : 60;
-  const rightMargin = isMobile ? 10 : 20;
+  const leftMargin = isMobile ? 45 : 60;
+  const rightMargin = isMobile ? 15 : 30;
   const topMargin = 20;
-  const bottomMargin = isMobile ? 50 : 40; // Space for date labels
+  const bottomMargin = isMobile ? 60 : 50; // Space for date labels
   
-  // Bar width and spacing
-  const availableWidth = containerWidth - leftMargin - rightMargin - (isMobile ? 20 : 40);
-  const barSpacing = isMobile ? 2 : 4;
-  const barWidth = Math.max(4, Math.min(isMobile ? 8 : 12, (availableWidth / data.length) - barSpacing));
+  // Bar width and spacing - ensure minimum width to prevent squishing
+  const minBarWidth = isMobile ? 16 : 20;
+  const barSpacing = isMobile ? 4 : 8;
+  // Calculate minimum required width to prevent squishing
+  const minRequiredWidth = data.length * (minBarWidth + barSpacing) + leftMargin + rightMargin;
+  const chartWidth = Math.max(containerWidth, minRequiredWidth);
+  const availableWidth = chartWidth - leftMargin - rightMargin;
+  
+  // Calculate bar width based on available space, ensuring minimum width
+  const calculatedBarWidth = (availableWidth / data.length) - barSpacing;
+  const barWidth = Math.max(minBarWidth, Math.min(calculatedBarWidth, isMobile ? 24 : 32)); // Cap max width too
   const totalBarWidth = barWidth + barSpacing;
   
   const max = Math.max(1, ...data.map(d => d.value));
 
-  // Show fewer date labels on mobile to avoid crowding
-  const dateLabelInterval = isMobile ? Math.max(1, Math.floor(data.length / 5)) : Math.max(1, Math.floor(data.length / 10));
+  // Show date labels - on mobile show every 3rd, on desktop show every 5th or all if few data points
+  const dateLabelInterval = data.length <= 7 
+    ? 1  // Show all labels if 7 days or fewer
+    : isMobile 
+      ? Math.max(1, Math.floor(data.length / 4))  // Show ~4 labels on mobile
+      : Math.max(1, Math.floor(data.length / 8)); // Show ~8 labels on desktop
 
   const formatWords = (wordList: string[]) => {
     if (wordList.length === 0) {
@@ -7355,8 +7366,8 @@ function BarChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No 
 
   return (
     <div className="w-full bg-white rounded-lg p-4 border border-gray-200" ref={containerRef}>
-      <div className="w-full overflow-x-auto overflow-y-visible" style={{ WebkitOverflowScrolling: 'touch', paddingBottom: isMobile ? '40px' : '20px' }}>
-        <div className="relative" style={{ minWidth: `${leftMargin + (data.length * totalBarWidth) + rightMargin}px`, height: `${height}px` }}>
+      <div className="w-full overflow-x-auto overflow-y-visible" style={{ WebkitOverflowScrolling: 'touch', paddingBottom: isMobile ? '50px' : '30px' }}>
+        <div className="relative" style={{ minWidth: `${chartWidth}px`, height: `${height}px` }}>
           {/* Y-axis labels */}
           <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between" style={{ width: `${leftMargin}px`, paddingTop: `${topMargin}px`, paddingBottom: `${bottomMargin}px` }}>
             {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
@@ -7370,8 +7381,8 @@ function BarChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No 
           </div>
 
           {/* Chart area */}
-          <div className="absolute" style={{ left: `${leftMargin}px`, right: `${rightMargin}px`, top: `${topMargin}px`, bottom: `${bottomMargin}px` }}>
-            <div className="relative w-full h-full flex items-end gap-0">
+          <div className="absolute" style={{ left: `${leftMargin}px`, width: `${availableWidth}px`, top: `${topMargin}px`, bottom: `${bottomMargin}px` }}>
+            <div className="relative w-full h-full flex items-end" style={{ gap: '0' }}>
               {data.map((d, i) => {
                 const barHeight = max > 0 ? (d.value / max) * 100 : 0;
                 const isHovered = hoveredBar === i;
@@ -7424,7 +7435,7 @@ function BarChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No 
                         height: `${barHeight}%`,
                         backgroundColor: color,
                         opacity: isHovered || isSelected ? 1 : 0.8,
-                        minHeight: d.value > 0 ? '2px' : '0',
+                        minHeight: d.value > 0 ? '4px' : '0', // Increased minimum height for visibility
                         boxShadow: isHovered || isSelected ? `0 4px 8px rgba(0,0,0,0.2)` : 'none',
                       }}
                     />
@@ -7435,21 +7446,24 @@ function BarChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No 
           </div>
 
           {/* Date labels - positioned below chart area to ensure visibility */}
-          <div className="absolute" style={{ left: `${leftMargin}px`, right: `${rightMargin}px`, top: `${height - bottomMargin + 5}px`, height: `${bottomMargin - 5}px` }}>
-            <div className="relative w-full h-full flex">
+          <div className="absolute" style={{ left: `${leftMargin}px`, width: `${availableWidth}px`, top: `${height - bottomMargin + 10}px`, height: `${bottomMargin - 10}px` }}>
+            <div className="relative w-full h-full">
               {data.map((d, i) => {
                 const showLabel = i % dateLabelInterval === 0 || i === data.length - 1;
                 if (!showLabel) return null;
+                
+                const labelX = (i * totalBarWidth) + (barWidth / 2);
                 
                 return (
                   <div
                     key={i}
                     className="absolute text-xs font-semibold text-gray-700"
                     style={{
-                      left: `${(i * totalBarWidth) + (barWidth / 2)}px`,
+                      left: `${labelX}px`,
                       transform: 'translateX(-50%)',
-                      fontSize: isMobile ? '9px' : '10px',
+                      fontSize: isMobile ? '10px' : '11px',
                       whiteSpace: 'nowrap',
+                      top: '0',
                     }}
                   >
                     {isMobile
