@@ -3630,36 +3630,41 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Historical & Sparkline */}
         <div className="bg-white rounded-xl p-5 shadow lg:col-span-2">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-xl text-blue-950">History</h3>
-                <p className="text-sm text-blue-700">View your new word discovery trends over time</p>
-                <p className="text-xs text-blue-600 mt-1">Note: Shows only newly discovered words (never found before). Historical total equals your total unique words.</p>
-              </div>
+          {/* Header Section */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
             </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-xl text-blue-950">History</h3>
+              <p className="text-sm text-blue-700">View your new word discovery trends over time</p>
+              <p className="text-xs text-blue-600 mt-1">Note: Shows only newly discovered words (never found before). Historical total equals your total unique words.</p>
+            </div>
+          </div>
+          
+          {/* Date Range Filter Row */}
+          <div className="mb-4">
             <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-2 px-2 sm:overflow-x-visible sm:pb-0 sm:mx-0">
               {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
-                <button key={r} onClick={() => setHistoryRange(r)} className={`px-2 py-1 rounded text-sm border whitespace-nowrap flex-shrink-0 ${historyRange===r? 'bg-blue-600 text-white border-blue-600':'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'}`}>
+                <button key={r} onClick={() => setHistoryRange(r)} className={`px-3 py-1.5 rounded text-sm border whitespace-nowrap flex-shrink-0 font-medium transition-colors ${historyRange===r? 'bg-blue-600 text-white border-blue-600':'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'}`}>
                   {r.toUpperCase()}
                 </button>
               ))}
             </div>
-            <div className="mt-2 text-xs text-blue-900/80 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-              <span className="inline-flex items-center gap-1">
-                <span className="inline-block w-3 h-3 rounded-sm bg-indigo-500"></span>
-                <span>History: first-time (unique) words per day</span>
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="inline-block w-3 h-3 rounded-sm bg-gray-300"></span>
-                <span>Tooltip lists new words; count is unique-first only</span>
-              </span>
-            </div>
+          </div>
+          
+          {/* Legend */}
+          <div className="mb-4 text-xs text-blue-900/80 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+            <span className="inline-flex items-center gap-1">
+              <span className="inline-block w-3 h-3 rounded-sm bg-indigo-500"></span>
+              <span>History: first-time (unique) words per day</span>
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="inline-block w-3 h-3 rounded-sm bg-gray-300"></span>
+              <span>Tooltip lists new words; count is unique-first only</span>
+            </span>
           </div>
           
           {/* Custom Date Range Picker */}
@@ -4315,35 +4320,40 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* Game Words History */}
       <div className="mt-8 bg-white rounded-xl p-6 shadow-lg border border-green-100">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-xl text-green-950">Game Words History</h3>
-              <p className="text-sm text-green-700">Total words found per day across all games. This shows your daily word discovery progress.</p>
-            </div>
+        {/* Header Section */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
           </div>
+          <div className="flex-1">
+            <h3 className="font-bold text-xl text-green-950">Game Words History</h3>
+            <p className="text-sm text-green-700">Total words found per day across all games. This shows your daily word discovery progress.</p>
+          </div>
+        </div>
+        
+        {/* Date Range Filter Row */}
+        <div className="mb-4">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-2 px-2 sm:overflow-x-visible sm:pb-0 sm:mx-0">
             {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
-              <button key={r} onClick={() => setSessionsRange(r)} className={`px-2 py-1 rounded text-sm border whitespace-nowrap flex-shrink-0 ${sessionsRange===r? 'bg-green-600 text-white border-green-600':'bg-white text-green-800 border-green-200 hover:bg-green-50'}`}>
+              <button key={r} onClick={() => setSessionsRange(r)} className={`px-3 py-1.5 rounded text-sm border whitespace-nowrap flex-shrink-0 font-medium transition-colors ${sessionsRange===r? 'bg-green-600 text-white border-green-600':'bg-white text-green-800 border-green-200 hover:bg-green-50'}`}>
                 {r.toUpperCase()}
               </button>
             ))}
           </div>
-          <div className="mt-2 text-xs text-green-900/80 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-            <span className="inline-flex items-center gap-1">
-              <span className="inline-block w-3 h-3 rounded-sm bg-emerald-500"></span>
-              <span>Games: all words found per day across games</span>
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <span className="inline-block w-3 h-3 rounded-sm bg-gray-300"></span>
-              <span>Includes repeats; reflects total daily activity</span>
-            </span>
-          </div>
+        </div>
+        
+        {/* Legend */}
+        <div className="mb-4 text-xs text-green-900/80 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <span className="inline-flex items-center gap-1">
+            <span className="inline-block w-3 h-3 rounded-sm bg-emerald-500"></span>
+            <span>Games: all words found per day across games</span>
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="inline-block w-3 h-3 rounded-sm bg-gray-300"></span>
+            <span>Includes repeats; reflects total daily activity</span>
+          </span>
         </div>
         
         {/* Custom Date Range Picker */}
