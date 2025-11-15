@@ -3639,17 +3639,17 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             {/* Battle Performance - Premium Style */}
             <div className="relative overflow-hidden rounded-xl bg-white shadow-lg border border-gray-100 p-6 transition-all duration-300">
               {/* Gradient background accent */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-10 rounded-bl-full" />
-              <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-emerald-500 to-teal-600 opacity-5 rounded-tr-full" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-10 rounded-bl-full z-0" />
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-emerald-500 to-teal-600 opacity-5 rounded-tr-full z-0" />
+              
+              {/* Percentage and battle count in top right */}
+              <div className="absolute top-6 right-6 flex flex-col items-end z-20">
+                <span className="text-3xl font-extrabold text-emerald-600">{winRate(profile)}%</span>
+                <span className="text-sm font-semibold text-gray-600 mt-0.5">Win Rate</span>
+                <span className="text-lg font-bold text-gray-700 mt-1">{(profile.battleWins + profile.battleLosses).toLocaleString()} battles</span>
+              </div>
               
               <div className="relative z-10">
-                {/* Percentage and battle count in top right */}
-                <div className="absolute top-0 right-0 flex flex-col items-end">
-                  <span className="text-3xl font-extrabold text-emerald-600">{winRate(profile)}%</span>
-                  <span className="text-sm font-semibold text-gray-600 mt-0.5">Win Rate</span>
-                  <span className="text-lg font-bold text-gray-700 mt-1">{(profile.battleWins + profile.battleLosses).toLocaleString()} battles</span>
-                </div>
-                
                 {/* Icon with gradient background */}
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-4 shadow-md">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3663,7 +3663,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 </div>
                 
                 {/* Bars */}
-                <div className="flex items-end gap-3 h-40">
+                <div className="flex items-end gap-3" style={{ height: '160px' }}>
                   <Bar 
                     title="Wins" 
                     value={profile.battleWins} 
@@ -3689,16 +3689,16 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             {/* Leaderboard Podiums - Premium Style */}
             <div className="relative overflow-hidden rounded-xl bg-white shadow-lg border border-gray-100 p-6 transition-all duration-300">
               {/* Gradient background accent */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-500 to-yellow-600 opacity-10 rounded-bl-full" />
-              <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-amber-500 to-yellow-600 opacity-5 rounded-tr-full" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-500 to-yellow-600 opacity-10 rounded-bl-full z-0" />
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-amber-500 to-yellow-600 opacity-5 rounded-tr-full z-0" />
+              
+              {/* Total count in top right */}
+              <div className="absolute top-6 right-6 flex flex-col items-end z-20">
+                <span className="text-3xl font-extrabold text-amber-600">{(profile.firstPlaceFinishes + profile.secondPlaceFinishes + profile.thirdPlaceFinishes).toLocaleString()}</span>
+                <span className="text-sm font-semibold text-gray-600 mt-0.5">Total</span>
+              </div>
               
               <div className="relative z-10">
-                {/* Total count in top right */}
-                <div className="absolute top-0 right-0 flex flex-col items-end">
-                  <span className="text-3xl font-extrabold text-amber-600">{(profile.firstPlaceFinishes + profile.secondPlaceFinishes + profile.thirdPlaceFinishes).toLocaleString()}</span>
-                  <span className="text-sm font-semibold text-gray-600 mt-0.5">Total</span>
-                </div>
-                
                 {/* Icon with gradient background */}
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-600 mb-4 shadow-md">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3712,7 +3712,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 </div>
                 
                 {/* Bars */}
-                <div className="flex items-end gap-3 h-40">
+                <div className="flex items-end gap-3" style={{ height: '160px' }}>
                   <Bar 
                     title="🥇" 
                     value={profile.firstPlaceFinishes} 
