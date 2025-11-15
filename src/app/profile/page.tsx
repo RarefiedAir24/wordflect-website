@@ -4485,7 +4485,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               })()}
             </p>
           </div>
-          <BarChart data={(historyDays && historyDays.length > 0) ? historyDays : aggregated(profile).days} height={260} color="#4f46e5" wordsEmptyText="No new words" />
+          <LineChart data={(historyDays && historyDays.length > 0) ? historyDays : aggregated(profile).days} height={260} color="#4f46e5" wordsEmptyText="No new words" />
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
             <MiniStat title="Words (found)" value={profile.allFoundWords.length.toLocaleString()} />
             <MiniStat title="Avg/Day" value={historyMetrics.avgPerDay} />
@@ -4624,7 +4624,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </p>
         </div>
         
-        <BarChart data={sessionWordsDays || []} height={260} color="#10b981" wordsEmptyText="No games recorded" wordsPreFormatted={true} />
+        <LineChart data={sessionWordsDays || []} height={260} color="#10b981" wordsEmptyText="No games recorded" wordsPreFormatted={true} />
         <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
           <MiniStat title="Session Words" value={sessionWordsDays ? sessionWordsDays.reduce((sum, day) => sum + day.value, 0).toLocaleString() : '0'} />
           <MiniStat title="Avg/Day" value={sessionWordsDays && sessionWordsDays.length > 0 ? Math.round(sessionWordsDays.reduce((sum, day) => sum + day.value, 0) / sessionWordsDays.length * 10) / 10 : 0} />
@@ -7288,9 +7288,9 @@ function Bar({ title, value, color, total, onClick }: { title: string; value: nu
   );
 }
 
-function BarChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No new words', wordsPreFormatted = false }: { data: { date: Date; value: number; words?: string[] }[]; height?: number; color?: string; wordsEmptyText?: string; wordsPreFormatted?: boolean }) {
-  const [hoveredBar, setHoveredBar] = useState<number | null>(null);
-  const [selectedBar, setSelectedBar] = useState<number | null>(null);
+function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No new words', wordsPreFormatted = false }: { data: { date: Date; value: number; words?: string[] }[]; height?: number; color?: string; wordsEmptyText?: string; wordsPreFormatted?: boolean }) {
+  const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
+  const [selectedPoint, setSelectedPoint] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(1024);
 
@@ -7319,29 +7319,33 @@ function BarChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No 
   const leftMargin = isMobile ? 45 : 60;
   const rightMargin = isMobile ? 15 : 30;
   const topMargin = 20;
-  const bottomMargin = isMobile ? 60 : 50; // Space for date labels
+  const bottomMargin = isMobile ? 50 : 40; // Space for date labels (HTML labels below SVG)
   
-  // Bar width and spacing - ensure minimum width to prevent squishing
-  const minBarWidth = isMobile ? 16 : 20;
-  const barSpacing = isMobile ? 4 : 8;
-  // Calculate minimum required width to prevent squishing
-  const minRequiredWidth = data.length * (minBarWidth + barSpacing) + leftMargin + rightMargin;
-  const chartWidth = Math.max(containerWidth, minRequiredWidth);
-  const availableWidth = chartWidth - leftMargin - rightMargin;
-  
-  // Calculate bar width based on available space, ensuring minimum width
-  const calculatedBarWidth = (availableWidth / data.length) - barSpacing;
-  const barWidth = Math.max(minBarWidth, Math.min(calculatedBarWidth, isMobile ? 24 : 32)); // Cap max width too
-  const totalBarWidth = barWidth + barSpacing;
+  // Fixed spacing per data point for consistent rendering
+  const spacingPerPoint = isMobile ? 20 : 24;
+  const chartAreaWidth = data.length * spacingPerPoint;
+  const svgWidth = chartAreaWidth + leftMargin + rightMargin;
+  const chartHeight = height - topMargin - bottomMargin;
   
   const max = Math.max(1, ...data.map(d => d.value));
 
-  // Show date labels - on mobile show every 3rd, on desktop show every 5th or all if few data points
+  // Calculate points for the line
+  const points = data.map((d, i) => {
+    const x = (i * spacingPerPoint) + leftMargin;
+    const y = topMargin + chartHeight - ((d.value / max) * chartHeight);
+    return { x, y, data: d, index: i };
+  });
+
+  // Create path strings for the line and area
+  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+  const areaPath = `${linePath} L ${points[points.length - 1].x} ${topMargin + chartHeight} L ${points[0].x} ${topMargin + chartHeight} Z`;
+
+  // Date label interval - show more labels for shorter ranges
   const dateLabelInterval = data.length <= 7 
     ? 1  // Show all labels if 7 days or fewer
-    : isMobile 
-      ? Math.max(1, Math.floor(data.length / 4))  // Show ~4 labels on mobile
-      : Math.max(1, Math.floor(data.length / 8)); // Show ~8 labels on desktop
+    : data.length <= 30
+      ? isMobile ? Math.max(1, Math.floor(data.length / 6)) : Math.max(1, Math.floor(data.length / 10))  // 30 days: ~6 labels mobile, ~10 desktop
+      : isMobile ? Math.max(1, Math.floor(data.length / 8)) : Math.max(1, Math.floor(data.length / 12)); // Longer: ~8 labels mobile, ~12 desktop
 
   const formatWords = (wordList: string[]) => {
     if (wordList.length === 0) {
@@ -7366,113 +7370,163 @@ function BarChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No 
 
   return (
     <div className="w-full bg-white rounded-lg p-4 border border-gray-200" ref={containerRef}>
-      <div className="w-full overflow-x-auto overflow-y-visible" style={{ WebkitOverflowScrolling: 'touch', paddingBottom: isMobile ? '50px' : '30px' }}>
-        <div className="relative" style={{ minWidth: `${chartWidth}px`, height: `${height}px` }}>
-          {/* Y-axis labels */}
-          <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between" style={{ width: `${leftMargin}px`, paddingTop: `${topMargin}px`, paddingBottom: `${bottomMargin}px` }}>
+      <div className="w-full overflow-x-auto overflow-y-visible" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div className="relative" style={{ minWidth: `${svgWidth}px`, height: `${height}px` }}>
+          {/* SVG Chart */}
+          <svg 
+            width={svgWidth} 
+            height={height - bottomMargin}
+            className="block"
+            style={{ minWidth: `${svgWidth}px` }}
+          >
+            <defs>
+              <linearGradient id={`areaGradient-${color.replace('#', '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor={color} stopOpacity="0.2"/>
+                <stop offset="100%" stopColor={color} stopOpacity="0.05"/>
+              </linearGradient>
+              <linearGradient id={`lineGradient-${color.replace('#', '')}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor={color} stopOpacity="0.8"/>
+                <stop offset="100%" stopColor={color} stopOpacity="1"/>
+              </linearGradient>
+            </defs>
+            
+            {/* Area under the curve */}
+            <path 
+              d={areaPath} 
+              fill={`url(#areaGradient-${color.replace('#', '')})`} 
+              stroke="none"
+            />
+            
+            {/* Main line */}
+            <path 
+              d={linePath} 
+              fill="none" 
+              stroke={`url(#lineGradient-${color.replace('#', '')})`} 
+              strokeWidth="3" 
+              strokeLinejoin="round" 
+              strokeLinecap="round"
+              className="transition-all duration-200"
+            />
+            
+            {/* Y-axis labels */}
             {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
               const value = Math.round(max * ratio);
+              const y = topMargin + chartHeight - (ratio * chartHeight);
               return (
-                <div key={ratio} className="text-xs font-semibold text-gray-700 text-right pr-2" style={{ fontSize: isMobile ? '10px' : '11px' }}>
+                <text
+                  key={ratio}
+                  x={leftMargin - 10}
+                  y={y + 4}
+                  textAnchor="end"
+                  className="fill-gray-700 font-semibold"
+                  fontSize={isMobile ? "10" : "11"}
+                >
                   {value}
+                </text>
+              );
+            })}
+            
+            {/* Interactive data points */}
+            {points.map((point, i) => {
+              const isHovered = hoveredPoint === i;
+              const isSelected = selectedPoint === i;
+              return (
+                <g key={i}>
+                  {/* Invisible larger hit area */}
+                  <circle 
+                    cx={point.x} 
+                    cy={point.y} 
+                    r="12" 
+                    fill="transparent" 
+                    onMouseEnter={() => setHoveredPoint(i)}
+                    onMouseLeave={() => setHoveredPoint(null)}
+                    onClick={() => setSelectedPoint(prev => prev === i ? null : i)}
+                    className="cursor-pointer"
+                  />
+                  {/* Visible point */}
+                  <circle 
+                    cx={point.x} 
+                    cy={point.y} 
+                    r={isHovered || isSelected ? "6" : "4"} 
+                    fill={isHovered || isSelected ? "#ffffff" : color}
+                    stroke={isHovered || isSelected ? color : "#ffffff"}
+                    strokeWidth={isHovered || isSelected ? "3" : "2"}
+                    className="transition-all duration-200"
+                  />
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* HTML Tooltip (positioned absolutely) */}
+          {(hoveredPoint !== null || selectedPoint !== null) && (() => {
+            const pointIndex = selectedPoint !== null ? selectedPoint : hoveredPoint;
+            if (pointIndex === null) return null;
+            const point = points[pointIndex];
+            
+            return (
+              <div
+                className="absolute z-20 bg-gray-900 text-white rounded-lg p-2 shadow-xl pointer-events-none"
+                style={{
+                  left: `${point.x}px`,
+                  top: `${point.y - 80}px`,
+                  transform: 'translateX(-50%)',
+                  fontSize: '11px',
+                  maxWidth: '200px',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <div className="text-blue-300 font-semibold mb-1">
+                  {point.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </div>
+                <div className="text-white font-bold mb-1">
+                  {point.data.value} {wordsPreFormatted ? 'words' : 'words'}
+                </div>
+                {point.data.words && point.data.words.length > 0 && (
+                  <div className="text-gray-300 text-xs mt-1 border-t border-gray-700 pt-1">
+                    {formatWords(point.data.words).map((line, idx) => (
+                      <div key={idx}>{line}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* HTML Date Labels - positioned below SVG */}
+          <div 
+            className="absolute w-full"
+            style={{ 
+              top: `${height - bottomMargin}px`, 
+              height: `${bottomMargin}px`,
+              left: `${leftMargin}px`,
+              width: `${chartAreaWidth}px`,
+            }}
+          >
+            {data.map((d, i) => {
+              const showLabel = i % dateLabelInterval === 0 || i === data.length - 1;
+              if (!showLabel) return null;
+              
+              const labelX = (i * spacingPerPoint) + (spacingPerPoint / 2);
+              
+              return (
+                <div
+                  key={i}
+                  className="absolute text-xs font-semibold text-gray-700"
+                  style={{
+                    left: `${labelX}px`,
+                    transform: 'translateX(-50%)',
+                    fontSize: isMobile ? '10px' : '11px',
+                    whiteSpace: 'nowrap',
+                    top: '5px',
+                  }}
+                >
+                  {isMobile
+                    ? d.date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
+                    : d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </div>
               );
             })}
-          </div>
-
-          {/* Chart area */}
-          <div className="absolute" style={{ left: `${leftMargin}px`, width: `${availableWidth}px`, top: `${topMargin}px`, bottom: `${bottomMargin}px` }}>
-            <div className="relative w-full h-full flex items-end" style={{ gap: '0' }}>
-              {data.map((d, i) => {
-                const barHeight = max > 0 ? (d.value / max) * 100 : 0;
-                const isHovered = hoveredBar === i;
-                const isSelected = selectedBar === i;
-                const showTooltip = isHovered || isSelected;
-
-                return (
-                  <div
-                    key={i}
-                    className="relative flex flex-col items-center group cursor-pointer"
-                    style={{ width: `${totalBarWidth}px`, minWidth: `${barWidth}px` }}
-                    onMouseEnter={() => setHoveredBar(i)}
-                    onMouseLeave={() => setHoveredBar(null)}
-                    onClick={() => setSelectedBar(prev => prev === i ? null : i)}
-                  >
-                    {/* Tooltip */}
-                    {showTooltip && (
-                      <div
-                        className="absolute z-20 bg-gray-900 text-white rounded-lg p-2 shadow-xl pointer-events-none"
-                        style={{
-                          bottom: `calc(${barHeight}% + ${isMobile ? '45px' : '35px'})`,
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          whiteSpace: 'nowrap',
-                          fontSize: '11px',
-                          maxWidth: '200px',
-                        }}
-                      >
-                        <div className="text-blue-300 font-semibold mb-1">
-                          {d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </div>
-                        <div className="text-white font-bold mb-1">
-                          {d.value} {wordsPreFormatted ? 'words' : 'words'}
-                        </div>
-                        {d.words && d.words.length > 0 && (
-                          <div className="text-gray-300 text-xs mt-1 border-t border-gray-700 pt-1">
-                            {formatWords(d.words).map((line, idx) => (
-                              <div key={idx}>{line}</div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Bar */}
-                    <div
-                      className="rounded-t transition-all"
-                      style={{
-                        width: `${barWidth}px`,
-                        height: `${barHeight}%`,
-                        backgroundColor: color,
-                        opacity: isHovered || isSelected ? 1 : 0.8,
-                        minHeight: d.value > 0 ? '4px' : '0', // Increased minimum height for visibility
-                        boxShadow: isHovered || isSelected ? `0 4px 8px rgba(0,0,0,0.2)` : 'none',
-                      }}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Date labels - positioned below chart area to ensure visibility */}
-          <div className="absolute" style={{ left: `${leftMargin}px`, width: `${availableWidth}px`, top: `${height - bottomMargin + 10}px`, height: `${bottomMargin - 10}px` }}>
-            <div className="relative w-full h-full">
-              {data.map((d, i) => {
-                const showLabel = i % dateLabelInterval === 0 || i === data.length - 1;
-                if (!showLabel) return null;
-                
-                const labelX = (i * totalBarWidth) + (barWidth / 2);
-                
-                return (
-                  <div
-                    key={i}
-                    className="absolute text-xs font-semibold text-gray-700"
-                    style={{
-                      left: `${labelX}px`,
-                      transform: 'translateX(-50%)',
-                      fontSize: isMobile ? '10px' : '11px',
-                      whiteSpace: 'nowrap',
-                      top: '0',
-                    }}
-                  >
-                    {isMobile
-                      ? d.date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
-                      : d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </div>
-                );
-              })}
-            </div>
           </div>
         </div>
       </div>
