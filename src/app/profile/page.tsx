@@ -3229,8 +3229,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* Inspect Analytics Modal */}
       {isInspectOpen && (
-        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl w-full max-w-3xl max-h-[85vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-start justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl w-full max-w-3xl max-h-[85vh] overflow-hidden my-4">
             <div className="flex items-center justify-between px-5 py-3 border-b">
               <h3 className="text-lg font-bold text-gray-900">Inspect Time Analytics</h3>
               <button onClick={() => setIsInspectOpen(false)} className="text-gray-500 hover:text-gray-700">✕</button>
@@ -3290,8 +3290,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* AI Assistant Modal */}
       {aiModalOpen ? (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl my-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-gray-900">Lexi - Your AI Assistant</h3>
               <div className="flex items-center gap-3">
@@ -6145,9 +6145,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       </div>
 
       {isExplorerOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsExplorerOpen(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden border border-gray-200">
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden border border-gray-200 my-4">
             {/* Header */}
             <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
               <div className="flex items-center justify-between">
@@ -6418,8 +6418,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         }
         
         return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden my-4">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 capitalize">
@@ -6591,8 +6591,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* Longest Word Modal (All Time or Today) */}
       {longWordModal.isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto my-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-gray-900">{longWordModal.title || 'Longest Word'}</h3>
               <button
@@ -6691,8 +6691,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* Top Score Modal */}
       {topScoreModal.isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto my-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-gray-900">{topScoreModal.title || 'Top Score'}</h3>
               <button
@@ -6789,8 +6789,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* Leaderboard Placements Modal */}
       {leaderboardModal.isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto my-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-gray-900">Leaderboard Placements</h3>
               <button
@@ -6967,9 +6967,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* Battle History Modal */}
       {battleModal.isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl my-4 flex flex-col max-h-[90vh]">
+            {/* Fixed Header */}
+            <div className="flex items-center justify-between p-6 pb-4 border-b border-gray-200 flex-shrink-0">
               <h3 className="text-xl font-bold text-gray-900">Battle History</h3>
               <button
                 onClick={() => setBattleModal({ isOpen: false, filter: 'all' })}
@@ -6981,8 +6982,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               </button>
             </div>
             
-            {/* Filter Buttons */}
-            <div className="flex gap-2 mb-6 flex-wrap">
+            {/* Fixed Filter Buttons */}
+            <div className="flex gap-2 p-6 pt-4 pb-4 flex-wrap flex-shrink-0 border-b border-gray-100">
               <button
                 onClick={() => setBattleModal({ ...battleModal, filter: 'all' })}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -7015,9 +7016,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               </button>
             </div>
 
-            {/* Battle History List */}
-            <div className="space-y-3">
-              {(() => {
+            {/* Scrollable Battle History List */}
+            <div className="p-6 pt-4 overflow-y-auto flex-1 min-h-0">
+              <div className="space-y-3">
+                {(() => {
                 const battles: Array<{
                   result: 'win' | 'loss';
                   opponentId: string;
@@ -7126,7 +7128,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                   );
                 });
-              })()}
+                })()}
+              </div>
             </div>
           </div>
         </div>
