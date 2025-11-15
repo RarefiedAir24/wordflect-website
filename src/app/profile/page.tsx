@@ -419,7 +419,10 @@ export default function Profile() {
           return undefined;
         };
 
-        const res = await apiService.getUserHistory({ range: mapRange(historyRange) });
+        const mappedRange = mapRange(historyRange);
+        console.log(`📊 History API call: range=${historyRange}, mapped=${mappedRange}`);
+        const res = await apiService.getUserHistory({ range: mappedRange });
+        console.log(`📊 History API response: received ${Array.isArray(res.days) ? res.days.length : 0} days`);
         const daysFromApi = Array.isArray(res.days) ? res.days.map(d => {
           // Normalize YYYY-MM-DD to local Date without timezone shifting
           const raw = String(d.date);
@@ -473,6 +476,7 @@ export default function Profile() {
         });
 
         const finalDays = reconciled;
+        console.log(`📊 History data processing: reconciled=${finalDays.length} days, range=${historyRange}`);
 
         // Filter by date range client-side as well (in case backend doesn't respect range)
         let filteredDays = finalDays;
@@ -501,11 +505,19 @@ export default function Profile() {
             // Normalize data date to start of day for comparison
             const dataDate = d.date instanceof Date ? d.date : new Date(d.date);
             const dataDateStart = new Date(dataDate.getFullYear(), dataDate.getMonth(), dataDate.getDate());
-            return dataDateStart >= start && dataDateStart <= nowStart;
+            const inRange = dataDateStart >= start && dataDateStart <= nowStart;
+            if (!inRange && finalDays.length > 0) {
+              console.log(`📊 Filtering out date: ${dataDateStart.toISOString().split('T')[0]}, start=${start.toISOString().split('T')[0]}, end=${nowStart.toISOString().split('T')[0]}`);
+            }
+            return inRange;
           });
           console.log(`📊 History filtering: range=${historyRange}, before=${finalDays.length}, after=${filteredDays.length}, start=${start.toISOString().split('T')[0]}, end=${nowStart.toISOString().split('T')[0]}`);
+          if (filteredDays.length > 0) {
+            console.log(`📊 Filtered dates: first=${filteredDays[0].date.toISOString().split('T')[0]}, last=${filteredDays[filteredDays.length - 1].date.toISOString().split('T')[0]}`);
+          }
         }
-        setHistoryDays(filteredDays.length ? filteredDays : null);
+        console.log(`📊 Setting historyDays: ${filteredDays.length} days`);
+        setHistoryDays(filteredDays.length > 0 ? filteredDays : null);
       } catch (error) {
         console.warn('Falling back to client aggregation for history:', error);
         setHistoryDays(null);
@@ -647,13 +659,17 @@ export default function Profile() {
             // Normalize data date to start of day for comparison
             const dataDate = d.date instanceof Date ? d.date : new Date(d.date);
             const dataDateStart = new Date(dataDate.getFullYear(), dataDate.getMonth(), dataDate.getDate());
-            return dataDateStart >= start && dataDateStart <= nowStart;
+            const inRange = dataDateStart >= start && dataDateStart <= nowStart;
+            return inRange;
           });
           console.log(`📊 Session words filtering: range=${sessionsRange}, before=${daysFromApi.length}, after=${filteredData.length}, start=${start.toISOString().split('T')[0]}, end=${nowStart.toISOString().split('T')[0]}`);
+          if (filteredData.length > 0) {
+            console.log(`📊 Filtered session dates: first=${filteredData[0].date.toISOString().split('T')[0]}, last=${filteredData[filteredData.length - 1].date.toISOString().split('T')[0]}`);
+          }
         }
         
         console.log('🟢 Setting session words days, length:', filteredData.length);
-        setSessionWordsDays(filteredData.length ? filteredData : null);
+        setSessionWordsDays(filteredData.length > 0 ? filteredData : null);
       } catch (error) {
         console.error('🟢 Session words error:', error);
         console.warn('Falling back to client aggregation for session words:', error);
