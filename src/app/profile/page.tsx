@@ -420,9 +420,10 @@ export default function Profile() {
         };
 
         const mappedRange = mapRange(historyRange);
-        console.log(`📊 History API call: range=${historyRange}, mapped=${mappedRange}`);
+        console.group(`📊 HISTORY GRAPH - Range Changed: ${historyRange.toUpperCase()}`);
+        console.log(`API Request: range=${mappedRange}`);
         const res = await apiService.getUserHistory({ range: mappedRange });
-        console.log(`📊 History API response: received ${Array.isArray(res.days) ? res.days.length : 0} days`);
+        console.log(`API Response: ${Array.isArray(res.days) ? res.days.length : 0} days received`);
         const daysFromApi = Array.isArray(res.days) ? res.days.map(d => {
           // Normalize YYYY-MM-DD to local Date without timezone shifting
           const raw = String(d.date);
@@ -476,7 +477,7 @@ export default function Profile() {
         });
 
         const finalDays = reconciled;
-        console.log(`📊 History data processing: reconciled=${finalDays.length} days, range=${historyRange}`);
+        console.log(`After reconciliation: ${finalDays.length} days`);
 
         // Filter by date range client-side as well (in case backend doesn't respect range)
         let filteredDays = finalDays;
@@ -505,21 +506,23 @@ export default function Profile() {
             // Normalize data date to start of day for comparison
             const dataDate = d.date instanceof Date ? d.date : new Date(d.date);
             const dataDateStart = new Date(dataDate.getFullYear(), dataDate.getMonth(), dataDate.getDate());
-            const inRange = dataDateStart >= start && dataDateStart <= nowStart;
-            if (!inRange && finalDays.length > 0) {
-              console.log(`📊 Filtering out date: ${dataDateStart.toISOString().split('T')[0]}, start=${start.toISOString().split('T')[0]}, end=${nowStart.toISOString().split('T')[0]}`);
-            }
-            return inRange;
+            return dataDateStart >= start && dataDateStart <= nowStart;
           });
-          console.log(`📊 History filtering: range=${historyRange}, before=${finalDays.length}, after=${filteredDays.length}, start=${start.toISOString().split('T')[0]}, end=${nowStart.toISOString().split('T')[0]}`);
+          console.log(`Client-side filter: ${finalDays.length} → ${filteredDays.length} days`);
+          console.log(`Date range: ${start.toISOString().split('T')[0]} to ${nowStart.toISOString().split('T')[0]}`);
           if (filteredDays.length > 0) {
-            console.log(`📊 Filtered dates: first=${filteredDays[0].date.toISOString().split('T')[0]}, last=${filteredDays[filteredDays.length - 1].date.toISOString().split('T')[0]}`);
+            console.log(`First date: ${filteredDays[0].date.toISOString().split('T')[0]}, Last date: ${filteredDays[filteredDays.length - 1].date.toISOString().split('T')[0]}`);
+          } else {
+            console.warn(`⚠️ No data in range! Check if dates are correct.`);
           }
         }
-        console.log(`📊 Setting historyDays: ${filteredDays.length} days`);
+        console.log(`✅ Setting historyDays: ${filteredDays.length} days`);
+        console.groupEnd();
         setHistoryDays(filteredDays.length > 0 ? filteredDays : null);
       } catch (error) {
-        console.warn('Falling back to client aggregation for history:', error);
+        console.error('❌ History API error:', error);
+        console.warn('Falling back to client aggregation');
+        console.groupEnd();
         setHistoryDays(null);
       }
     };
@@ -540,10 +543,6 @@ export default function Profile() {
           return;
         }
 
-        console.log('🎯 Starting session words fetch (independent of profile)');
-        console.log('🔐 Is authenticated:', apiService.isAuthenticated());
-        console.log('🔐 Token expired:', apiService.isTokenExpired());
-        
         // Map UI range to backend range param
         const mapRange = (r: typeof sessionsRange): string | undefined => {
           if (r === '7d') return '7d';
@@ -556,15 +555,11 @@ export default function Profile() {
         };
 
         const mappedRange = mapRange(sessionsRange);
-        console.log('🟢 Mapped range:', mappedRange);
+        console.group(`🟢 GAMES HISTORY GRAPH - Range Changed: ${sessionsRange.toUpperCase()}`);
+        console.log(`API Request: range=${mappedRange}`);
         
         const res = await apiService.getUserSessionWords({ range: mappedRange });
-        console.log('🟢 Session words API response:', res);
-        console.log('🟢 Session words API response type:', typeof res);
-        console.log('🟢 Session words API response keys:', Object.keys(res || {}));
-        console.log('🟢 Session words API response.days:', res.days);
-        console.log('🟢 Session words API response.days type:', typeof res.days);
-        console.log('🟢 Session words API response.days length:', Array.isArray(res.days) ? res.days.length : 'not array');
+        console.log(`API Response: ${Array.isArray(res.days) ? res.days.length : 0} days received`);
         
         const daysFromApi = Array.isArray(res.days) ? res.days.map(d => {
           // If backend sends YYYY-MM-DD, build a local Date without timezone shifts
@@ -591,8 +586,6 @@ export default function Profile() {
         // Build per-day session summaries for tooltip (time – words per session)
         try {
           const sessions = (detailedStats?.sessionHistory || []) as { startTime?: string; timestamp?: string; wordsFound?: number; words?: string[]; gamesPlayed?: number }[];
-          console.log('🔍 Session data for tooltip:', sessions.length, 'sessions');
-          console.log('🔍 Sample session:', sessions[0]);
           
           const byDay = new Map<string, { time: string; count: number; games: number }[]>();
           sessions.forEach(s => {
@@ -608,28 +601,17 @@ export default function Profile() {
             byDay.set(k, arr);
           });
           
-          console.log('🔍 Sessions by day:', byDay.size, 'days with sessions');
-          
           daysFromApi.forEach(day => {
             const k = `${day.date.getFullYear()}-${String(day.date.getMonth()+1).padStart(2,'0')}-${String(day.date.getDate()).padStart(2,'0')}`;
             const arr = byDay.get(k) || [];
             arr.sort((a,b) => a.time.localeCompare(b.time));
             day.words = arr.length ? arr.map(x => `${x.time} – ${x.count} words, ${x.games} game${x.games > 1 ? 's' : ''}`) : undefined;
-            
-            if (arr.length > 0) {
-              console.log(`🔍 Day ${k}: ${arr.length} sessions, words:`, day.words);
-            }
           });
         } catch (error) {
-          console.error('🔍 Error processing session data for tooltip:', error);
+          console.error('Error processing session data for tooltip:', error);
         }
         
-        console.log('🟢 Processed session words days:', daysFromApi);
-        console.log('🟢 Processed session words days length:', daysFromApi.length);
-        console.log('🟢 Processed session words days sample:', daysFromApi.slice(0, 3));
-        console.log('🟢 Last 3 days from API:', daysFromApi.slice(-3));
-        console.log('🟢 Today check - last day date:', daysFromApi[daysFromApi.length - 1]?.date);
-        console.log('🟢 Today check - last day value:', daysFromApi[daysFromApi.length - 1]?.value);
+        console.log(`After processing: ${daysFromApi.length} days`);
         
         // Filter by date range client-side (in case backend doesn't respect range)
         let filteredData = daysFromApi;
@@ -659,20 +641,24 @@ export default function Profile() {
             // Normalize data date to start of day for comparison
             const dataDate = d.date instanceof Date ? d.date : new Date(d.date);
             const dataDateStart = new Date(dataDate.getFullYear(), dataDate.getMonth(), dataDate.getDate());
-            const inRange = dataDateStart >= start && dataDateStart <= nowStart;
-            return inRange;
+            return dataDateStart >= start && dataDateStart <= nowStart;
           });
-          console.log(`📊 Session words filtering: range=${sessionsRange}, before=${daysFromApi.length}, after=${filteredData.length}, start=${start.toISOString().split('T')[0]}, end=${nowStart.toISOString().split('T')[0]}`);
+          console.log(`Client-side filter: ${daysFromApi.length} → ${filteredData.length} days`);
+          console.log(`Date range: ${start.toISOString().split('T')[0]} to ${nowStart.toISOString().split('T')[0]}`);
           if (filteredData.length > 0) {
-            console.log(`📊 Filtered session dates: first=${filteredData[0].date.toISOString().split('T')[0]}, last=${filteredData[filteredData.length - 1].date.toISOString().split('T')[0]}`);
+            console.log(`First date: ${filteredData[0].date.toISOString().split('T')[0]}, Last date: ${filteredData[filteredData.length - 1].date.toISOString().split('T')[0]}`);
+          } else {
+            console.warn(`⚠️ No data in range! Check if dates are correct.`);
           }
         }
         
-        console.log('🟢 Setting session words days, length:', filteredData.length);
+        console.log(`✅ Setting sessionWordsDays: ${filteredData.length} days`);
+        console.groupEnd();
         setSessionWordsDays(filteredData.length > 0 ? filteredData : null);
       } catch (error) {
-        console.error('🟢 Session words error:', error);
-        console.warn('Falling back to client aggregation for session words:', error);
+        console.error('❌ Session words API error:', error);
+        console.warn('Falling back to client aggregation');
+        console.groupEnd();
         setSessionWordsDays(null);
       }
     };
