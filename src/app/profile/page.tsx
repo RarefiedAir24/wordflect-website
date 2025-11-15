@@ -404,6 +404,7 @@ export default function Profile() {
   }, [profile, aggregated, historyDays]);
 
   useEffect(() => {
+    console.log(`🔄 History useEffect triggered: historyRange=${historyRange}`);
     const load = async () => {
       try {
         if (!apiService.isAuthenticated()) return;
@@ -531,11 +532,9 @@ export default function Profile() {
 
   // Load session words data
   useEffect(() => {
+    console.log(`🔄 Session words useEffect triggered: sessionsRange=${sessionsRange}`);
     const loadSessionWords = async () => {
       try {
-        console.log('🟢 Loading session words data...');
-        console.log('🟢 Force Vercel rebuild - session words API call - v2');
-        
         // Check authentication instead of waiting for profile
         if (!apiService.isAuthenticated()) {
           console.log('❌ Not authenticated for session words');
@@ -4230,7 +4229,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         <div className="mb-4">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-2 px-2 sm:overflow-x-visible sm:pb-0 sm:mx-0">
             {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
-              <button key={r} onClick={() => setHistoryRange(r)} className={`px-3 py-1.5 rounded text-sm border whitespace-nowrap flex-shrink-0 font-medium transition-colors ${historyRange===r? 'bg-blue-600 text-white border-blue-600':'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'}`}>
+              <button key={r} onClick={() => {
+                console.log(`🖱️ History range button clicked: ${r}`);
+                setHistoryRange(r);
+              }} className={`px-3 py-1.5 rounded text-sm border whitespace-nowrap flex-shrink-0 font-medium transition-colors ${historyRange===r? 'bg-blue-600 text-white border-blue-600':'bg-white text-blue-800 border-blue-200 hover:bg-blue-50'}`}>
                 {r.toUpperCase()}
               </button>
             ))}
@@ -4366,7 +4368,10 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         <div className="mb-4">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-2 px-2 sm:overflow-x-visible sm:pb-0 sm:mx-0">
             {(["7d","30d","90d","1y","all","custom"] as const).map(r => (
-              <button key={r} onClick={() => setSessionsRange(r)} className={`px-3 py-1.5 rounded text-sm border whitespace-nowrap flex-shrink-0 font-medium transition-colors ${sessionsRange===r? 'bg-green-600 text-white border-green-600':'bg-white text-green-800 border-green-200 hover:bg-green-50'}`}>
+              <button key={r} onClick={() => {
+                console.log(`🖱️ Sessions range button clicked: ${r}`);
+                setSessionsRange(r);
+              }} className={`px-3 py-1.5 rounded text-sm border whitespace-nowrap flex-shrink-0 font-medium transition-colors ${sessionsRange===r? 'bg-green-600 text-white border-green-600':'bg-white text-green-800 border-green-200 hover:bg-green-50'}`}>
                 {r.toUpperCase()}
               </button>
             ))}
