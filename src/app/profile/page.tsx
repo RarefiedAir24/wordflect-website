@@ -7136,9 +7136,12 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
   // Use container width on mobile, but ensure minimum width for readability
   const isMobile = containerWidth < 768;
   const calculatedWidth = data.length * 10 + leftMargin + rightMargin;
+  // Calculate width: use calculated width based on data, but ensure it fits the container
+  // On desktop, use calculated width (capped at reasonable max) so viewBox matches actual chart
+  // On mobile, cap at container width
   const width = isMobile 
     ? Math.min(containerWidth - 40, calculatedWidth) // On mobile, use container width minus padding
-    : Math.min(1024, Math.max(520, calculatedWidth)); // On desktop, use original logic
+    : Math.min(1024, Math.max(520, calculatedWidth)); // On desktop, use calculated width for proper viewBox
   const max = Math.max(1, ...data.map(d => d.value));
   
   const points = data.map((d, i) => {
@@ -7170,10 +7173,10 @@ function Sparkline({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
     <div className="w-full bg-white rounded-lg p-4 border border-gray-200" ref={containerRef}>
       <div className="w-full overflow-x-auto overflow-y-visible">
         <svg 
-          width={isMobile ? Math.max(width, containerWidth - 40) : "100%"}
+          width="100%"
           height={height}
           viewBox={`0 0 ${width} ${height}`}
-          preserveAspectRatio={isMobile ? "none" : "xMidYMid meet"}
+          preserveAspectRatio="xMidYMid meet"
           className="block cursor-pointer"
           style={{ minWidth: isMobile ? `${width}px` : 'auto' }}
           onMouseLeave={handlePointLeave}
