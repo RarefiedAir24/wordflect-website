@@ -25,7 +25,7 @@ export const API_CONFIG = {
     USER_SESSION_WORDS: '/api/proxy-session-words', // Session words data - proxy call with timezone support
     USER_THEME_ANALYTICS: '/api/proxy-theme-analytics', // Theme word analytics
     USER_THEME_DAY: '/api/proxy-theme-day', // Daily theme statistics
-    USER_TIME_ANALYTICS: '/api/proxy-time-analytics', // Time analytics - use proxy to bypass CORS
+    USER_TIME_ANALYTICS: '/user/time/analytics', // Time analytics - direct backend call (was working)
   },
   
   // Request timeout in milliseconds

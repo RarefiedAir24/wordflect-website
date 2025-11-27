@@ -208,32 +208,37 @@ class ApiService {
 
   async getTimeAnalytics(filters?: { period?: string; startDate?: string; endDate?: string; timezone?: string }): Promise<unknown> {
     try {
-      // Build URL with query parameters using proxy route
-      const url = new URL(buildApiUrl(API_CONFIG.ENDPOINTS.USER_TIME_ANALYTICS), window.location.origin);
+      // Build URL with query parameters (restore to working version approach)
+      let url = `${API_CONFIG.BASE_URL}/user/time/analytics`;
+      const params = new URLSearchParams();
       
-      if (filters?.period) url.searchParams.set('period', filters.period);
-      if (filters?.startDate) url.searchParams.set('startDate', filters.startDate);
-      if (filters?.endDate) url.searchParams.set('endDate', filters.endDate);
+      if (filters?.period) params.append('period', filters.period);
+      if (filters?.startDate) params.append('startDate', filters.startDate);
+      if (filters?.endDate) params.append('endDate', filters.endDate);
       // Send user's timezone (defaults to America/New_York if not provided)
       if (filters?.timezone) {
-        url.searchParams.set('timezone', filters.timezone);
+        params.append('timezone', filters.timezone);
       } else {
         // Try to detect timezone, fallback to EST/EDT
         try {
           const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          url.searchParams.set('timezone', tz || 'America/New_York');
+          params.append('timezone', tz || 'America/New_York');
         } catch {
-          url.searchParams.set('timezone', 'America/New_York');
+          params.append('timezone', 'America/New_York');
         }
       }
-      // Add cache-busting timestamp (use 'timestamp' to match working version)
-      url.searchParams.set('timestamp', Date.now().toString());
+      // Add cache-busting timestamp
+      params.append('timestamp', Date.now().toString());
       
-      console.log('🔍 getTimeAnalytics - Using proxy route:', url.toString());
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      
+      console.log('🔍 getTimeAnalytics - API_CONFIG.BASE_URL:', API_CONFIG.BASE_URL);
+      console.log('🔍 getTimeAnalytics - Full URL:', url);
       console.log('🔍 getTimeAnalytics - Filters:', filters);
-      console.log('🔍 getTimeAnalytics - Auth headers:', this.getAuthHeaders());
       
-      const response = await this.makeRequest(url.toString(), {
+      const response = await this.makeRequest(url, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
