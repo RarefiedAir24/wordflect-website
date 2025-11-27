@@ -845,6 +845,31 @@ export default function Profile() {
         }
 
         const userProfile = await apiService.getUserProfile();
+        
+        // SECURITY: Verify the returned profile matches the authenticated user
+        const storedUser = apiService.getStoredUser();
+        if (storedUser && userProfile.id !== storedUser.id) {
+          console.error('🚨 SECURITY ALERT: Profile ID mismatch!', {
+            storedUserId: storedUser.id,
+            storedUserEmail: storedUser.email,
+            returnedProfileId: userProfile.id,
+            returnedProfileEmail: userProfile.email,
+            returnedProfileUsername: userProfile.username
+          });
+          // Clear auth data and redirect to sign in
+          await apiService.signOut();
+          router.push("/signin");
+          setLoading(false);
+          setError("Authentication error: Profile mismatch. Please sign in again.");
+          return;
+        }
+        
+        console.log('✅ Profile verified:', {
+          profileId: userProfile.id,
+          profileEmail: userProfile.email,
+          profileUsername: userProfile.username,
+          matchesStoredUser: storedUser ? userProfile.id === storedUser.id : 'no stored user'
+        });
         console.log('Profile data:', userProfile);
         console.log('Profile image URL:', userProfile.profileImageUrl);
         console.log('Selected frame:', userProfile.selectedFrame);
@@ -945,6 +970,22 @@ export default function Profile() {
             }
             // Fetch fresh profile data
             const userProfile = await apiService.getUserProfile();
+            
+            // SECURITY: Verify the returned profile matches the authenticated user
+            const storedUser = apiService.getStoredUser();
+            if (storedUser && userProfile.id !== storedUser.id) {
+              console.error('🚨 SECURITY ALERT: Profile ID mismatch in stats update!', {
+                storedUserId: storedUser.id,
+                storedUserEmail: storedUser.email,
+                returnedProfileId: userProfile.id,
+                returnedProfileEmail: userProfile.email
+              });
+              // Clear auth data and redirect to sign in
+              await apiService.signOut();
+              router.push("/signin");
+              return;
+            }
+            
             setProfile(userProfile);
             setLoading(false);
             checkLexiPopupVisibility();
@@ -981,6 +1022,7 @@ export default function Profile() {
     setIsLoadingCurrencyHistory(true);
     try {
       // TODO: getCurrencyHistory not yet implemented in apiService
+      // const data = await apiService.getCurrencyHistory(type, 100);
       setCurrencyHistory(null);
       console.log('💰 Currency history: Not yet implemented');
     } catch (error) {
@@ -2220,8 +2262,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       gamesPlayed: 0,
       avgPerGame: 0,
       performance: 0,
-      status: 'No data',
-      label: getLocalAmPmLabel(period) // Provide default label
+      status: 'No data'
     };
   };
 

@@ -399,6 +399,17 @@ class ApiService {
 
   async getUserProfile(): Promise<UserProfile> {
     try {
+      const storedUser = this.getStoredUser();
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      
+      console.log('🔐 getUserProfile request:', {
+        hasToken: !!token,
+        tokenLength: token?.length,
+        storedUserId: storedUser?.id,
+        storedUserEmail: storedUser?.email,
+        endpoint: API_CONFIG.ENDPOINTS.USER_PROFILE
+      });
+      
       const response = await this.makeRequest(buildApiUrl(API_CONFIG.ENDPOINTS.USER_PROFILE), {
         method: 'GET',
         headers: this.getAuthHeaders()
@@ -417,7 +428,17 @@ class ApiService {
         throw new Error(errorData.message || 'Failed to fetch user profile');
       }
 
-      return await response.json();
+      const profile = await response.json();
+      
+      console.log('🔐 getUserProfile response:', {
+        returnedProfileId: profile.id,
+        returnedProfileEmail: profile.email,
+        returnedProfileUsername: profile.username,
+        storedUserId: storedUser?.id,
+        matches: storedUser ? profile.id === storedUser.id : 'no stored user'
+      });
+      
+      return profile;
     } catch (error) {
       console.error('Get user profile error:', error);
       throw error;
