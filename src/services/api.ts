@@ -696,6 +696,62 @@ class ApiService {
       throw error;
     }
   }
+
+  async getCurrencyHistory(type: 'flectcoins' | 'gems' | 'all' = 'all', limit: number = 100): Promise<{
+    transactions: Array<{
+      id: string;
+      type: 'flectcoins' | 'gems';
+      amount: number;
+      reason: string;
+      timestamp: string;
+      metadata?: Record<string, unknown>;
+    }>;
+    summary: {
+      flectcoins: { earned: number; spent: number; net: number };
+      gems: { earned: number; spent: number; net: number };
+    };
+    total: number;
+  }> {
+    try {
+      if (this.isTokenExpired()) {
+        console.warn('Token is expired, clearing auth data');
+        await this.signOut();
+        throw new Error('Session expired. Please sign in again.');
+      }
+
+      const url = new URL(buildApiUrl(API_CONFIG.ENDPOINTS.USER_CURRENCY_HISTORY), window.location.origin);
+      url.searchParams.set('type', type);
+      url.searchParams.set('limit', limit.toString());
+
+      const fullUrl = url.toString();
+      console.log('📤 Sending getCurrencyHistory request:', { url: fullUrl, type, limit });
+      
+      const response = await this.makeRequest(fullUrl, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      
+      console.log('📥 getCurrencyHistory response status:', response.status);
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          console.warn('401 response, clearing auth data');
+          await this.signOut();
+          throw new Error('Session expired. Please sign in again.');
+        }
+        const errorData = await response.json();
+        console.error('❌ getCurrencyHistory error response:', errorData);
+        throw new Error(errorData.message || 'Failed to fetch currency history');
+      }
+      
+      const result = await response.json();
+      console.log('✅ getCurrencyHistory success:', result);
+      return result;
+    } catch (error) {
+      console.error('Get currency history error:', error);
+      throw error;
+    }
+  }
 }
 
 export const apiService = new ApiService(); 

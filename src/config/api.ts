@@ -26,6 +26,7 @@ export const API_CONFIG = {
     USER_THEME_ANALYTICS: '/api/proxy-theme-analytics', // Theme word analytics
     USER_THEME_DAY: '/api/proxy-theme-day', // Daily theme statistics
     USER_TIME_ANALYTICS: '/user/time/analytics', // Time analytics - direct backend call (was working)
+    USER_CURRENCY_HISTORY: '/api/proxy-currency-history', // Currency transaction history
   },
   
   // Request timeout in milliseconds

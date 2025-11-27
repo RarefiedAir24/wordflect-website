@@ -1021,10 +1021,15 @@ export default function Profile() {
     console.log('💰 Fetching currency history for type:', type);
     setIsLoadingCurrencyHistory(true);
     try {
-      // TODO: getCurrencyHistory not yet implemented in apiService
-      // const data = await apiService.getCurrencyHistory(type, 100);
-      setCurrencyHistory(null);
-      console.log('💰 Currency history: Not yet implemented');
+      const data = await apiService.getCurrencyHistory(type, 100);
+      setCurrencyHistory({
+        transactions: data.transactions || [],
+        summary: data.summary || {
+          flectcoins: { earned: 0, spent: 0, net: 0 },
+          gems: { earned: 0, spent: 0, net: 0 }
+        }
+      });
+      console.log('💰 Currency history loaded:', data);
     } catch (error) {
       console.error('❌ Failed to fetch currency history:', error);
       setCurrencyHistory(null);
@@ -3603,60 +3608,103 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 <button
                   onClick={() => {
                     // Calculate top score history - show current top score + next 2 highest scores
-                    // sessionHistory is not available on UserProfile
-                    const sessionHistory: Array<{ score?: number; startTime?: string; endTime?: string }> = [];
+                    // Get session history from detailedStats or timeAnalytics (same logic as usageMetrics)
+                    type TAPeriod = { sessions?: { startTime?: string; timestamp?: string; duration?: number; score?: number }[]; totalPlayTime?: number };
+                    const ta = (timeAnalytics as unknown as { timePeriods?: Record<string, TAPeriod>; summary?: { totalGamesAcrossPeriods?: number } }) || {};
+                    const sessionsFromTA: Array<{ score?: number; startTime?: string; endTime?: string; timestamp?: string }> = ta.timePeriods 
+                      ? Object.values(ta.timePeriods).flatMap(p => (p?.sessions || []) as Array<{ score?: number; startTime?: string; endTime?: string; timestamp?: string }>)
+                      : [];
+                    const sessionHistory: Array<{ score?: number; startTime?: string; endTime?: string; timestamp?: string }> = sessionsFromTA.length > 0
+                      ? sessionsFromTA
+                      : (detailedStats?.sessionHistory || []) as Array<{ score?: number; startTime?: string; endTime?: string; timestamp?: string }>;
                     
                     // Filter sessions with valid scores and dates
                     const validSessions = sessionHistory
-                      .filter((session: { score?: number; startTime?: string; endTime?: string }) => {
+                      .filter((session: { score?: number; startTime?: string; endTime?: string; timestamp?: string }) => {
                         const score = session.score || 0;
-                        const date = session.startTime || session.endTime || '';
+                        const date = session.startTime || session.endTime || session.timestamp || '';
                         return score > 0 && date;
                       });
                     
-                    // Create a map of unique scores to their earliest achievement date
+                    // Create a map of unique scores to their most recent achievement date
                     const scoreToDateMap = new Map<number, string>();
                     
-                    validSessions.forEach((session: { score?: number; startTime?: string; endTime?: string }) => {
+                    validSessions.forEach((session: { score?: number; startTime?: string; endTime?: string; timestamp?: string }) => {
                       const score = session.score || 0;
-                      const date = session.startTime || session.endTime || '';
+                      const date = session.startTime || session.endTime || session.timestamp || '';
                       
                       if (!scoreToDateMap.has(score)) {
                         // First time we see this score, record it
                         scoreToDateMap.set(score, date);
                       } else {
-                        // If we've seen this score before, keep the earliest date
+                        // If we've seen this score before, keep the most recent date
                         const existingDate = scoreToDateMap.get(score) || '';
-                        if (date && existingDate && new Date(date).getTime() < new Date(existingDate).getTime()) {
+                        if (date && existingDate && new Date(date).getTime() > new Date(existingDate).getTime()) {
                           scoreToDateMap.set(score, date);
                         }
                       }
                     });
                     
-                    // Get all unique scores and sort in descending order
-                    const uniqueScores = Array.from(scoreToDateMap.keys()).sort((a, b) => b - a);
+                    // Get the current top score (use profile.topScore as source of truth)
+                    const currentTopScore = profile.topScore || 0;
                     
-                    // Get the current top score (should be the first one, but use profile.topScore as source of truth)
-                    const currentTopScore = profile.topScore || (uniqueScores.length > 0 ? uniqueScores[0] : 0);
-                    
-                    // Find the date for the current top score
+                    // Find the most recent date for the current top score
                     let topScoreDate = scoreToDateMap.get(currentTopScore) || null;
                     
-                    // Fallback: if top score not in map, search validSessions directly
+                    // Fallback: if top score not in map, search validSessions directly for most recent
                     if (!topScoreDate) {
-                      const topScoreSession = validSessions.find((session: { score?: number }) => 
+                      const topScoreSessions = validSessions.filter((session: { score?: number }) => 
                         session.score === currentTopScore
                       );
-                      topScoreDate = topScoreSession?.startTime || (topScoreSession as { endTime?: string })?.endTime || null;
+                      if (topScoreSessions.length > 0) {
+                        // Sort by date descending to get most recent
+                        topScoreSessions.sort((a, b) => {
+                          const dateA = (a as { startTime?: string; endTime?: string; timestamp?: string }).startTime || 
+                                       (a as { endTime?: string; timestamp?: string }).endTime || 
+                                       (a as { timestamp?: string }).timestamp || '';
+                          const dateB = (b as { startTime?: string; endTime?: string; timestamp?: string }).startTime || 
+                                       (b as { endTime?: string; timestamp?: string }).endTime || 
+                                       (b as { timestamp?: string }).timestamp || '';
+                          return new Date(dateB).getTime() - new Date(dateA).getTime();
+                        });
+                        const mostRecent = topScoreSessions[0];
+                        topScoreDate = (mostRecent as { startTime?: string; endTime?: string; timestamp?: string }).startTime || 
+                                      (mostRecent as { endTime?: string; timestamp?: string }).endTime || 
+                                      (mostRecent as { timestamp?: string }).timestamp || null;
+                      }
                     }
                     
-                    // Get the next 2 highest scores (excluding the current top score)
-                    const nextHighestScores = uniqueScores
-                      .filter(score => score < currentTopScore)
-                      .slice(0, 2)
-                      .map(score => ({
-                        score,
-                        date: scoreToDateMap.get(score) || '',
+                    // Get all unique scores and sort in descending order by score
+                    const uniqueScores = Array.from(scoreToDateMap.keys()).sort((a, b) => b - a);
+                    
+                    // Get the most recent top scores (sorted by date, most recent first)
+                    // Include all scores that are high scores (top 10% or top 5 scores, whichever is larger)
+                    const sortedByDate = validSessions
+                      .filter((session: { score?: number }) => {
+                        const score = session.score || 0;
+                        return score > 0;
+                      })
+                      .sort((a, b) => {
+                        const dateA = (a as { startTime?: string; endTime?: string; timestamp?: string }).startTime || 
+                                     (a as { endTime?: string; timestamp?: string }).endTime || 
+                                     (a as { timestamp?: string }).timestamp || '';
+                        const dateB = (b as { startTime?: string; endTime?: string; timestamp?: string }).startTime || 
+                                     (b as { endTime?: string; timestamp?: string }).endTime || 
+                                     (b as { timestamp?: string }).timestamp || '';
+                        return new Date(dateB).getTime() - new Date(dateA).getTime();
+                      })
+                      .slice(0, 10); // Get top 10 most recent scores
+                    
+                    // Get unique high scores from recent sessions (excluding current top score)
+                    const recentHighScores = sortedByDate
+                      .filter((session: { score?: number }) => {
+                        const score = session.score || 0;
+                        return score < currentTopScore && score > 0;
+                      })
+                      .slice(0, 5) // Show up to 5 most recent high scores
+                      .map((session: { score?: number; startTime?: string; endTime?: string; timestamp?: string }) => ({
+                        score: session.score || 0,
+                        date: session.startTime || session.endTime || session.timestamp || '',
                         replacedBy: undefined,
                         replacedDate: undefined,
                       }));
@@ -3666,7 +3714,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                       score: currentTopScore,
                       date: topScoreDate,
                       title: 'Top Score (All Time)',
-                      history: nextHighestScores, // Show next 2 highest scores
+                      history: recentHighScores, // Show most recent high scores
                     });
                   }}
                   className="mt-2 text-xs text-emerald-600 hover:text-emerald-700 font-medium cursor-pointer"
@@ -6660,14 +6708,14 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           summary={
             currencyModal.type === 'flectcoins'
               ? {
-                  earned: currencyHistory?.summary.flectcoins.earned || 0,
-                  spent: currencyHistory?.summary.flectcoins.spent || 0,
-                  net: currencyHistory?.summary.flectcoins.net || 0,
+                  earned: currencyHistory?.summary?.flectcoins?.earned || 0,
+                  spent: currencyHistory?.summary?.flectcoins?.spent || 0,
+                  net: currencyHistory?.summary?.flectcoins?.net || 0,
                 }
               : {
-                  earned: currencyHistory?.summary.gems.earned || 0,
-                  spent: currencyHistory?.summary.gems.spent || 0,
-                  net: currencyHistory?.summary.gems.net || 0,
+                  earned: currencyHistory?.summary?.gems?.earned || 0,
+                  spent: currencyHistory?.summary?.gems?.spent || 0,
+                  net: currencyHistory?.summary?.gems?.net || 0,
                 }
           }
           isLoading={isLoadingCurrencyHistory}
