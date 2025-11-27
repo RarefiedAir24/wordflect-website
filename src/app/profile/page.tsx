@@ -184,10 +184,11 @@ export default function Profile() {
     const now = new Date();
     const start = (() => {
       const d = new Date(now);
-      if (historyRange === '7d') { d.setDate(d.getDate() - 6); return d; }
-      if (historyRange === '30d') { d.setDate(d.getDate() - 29); return d; } // 30 days including today
-      if (historyRange === '90d') { d.setDate(d.getDate() - 89); return d; } // 90 days including today
-      if (historyRange === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
+      // Use UTC for date calculations to match backend
+      if (historyRange === '7d') { d.setUTCDate(d.getUTCDate() - 6); return d; }
+      if (historyRange === '30d') { d.setUTCDate(d.getUTCDate() - 29); return d; } // 30 days including today
+      if (historyRange === '90d') { d.setUTCDate(d.getUTCDate() - 89); return d; } // 90 days including today
+      if (historyRange === '1y') { d.setUTCFullYear(d.getUTCFullYear() - 1); return d; }
       if (historyRange === 'all') { 
         // Find the earliest date from user's words
         const earliestDate = entries.length > 0 
@@ -196,7 +197,7 @@ export default function Profile() {
         return earliestDate;
       }
       if (historyRange === 'custom' && customHistoryDateRange.start && customHistoryDateRange.end) {
-        return new Date(customHistoryDateRange.start + 'T00:00:00');
+        return new Date(customHistoryDateRange.start + 'T00:00:00Z'); // Use UTC
       }
       return new Date(0);
     })();
@@ -204,13 +205,14 @@ export default function Profile() {
     // Determine the end date based on range
     const endDate = (() => {
       if (historyRange === 'custom' && customHistoryDateRange.end) {
-        return new Date(customHistoryDateRange.end + 'T23:59:59');
+        return new Date(customHistoryDateRange.end + 'T23:59:59Z'); // Use UTC
       }
       return now;
     })();
     
 
-    const keyOf = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    // Use UTC for date keys to match backend (which uses UTC day boundaries)
+    const keyOf = (d: Date) => `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
     const dayCounts = new Map<string, { date: Date; count: number; avgLenSum: number; lenCount: number; words: string[] }>();
     
     // Track words that have been seen before to only count "new" words
@@ -228,7 +230,8 @@ export default function Profile() {
         seenWords.add(e.word);
         
         const k = keyOf(e.date);
-        if (!dayCounts.has(k)) dayCounts.set(k, { date: new Date(e.date.getFullYear(), e.date.getMonth(), e.date.getDate()), count: 0, avgLenSum: 0, lenCount: 0, words: [] });
+        // Use UTC for date creation to match backend
+        if (!dayCounts.has(k)) dayCounts.set(k, { date: new Date(Date.UTC(e.date.getUTCFullYear(), e.date.getUTCMonth(), e.date.getUTCDate())), count: 0, avgLenSum: 0, lenCount: 0, words: [] });
         const rec = dayCounts.get(k)!;
         rec.count += 1;
         rec.avgLenSum += e.word.length;
@@ -249,7 +252,8 @@ export default function Profile() {
         avgLen: rec && rec.lenCount ? rec.avgLenSum / rec.lenCount : undefined,
         words: rec?.words || []
       });
-      cursor.setDate(cursor.getDate() + 1);
+      // Use UTC for date iteration to match backend
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
     }
 
     const values = days.map(d => d.value);
@@ -452,11 +456,13 @@ export default function Profile() {
         const uniqDays = profile ? aggregated(profile).days : [];
         const uniqMap = new Map<string, { value: number; words?: string[] }>();
         uniqDays.forEach(ud => {
-          const k = `${ud.date.getFullYear()}-${String(ud.date.getMonth()+1).padStart(2,'0')}-${String(ud.date.getDate()).padStart(2,'0')}`;
+          // Use UTC for date keys to match backend
+          const k = `${ud.date.getUTCFullYear()}-${String(ud.date.getUTCMonth()+1).padStart(2,'0')}-${String(ud.date.getUTCDate()).padStart(2,'0')}`;
           uniqMap.set(k, { value: ud.value, words: ud.words });
         });
         const reconciled = daysFromApi.map(day => {
-          const k = `${day.date.getFullYear()}-${String(day.date.getMonth()+1).padStart(2,'0')}-${String(day.date.getDate()).padStart(2,'0')}`;
+          // Use UTC for date keys to match backend
+          const k = `${day.date.getUTCFullYear()}-${String(day.date.getUTCMonth()+1).padStart(2,'0')}-${String(day.date.getUTCDate()).padStart(2,'0')}`;
           const uniq = uniqMap.get(k);
           const hasBackendWords = Array.isArray(day.words);
           // Compute avgLen if missing using available words arrays
@@ -490,21 +496,22 @@ export default function Profile() {
         } else {
           // Filter by range client-side as fallback
           const now = new Date();
-          // Normalize now to start of today for comparison
-          const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          // Normalize now to start of today in UTC for comparison (to match backend)
+          const nowStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
           const start = (() => {
             const d = new Date(nowStart);
-            if (historyRange === '7d') { d.setDate(d.getDate() - 6); return d; }
-            if (historyRange === '30d') { d.setDate(d.getDate() - 29); return d; }
-            if (historyRange === '90d') { d.setDate(d.getDate() - 89); return d; }
-            if (historyRange === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
+            // Use UTC for date calculations to match backend
+            if (historyRange === '7d') { d.setUTCDate(d.getUTCDate() - 6); return d; }
+            if (historyRange === '30d') { d.setUTCDate(d.getUTCDate() - 29); return d; }
+            if (historyRange === '90d') { d.setUTCDate(d.getUTCDate() - 89); return d; }
+            if (historyRange === '1y') { d.setUTCFullYear(d.getUTCFullYear() - 1); return d; }
             if (historyRange === 'all') return new Date(0);
             return new Date(0);
           })();
           filteredDays = finalDays.filter(d => {
-            // Normalize data date to start of day for comparison
+            // Normalize data date to start of day in UTC for comparison (to match backend)
             const dataDate = d.date instanceof Date ? d.date : new Date(d.date);
-            const dataDateStart = new Date(dataDate.getFullYear(), dataDate.getMonth(), dataDate.getDate());
+            const dataDateStart = new Date(Date.UTC(dataDate.getUTCFullYear(), dataDate.getUTCMonth(), dataDate.getUTCDate()));
             return dataDateStart >= start && dataDateStart <= nowStart;
           });
           console.log(`Client-side filter: ${finalDays.length} → ${filteredDays.length} days`);
@@ -582,10 +589,12 @@ export default function Profile() {
             const y = Number(parts[0]);
             const m = Number(parts[1]) - 1;
             const dd = Number(parts[2]);
-            normalized = new Date(y, m, dd);
+            // Use UTC for date parsing to match backend
+            normalized = new Date(Date.UTC(y, m, dd));
           } else {
             const dt = new Date(d.date);
-            normalized = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+            // Use UTC for date normalization to match backend
+            normalized = new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()));
           }
           const day = {
             date: normalized,
@@ -603,9 +612,10 @@ export default function Profile() {
           sessions.forEach(s => {
             const start = new Date(s.startTime || s.timestamp || '');
             if (isNaN(start.getTime())) return;
-            const k = `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,'0')}-${String(start.getDate()).padStart(2,'0')}`;
-            const hh = String(start.getHours()).padStart(2, '0');
-            const mm = String(start.getMinutes()).padStart(2, '0');
+            // Use UTC for date keys to match backend
+            const k = `${start.getUTCFullYear()}-${String(start.getUTCMonth()+1).padStart(2,'0')}-${String(start.getUTCDate()).padStart(2,'0')}`;
+            const hh = String(start.getUTCHours()).padStart(2, '0');
+            const mm = String(start.getUTCMinutes()).padStart(2, '0');
             const count = typeof s.wordsFound === 'number' ? s.wordsFound : (Array.isArray(s.words) ? s.words.length : 0);
             const games = typeof s.gamesPlayed === 'number' ? s.gamesPlayed : 1; // Default to 1 game per session
             const arr = byDay.get(k) || [];
@@ -614,7 +624,8 @@ export default function Profile() {
           });
           
           daysFromApi.forEach(day => {
-            const k = `${day.date.getFullYear()}-${String(day.date.getMonth()+1).padStart(2,'0')}-${String(day.date.getDate()).padStart(2,'0')}`;
+            // Use UTC for date keys to match backend
+            const k = `${day.date.getUTCFullYear()}-${String(day.date.getUTCMonth()+1).padStart(2,'0')}-${String(day.date.getUTCDate()).padStart(2,'0')}`;
             const arr = byDay.get(k) || [];
             arr.sort((a,b) => a.time.localeCompare(b.time));
             day.words = arr.length ? arr.map(x => `${x.time} – ${x.count} words, ${x.games} game${x.games > 1 ? 's' : ''}`) : undefined;
@@ -638,21 +649,22 @@ export default function Profile() {
         } else {
           // Filter by range client-side as fallback
           const now = new Date();
-          // Normalize now to start of today for comparison
-          const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          // Normalize now to start of today in UTC for comparison (to match backend)
+          const nowStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
           const start = (() => {
             const d = new Date(nowStart);
-            if (sessionsRange === '7d') { d.setDate(d.getDate() - 6); return d; }
-            if (sessionsRange === '30d') { d.setDate(d.getDate() - 29); return d; }
-            if (sessionsRange === '90d') { d.setDate(d.getDate() - 89); return d; }
-            if (sessionsRange === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
+            // Use UTC for date calculations to match backend
+            if (sessionsRange === '7d') { d.setUTCDate(d.getUTCDate() - 6); return d; }
+            if (sessionsRange === '30d') { d.setUTCDate(d.getUTCDate() - 29); return d; }
+            if (sessionsRange === '90d') { d.setUTCDate(d.getUTCDate() - 89); return d; }
+            if (sessionsRange === '1y') { d.setUTCFullYear(d.getUTCFullYear() - 1); return d; }
             if (sessionsRange === 'all') return new Date(0);
             return new Date(0);
           })();
           filteredData = daysFromApi.filter(d => {
-            // Normalize data date to start of day for comparison
+            // Normalize data date to start of day in UTC for comparison (to match backend)
             const dataDate = d.date instanceof Date ? d.date : new Date(d.date);
-            const dataDateStart = new Date(dataDate.getFullYear(), dataDate.getMonth(), dataDate.getDate());
+            const dataDateStart = new Date(Date.UTC(dataDate.getUTCFullYear(), dataDate.getUTCMonth(), dataDate.getUTCDate()));
             return dataDateStart >= start && dataDateStart <= nowStart;
           });
           console.log(`Client-side filter: ${daysFromApi.length} → ${filteredData.length} days`);
@@ -714,11 +726,12 @@ export default function Profile() {
                 const sessionDate = new Date(sessionTime);
                 if (isNaN(sessionDate.getTime())) return;
                 
-                const dayKey = `${sessionDate.getFullYear()}-${String(sessionDate.getMonth()+1).padStart(2,'0')}-${String(sessionDate.getDate()).padStart(2,'0')}`;
-                const dayDate = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
+                // Use UTC for date keys to match backend
+                const dayKey = `${sessionDate.getUTCFullYear()}-${String(sessionDate.getUTCMonth()+1).padStart(2,'0')}-${String(sessionDate.getUTCDate()).padStart(2,'0')}`;
+                const dayDate = new Date(Date.UTC(sessionDate.getUTCFullYear(), sessionDate.getUTCMonth(), sessionDate.getUTCDate()));
                 
-                // Check if within range
-                const dayDateStart = new Date(dayDate.getFullYear(), dayDate.getMonth(), dayDate.getDate());
+                // Check if within range (using UTC dates to match backend)
+                const dayDateStart = new Date(Date.UTC(dayDate.getUTCFullYear(), dayDate.getUTCMonth(), dayDate.getUTCDate()));
                 if (dayDateStart < start || dayDateStart > nowStart) return;
                 
                 if (!dayMap.has(dayKey)) {
@@ -733,14 +746,16 @@ export default function Profile() {
               const filledDays: Array<{ date: Date; value: number; words?: string[] }> = [];
               const cursor = new Date(start);
               while (cursor <= nowStart) {
-                const dayKey = `${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;
+                // Use UTC for date keys to match backend
+                const dayKey = `${cursor.getUTCFullYear()}-${String(cursor.getUTCMonth()+1).padStart(2,'0')}-${String(cursor.getUTCDate()).padStart(2,'0')}`;
                 const existing = dayMap.get(dayKey);
                 filledDays.push(existing || { 
                   date: new Date(cursor), 
                   value: 0,
                   words: []
                 });
-                cursor.setDate(cursor.getDate() + 1);
+                // Use UTC for date iteration to match backend
+                cursor.setUTCDate(cursor.getUTCDate() + 1);
               }
               
               filteredData = filledDays;
