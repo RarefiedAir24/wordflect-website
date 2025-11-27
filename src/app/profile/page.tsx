@@ -1014,7 +1014,7 @@ export default function Profile() {
         statsUpdateTimeoutRef.current = null;
       }
     };
-  }, [router, fetchProfile]);
+  }, [router, fetchProfile, checkLexiPopupVisibility]);
   
   // Fetch currency history function - trigger Vercel deployment
   const fetchCurrencyHistory = useCallback(async (type: 'flectcoins' | 'gems') => {
@@ -3673,9 +3673,6 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                                       (mostRecent as { timestamp?: string }).timestamp || null;
                       }
                     }
-                    
-                    // Get all unique scores and sort in descending order by score
-                    const uniqueScores = Array.from(scoreToDateMap.keys()).sort((a, b) => b - a);
                     
                     // Get the most recent top scores (sorted by date, most recent first)
                     // Include all scores that are high scores (top 10% or top 5 scores, whichever is larger)
