@@ -14,19 +14,30 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: 'Authorization header required' }, { status: 401 });
     }
 
+    // Forward query parameters to backend
+    const searchParams = request.nextUrl.searchParams;
+    const queryString = searchParams.toString();
+    const backendUrl = queryString 
+      ? `${API_BASE_URL}/user/time/analytics?${queryString}`
+      : `${API_BASE_URL}/user/time/analytics`;
+    
+    console.log('📤 Proxy time analytics: Forwarding to:', backendUrl);
+
     // Build pass-through headers and force no-store
-    const headers: Record<string, string> = Object.fromEntries(request.headers.entries());
-    headers['Content-Type'] = 'application/json';
-    headers['Cache-Control'] = 'no-store';
-    headers['Authorization'] = authHeader;
-    headers['authorization'] = authHeader;
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
+      'Authorization': authHeader,
+    };
 
     // Forward the request to the backend API
-    const response = await fetch(`${API_BASE_URL}/user/time/analytics`, {
+    const response = await fetch(backendUrl, {
       method: 'GET',
       headers,
       cache: 'no-store'
     });
+    
+    console.log('📥 Proxy time analytics: Response status:', response.status);
 
     const data = await response.json();
 
