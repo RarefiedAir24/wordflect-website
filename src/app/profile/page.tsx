@@ -496,22 +496,22 @@ export default function Profile() {
         } else {
           // Filter by range client-side as fallback
           const now = new Date();
-          // Normalize now to start of today in UTC for comparison (to match backend)
-          const nowStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+          // Use local time for "today" to match game words history graph (EDT/EST)
+          const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
           const start = (() => {
             const d = new Date(nowStart);
-            // Use UTC for date calculations to match backend
-            if (historyRange === '7d') { d.setUTCDate(d.getUTCDate() - 6); return d; }
-            if (historyRange === '30d') { d.setUTCDate(d.getUTCDate() - 29); return d; }
-            if (historyRange === '90d') { d.setUTCDate(d.getUTCDate() - 89); return d; }
-            if (historyRange === '1y') { d.setUTCFullYear(d.getUTCFullYear() - 1); return d; }
+            // Use local date calculations to match game words history
+            if (historyRange === '7d') { d.setDate(d.getDate() - 6); return d; }
+            if (historyRange === '30d') { d.setDate(d.getDate() - 29); return d; }
+            if (historyRange === '90d') { d.setDate(d.getDate() - 89); return d; }
+            if (historyRange === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
             if (historyRange === 'all') return new Date(0);
             return new Date(0);
           })();
           filteredDays = finalDays.filter(d => {
-            // Normalize data date to start of day in UTC for comparison (to match backend)
+            // Normalize data date to start of day in local time for comparison (to match game words history)
             const dataDate = d.date instanceof Date ? d.date : new Date(d.date);
-            const dataDateStart = new Date(Date.UTC(dataDate.getUTCFullYear(), dataDate.getUTCMonth(), dataDate.getUTCDate()));
+            const dataDateStart = new Date(dataDate.getFullYear(), dataDate.getMonth(), dataDate.getDate());
             return dataDateStart >= start && dataDateStart <= nowStart;
           });
           console.log(`Client-side filter: ${finalDays.length} → ${filteredDays.length} days`);
