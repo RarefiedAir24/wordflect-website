@@ -2201,15 +2201,24 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
   // Helper function to get time period data
   const getTimePeriodData = (period: string) => {
-    if (!timeAnalytics || !timeAnalytics.timePeriods) {
+    console.log(`🔍 getTimePeriodData called for ${period}`);
+    console.log(`🔍 timeAnalytics exists:`, !!timeAnalytics);
+    console.log(`🔍 timeAnalytics.timePeriods exists:`, !!(timeAnalytics as Record<string, unknown>)?.timePeriods);
+    
+    if (!timeAnalytics || !(timeAnalytics as Record<string, unknown>).timePeriods) {
       console.log('❌ No time analytics or timePeriods data available');
+      console.log('❌ timeAnalytics:', timeAnalytics);
       return null;
     }
 
     // Backend returns timePeriods as an object with period keys, not an array
-    const periodData = (timeAnalytics.timePeriods as Record<string, unknown>)[period];
+    const timePeriods = (timeAnalytics as Record<string, unknown>).timePeriods as Record<string, unknown>;
+    console.log(`🔍 Available period keys:`, Object.keys(timePeriods || {}));
+    const periodData = timePeriods[period];
     
     console.log(`🔍 Getting time period data for ${period}:`, periodData);
+    console.log(`🔍 Period data type:`, typeof periodData);
+    console.log(`🔍 Period data is truthy:`, !!periodData);
     
     if (periodData) {
       const data = periodData as Record<string, unknown>;
