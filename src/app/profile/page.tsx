@@ -2220,7 +2220,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       gamesPlayed: 0,
       avgPerGame: 0,
       performance: 0,
-      status: 'No data'
+      status: 'No data',
+      label: getLocalAmPmLabel(period) // Provide default label
     };
   };
 
