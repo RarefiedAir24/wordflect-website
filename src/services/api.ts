@@ -214,6 +214,7 @@ class ApiService {
       if (filters?.period) url.searchParams.set('period', filters.period);
       if (filters?.startDate) url.searchParams.set('startDate', filters.startDate);
       if (filters?.endDate) url.searchParams.set('endDate', filters.endDate);
+      // Send user's timezone (defaults to America/New_York if not provided)
       if (filters?.timezone) {
         url.searchParams.set('timezone', filters.timezone);
       } else {
@@ -225,8 +226,8 @@ class ApiService {
           url.searchParams.set('timezone', 'America/New_York');
         }
       }
-      // Cache-busting timestamp to ensure fresh data after games
-      url.searchParams.set('ts', Date.now().toString());
+      // Add cache-busting timestamp (use 'timestamp' to match working version)
+      url.searchParams.set('timestamp', Date.now().toString());
       
       console.log('🔍 getTimeAnalytics - Using proxy route:', url.toString());
       console.log('🔍 getTimeAnalytics - Filters:', filters);
