@@ -7420,6 +7420,33 @@ function Bar({ title, value, color, total, onClick }: { title: string; value: nu
   );
 }
 
+// Helper function to format dates using UTC components (to avoid timezone shifts)
+function formatUTCDate(date: Date, options: { month?: 'short' | 'numeric' | 'long'; day?: 'numeric'; year?: 'numeric' }): string {
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = date.getUTCMonth();
+  const day = date.getUTCDate();
+  const year = date.getUTCFullYear();
+  
+  const parts: string[] = [];
+  if (options.month === 'short') {
+    parts.push(monthNames[month]);
+  } else if (options.month === 'numeric') {
+    parts.push(String(month + 1));
+  }
+  if (options.day === 'numeric') {
+    parts.push(String(day));
+  }
+  if (options.year === 'numeric') {
+    // Add comma before year to match locale format (e.g., "Nov 27, 2025")
+    if (parts.length > 0) {
+      parts[parts.length - 1] += ',';
+    }
+    parts.push(String(year));
+  }
+  
+  return parts.join(' ');
+}
+
 function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No new words', wordsPreFormatted = false }: { data: { date: Date; value: number; words?: string[] }[]; height?: number; color?: string; wordsEmptyText?: string; wordsPreFormatted?: boolean }) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<number | null>(null);
@@ -7635,7 +7662,7 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
                 }}
               >
                 <div className="text-blue-300 font-semibold mb-1">
-                  {point.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  {formatUTCDate(point.data.date, { month: 'short', day: 'numeric', year: 'numeric' })}
                 </div>
                 <div className="text-white font-bold mb-1">
                   {point.data.value} {wordsPreFormatted ? 'words' : 'words'}
@@ -7681,8 +7708,8 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
                   }}
                 >
                   {isMobile
-                    ? d.date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
-                    : d.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    ? formatUTCDate(d.date, { month: 'numeric', day: 'numeric' })
+                    : formatUTCDate(d.date, { month: 'short', day: 'numeric' })}
                 </div>
               );
             })}
