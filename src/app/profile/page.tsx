@@ -184,11 +184,10 @@ export default function Profile() {
     const now = new Date();
     const start = (() => {
       const d = new Date(now);
-      // Use UTC for date calculations to match backend
-      if (historyRange === '7d') { d.setUTCDate(d.getUTCDate() - 6); return d; }
-      if (historyRange === '30d') { d.setUTCDate(d.getUTCDate() - 29); return d; } // 30 days including today
-      if (historyRange === '90d') { d.setUTCDate(d.getUTCDate() - 89); return d; } // 90 days including today
-      if (historyRange === '1y') { d.setUTCFullYear(d.getUTCFullYear() - 1); return d; }
+      if (historyRange === '7d') { d.setDate(d.getDate() - 6); return d; }
+      if (historyRange === '30d') { d.setDate(d.getDate() - 29); return d; } // 30 days including today
+      if (historyRange === '90d') { d.setDate(d.getDate() - 89); return d; } // 90 days including today
+      if (historyRange === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
       if (historyRange === 'all') { 
         // Find the earliest date from user's words
         const earliestDate = entries.length > 0 
@@ -197,7 +196,7 @@ export default function Profile() {
         return earliestDate;
       }
       if (historyRange === 'custom' && customHistoryDateRange.start && customHistoryDateRange.end) {
-        return new Date(customHistoryDateRange.start + 'T00:00:00Z'); // Use UTC
+        return new Date(customHistoryDateRange.start + 'T00:00:00');
       }
       return new Date(0);
     })();
@@ -205,14 +204,13 @@ export default function Profile() {
     // Determine the end date based on range
     const endDate = (() => {
       if (historyRange === 'custom' && customHistoryDateRange.end) {
-        return new Date(customHistoryDateRange.end + 'T23:59:59Z'); // Use UTC
+        return new Date(customHistoryDateRange.end + 'T23:59:59');
       }
       return now;
     })();
     
 
-    // Use UTC for date keys to match backend (which uses UTC day boundaries)
-    const keyOf = (d: Date) => `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+    const keyOf = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const dayCounts = new Map<string, { date: Date; count: number; avgLenSum: number; lenCount: number; words: string[] }>();
     
     // Track words that have been seen before to only count "new" words
@@ -230,8 +228,7 @@ export default function Profile() {
         seenWords.add(e.word);
         
         const k = keyOf(e.date);
-        // Use UTC for date creation to match backend
-        if (!dayCounts.has(k)) dayCounts.set(k, { date: new Date(Date.UTC(e.date.getUTCFullYear(), e.date.getUTCMonth(), e.date.getUTCDate())), count: 0, avgLenSum: 0, lenCount: 0, words: [] });
+        if (!dayCounts.has(k)) dayCounts.set(k, { date: new Date(e.date.getFullYear(), e.date.getMonth(), e.date.getDate()), count: 0, avgLenSum: 0, lenCount: 0, words: [] });
         const rec = dayCounts.get(k)!;
         rec.count += 1;
         rec.avgLenSum += e.word.length;
@@ -252,8 +249,7 @@ export default function Profile() {
         avgLen: rec && rec.lenCount ? rec.avgLenSum / rec.lenCount : undefined,
         words: rec?.words || []
       });
-      // Use UTC for date iteration to match backend
-      cursor.setUTCDate(cursor.getUTCDate() + 1);
+      cursor.setDate(cursor.getDate() + 1);
     }
 
     const values = days.map(d => d.value);
@@ -456,13 +452,11 @@ export default function Profile() {
         const uniqDays = profile ? aggregated(profile).days : [];
         const uniqMap = new Map<string, { value: number; words?: string[] }>();
         uniqDays.forEach(ud => {
-          // Use UTC for date keys to match backend
-          const k = `${ud.date.getUTCFullYear()}-${String(ud.date.getUTCMonth()+1).padStart(2,'0')}-${String(ud.date.getUTCDate()).padStart(2,'0')}`;
+          const k = `${ud.date.getFullYear()}-${String(ud.date.getMonth()+1).padStart(2,'0')}-${String(ud.date.getDate()).padStart(2,'0')}`;
           uniqMap.set(k, { value: ud.value, words: ud.words });
         });
         const reconciled = daysFromApi.map(day => {
-          // Use UTC for date keys to match backend
-          const k = `${day.date.getUTCFullYear()}-${String(day.date.getUTCMonth()+1).padStart(2,'0')}-${String(day.date.getUTCDate()).padStart(2,'0')}`;
+          const k = `${day.date.getFullYear()}-${String(day.date.getMonth()+1).padStart(2,'0')}-${String(day.date.getDate()).padStart(2,'0')}`;
           const uniq = uniqMap.get(k);
           const hasBackendWords = Array.isArray(day.words);
           // Compute avgLen if missing using available words arrays
@@ -496,22 +490,21 @@ export default function Profile() {
         } else {
           // Filter by range client-side as fallback
           const now = new Date();
-          // Normalize now to start of today in UTC for comparison (to match backend)
-          const nowStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+          // Normalize now to start of today for comparison
+          const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
           const start = (() => {
             const d = new Date(nowStart);
-            // Use UTC for date calculations to match backend
-            if (historyRange === '7d') { d.setUTCDate(d.getUTCDate() - 6); return d; }
-            if (historyRange === '30d') { d.setUTCDate(d.getUTCDate() - 29); return d; }
-            if (historyRange === '90d') { d.setUTCDate(d.getUTCDate() - 89); return d; }
-            if (historyRange === '1y') { d.setUTCFullYear(d.getUTCFullYear() - 1); return d; }
+            if (historyRange === '7d') { d.setDate(d.getDate() - 6); return d; }
+            if (historyRange === '30d') { d.setDate(d.getDate() - 29); return d; }
+            if (historyRange === '90d') { d.setDate(d.getDate() - 89); return d; }
+            if (historyRange === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
             if (historyRange === 'all') return new Date(0);
             return new Date(0);
           })();
           filteredDays = finalDays.filter(d => {
-            // Normalize data date to start of day in UTC for comparison (to match backend)
+            // Normalize data date to start of day for comparison
             const dataDate = d.date instanceof Date ? d.date : new Date(d.date);
-            const dataDateStart = new Date(Date.UTC(dataDate.getUTCFullYear(), dataDate.getUTCMonth(), dataDate.getUTCDate()));
+            const dataDateStart = new Date(dataDate.getFullYear(), dataDate.getMonth(), dataDate.getDate());
             return dataDateStart >= start && dataDateStart <= nowStart;
           });
           console.log(`Client-side filter: ${finalDays.length} → ${filteredDays.length} days`);
@@ -589,12 +582,10 @@ export default function Profile() {
             const y = Number(parts[0]);
             const m = Number(parts[1]) - 1;
             const dd = Number(parts[2]);
-            // Use UTC for date parsing to match backend
-            normalized = new Date(Date.UTC(y, m, dd));
+            normalized = new Date(y, m, dd);
           } else {
             const dt = new Date(d.date);
-            // Use UTC for date normalization to match backend
-            normalized = new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()));
+            normalized = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
           }
           const day = {
             date: normalized,
@@ -612,10 +603,9 @@ export default function Profile() {
           sessions.forEach(s => {
             const start = new Date(s.startTime || s.timestamp || '');
             if (isNaN(start.getTime())) return;
-            // Use UTC for date keys to match backend
-            const k = `${start.getUTCFullYear()}-${String(start.getUTCMonth()+1).padStart(2,'0')}-${String(start.getUTCDate()).padStart(2,'0')}`;
-            const hh = String(start.getUTCHours()).padStart(2, '0');
-            const mm = String(start.getUTCMinutes()).padStart(2, '0');
+            const k = `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,'0')}-${String(start.getDate()).padStart(2,'0')}`;
+            const hh = String(start.getHours()).padStart(2, '0');
+            const mm = String(start.getMinutes()).padStart(2, '0');
             const count = typeof s.wordsFound === 'number' ? s.wordsFound : (Array.isArray(s.words) ? s.words.length : 0);
             const games = typeof s.gamesPlayed === 'number' ? s.gamesPlayed : 1; // Default to 1 game per session
             const arr = byDay.get(k) || [];
@@ -624,8 +614,7 @@ export default function Profile() {
           });
           
           daysFromApi.forEach(day => {
-            // Use UTC for date keys to match backend
-            const k = `${day.date.getUTCFullYear()}-${String(day.date.getUTCMonth()+1).padStart(2,'0')}-${String(day.date.getUTCDate()).padStart(2,'0')}`;
+            const k = `${day.date.getFullYear()}-${String(day.date.getMonth()+1).padStart(2,'0')}-${String(day.date.getDate()).padStart(2,'0')}`;
             const arr = byDay.get(k) || [];
             arr.sort((a,b) => a.time.localeCompare(b.time));
             day.words = arr.length ? arr.map(x => `${x.time} – ${x.count} words, ${x.games} game${x.games > 1 ? 's' : ''}`) : undefined;
@@ -649,22 +638,21 @@ export default function Profile() {
         } else {
           // Filter by range client-side as fallback
           const now = new Date();
-          // Normalize now to start of today in UTC for comparison (to match backend)
-          const nowStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+          // Normalize now to start of today for comparison
+          const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
           const start = (() => {
             const d = new Date(nowStart);
-            // Use UTC for date calculations to match backend
-            if (sessionsRange === '7d') { d.setUTCDate(d.getUTCDate() - 6); return d; }
-            if (sessionsRange === '30d') { d.setUTCDate(d.getUTCDate() - 29); return d; }
-            if (sessionsRange === '90d') { d.setUTCDate(d.getUTCDate() - 89); return d; }
-            if (sessionsRange === '1y') { d.setUTCFullYear(d.getUTCFullYear() - 1); return d; }
+            if (sessionsRange === '7d') { d.setDate(d.getDate() - 6); return d; }
+            if (sessionsRange === '30d') { d.setDate(d.getDate() - 29); return d; }
+            if (sessionsRange === '90d') { d.setDate(d.getDate() - 89); return d; }
+            if (sessionsRange === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
             if (sessionsRange === 'all') return new Date(0);
             return new Date(0);
           })();
           filteredData = daysFromApi.filter(d => {
-            // Normalize data date to start of day in UTC for comparison (to match backend)
+            // Normalize data date to start of day for comparison
             const dataDate = d.date instanceof Date ? d.date : new Date(d.date);
-            const dataDateStart = new Date(Date.UTC(dataDate.getUTCFullYear(), dataDate.getUTCMonth(), dataDate.getUTCDate()));
+            const dataDateStart = new Date(dataDate.getFullYear(), dataDate.getMonth(), dataDate.getDate());
             return dataDateStart >= start && dataDateStart <= nowStart;
           });
           console.log(`Client-side filter: ${daysFromApi.length} → ${filteredData.length} days`);
@@ -726,12 +714,11 @@ export default function Profile() {
                 const sessionDate = new Date(sessionTime);
                 if (isNaN(sessionDate.getTime())) return;
                 
-                // Use UTC for date keys to match backend
-                const dayKey = `${sessionDate.getUTCFullYear()}-${String(sessionDate.getUTCMonth()+1).padStart(2,'0')}-${String(sessionDate.getUTCDate()).padStart(2,'0')}`;
-                const dayDate = new Date(Date.UTC(sessionDate.getUTCFullYear(), sessionDate.getUTCMonth(), sessionDate.getUTCDate()));
+                const dayKey = `${sessionDate.getFullYear()}-${String(sessionDate.getMonth()+1).padStart(2,'0')}-${String(sessionDate.getDate()).padStart(2,'0')}`;
+                const dayDate = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
                 
-                // Check if within range (using UTC dates to match backend)
-                const dayDateStart = new Date(Date.UTC(dayDate.getUTCFullYear(), dayDate.getUTCMonth(), dayDate.getUTCDate()));
+                // Check if within range
+                const dayDateStart = new Date(dayDate.getFullYear(), dayDate.getMonth(), dayDate.getDate());
                 if (dayDateStart < start || dayDateStart > nowStart) return;
                 
                 if (!dayMap.has(dayKey)) {
@@ -746,16 +733,14 @@ export default function Profile() {
               const filledDays: Array<{ date: Date; value: number; words?: string[] }> = [];
               const cursor = new Date(start);
               while (cursor <= nowStart) {
-                // Use UTC for date keys to match backend
-                const dayKey = `${cursor.getUTCFullYear()}-${String(cursor.getUTCMonth()+1).padStart(2,'0')}-${String(cursor.getUTCDate()).padStart(2,'0')}`;
+                const dayKey = `${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,'0')}-${String(cursor.getDate()).padStart(2,'0')}`;
                 const existing = dayMap.get(dayKey);
                 filledDays.push(existing || { 
                   date: new Date(cursor), 
                   value: 0,
                   words: []
                 });
-                // Use UTC for date iteration to match backend
-                cursor.setUTCDate(cursor.getUTCDate() + 1);
+                cursor.setDate(cursor.getDate() + 1);
               }
               
               filteredData = filledDays;
@@ -968,7 +953,7 @@ export default function Profile() {
             if (!apiService.isAuthenticated()) {
               return;
             }
-            // Fetch fresh profile data
+            // Use cache-busting to bypass API Gateway cache (60s TTL) for immediate fresh data
             const userProfile = await apiService.getUserProfile();
             
             // SECURITY: Verify the returned profile matches the authenticated user
@@ -2262,7 +2247,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       gamesPlayed: 0,
       avgPerGame: 0,
       performance: 0,
-      status: 'No data'
+      status: 'No data',
+      label: getLocalAmPmLabel(period) // Provide default label
     };
   };
 
@@ -3284,8 +3270,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* Inspect Analytics Modal */}
       {isInspectOpen && (
-        <div className="fixed inset-0 bg-black/50 z-[60] flex items-start justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl w-full max-w-3xl max-h-[85vh] overflow-hidden my-4">
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl w-full max-w-3xl max-h-[85vh] overflow-hidden">
             <div className="flex items-center justify-between px-5 py-3 border-b">
               <h3 className="text-lg font-bold text-gray-900">Inspect Time Analytics</h3>
               <button onClick={() => setIsInspectOpen(false)} className="text-gray-500 hover:text-gray-700">✕</button>
@@ -3345,8 +3331,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* AI Assistant Modal */}
       {aiModalOpen ? (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl my-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-gray-900">Lexi - Your AI Assistant</h3>
               <div className="flex items-center gap-3">
@@ -6201,9 +6187,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       </div>
 
       {isExplorerOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsExplorerOpen(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden border border-gray-200 my-4">
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden border border-gray-200">
             {/* Header */}
             <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
               <div className="flex items-center justify-between">
@@ -6474,8 +6460,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         }
         
         return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden my-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 capitalize">
@@ -6647,8 +6633,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* Longest Word Modal (All Time or Today) */}
       {longWordModal.isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto my-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-gray-900">{longWordModal.title || 'Longest Word'}</h3>
               <button
@@ -6747,8 +6733,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* Top Score Modal */}
       {topScoreModal.isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto my-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-gray-900">{topScoreModal.title || 'Top Score'}</h3>
               <button
@@ -6845,8 +6831,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* Leaderboard Placements Modal */}
       {leaderboardModal.isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto my-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-gray-900">Leaderboard Placements</h3>
               <button
@@ -7023,10 +7009,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
 
       {/* Battle History Modal */}
       {battleModal.isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl my-4 flex flex-col max-h-[90vh]">
-            {/* Fixed Header */}
-            <div className="flex items-center justify-between p-6 pb-4 border-b border-gray-200 flex-shrink-0">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold text-gray-900">Battle History</h3>
               <button
                 onClick={() => setBattleModal({ isOpen: false, filter: 'all' })}
@@ -7038,8 +7023,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               </button>
             </div>
             
-            {/* Fixed Filter Buttons */}
-            <div className="flex gap-2 p-6 pt-4 pb-4 flex-wrap flex-shrink-0 border-b border-gray-100">
+            {/* Filter Buttons */}
+            <div className="flex gap-2 mb-6 flex-wrap">
               <button
                 onClick={() => setBattleModal({ ...battleModal, filter: 'all' })}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -7072,10 +7057,9 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               </button>
             </div>
 
-            {/* Scrollable Battle History List */}
-            <div className="p-6 pt-4 overflow-y-auto flex-1 min-h-0">
-              <div className="space-y-3">
-                {(() => {
+            {/* Battle History List */}
+            <div className="space-y-3">
+              {(() => {
                 const battles: Array<{
                   result: 'win' | 'loss';
                   opponentId: string;
@@ -7184,8 +7168,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                     </div>
                   );
                 });
-                })()}
-              </div>
+              })()}
             </div>
           </div>
         </div>
@@ -7206,38 +7189,10 @@ function MetricCard({
   accent: string;
   onClick?: () => void;
 }) {
-  // Get icon based on title
-  const getIcon = () => {
-    if (title.toLowerCase().includes('flectcoin')) {
-      return (
-        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      );
-    } else if (title.toLowerCase().includes('gem')) {
-      return (
-        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-        </svg>
-      );
-    }
-    return null;
-  };
-
-  // Extract gradient colors for icon background
-  const getIconGradient = () => {
-    if (title.toLowerCase().includes('flectcoin')) {
-      return 'from-amber-500 to-yellow-600';
-    } else if (title.toLowerCase().includes('gem')) {
-      return 'from-pink-500 to-rose-600';
-    }
-    return 'from-blue-500 to-indigo-600';
-  };
-
   return (
     <div 
-      className={`relative overflow-hidden rounded-xl bg-white shadow-lg border border-gray-100 p-4 ${
-        onClick ? 'cursor-pointer hover:shadow-xl transition-all' : ''
+      className={`relative overflow-hidden rounded-xl p-5 shadow bg-white ${
+        onClick ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''
       }`}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
@@ -7249,29 +7204,13 @@ function MetricCard({
         }
       } : undefined}
     >
-      {/* Gradient background accent */}
-      <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${accent} opacity-10 rounded-bl-full`} />
-      
-      <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-3">
-          <div className={`w-8 h-8 bg-gradient-to-r ${getIconGradient()} rounded-full flex items-center justify-center`}>
-            {getIcon()}
-          </div>
-          <h3 className="font-bold text-base text-blue-950">{title}</h3>
-        </div>
-        
-        <div className="flex items-center gap-3 mb-2">
-          <div className={`w-8 h-8 bg-gradient-to-br ${getIconGradient()} rounded-lg flex items-center justify-center shadow-md`}>
-            {getIcon()}
-          </div>
-          <div className="flex-1">
-            <p className="text-xs font-medium text-gray-600">Balance</p>
-            <p className="text-2xl font-extrabold text-gray-900">{value}</p>
-            {onClick && (
-              <p className="text-xs text-gray-500 mt-0.5">Click to view history</p>
-            )}
-          </div>
-        </div>
+      <div className={`absolute inset-0 opacity-20 bg-gradient-to-br ${accent}`} />
+      <div className="relative">
+        <p className="text-sm text-blue-700">{title}</p>
+        <p className="mt-1 text-2xl font-extrabold text-blue-950">{value}</p>
+        {onClick && (
+          <p className="text-xs text-blue-600 mt-2 opacity-75">Click to view history</p>
+        )}
       </div>
     </div>
   );
@@ -7421,8 +7360,7 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
   const isMobile = containerWidth < 768;
   const leftMargin = isMobile ? 45 : 60;
   const rightMargin = isMobile ? 15 : 30;
-  const topMargin = 30; // Increased to ensure Y-axis labels and tooltips fit
-  const bottomAxisMargin = 25; // Space at bottom of SVG for Y-axis labels and baseline (0 line)
+  const topMargin = 20;
   const bottomMargin = isMobile ? 50 : 40; // Space for date labels (HTML labels below SVG)
   
   // Calculate chart area width - ensure minimum width to prevent squishing
@@ -7432,25 +7370,21 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
   // Use the larger of calculated width or minimum width to prevent collapsing
   const chartAreaWidth = Math.max(minChartAreaWidth, calculatedChartAreaWidth);
   const svgWidth = chartAreaWidth + leftMargin + rightMargin;
-  // Chart height accounts for top margin and bottom axis margin (for Y-axis labels)
-  const chartHeight = height - topMargin - bottomAxisMargin - bottomMargin;
+  const chartHeight = height - topMargin - bottomMargin;
   
   const max = Math.max(1, ...data.map(d => d.value));
 
   // Calculate points for the line - distribute evenly across chart area width
   const pointSpacing = data.length > 1 ? chartAreaWidth / (data.length - 1) : 0;
-  // Chart bottom is within SVG, accounting for bottom axis margin
-  const chartBottom = topMargin + chartHeight;
   const points = data.map((d, i) => {
     const x = leftMargin + (i * pointSpacing);
-    // Ensure 0 is at the bottom of the chart area (not cut off)
-    const y = chartBottom - ((d.value / max) * chartHeight);
+    const y = topMargin + chartHeight - ((d.value / max) * chartHeight);
     return { x, y, data: d, index: i };
   });
 
   // Create path strings for the line and area
   const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
-  const areaPath = `${linePath} L ${points[points.length - 1].x} ${chartBottom} L ${points[0].x} ${chartBottom} Z`;
+  const areaPath = `${linePath} L ${points[points.length - 1].x} ${topMargin + chartHeight} L ${points[0].x} ${topMargin + chartHeight} Z`;
 
   // Date label interval - show more labels for shorter ranges
   const dateLabelInterval = data.length <= 7 
@@ -7490,8 +7424,6 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
             height={height - bottomMargin}
             className="block"
             style={{ minWidth: `${svgWidth}px` }}
-            viewBox={`0 0 ${svgWidth} ${height - bottomMargin}`}
-            preserveAspectRatio="none"
           >
             <defs>
               <linearGradient id={`areaGradient-${color.replace('#', '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
@@ -7525,18 +7457,12 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
             {/* Y-axis labels */}
             {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
               const value = Math.round(max * ratio);
-              // Calculate Y position ensuring 0 is at the bottom and visible
-              // SVG height is (height - bottomMargin), chartBottom is at (height - bottomAxisMargin - bottomMargin)
-              // Position 0 label at the bottom of the SVG with some padding
-              const svgHeight = height - bottomMargin;
-              const y = ratio === 0 
-                ? svgHeight - 5  // Position 0 label near bottom of SVG, fully visible
-                : chartBottom - (ratio * chartHeight) + 4;
+              const y = topMargin + chartHeight - (ratio * chartHeight);
               return (
                 <text
                   key={ratio}
                   x={leftMargin - 10}
-                  y={y}
+                  y={y + 4}
                   textAnchor="end"
                   className="fill-gray-700 font-semibold"
                   fontSize={isMobile ? "10" : "11"}
@@ -7584,21 +7510,12 @@ function LineChart({ data, height = 240, color = '#4f46e5', wordsEmptyText = 'No
             if (pointIndex === null) return null;
             const point = points[pointIndex];
             
-            // Calculate tooltip position - ensure it stays within bounds
-            const tooltipHeight = 100; // Approximate tooltip height
-            const tooltipAboveY = point.y - tooltipHeight - 10;
-            const tooltipBelowY = point.y + 20;
-            const minTop = 5; // Minimum distance from top
-            
-            // Position tooltip above point if there's room, otherwise below
-            const tooltipY = tooltipAboveY >= minTop ? tooltipAboveY : tooltipBelowY;
-            
             return (
               <div
                 className="absolute z-20 bg-gray-900 text-white rounded-lg p-2 shadow-xl pointer-events-none"
                 style={{
                   left: `${point.x}px`,
-                  top: `${tooltipY}px`,
+                  top: `${point.y - 80}px`,
                   transform: 'translateX(-50%)',
                   fontSize: '11px',
                   maxWidth: '200px',
@@ -7704,9 +7621,4 @@ function generateInsights(p: UserProfile): string[] {
 
   insights.push(`Gem efficiency tip: Convert surplus points into gems when events start.`);
   return insights.slice(0, 4);
-}// Force rebuild Wed Nov 26 20:40:02 EST 2025
-// UTC date formatting fix 1764207807
-// Local timezone display fix 1764207996
-// Local timezone conversion fix 1764208229
-// UTC to local conversion fix 1764208405
-// Revert date changes 1764208603
+}
