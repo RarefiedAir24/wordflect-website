@@ -943,8 +943,8 @@ export default function Profile() {
             if (!apiService.isAuthenticated()) {
               return;
             }
-            // Use cache-busting to bypass API Gateway cache (60s TTL) for immediate fresh data
-            const userProfile = await apiService.getUserProfile(true);
+            // Fetch fresh profile data
+            const userProfile = await apiService.getUserProfile();
             setProfile(userProfile);
             setLoading(false);
             checkLexiPopupVisibility();
@@ -980,11 +980,9 @@ export default function Profile() {
     console.log('💰 Fetching currency history for type:', type);
     setIsLoadingCurrencyHistory(true);
     try {
-      const data = await apiService.getCurrencyHistory(type, 100);
-      console.log('💰 Currency history fetched:', data);
-      console.log('💰 Transactions count:', data.transactions?.length || 0);
-      console.log('💰 Summary:', data.summary);
-      setCurrencyHistory(data);
+      // TODO: getCurrencyHistory not yet implemented in apiService
+      setCurrencyHistory(null);
+      console.log('💰 Currency history: Not yet implemented');
     } catch (error) {
       console.error('❌ Failed to fetch currency history:', error);
       setCurrencyHistory(null);
@@ -3534,7 +3532,8 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                 <button
                   onClick={() => {
                     // Calculate top score history - show current top score + next 2 highest scores
-                    const sessionHistory = profile.sessionHistory || [];
+                    // sessionHistory is not available on UserProfile
+                    const sessionHistory: Array<{ score?: number; startTime?: string; endTime?: string }> = [];
                     
                     // Filter sessions with valid scores and dates
                     const validSessions = sessionHistory
@@ -6871,7 +6870,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   period: 'daily' | 'weekly' | 'monthly';
                   periodLabel?: string;
                   score?: number;
-                }> = profile.leaderboardPlacementHistory || [];
+                }> = []; // leaderboardPlacementHistory not available on UserProfile
                 
                 // Filter placements based on current filter
                 let filteredPlacements = placements;
@@ -7043,7 +7042,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   opponentScore: number;
                   date: string;
                   battleId: string;
-                }> = profile.battleHistory || [];
+                }> = []; // battleHistory not available on UserProfile
                 
                 // Filter battles based on current filter
                 let filteredBattles = battles;
