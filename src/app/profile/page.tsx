@@ -30,7 +30,7 @@ export default function Profile() {
   const [error, setError] = useState("");
   const router = useRouter();
   const statsUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [historyRange, setHistoryRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("7d");
+  const [historyRange, setHistoryRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("30d");
   const [sessionsRange, setSessionsRange] = useState<"7d" | "30d" | "90d" | "1y" | "all" | "custom">("7d");
   const [customHistoryDateRange, setCustomHistoryDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
   const [customSessionsDateRange, setCustomSessionsDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
