@@ -7665,3 +7665,4 @@ function generateInsights(p: UserProfile): string[] {
   return insights.slice(0, 4);
 }// Force rebuild Wed Nov 26 20:40:02 EST 2025
 // UTC date formatting fix 1764207807
+// Local timezone display fix 1764207996
