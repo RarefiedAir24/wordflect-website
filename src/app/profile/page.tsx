@@ -7663,4 +7663,4 @@ function generateInsights(p: UserProfile): string[] {
 
   insights.push(`Gem efficiency tip: Convert surplus points into gems when events start.`);
   return insights.slice(0, 4);
-}
+}// Force rebuild Wed Nov 26 20:40:02 EST 2025
