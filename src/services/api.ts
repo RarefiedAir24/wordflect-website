@@ -52,31 +52,6 @@ export interface UserProfile {
   longestStreakDays?: number; // longest streak achieved
   lastLoginAt?: string; // ISO timestamp of last login
   themeWordsFoundToday?: string[]; // theme words found today from mobile app
-  sessionHistory?: Array<{
-    sessionId?: string;
-    startTime?: string;
-    endTime?: string;
-    duration?: number;
-    score?: number;
-    level?: number;
-    wordsFound?: number;
-  }>;
-  leaderboardPlacementHistory?: Array<{
-    placement: 1 | 2 | 3;
-    date: string;
-    period: 'daily' | 'weekly' | 'monthly';
-    periodLabel?: string;
-    score?: number;
-  }>;
-  battleHistory?: Array<{
-    result: 'win' | 'loss';
-    opponentId: string;
-    opponentUsername: string;
-    myScore: number;
-    opponentScore: number;
-    date: string;
-    battleId: string;
-  }>;
 }
 
 class ApiService {
@@ -231,58 +206,7 @@ class ApiService {
     }
   }
 
-  async getCurrencyHistory(type?: 'flectcoins' | 'gems' | 'all', limit?: number): Promise<{
-    transactions: Array<{
-      id: string;
-      type: 'flectcoins' | 'gems';
-      amount: number;
-      reason: string;
-      timestamp: string;
-      metadata?: Record<string, unknown>;
-    }>;
-    summary: {
-      flectcoins: { earned: number; spent: number; net: number };
-      gems: { earned: number; spent: number; net: number };
-    };
-    total: number;
-  }> {
-    try {
-      let url = `${API_CONFIG.BASE_URL}/user/currency/history`;
-      const params = new URLSearchParams();
-      if (type) params.append('type', type);
-      if (limit) params.append('limit', limit.toString());
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
-      
-      console.log('💰 getCurrencyHistory - URL:', url);
-      const response = await this.makeRequest(url, {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      });
-      
-      console.log('💰 getCurrencyHistory - Response status:', response.status);
-      
-      if (!response.ok) {
-        if (response.status === 401) {
-          await this.signOut();
-          throw new Error('Authentication failed. Please sign in again.');
-        }
-        const errorData = await response.json();
-        console.error('💰 getCurrencyHistory - Error response:', errorData);
-        throw new Error(errorData.message || 'Failed to fetch currency history');
-      }
-      
-      const data = await response.json();
-      console.log('💰 getCurrencyHistory - Success, data:', data);
-      return data;
-    } catch (error) {
-      console.error('Get currency history error:', error);
-      throw error;
-    }
-  }
-
-  async getTimeAnalytics(filters?: { period?: string; startDate?: string; endDate?: string; timezone?: string }): Promise<unknown> {
+  async getTimeAnalytics(filters?: { period?: string; startDate?: string; endDate?: string }): Promise<unknown> {
     try {
       // Build URL with query parameters
       let url = `${API_CONFIG.BASE_URL}/user/time/analytics`;
@@ -291,21 +215,8 @@ class ApiService {
       if (filters?.period) params.append('period', filters.period);
       if (filters?.startDate) params.append('startDate', filters.startDate);
       if (filters?.endDate) params.append('endDate', filters.endDate);
-      // Send user's timezone (defaults to America/New_York if not provided)
-      if (filters?.timezone) {
-        params.append('timezone', filters.timezone);
-      } else {
-        // Try to detect timezone, fallback to EST/EDT
-        try {
-          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          params.append('timezone', tz || 'America/New_York');
-        } catch {
-          params.append('timezone', 'America/New_York');
-        }
-      }
-      
-      // Add cache-busting timestamp
-      params.append('timestamp', Date.now().toString());
+      // Cache-busting timestamp to ensure fresh data after games
+      params.append('ts', Date.now().toString());
       
       if (params.toString()) {
         url += `?${params.toString()}`;
@@ -317,7 +228,12 @@ class ApiService {
       
       const response = await this.makeRequest(url, {
         method: 'GET',
-        headers: this.getAuthHeaders(),
+        headers: {
+          ...this.getAuthHeaders(),
+          'Cache-Control': 'no-store',
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
       });
       if (!response.ok) {
         if (response.status === 401) {
@@ -360,17 +276,8 @@ class ApiService {
 
   async getThemeDayStatistics(date: string): Promise<unknown> {
     try {
-      console.log('🔍🔍🔍 getThemeDayStatistics CALLED with date:', date);
-      console.log('🔍🔍🔍 Date type:', typeof date);
-      console.log('🔍🔍🔍 Date value:', JSON.stringify(date));
-      const endpoint = buildApiUrl(API_CONFIG.ENDPOINTS.USER_THEME_DAY);
-      console.log('🔍 getThemeDayStatistics - endpoint:', endpoint);
-      console.log('🔍 getThemeDayStatistics - API_CONFIG.ENDPOINTS.USER_THEME_DAY:', API_CONFIG.ENDPOINTS.USER_THEME_DAY);
-      const url = new URL(endpoint, window.location.origin);
+      const url = new URL(buildApiUrl(API_CONFIG.ENDPOINTS.USER_THEME_DAY), window.location.origin);
       url.searchParams.set('date', date);
-      console.log('🔍🔍🔍 getThemeDayStatistics - Setting date param to:', date);
-      console.log('🔍🔍🔍 getThemeDayStatistics - URL after setting param:', url.toString());
-      console.log('🔍🔍🔍 getThemeDayStatistics - URL searchParams.get("date"):', url.searchParams.get('date'));
       const response = await this.makeRequest(url.toString(), {
         method: 'GET',
         headers: this.getAuthHeaders(),
@@ -479,25 +386,6 @@ class ApiService {
           console.log('🔐 API SERVICE: Delayed verification - User still there:', !!delayedUser);
           console.log('🔐 API SERVICE: Delayed verification - All keys:', Object.keys(localStorage));
         }, 50);
-        
-        // Call loginEvent endpoint to update login streak
-        if (data.user?.id) {
-          try {
-            console.log('🔐 API SERVICE: Calling loginEvent to update streak...');
-            await this.makeRequest(buildApiUrl('/user/login-event'), {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${data.token}`
-              },
-              body: JSON.stringify({ id: data.user.id })
-            });
-            console.log('🔐 API SERVICE: Login event processed successfully');
-          } catch (loginEventError) {
-            // Don't fail sign-in if loginEvent fails, just log it
-            console.warn('🔐 API SERVICE: Login event failed (non-critical):', loginEventError);
-          }
-        }
       } else {
         console.warn('🔐 API SERVICE: Window is undefined, cannot store in localStorage');
       }
@@ -509,17 +397,9 @@ class ApiService {
     }
   }
 
-  async getUserProfile(cacheBust?: boolean): Promise<UserProfile> {
+  async getUserProfile(): Promise<UserProfile> {
     try {
-      let url = buildApiUrl(API_CONFIG.ENDPOINTS.USER_PROFILE);
-      
-      // Add cache-busting query parameter to bypass API Gateway cache when needed
-      if (cacheBust) {
-        const separator = url.includes('?') ? '&' : '?';
-        url += `${separator}_t=${Date.now()}`;
-      }
-      
-      const response = await this.makeRequest(url, {
+      const response = await this.makeRequest(buildApiUrl(API_CONFIG.ENDPOINTS.USER_PROFILE), {
         method: 'GET',
         headers: this.getAuthHeaders()
       });
@@ -744,10 +624,8 @@ class ApiService {
 
       const searchParams = new URLSearchParams();
       if (params.range) searchParams.set('range', params.range);
-      // Use UTC timezone to match daily mission reset schedule
-      searchParams.set('timezone', 'UTC');
 
-      const fullUrl = `${API_CONFIG.ENDPOINTS.USER_SESSION_WORDS}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+      const fullUrl = `/api/proxy-session-words${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
       console.log('📤 Sending getUserSessionWords request:', { url: fullUrl, params });
       
       const response = await this.makeRequest(fullUrl, {
