@@ -1066,14 +1066,33 @@ export default function Profile() {
         console.log('🎯 Fetching time analytics (All Time):', filters);
         const response = await apiService.getTimeAnalytics(filters);
         console.log('✅ Backend time analytics response:', response);
+        console.log('✅ Response type:', typeof response);
+        console.log('✅ Response keys:', response ? Object.keys(response as Record<string, unknown>) : 'null');
         
-        if (response && (response as Record<string, unknown>).analytics) {
-          const analytics = (response as Record<string, unknown>).analytics as Record<string, unknown>;
+        // Handle both response structures: { analytics: {...} } or direct analytics object
+        let analytics: Record<string, unknown> | null = null;
+        
+        if (response) {
+          const responseObj = response as Record<string, unknown>;
+          // Check if response has an 'analytics' property
+          if (responseObj.analytics) {
+            analytics = responseObj.analytics as Record<string, unknown>;
+            console.log('📊 Found analytics in response.analytics');
+          } else if (responseObj.timePeriods) {
+            // Response is the analytics object directly
+            analytics = responseObj;
+            console.log('📊 Found analytics as direct response (has timePeriods)');
+          } else {
+            console.warn('⚠️ Response structure unexpected:', responseObj);
+          }
+        }
+        
+        if (analytics) {
           console.log('📊 Time analytics data from backend:', analytics);
           console.log('📊 Time periods structure:', analytics.timePeriods);
           console.log('📊 Time periods keys:', Object.keys(analytics.timePeriods || {}));
           if (analytics.timePeriods) {
-            Object.entries(analytics.timePeriods).forEach(([period, data]) => {
+            Object.entries(analytics.timePeriods as Record<string, unknown>).forEach(([period, data]) => {
               const periodData = data as Record<string, unknown>;
               console.log(`📊 ${period}:`, periodData);
               console.log(`📊 ${period} gamesPlayed:`, periodData?.gamesPlayed);
@@ -1084,8 +1103,8 @@ export default function Profile() {
           console.log('🔄 Setting timeAnalytics state with All Time data');
           setTimeAnalytics(analytics);
         } else {
-          console.warn('⚠️ No analytics data in backend response');
-          console.log('⚠️ Full response structure:', response);
+          console.warn('⚠️ No analytics data found in response');
+          console.log('⚠️ Full response structure:', JSON.stringify(response, null, 2));
           setTimeAnalytics(null);
         }
       } catch (error) {
