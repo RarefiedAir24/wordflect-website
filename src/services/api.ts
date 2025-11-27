@@ -230,12 +230,20 @@ class ApiService {
       
       console.log('🔍 getTimeAnalytics - Using proxy route:', url.toString());
       console.log('🔍 getTimeAnalytics - Filters:', filters);
+      console.log('🔍 getTimeAnalytics - Auth headers:', this.getAuthHeaders());
       
       const response = await this.makeRequest(url.toString(), {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
+      
+      console.log('🔍 getTimeAnalytics - Response status:', response.status);
+      console.log('🔍 getTimeAnalytics - Response ok:', response.ok);
+      
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('🔍 getTimeAnalytics - Error response:', errorText);
+        
         if (response.status === 401) {
           await this.signOut();
           throw new Error('Authentication failed. Please sign in again.');
@@ -243,10 +251,17 @@ class ApiService {
         if (response.status === 403) {
           throw new Error('Access denied. You do not have permission to view time analytics.');
         }
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch time analytics');
+        try {
+          const errorData = JSON.parse(errorText);
+          throw new Error(errorData.message || 'Failed to fetch time analytics');
+        } catch {
+          throw new Error(`Failed to fetch time analytics: ${response.status} ${errorText}`);
+        }
       }
-      return await response.json();
+      
+      const data = await response.json();
+      console.log('🔍 getTimeAnalytics - Response data received:', data);
+      return data;
     } catch (error) {
       console.error('Get time analytics error:', error);
       throw error;
