@@ -1022,8 +1022,11 @@ export default function Profile() {
     setIsLoadingCurrencyHistory(true);
     try {
       const data = await apiService.getCurrencyHistory(type, 100);
-      console.log('💰 Currency history API response:', {
+      console.log('💰 Currency history API response (full):', JSON.stringify(data, null, 2));
+      console.log('💰 Currency history API response (summary):', {
         transactionsCount: data.transactions?.length || 0,
+        firstTransaction: data.transactions?.[0],
+        transactionTypes: data.transactions?.map(t => t.type),
         summary: data.summary,
         gemsSummary: data.summary?.gems,
         flectcoinsSummary: data.summary?.flectcoins
@@ -1043,15 +1046,27 @@ export default function Profile() {
         summary.gems = { earned: 0, spent: 0, net: 0 };
       }
       
+      // Log transaction details for debugging
+      const transactions = data.transactions || [];
+      const gemsTransactions = transactions.filter(t => t.type === 'gems');
+      console.log('💰 Transaction analysis:', {
+        totalTransactions: transactions.length,
+        gemsTransactions: gemsTransactions.length,
+        gemsTransactionDetails: gemsTransactions.slice(0, 5),
+        allTransactionTypes: [...new Set(transactions.map(t => t.type))]
+      });
+      
       setCurrencyHistory({
-        transactions: data.transactions || [],
+        transactions: transactions,
         summary: summary
       });
       console.log('💰 Currency history state updated:', {
-        transactionsCount: data.transactions?.length || 0,
+        transactionsCount: transactions.length,
+        gemsTransactionsCount: gemsTransactions.length,
         gemsEarned: summary.gems.earned,
         gemsSpent: summary.gems.spent,
-        gemsNet: summary.gems.net
+        gemsNet: summary.gems.net,
+        stateTransactionsCount: transactions.length
       });
     } catch (error) {
       console.error('❌ Failed to fetch currency history:', error);
@@ -6723,28 +6738,47 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
       })()}
       
       {/* Currency History Modal */}
-      {currencyModal.isOpen && currencyModal.type && (
-        <CurrencyHistoryModal
-          isOpen={currencyModal.isOpen}
-          onClose={() => setCurrencyModal({ isOpen: false, type: null })}
-          currencyType={currencyModal.type || 'flectcoins'}
-          transactions={currencyHistory?.transactions.filter(t => t.type === currencyModal.type) || []}
-          summary={
-            currencyModal.type === 'flectcoins'
-              ? {
-                  earned: currencyHistory?.summary?.flectcoins?.earned ?? 0,
-                  spent: currencyHistory?.summary?.flectcoins?.spent ?? 0,
-                  net: currencyHistory?.summary?.flectcoins?.net ?? 0,
-                }
-              : {
-                  earned: currencyHistory?.summary?.gems?.earned ?? 0,
-                  spent: currencyHistory?.summary?.gems?.spent ?? 0,
-                  net: currencyHistory?.summary?.gems?.net ?? 0,
-                }
+      {currencyModal.isOpen && currencyModal.type && (() => {
+        // Filter transactions by the modal type
+        const filteredTransactions = currencyHistory?.transactions.filter(t => {
+          const matches = t.type === currencyModal.type;
+          if (!matches && currencyModal.type === 'gems') {
+            console.log('🔍 Transaction filtered out:', { type: t.type, modalType: currencyModal.type, transaction: t });
           }
-          isLoading={isLoadingCurrencyHistory}
-        />
-      )}
+          return matches;
+        }) || [];
+        
+        const summary = currencyModal.type === 'flectcoins'
+          ? {
+              earned: currencyHistory?.summary?.flectcoins?.earned ?? 0,
+              spent: currencyHistory?.summary?.flectcoins?.spent ?? 0,
+              net: currencyHistory?.summary?.flectcoins?.net ?? 0,
+            }
+          : {
+              earned: currencyHistory?.summary?.gems?.earned ?? 0,
+              spent: currencyHistory?.summary?.gems?.spent ?? 0,
+              net: currencyHistory?.summary?.gems?.net ?? 0,
+            };
+        
+        console.log('💰 CurrencyHistoryModal props:', {
+          currencyType: currencyModal.type,
+          transactionsCount: filteredTransactions.length,
+          allTransactionsCount: currencyHistory?.transactions?.length || 0,
+          summary: summary,
+          firstTransaction: filteredTransactions[0]
+        });
+        
+        return (
+          <CurrencyHistoryModal
+            isOpen={currencyModal.isOpen}
+            onClose={() => setCurrencyModal({ isOpen: false, type: null })}
+            currencyType={currencyModal.type || 'flectcoins'}
+            transactions={filteredTransactions}
+            summary={summary}
+            isLoading={isLoadingCurrencyHistory}
+          />
+        );
+      })()}
 
       {/* Longest Word Modal (All Time or Today) */}
       {longWordModal.isOpen && (

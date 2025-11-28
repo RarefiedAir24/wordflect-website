@@ -66,6 +66,7 @@ const CurrencyHistoryModal: React.FC<CurrencyHistoryModalProps> = ({
       'shuffle_purchase': 'Shuffle Powerup',
       'freeze_purchase': 'Freeze Powerup',
       'time_extension_purchase': 'Time Extension',
+      'theme_purchase': metadata?.themeId ? `Theme: ${(metadata.themeId as string).charAt(0).toUpperCase() + (metadata.themeId as string).slice(1)}` : 'Theme Purchase',
     };
     return labels[reason] || reason.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };

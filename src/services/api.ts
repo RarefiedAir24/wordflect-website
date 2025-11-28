@@ -745,7 +745,13 @@ class ApiService {
       }
       
       const result = await response.json();
-      console.log('✅ getCurrencyHistory success:', result);
+      console.log('✅ getCurrencyHistory success (full):', JSON.stringify(result, null, 2));
+      console.log('✅ getCurrencyHistory success (summary):', {
+        transactionsCount: result.transactions?.length || 0,
+        transactions: result.transactions?.slice(0, 3),
+        summary: result.summary,
+        total: result.total
+      });
       return result;
     } catch (error) {
       console.error('Get currency history error:', error);
