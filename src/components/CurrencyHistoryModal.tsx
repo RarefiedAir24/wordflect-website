@@ -67,6 +67,7 @@ const CurrencyHistoryModal: React.FC<CurrencyHistoryModalProps> = ({
       'freeze_purchase': 'Freeze Powerup',
       'time_extension_purchase': 'Time Extension',
       'theme_purchase': metadata?.themeId ? `Theme: ${(metadata.themeId as string).charAt(0).toUpperCase() + (metadata.themeId as string).slice(1)}` : 'Theme Purchase',
+      'frame_purchase': metadata?.frameName ? `Frame: ${metadata.frameName as string}` : 'Frame Purchase',
     };
     return labels[reason] || reason.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
