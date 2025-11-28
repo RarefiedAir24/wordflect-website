@@ -1022,14 +1022,37 @@ export default function Profile() {
     setIsLoadingCurrencyHistory(true);
     try {
       const data = await apiService.getCurrencyHistory(type, 100);
+      console.log('💰 Currency history API response:', {
+        transactionsCount: data.transactions?.length || 0,
+        summary: data.summary,
+        gemsSummary: data.summary?.gems,
+        flectcoinsSummary: data.summary?.flectcoins
+      });
+      
+      // Ensure summary structure is complete
+      const summary = data.summary || {
+        flectcoins: { earned: 0, spent: 0, net: 0 },
+        gems: { earned: 0, spent: 0, net: 0 }
+      };
+      
+      // Ensure both currency types have complete summary objects
+      if (!summary.flectcoins) {
+        summary.flectcoins = { earned: 0, spent: 0, net: 0 };
+      }
+      if (!summary.gems) {
+        summary.gems = { earned: 0, spent: 0, net: 0 };
+      }
+      
       setCurrencyHistory({
         transactions: data.transactions || [],
-        summary: data.summary || {
-          flectcoins: { earned: 0, spent: 0, net: 0 },
-          gems: { earned: 0, spent: 0, net: 0 }
-        }
+        summary: summary
       });
-      console.log('💰 Currency history loaded:', data);
+      console.log('💰 Currency history state updated:', {
+        transactionsCount: data.transactions?.length || 0,
+        gemsEarned: summary.gems.earned,
+        gemsSpent: summary.gems.spent,
+        gemsNet: summary.gems.net
+      });
     } catch (error) {
       console.error('❌ Failed to fetch currency history:', error);
       setCurrencyHistory(null);
@@ -3534,20 +3557,24 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           title="Flectcoins" 
           value={profile.flectcoins.toLocaleString()} 
           accent="from-amber-400 to-yellow-500"
-          onClick={() => {
+          onClick={async () => {
             console.log('💰 Flectcoins card clicked!');
             setCurrencyModal({ isOpen: true, type: 'flectcoins' });
-            fetchCurrencyHistory('flectcoins');
+            // Fetch flectcoins history and wait for it to complete
+            await fetchCurrencyHistory('flectcoins');
+            console.log('💰 Flectcoins history fetched, modal should show correct summary');
           }}
         />
         <MetricCard 
           title="Gems" 
           value={profile.gems.toLocaleString()} 
           accent="from-pink-400 to-rose-500"
-          onClick={() => {
+          onClick={async () => {
             console.log('💎 Gems card clicked!');
             setCurrencyModal({ isOpen: true, type: 'gems' });
-            fetchCurrencyHistory('gems');
+            // Fetch gems history and wait for it to complete before showing modal
+            await fetchCurrencyHistory('gems');
+            console.log('💎 Gems history fetched, modal should show correct summary');
           }}
         />
       </div>
@@ -6700,19 +6727,19 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
         <CurrencyHistoryModal
           isOpen={currencyModal.isOpen}
           onClose={() => setCurrencyModal({ isOpen: false, type: null })}
-          currencyType={currencyModal.type}
+          currencyType={currencyModal.type || 'flectcoins'}
           transactions={currencyHistory?.transactions.filter(t => t.type === currencyModal.type) || []}
           summary={
             currencyModal.type === 'flectcoins'
               ? {
-                  earned: currencyHistory?.summary?.flectcoins?.earned || 0,
-                  spent: currencyHistory?.summary?.flectcoins?.spent || 0,
-                  net: currencyHistory?.summary?.flectcoins?.net || 0,
+                  earned: currencyHistory?.summary?.flectcoins?.earned ?? 0,
+                  spent: currencyHistory?.summary?.flectcoins?.spent ?? 0,
+                  net: currencyHistory?.summary?.flectcoins?.net ?? 0,
                 }
               : {
-                  earned: currencyHistory?.summary?.gems?.earned || 0,
-                  spent: currencyHistory?.summary?.gems?.spent || 0,
-                  net: currencyHistory?.summary?.gems?.net || 0,
+                  earned: currencyHistory?.summary?.gems?.earned ?? 0,
+                  spent: currencyHistory?.summary?.gems?.spent ?? 0,
+                  net: currencyHistory?.summary?.gems?.net ?? 0,
                 }
           }
           isLoading={isLoadingCurrencyHistory}
