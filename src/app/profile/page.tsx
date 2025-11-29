@@ -170,6 +170,19 @@ export default function Profile() {
   // Historical aggregation derived from words list
   const aggregated = React.useCallback((p: UserProfile) => {
     type WordEntry = { word: string; date: Date };
+    // Safely handle missing or invalid allFoundWords
+    if (!p || !p.allFoundWords || !Array.isArray(p.allFoundWords)) {
+      // Return empty structure if no words data
+      return {
+        days: [],
+        max: 1,
+        totalWords: 0,
+        avgPerDay: 0,
+        uniqueWords: 0,
+        avgLenAll: 0,
+        filtered: []
+      };
+    }
     const entries: WordEntry[] = p.allFoundWords
       .map((w) => {
         // Only include entries with a valid date to avoid attributing undated words to "today"
@@ -4657,7 +4670,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
               })()}
             </p>
           </div>
-          <LineChart data={(historyDays && historyDays.length > 0) ? historyDays : aggregated(profile).days} height={260} color="#4f46e5" wordsEmptyText="No new words" />
+          <LineChart data={(historyDays && historyDays.length > 0) ? historyDays : (profile ? aggregated(profile).days : [])} height={260} color="#4f46e5" wordsEmptyText="No new words" />
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
             <MiniStat title="Words (found)" value={profile.allFoundWords.length.toLocaleString()} />
             <MiniStat title="Avg/Day" value={historyMetrics.avgPerDay} />
@@ -6282,7 +6295,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
           </div>
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => downloadCsv(aggregated(profile).filtered)} 
+              onClick={() => profile && downloadCsv(aggregated(profile).filtered)} 
               className="px-4 py-2 rounded-lg text-sm bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -6348,6 +6361,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             {/* Content */}
             <div className="p-6 overflow-y-auto max-h-[calc(95vh-80px)] bg-gray-50">
               {(() => {
+                if (!profile) return null;
                 const map = new Map<string, { first: Date; last: Date; count: number }>();
                 aggregated(profile).filtered.forEach(e => {
                   const key = (e.word || '').toLowerCase();
