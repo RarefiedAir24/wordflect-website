@@ -441,7 +441,7 @@ export default function Profile() {
         const res = await apiService.getUserHistory({ range: mappedRange });
         console.log(`API Response: ${Array.isArray(res.days) ? res.days.length : 0} days received`);
         const daysFromApi = Array.isArray(res.days) ? res.days.map(d => {
-          // Normalize YYYY-MM-DD to local Date without timezone shifting
+          // Normalize YYYY-MM-DD to UTC Date to match backend
           const raw = String(d.date);
           let normalized: Date;
           const parts = raw.split('-');
@@ -449,7 +449,8 @@ export default function Profile() {
             const y = Number(parts[0]);
             const m = Number(parts[1]) - 1;
             const dd = Number(parts[2]);
-            normalized = new Date(y, m, dd);
+            // Use UTC to match backend timezone
+            normalized = new Date(Date.UTC(y, m, dd));
           } else {
             normalized = new Date(raw);
           }
@@ -509,22 +510,22 @@ export default function Profile() {
         } else {
           // Filter by range client-side as fallback
           const now = new Date();
-          // Use local time for "today" to match game words history graph (EDT/EST)
-          const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          // Use UTC for "today" to match backend and game words history graph
+          const nowStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
           const start = (() => {
             const d = new Date(nowStart);
-            // Use local date calculations to match game words history
-            if (historyRange === '7d') { d.setDate(d.getDate() - 6); return d; }
-            if (historyRange === '30d') { d.setDate(d.getDate() - 29); return d; }
-            if (historyRange === '90d') { d.setDate(d.getDate() - 89); return d; }
-            if (historyRange === '1y') { d.setFullYear(d.getFullYear() - 1); return d; }
+            // Use UTC date calculations to match backend and game words history
+            if (historyRange === '7d') { d.setUTCDate(d.getUTCDate() - 6); return d; }
+            if (historyRange === '30d') { d.setUTCDate(d.getUTCDate() - 29); return d; }
+            if (historyRange === '90d') { d.setUTCDate(d.getUTCDate() - 89); return d; }
+            if (historyRange === '1y') { d.setUTCFullYear(d.getUTCFullYear() - 1); return d; }
             if (historyRange === 'all') return new Date(0);
             return new Date(0);
           })();
           filteredDays = finalDays.filter(d => {
-            // Normalize data date to start of day in local time for comparison (to match game words history)
+            // Normalize data date to start of day in UTC for comparison (to match backend and game words history)
             const dataDate = d.date instanceof Date ? d.date : new Date(d.date);
-            const dataDateStart = new Date(dataDate.getFullYear(), dataDate.getMonth(), dataDate.getDate());
+            const dataDateStart = new Date(Date.UTC(dataDate.getUTCFullYear(), dataDate.getUTCMonth(), dataDate.getUTCDate()));
             return dataDateStart >= start && dataDateStart <= nowStart;
           });
           console.log(`Client-side filter: ${finalDays.length} → ${filteredDays.length} days`);
