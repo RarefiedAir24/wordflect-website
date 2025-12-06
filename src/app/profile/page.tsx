@@ -7056,13 +7056,20 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             {/* Placements List */}
             <div className="space-y-3">
               {(() => {
+                // Use leaderboardPlacementHistory from profile (already returned by backend)
                 const placements: Array<{
                   placement: 1 | 2 | 3;
                   date: string;
                   period: 'daily' | 'weekly' | 'monthly';
                   periodLabel?: string;
                   score?: number;
-                }> = []; // leaderboardPlacementHistory not available on UserProfile
+                }> = (profile?.leaderboardPlacementHistory || []) as Array<{
+                  placement: 1 | 2 | 3;
+                  date: string;
+                  period: 'daily' | 'weekly' | 'monthly';
+                  periodLabel?: string;
+                  score?: number;
+                }>;
                 
                 // Filter placements based on current filter
                 let filteredPlacements = placements;
@@ -7226,6 +7233,7 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
             <div className="p-6 pt-4 overflow-y-auto flex-1 min-h-0">
               <div className="space-y-3">
                 {(() => {
+                // Use battleHistory from profile (already returned by backend)
                 const battles: Array<{
                   result: 'win' | 'loss';
                   opponentId: string;
@@ -7234,7 +7242,15 @@ Premium subscribers earn double Flectcoins from all activities, so they get twic
                   opponentScore: number;
                   date: string;
                   battleId: string;
-                }> = []; // battleHistory not available on UserProfile
+                }> = (profile?.battleHistory || []) as Array<{
+                  result: 'win' | 'loss';
+                  opponentId: string;
+                  opponentUsername: string;
+                  myScore: number;
+                  opponentScore: number;
+                  date: string;
+                  battleId: string;
+                }>;
                 
                 // Filter battles based on current filter
                 let filteredBattles = battles;

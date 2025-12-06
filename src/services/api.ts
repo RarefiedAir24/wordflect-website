@@ -52,6 +52,24 @@ export interface UserProfile {
   longestStreakDays?: number; // longest streak achieved
   lastLoginAt?: string; // ISO timestamp of last login
   themeWordsFoundToday?: string[]; // theme words found today from mobile app
+  // Leaderboard placement history (populated by backend when monthly leaderboards are processed)
+  leaderboardPlacementHistory?: Array<{
+    placement: 1 | 2 | 3;
+    date: string;
+    period: 'daily' | 'weekly' | 'monthly';
+    periodLabel?: string;
+    score?: number;
+  }>;
+  // Battle history (populated by backend when battles are completed)
+  battleHistory?: Array<{
+    result: 'win' | 'loss';
+    opponentId: string;
+    opponentUsername: string;
+    myScore: number;
+    opponentScore: number;
+    date: string;
+    battleId: string;
+  }>;
 }
 
 class ApiService {
